@@ -18,6 +18,8 @@ import {
   Filter,
   MapPin,
   Briefcase,
+  Phone,
+  MessageCircle,
 } from "lucide-react";
 
 export default function NewJobs() {
@@ -60,6 +62,13 @@ export default function NewJobs() {
     setNewJobsActive(!newJobsActive);
     // Atualizar no banco de dados
     // await base44.entities.Dentist.update(user.id, { new_jobs_ativo: !newJobsActive });
+  };
+
+  const handleWhatsAppContact = () => {
+    // Número de suporte/contato (substitua pelo número real)
+    const phoneNumber = "5562999999999"; // Exemplo: +55 62 99999-9999
+    const message = encodeURIComponent("Olá! Tenho interesse nas vagas Jobs Semelhante ⭐");
+    window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
   };
 
   if (isLoading) {
@@ -230,15 +239,35 @@ export default function NewJobs() {
 
           <TabsContent value="semelhante" className="space-y-6">
             <div className="bg-gradient-to-r from-orange-100 to-pink-100 rounded-2xl p-6 border-2 border-orange-400">
-              <div className="flex items-center gap-3 mb-2">
-                <Star className="w-8 h-8 text-orange-600" />
-                <h2 className="text-2xl font-black text-gray-900">
-                  Jobs Semelhante ⭐
-                </h2>
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Star className="w-8 h-8 text-orange-600" />
+                    <h2 className="text-2xl font-black text-gray-900">
+                      Jobs Semelhante ⭐
+                    </h2>
+                  </div>
+                  <p className="text-gray-700 font-semibold">
+                    Vagas com 75% de compatibilidade
+                  </p>
+                </div>
+                
+                {/* Botão WhatsApp */}
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleWhatsAppContact}
+                  className="flex items-center gap-3 bg-gradient-to-r from-green-400 to-green-600 text-white px-6 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all font-bold"
+                >
+                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                    <MessageCircle className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-sm font-semibold">Dúvidas sobre estas vagas?</p>
+                    <p className="text-xs opacity-90">Fale conosco no WhatsApp</p>
+                  </div>
+                </motion.button>
               </div>
-              <p className="text-gray-700 font-semibold">
-                Vagas com 75% de compatibilidade
-              </p>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -251,6 +280,14 @@ export default function NewJobs() {
                 />
               ))}
             </div>
+
+            {jobsSemelhante.length === 0 && (
+              <EmptyState
+                icon={Star}
+                title="Nenhuma vaga semelhante no momento"
+                description="Continue atualizando seu perfil para receber mais oportunidades!"
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="outras" className="space-y-6">
@@ -276,6 +313,14 @@ export default function NewJobs() {
                 />
               ))}
             </div>
+
+            {outrasVagas.length === 0 && (
+              <EmptyState
+                icon={TrendingUp}
+                title="Nenhuma outra vaga no momento"
+                description="Novas oportunidades aparecem todos os dias. Volte em breve!"
+              />
+            )}
           </TabsContent>
         </Tabs>
       </div>
