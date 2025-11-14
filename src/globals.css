@@ -1,0 +1,166 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 45 93% 47%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 345 83% 61%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 45 93% 47%;
+    --radius: 1rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+  }
+}
+
+/* Custom styles matching the design */
+.gradient-yellow-pink {
+  background: linear-gradient(135deg, #F9B500 0%, #E94560 100%);
+}
+
+.gradient-blue-purple {
+  background: linear-gradient(135deg, #4A90E2 0%, #9B59B6 100%);
+}
+
+.text-shadow-lg {
+  text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-shadow-vibrant {
+  box-shadow: 0 10px 30px rgba(249, 181, 0, 0.3), 0 5px 15px rgba(233, 69, 96, 0.2);
+}
+
+.star-rating {
+  color: #F9B500;
+  filter: drop-shadow(0 2px 4px rgba(249, 181, 0, 0.4));
+}
+
+.lightning-decoration {
+  position: relative;
+  z-index: 1;
+}
+
+.lightning-decoration::before,
+.lightning-decoration::after {
+  content: '⚡';
+  position: absolute;
+  font-size: 2rem;
+  color: #F9B500;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.lightning-decoration::before {
+  top: -1rem;
+  left: -1rem;
+}
+
+.lightning-decoration::after {
+  bottom: -1rem;
+  right: -1rem;
+  animation-delay: 1s;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+.megaphone-icon {
+  filter: drop-shadow(0 4px 8px rgba(233, 69, 96, 0.4));
+}
+
+.profile-card-vibrant {
+  background: white;
+  border-radius: 1.5rem;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.profile-card-vibrant::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 1.5rem;
+  padding: 3px;
+  background: linear-gradient(135deg, #F9B500, #E94560, #4A90E2);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.profile-card-vibrant:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 15px 40px rgba(249, 181, 0, 0.4), 0 8px 20px rgba(233, 69, 96, 0.3);
+}
+
+.chat-bubble-blue {
+  background: #4A90E2;
+  border-radius: 1.5rem;
+  padding: 1rem 1.5rem;
+  color: white;
+  position: relative;
+  box-shadow: 0 8px 20px rgba(74, 144, 226, 0.3);
+}
+
+.chat-bubble-blue::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-right: 10px solid #4A90E2;
+}
+
+.whatsapp-button {
+  background: #25D366;
+  color: white;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+  transition: all 0.3s ease;
+}
+
+.whatsapp-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
+}

@@ -1,0 +1,314 @@
+import React, { useState, useEffect } from "react";
+import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import ProfessionalCard from "../components/professionals/ProfessionalCard";
+import { motion } from "framer-motion";
+import {
+  Search,
+  Zap,
+  Star,
+  TrendingUp,
+  Sparkles,
+  Filter,
+  MapPin,
+  Briefcase,
+} from "lucide-react";
+
+export default function NewJobs() {
+  const [user, setUser] = useState(null);
+  const [newJobsActive, setNewJobsActive] = useState(false);
+  const [searchCity, setSearchCity] = useState("");
+  const [searchSpecialty, setSearchSpecialty] = useState("");
+  const [activeTab, setActiveTab] = useState("super-jobs");
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const currentUser = await base44.auth.me();
+        setUser(currentUser);
+      } catch (error) {
+        console.error("Erro ao carregar usuário:", error);
+      }
+    };
+    loadUser();
+  }, []);
+
+  // Buscar profissionais aprovados
+  const { data: professionals = [], isLoading } = useQuery({
+    queryKey: ["professionals"],
+    queryFn: async () => {
+      const dentists = await base44.entities.Dentist.filter({
+        status_cadastro: "APROVADO",
+        new_jobs_ativo: true,
+      });
+      return dentists;
+    },
+  });
+
+  // Simular matches (em produção, viria do backend)
+  const superJobs = professionals.filter((p, idx) => idx % 3 === 0);
+  const jobsSemelhante = professionals.filter((p, idx) => idx % 3 === 1);
+  const outrasVagas = professionals.filter((p, idx) => idx % 3 === 2);
+
+  const handleToggleNewJobs = async () => {
+    setNewJobsActive(!newJobsActive);
+    // Atualizar no banco de dados
+    // await base44.entities.Dentist.update(user.id, { new_jobs_ativo: !newJobsActive });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 p-6 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-yellow-400 mx-auto mb-4"></div>
+          <p className="text-gray-600 font-semibold">Carregando oportunidades...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50">
+      {/* Header */}
+      <div className="gradient-yellow-pink py-8 shadow-xl">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="p-4 bg-white rounded-2xl shadow-xl">
+                <Zap className="w-10 h-10 text-pink-600" />
+              </div>
+              <div>
+                <h1 className="text-4xl font-black text-white text-shadow-lg">
+                  OPORTUNIDADES
+                </h1>
+                <p className="text-white font-semibold">
+                  Encontre seu próximo emprego aqui! 🎯
+                </p>
+              </div>
+            </div>
+
+            {/* Toggle New Jobs */}
+            <div className="bg-white rounded-2xl p-6 shadow-xl border-4 border-white">
+              <div className="flex items-center gap-4">
+                <div>
+                  <Label className="text-lg font-bold text-gray-900">
+                    Modo NEW JOBS
+                  </Label>
+                  <p className="text-sm text-gray-600">
+                    {newJobsActive ? "Você está visível!" : "Ativar para receber vagas"}
+                  </p>
+                </div>
+                <Switch
+                  checked={newJobsActive}
+                  onCheckedChange={handleToggleNewJobs}
+                  className="data-[state=checked]:bg-green-500 scale-125"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-8">
+        {/* Search Bar */}
+        <div className="bg-white rounded-3xl p-6 shadow-xl mb-8 border-4 border-yellow-400">
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="relative">
+              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Input
+                placeholder="Digite a cidade..."
+                value={searchCity}
+                onChange={(e) => setSearchCity(e.target.value)}
+                className="pl-12 h-14 text-lg border-2 border-gray-200 rounded-2xl focus:border-yellow-400"
+              />
+            </div>
+            <div className="relative">
+              <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Input
+                placeholder="Especialidade..."
+                value={searchSpecialty}
+                onChange={(e) => setSearchSpecialty(e.target.value)}
+                className="pl-12 h-14 text-lg border-2 border-gray-200 rounded-2xl focus:border-pink-400"
+              />
+            </div>
+          </div>
+          <Button className="w-full mt-4 h-14 gradient-yellow-pink text-white font-bold text-lg rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-105">
+            <Search className="w-6 h-6 mr-2" />
+            Buscar Oportunidades
+          </Button>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <StatCard
+            icon={Sparkles}
+            title="SUPER JOBS"
+            count={superJobs.length}
+            description="100% compatíveis"
+            gradient="from-yellow-400 to-orange-500"
+          />
+          <StatCard
+            icon={Star}
+            title="Jobs Semelhante"
+            count={jobsSemelhante.length}
+            description="75% compatíveis"
+            gradient="from-orange-400 to-pink-500"
+          />
+          <StatCard
+            icon={TrendingUp}
+            title="Outras Vagas"
+            count={outrasVagas.length}
+            description="Disponíveis agora"
+            gradient="from-blue-400 to-purple-500"
+          />
+        </div>
+
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3 h-auto p-2 bg-white rounded-2xl shadow-lg">
+            <TabsTrigger
+              value="super-jobs"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-400 data-[state=active]:to-orange-500 data-[state=active]:text-white font-bold text-lg py-4 rounded-xl"
+            >
+              <Sparkles className="w-5 h-5 mr-2" />
+              SUPER JOBS
+            </TabsTrigger>
+            <TabsTrigger
+              value="semelhante"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-400 data-[state=active]:to-pink-500 data-[state=active]:text-white font-bold text-lg py-4 rounded-xl"
+            >
+              <Star className="w-5 h-5 mr-2" />
+              Semelhante
+            </TabsTrigger>
+            <TabsTrigger
+              value="outras"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-400 data-[state=active]:to-purple-500 data-[state=active]:text-white font-bold text-lg py-4 rounded-xl"
+            >
+              <TrendingUp className="w-5 h-5 mr-2" />
+              Outras
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="super-jobs" className="space-y-6">
+            <div className="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6 border-2 border-yellow-400">
+              <div className="flex items-center gap-3 mb-2">
+                <Sparkles className="w-8 h-8 text-yellow-600" />
+                <h2 className="text-2xl font-black text-gray-900">
+                  SUPER JOBS - Matches Perfeitos! 🌟
+                </h2>
+              </div>
+              <p className="text-gray-700 font-semibold">
+                Estas vagas são 100% compatíveis com seu perfil!
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {superJobs.map((professional) => (
+                <ProfessionalCard
+                  key={professional.id}
+                  professional={professional}
+                  type="DENTISTA"
+                  onClick={(p) => console.log("Ver detalhes:", p)}
+                />
+              ))}
+            </div>
+
+            {superJobs.length === 0 && (
+              <EmptyState
+                icon={Sparkles}
+                title="Nenhum SUPER JOB no momento"
+                description="Ative o modo NEW JOBS para começar a receber oportunidades!"
+              />
+            )}
+          </TabsContent>
+
+          <TabsContent value="semelhante" className="space-y-6">
+            <div className="bg-gradient-to-r from-orange-100 to-pink-100 rounded-2xl p-6 border-2 border-orange-400">
+              <div className="flex items-center gap-3 mb-2">
+                <Star className="w-8 h-8 text-orange-600" />
+                <h2 className="text-2xl font-black text-gray-900">
+                  Jobs Semelhante ⭐
+                </h2>
+              </div>
+              <p className="text-gray-700 font-semibold">
+                Vagas com 75% de compatibilidade
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {jobsSemelhante.map((professional) => (
+                <ProfessionalCard
+                  key={professional.id}
+                  professional={professional}
+                  type="DENTISTA"
+                  onClick={(p) => console.log("Ver detalhes:", p)}
+                />
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="outras" className="space-y-6">
+            <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-6 border-2 border-blue-400">
+              <div className="flex items-center gap-3 mb-2">
+                <TrendingUp className="w-8 h-8 text-blue-600" />
+                <h2 className="text-2xl font-black text-gray-900">
+                  Outras Oportunidades
+                </h2>
+              </div>
+              <p className="text-gray-700 font-semibold">
+                Explore mais vagas disponíveis
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {outrasVagas.map((professional) => (
+                <ProfessionalCard
+                  key={professional.id}
+                  professional={professional}
+                  type="DENTISTA"
+                  onClick={(p) => console.log("Ver detalhes:", p)}
+                />
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+}
+
+function StatCard({ icon: Icon, title, count, description, gradient }) {
+  return (
+    <motion.div
+      whileHover={{ scale: 1.05, y: -5 }}
+      className="bg-white rounded-2xl p-6 shadow-xl border-2 border-gray-100 hover:border-yellow-400 transition-all"
+    >
+      <div className="flex items-center justify-between mb-4">
+        <div className={`p-3 rounded-xl bg-gradient-to-br ${gradient} shadow-lg`}>
+          <Icon className="w-6 h-6 text-white" />
+        </div>
+        <span className="text-4xl font-black gradient-yellow-pink bg-clip-text text-transparent">
+          {count}
+        </span>
+      </div>
+      <h3 className="text-lg font-bold text-gray-900 mb-1">{title}</h3>
+      <p className="text-sm text-gray-600 font-semibold">{description}</p>
+    </motion.div>
+  );
+}
+
+function EmptyState({ icon: Icon, title, description }) {
+  return (
+    <div className="bg-white rounded-3xl p-12 text-center shadow-xl border-4 border-gray-100">
+      <Icon className="w-20 h-20 mx-auto mb-6 text-gray-300" />
+      <h3 className="text-2xl font-bold text-gray-900 mb-3">{title}</h3>
+      <p className="text-gray-600 font-semibold">{description}</p>
+    </div>
+  );
+}
