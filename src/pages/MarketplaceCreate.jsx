@@ -14,8 +14,8 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  SelectValue } from
+"@/components/ui/select";
 import RadarInterestsModal from "../components/marketplace/RadarInterestsModal";
 import { toast } from "sonner";
 import { ArrowLeft, Upload, X, Check, Users, Radar, Zap } from "lucide-react";
@@ -38,7 +38,7 @@ export default function MarketplaceCreate() {
     condicao: "",
     ano_fabricacao: "",
     marca: "",
-    fotos: [],
+    fotos: []
   });
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export default function MarketplaceCreate() {
     queryKey: ["productRadars"],
     queryFn: async () => {
       return await base44.entities.ProductRadar.filter({ ativo: true });
-    },
+    }
   });
 
   // Verificar matches quando o título ou categoria mudar
@@ -67,8 +67,8 @@ export default function MarketplaceCreate() {
       const matches = allRadars.filter((radar) => {
         const matchCategory = radar.tipo_mundo === formData.tipo_mundo;
         const matchProduct =
-          radar.nome_produto?.toLowerCase().includes(formData.titulo_item.toLowerCase()) ||
-          formData.titulo_item.toLowerCase().includes(radar.nome_produto?.toLowerCase());
+        radar.nome_produto?.toLowerCase().includes(formData.titulo_item.toLowerCase()) ||
+        formData.titulo_item.toLowerCase().includes(radar.nome_produto?.toLowerCase());
         return matchCategory && matchProduct;
       });
       setMatchingInterests(matches);
@@ -93,15 +93,15 @@ export default function MarketplaceCreate() {
               titulo: `🎯 Produto do seu Radar disponível!`,
               mensagem: `O produto "${formData.titulo_item}" que você estava procurando foi anunciado! Preço: R$ ${formData.preco}`,
               dados_contexto: {
-                radar_id: interest.id,
+                radar_id: interest.id
               },
               canais_enviados: ["PUSH", "EMAIL"],
-              enviada_com_sucesso: true,
+              enviada_com_sucesso: true
             });
 
             // Incrementar contador de notificações
             await base44.entities.ProductRadar.update(interest.id, {
-              notificacoes_recebidas: (interest.notificacoes_recebidas || 0) + 1,
+              notificacoes_recebidas: (interest.notificacoes_recebidas || 0) + 1
             });
           }
           toast.success(`✅ ${matchingInterests.length} interessados foram notificados!`);
@@ -117,7 +117,7 @@ export default function MarketplaceCreate() {
     onError: (error) => {
       toast.error("Erro ao criar anúncio. Tente novamente.");
       console.error(error);
-    },
+    }
   });
 
   const handleFileUpload = async (e) => {
@@ -137,7 +137,7 @@ export default function MarketplaceCreate() {
       const uploadedUrls = await Promise.all(uploadPromises);
       setFormData({
         ...formData,
-        fotos: [...formData.fotos, ...uploadedUrls],
+        fotos: [...formData.fotos, ...uploadedUrls]
       });
       toast.success("Fotos enviadas com sucesso!");
     } catch (error) {
@@ -150,7 +150,7 @@ export default function MarketplaceCreate() {
   const removePhoto = (index) => {
     setFormData({
       ...formData,
-      fotos: formData.fotos.filter((_, i) => i !== index),
+      fotos: formData.fotos.filter((_, i) => i !== index)
     });
   };
 
@@ -171,7 +171,7 @@ export default function MarketplaceCreate() {
       anunciante_nome: user?.full_name || "Anônimo",
       status: "ATIVO",
       visualizacoes: 0,
-      favoritos: 0,
+      favoritos: 0
     });
   };
 
@@ -183,24 +183,24 @@ export default function MarketplaceCreate() {
           <Button
             variant="ghost"
             onClick={() => navigate(createPageUrl("Marketplace"))}
-            className="text-white hover:bg-white/20 mb-4"
-          >
+            className="text-white hover:bg-white/20 mb-4">
+
             <ArrowLeft className="w-5 h-5 mr-2" />
             Voltar
           </Button>
-          <h1 className="text-4xl font-black text-white text-shadow-lg">
-            Criar Anúncio
+          <h1 className="text-rose-500 text-4xl font-black">Criar Anúncio
+
           </h1>
-          <p className="text-white font-semibold mt-2">
-            Anuncie seu equipamento no marketplace 🚀
+          <p className="text-orange-600 mt-2 font-semibold">Anuncie seu equipamento no marketplace 🚀
+
           </p>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Radar Alert */}
-        {matchingInterests.length > 0 && (
-          <Card className="mb-8 border-4 border-green-400 bg-gradient-to-r from-green-50 to-teal-50 shadow-xl">
+        {matchingInterests.length > 0 &&
+        <Card className="mb-8 border-4 border-green-400 bg-gradient-to-r from-green-50 to-teal-50 shadow-xl">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-green-500 rounded-2xl">
@@ -218,9 +218,9 @@ export default function MarketplaceCreate() {
                   </p>
                   <div className="flex gap-3">
                     <Button
-                      onClick={() => setRadarInterestsModalOpen(true)}
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105"
-                    >
+                    onClick={() => setRadarInterestsModalOpen(true)}
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105">
+
                       <Users className="w-5 h-5 mr-2" />
                       Ver Interessados
                     </Button>
@@ -233,7 +233,7 @@ export default function MarketplaceCreate() {
               </div>
             </CardContent>
           </Card>
-        )}
+        }
 
         <form onSubmit={handleSubmit}>
           <Card className="shadow-xl border-4 border-yellow-400">
@@ -247,9 +247,9 @@ export default function MarketplaceCreate() {
                 <Select
                   value={formData.tipo_mundo}
                   onValueChange={(value) =>
-                    setFormData({ ...formData, tipo_mundo: value })
-                  }
-                >
+                  setFormData({ ...formData, tipo_mundo: value })
+                  }>
+
                   <SelectTrigger className="h-14 rounded-xl border-2 text-lg mt-2">
                     <SelectValue placeholder="Selecione a categoria" />
                   </SelectTrigger>
@@ -267,10 +267,10 @@ export default function MarketplaceCreate() {
                   placeholder="Ex: Cadeira Odontológica Gnatus"
                   value={formData.titulo_item}
                   onChange={(e) =>
-                    setFormData({ ...formData, titulo_item: e.target.value })
+                  setFormData({ ...formData, titulo_item: e.target.value })
                   }
-                  className="h-14 text-lg rounded-xl border-2 mt-2"
-                />
+                  className="h-14 text-lg rounded-xl border-2 mt-2" />
+
               </div>
 
               {/* Descrição */}
@@ -280,10 +280,10 @@ export default function MarketplaceCreate() {
                   placeholder="Descreva o equipamento, estado de conservação, etc."
                   value={formData.descricao}
                   onChange={(e) =>
-                    setFormData({ ...formData, descricao: e.target.value })
+                  setFormData({ ...formData, descricao: e.target.value })
                   }
-                  className="min-h-32 text-lg rounded-xl border-2 mt-2"
-                />
+                  className="min-h-32 text-lg rounded-xl border-2 mt-2" />
+
               </div>
 
               {/* Grid: Preço, Condição */}
@@ -295,10 +295,10 @@ export default function MarketplaceCreate() {
                     placeholder="14000"
                     value={formData.preco}
                     onChange={(e) =>
-                      setFormData({ ...formData, preco: e.target.value })
+                    setFormData({ ...formData, preco: e.target.value })
                     }
-                    className="h-14 text-lg rounded-xl border-2 mt-2"
-                  />
+                    className="h-14 text-lg rounded-xl border-2 mt-2" />
+
                 </div>
 
                 <div>
@@ -306,9 +306,9 @@ export default function MarketplaceCreate() {
                   <Select
                     value={formData.condicao}
                     onValueChange={(value) =>
-                      setFormData({ ...formData, condicao: value })
-                    }
-                  >
+                    setFormData({ ...formData, condicao: value })
+                    }>
+
                     <SelectTrigger className="h-14 rounded-xl border-2 text-lg mt-2">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
@@ -329,10 +329,10 @@ export default function MarketplaceCreate() {
                     placeholder="Ex: Gnatus"
                     value={formData.marca}
                     onChange={(e) =>
-                      setFormData({ ...formData, marca: e.target.value })
+                    setFormData({ ...formData, marca: e.target.value })
                     }
-                    className="h-14 text-lg rounded-xl border-2 mt-2"
-                  />
+                    className="h-14 text-lg rounded-xl border-2 mt-2" />
+
                 </div>
 
                 <div>
@@ -342,10 +342,10 @@ export default function MarketplaceCreate() {
                     placeholder="2020"
                     value={formData.ano_fabricacao}
                     onChange={(e) =>
-                      setFormData({ ...formData, ano_fabricacao: e.target.value })
+                    setFormData({ ...formData, ano_fabricacao: e.target.value })
                     }
-                    className="h-14 text-lg rounded-xl border-2 mt-2"
-                  />
+                    className="h-14 text-lg rounded-xl border-2 mt-2" />
+
                 </div>
               </div>
 
@@ -356,10 +356,10 @@ export default function MarketplaceCreate() {
                   placeholder="Cidade - UF (Ex: Goiânia - GO)"
                   value={formData.localizacao}
                   onChange={(e) =>
-                    setFormData({ ...formData, localizacao: e.target.value })
+                  setFormData({ ...formData, localizacao: e.target.value })
                   }
-                  className="h-14 text-lg rounded-xl border-2 mt-2"
-                />
+                  className="h-14 text-lg rounded-xl border-2 mt-2" />
+
               </div>
 
               {/* WhatsApp */}
@@ -369,11 +369,11 @@ export default function MarketplaceCreate() {
                   placeholder="62999998888 (apenas números)"
                   value={formData.telefone_contato}
                   onChange={(e) =>
-                    setFormData({ ...formData, telefone_contato: e.target.value })
+                  setFormData({ ...formData, telefone_contato: e.target.value })
                   }
                   maxLength={11}
-                  className="h-14 text-lg rounded-xl border-2 mt-2"
-                />
+                  className="h-14 text-lg rounded-xl border-2 mt-2" />
+
               </div>
 
               {/* Fotos */}
@@ -381,51 +381,51 @@ export default function MarketplaceCreate() {
                 <Label className="text-base font-bold">Fotos (máximo 3)</Label>
                 <div className="mt-2 space-y-4">
                   {/* Preview das fotos */}
-                  {formData.fotos.length > 0 && (
-                    <div className="grid grid-cols-3 gap-4">
-                      {formData.fotos.map((url, index) => (
-                        <div
-                          key={index}
-                          className="relative aspect-square rounded-xl overflow-hidden border-4 border-gray-200 group"
-                        >
+                  {formData.fotos.length > 0 &&
+                  <div className="grid grid-cols-3 gap-4">
+                      {formData.fotos.map((url, index) =>
+                    <div
+                      key={index}
+                      className="relative aspect-square rounded-xl overflow-hidden border-4 border-gray-200 group">
+
                           <img
-                            src={url}
-                            alt={`Foto ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
+                        src={url}
+                        alt={`Foto ${index + 1}`}
+                        className="w-full h-full object-cover" />
+
                           <button
-                            type="button"
-                            onClick={() => removePhoto(index)}
-                            className="absolute top-2 right-2 p-2 bg-red-500 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
+                        type="button"
+                        onClick={() => removePhoto(index)}
+                        className="absolute top-2 right-2 p-2 bg-red-500 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity">
+
                             <X className="w-4 h-4" />
                           </button>
                         </div>
-                      ))}
+                    )}
                     </div>
-                  )}
+                  }
 
                   {/* Upload button */}
-                  {formData.fotos.length < 3 && (
-                    <label className="block">
+                  {formData.fotos.length < 3 &&
+                  <label className="block">
                       <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleFileUpload}
-                        className="hidden"
-                        disabled={uploading}
-                      />
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      disabled={uploading} />
+
                       <div className="border-4 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-yellow-400 transition-colors">
-                        {uploading ? (
-                          <div className="space-y-3">
+                        {uploading ?
+                      <div className="space-y-3">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-yellow-400 mx-auto"></div>
                             <p className="text-gray-600 font-semibold">
                               Enviando fotos...
                             </p>
-                          </div>
-                        ) : (
-                          <div className="space-y-3">
+                          </div> :
+
+                      <div className="space-y-3">
                             <Upload className="w-12 h-12 mx-auto text-gray-400" />
                             <p className="text-gray-600 font-semibold">
                               Clique para adicionar fotos
@@ -434,10 +434,10 @@ export default function MarketplaceCreate() {
                               {formData.fotos.length}/3 fotos
                             </p>
                           </div>
-                        )}
+                      }
                       </div>
                     </label>
-                  )}
+                  }
                 </div>
               </div>
             </CardContent>
@@ -450,32 +450,32 @@ export default function MarketplaceCreate() {
               variant="outline"
               size="lg"
               onClick={() => navigate(createPageUrl("Marketplace"))}
-              className="flex-1 h-16 rounded-2xl border-2 font-bold text-lg"
-            >
+              className="flex-1 h-16 rounded-2xl border-2 font-bold text-lg">
+
               Cancelar
             </Button>
             <Button
               type="submit"
               size="lg"
               disabled={createMutation.isPending}
-              className="flex-1 h-16 gradient-yellow-pink text-white font-bold text-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-105"
-            >
-              {createMutation.isPending ? (
-                <>
+              className="flex-1 h-16 gradient-yellow-pink text-white font-bold text-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-105">
+
+              {createMutation.isPending ?
+              <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                   Criando...
-                </>
-              ) : (
-                <>
+                </> :
+
+              <>
                   <Check className="w-6 h-6 mr-2" />
                   Publicar Anúncio
-                  {matchingInterests.length > 0 && (
-                    <Badge className="ml-2 bg-green-500 text-white">
+                  {matchingInterests.length > 0 &&
+                <Badge className="ml-2 bg-green-500 text-white">
                       +{matchingInterests.length} 🎯
                     </Badge>
-                  )}
+                }
                 </>
-              )}
+              }
             </Button>
           </div>
         </form>
@@ -486,8 +486,8 @@ export default function MarketplaceCreate() {
         open={radarInterestsModalOpen}
         onOpenChange={setRadarInterestsModalOpen}
         interests={matchingInterests}
-        productName={formData.titulo_item}
-      />
-    </div>
-  );
+        productName={formData.titulo_item} />
+
+    </div>);
+
 }
