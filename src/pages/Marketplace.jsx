@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import MarketplaceItemCard from "../components/marketplace/MarketplaceItemCard";
+import RadarActivateButton from "../components/marketplace/RadarActivateButton";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import {
   ShoppingBag,
   Plus,
@@ -29,6 +32,7 @@ import {
 
 export default function Marketplace() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState("ODONTOLOGIA");
   const [searchTerm, setSearchTerm] = useState("");
@@ -55,6 +59,28 @@ export default function Marketplace() {
         { tipo_mundo: activeTab, status: "ATIVO" },
         "-created_date"
       );
+    },
+  });
+
+  const createRadarMutation = useMutation({
+    mutationFn: async (data) => {
+      return await base44.entities.RadarProduto.create({
+        ...data,
+        usuario_id: user?.id,
+        usuario_nome: user?.full_name,
+        usuario_tipo: user?.role === "admin" ? "CLINICA" : "DENTISTA", // Assuming 'admin' is a clinic for this context, adjust as needed
+        status: "ATIVO",
+        notificacoes_enviadas: 0,
+        produtos_encontrados: [],
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["radarProdutos"]);
+      toast.success("🎯 Radar ativado! Você será notificado quando alguém anunciar este produto.");
+    },
+    onError: (error) => {
+      toast.error("Erro ao ativar radar. Tente novamente.");
+      console.error(error);
     },
   });
 
@@ -92,6 +118,10 @@ export default function Marketplace() {
   const cities = [...new Set(items.map((item) => item.localizacao))].filter(
     Boolean
   );
+
+  const handleActivateRadar = (radarData) => {
+    createRadarMutation.mutate(radarData);
+  };
 
   if (isLoading) {
     return (
@@ -272,23 +302,38 @@ export default function Marketplace() {
           </div>
         </div>
 
-        {/* Items Grid */}
+        {/* Items Grid ou Radar */}
         {filteredItems.length === 0 ? (
-          <div className="bg-white rounded-3xl p-12 text-center shadow-xl border-4 border-gray-100">
-            <ShoppingBag className="w-20 h-20 mx-auto mb-6 text-gray-300" />
-            <h3 className="text-2xl font-bold text-gray-900 mb-3">
-              Nenhum item encontrado
-            </h3>
-            <p className="text-gray-600 font-semibold mb-6">
-              Tente ajustar os filtros ou seja o primeiro a anunciar!
-            </p>
-            <Button
-              onClick={() => navigate(createPageUrl("MarketplaceCreate"))}
-              className="gradient-yellow-pink text-white font-bold px-8 py-4 rounded-2xl"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Criar Primeiro Anúncio
-            </Button>
+          <div className="space-y-6">
+            <div className="bg-white rounded-3xl p-12 text-center shadow-xl border-4 border-gray-100">
+              <ShoppingBag className="w-20 h-20 mx-auto mb-6 text-gray-300" />
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                Nenhum item encontrado
+              </h3>
+              <p className="text-gray-600 font-semibold mb-6">
+                {searchTerm ? `Não encontramos "${searchTerm}" disponível no momento` : "Nenhum produto disponível com estes filtros"}
+              </p>
+              <div className="flex flex-col md:flex-row gap-4 justify-center items-center max-w-2xl mx-auto">
+                <Button
+                  onClick={() => navigate(createPageUrl("MarketplaceCreate"))}
+                  className="gradient-yellow-pink text-white font-bold px-8 py-4 rounded-2xl"
+                >
+                  <Plus className="w-5 h-5 mr-2" />
+                  Criar Primeiro Anúncio
+                </Button>
+              </div>
+            </div>
+
+            {/* Radar Activate Button */}
+            {searchTerm && user && (
+              <div className="max-w-3xl mx-auto">
+                <RadarActivateButton
+                  tipo_mundo={activeTab}
+                  searchTerm={searchTerm}
+                  onActivate={handleActivateRadar}
+                />
+              </div>
+            )}
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
