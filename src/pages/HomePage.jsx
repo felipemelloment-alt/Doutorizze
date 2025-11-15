@@ -90,8 +90,8 @@ export default function HomePage() {
                 <h3 className="text-3xl md:text-4xl font-black mb-4">
                   SEU NOVO
                   <br />
-                  <span className="gradient-yellow-pink bg-clip-text text-transparent">
-                    EMPREGO
+                  <span className="bg-clip-text text-red-600 gradient-yellow-pink">EMPREGO
+
                   </span>
                   <br />
                   ESTÁ{" "}
