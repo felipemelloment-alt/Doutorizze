@@ -19,8 +19,8 @@ import {
   MapPin,
   Briefcase,
   Phone,
-  MessageCircle,
-} from "lucide-react";
+  MessageCircle } from
+"lucide-react";
 
 export default function NewJobs() {
   const [user, setUser] = useState(null);
@@ -47,10 +47,10 @@ export default function NewJobs() {
     queryFn: async () => {
       const dentists = await base44.entities.Dentist.filter({
         status_cadastro: "APROVADO",
-        new_jobs_ativo: true,
+        new_jobs_ativo: true
       });
       return dentists;
-    },
+    }
   });
 
   // Simular matches (em produção, viria do backend)
@@ -78,8 +78,8 @@ export default function NewJobs() {
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-yellow-400 mx-auto mb-4"></div>
           <p className="text-gray-600 font-semibold">Carregando oportunidades...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -93,11 +93,11 @@ export default function NewJobs() {
                 <Zap className="w-10 h-10 text-pink-600" />
               </div>
               <div>
-                <h1 className="text-4xl font-black text-white text-shadow-lg">
-                  OPORTUNIDADES
+                <h1 className="text-orange-600 text-4xl font-black">OPORTUNIDADES
+
                 </h1>
-                <p className="text-white font-semibold">
-                  Encontre seu próximo emprego aqui! 🎯
+                <p className="text-slate-950 font-semibold">Encontre seu próximo emprego aqui! 🎯
+
                 </p>
               </div>
             </div>
@@ -116,8 +116,8 @@ export default function NewJobs() {
                 <Switch
                   checked={newJobsActive}
                   onCheckedChange={handleToggleNewJobs}
-                  className="data-[state=checked]:bg-green-500 scale-125"
-                />
+                  className="data-[state=checked]:bg-green-500 scale-125" />
+
               </div>
             </div>
           </div>
@@ -134,8 +134,8 @@ export default function NewJobs() {
                 placeholder="Digite a cidade..."
                 value={searchCity}
                 onChange={(e) => setSearchCity(e.target.value)}
-                className="pl-12 h-14 text-lg border-2 border-gray-200 rounded-2xl focus:border-yellow-400"
-              />
+                className="pl-12 h-14 text-lg border-2 border-gray-200 rounded-2xl focus:border-yellow-400" />
+
             </div>
             <div className="relative">
               <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -143,8 +143,8 @@ export default function NewJobs() {
                 placeholder="Especialidade..."
                 value={searchSpecialty}
                 onChange={(e) => setSearchSpecialty(e.target.value)}
-                className="pl-12 h-14 text-lg border-2 border-gray-200 rounded-2xl focus:border-pink-400"
-              />
+                className="pl-12 h-14 text-lg border-2 border-gray-200 rounded-2xl focus:border-pink-400" />
+
             </div>
           </div>
           <Button className="w-full mt-4 h-14 gradient-yellow-pink text-white font-bold text-lg rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-105">
@@ -160,22 +160,22 @@ export default function NewJobs() {
             title="SUPER JOBS"
             count={superJobs.length}
             description="100% compatíveis"
-            gradient="from-yellow-400 to-orange-500"
-          />
+            gradient="from-yellow-400 to-orange-500" />
+
           <StatCard
             icon={Star}
             title="Jobs Semelhante"
             count={jobsSemelhante.length}
             description="75% compatíveis"
-            gradient="from-orange-400 to-pink-500"
-          />
+            gradient="from-orange-400 to-pink-500" />
+
           <StatCard
             icon={TrendingUp}
             title="Outras Vagas"
             count={outrasVagas.length}
             description="Disponíveis agora"
-            gradient="from-blue-400 to-purple-500"
-          />
+            gradient="from-blue-400 to-purple-500" />
+
         </div>
 
         {/* Tabs */}
@@ -183,22 +183,22 @@ export default function NewJobs() {
           <TabsList className="grid w-full grid-cols-3 h-auto p-2 bg-white rounded-2xl shadow-lg">
             <TabsTrigger
               value="super-jobs"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-400 data-[state=active]:to-orange-500 data-[state=active]:text-white font-bold text-lg py-4 rounded-xl"
-            >
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-400 data-[state=active]:to-orange-500 data-[state=active]:text-white font-bold text-lg py-4 rounded-xl">
+
               <Sparkles className="w-5 h-5 mr-2" />
               SUPER JOBS
             </TabsTrigger>
             <TabsTrigger
               value="semelhante"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-400 data-[state=active]:to-pink-500 data-[state=active]:text-white font-bold text-lg py-4 rounded-xl"
-            >
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-400 data-[state=active]:to-pink-500 data-[state=active]:text-white font-bold text-lg py-4 rounded-xl">
+
               <Star className="w-5 h-5 mr-2" />
               Semelhante
             </TabsTrigger>
             <TabsTrigger
               value="outras"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-400 data-[state=active]:to-purple-500 data-[state=active]:text-white font-bold text-lg py-4 rounded-xl"
-            >
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-400 data-[state=active]:to-purple-500 data-[state=active]:text-white font-bold text-lg py-4 rounded-xl">
+
               <TrendingUp className="w-5 h-5 mr-2" />
               Outras
             </TabsTrigger>
@@ -218,23 +218,23 @@ export default function NewJobs() {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {superJobs.map((professional) => (
-                <ProfessionalCard
-                  key={professional.id}
-                  professional={professional}
-                  type="DENTISTA"
-                  onClick={(p) => console.log("Ver detalhes:", p)}
-                />
-              ))}
+              {superJobs.map((professional) =>
+              <ProfessionalCard
+                key={professional.id}
+                professional={professional}
+                type="DENTISTA"
+                onClick={(p) => console.log("Ver detalhes:", p)} />
+
+              )}
             </div>
 
-            {superJobs.length === 0 && (
-              <EmptyState
-                icon={Sparkles}
-                title="Nenhum SUPER JOB no momento"
-                description="Ative o modo NEW JOBS para começar a receber oportunidades!"
-              />
-            )}
+            {superJobs.length === 0 &&
+            <EmptyState
+              icon={Sparkles}
+              title="Nenhum SUPER JOB no momento"
+              description="Ative o modo NEW JOBS para começar a receber oportunidades!" />
+
+            }
           </TabsContent>
 
           <TabsContent value="semelhante" className="space-y-6">
@@ -257,8 +257,8 @@ export default function NewJobs() {
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleWhatsAppContact}
-                  className="flex items-center gap-3 bg-gradient-to-r from-green-400 to-green-600 text-white px-6 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all font-bold"
-                >
+                  className="flex items-center gap-3 bg-gradient-to-r from-green-400 to-green-600 text-white px-6 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all font-bold">
+
                   <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
                     <MessageCircle className="w-6 h-6 text-green-600" />
                   </div>
@@ -271,23 +271,23 @@ export default function NewJobs() {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {jobsSemelhante.map((professional) => (
-                <ProfessionalCard
-                  key={professional.id}
-                  professional={professional}
-                  type="DENTISTA"
-                  onClick={(p) => console.log("Ver detalhes:", p)}
-                />
-              ))}
+              {jobsSemelhante.map((professional) =>
+              <ProfessionalCard
+                key={professional.id}
+                professional={professional}
+                type="DENTISTA"
+                onClick={(p) => console.log("Ver detalhes:", p)} />
+
+              )}
             </div>
 
-            {jobsSemelhante.length === 0 && (
-              <EmptyState
-                icon={Star}
-                title="Nenhuma vaga semelhante no momento"
-                description="Continue atualizando seu perfil para receber mais oportunidades!"
-              />
-            )}
+            {jobsSemelhante.length === 0 &&
+            <EmptyState
+              icon={Star}
+              title="Nenhuma vaga semelhante no momento"
+              description="Continue atualizando seu perfil para receber mais oportunidades!" />
+
+            }
           </TabsContent>
 
           <TabsContent value="outras" className="space-y-6">
@@ -304,36 +304,36 @@ export default function NewJobs() {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {outrasVagas.map((professional) => (
-                <ProfessionalCard
-                  key={professional.id}
-                  professional={professional}
-                  type="DENTISTA"
-                  onClick={(p) => console.log("Ver detalhes:", p)}
-                />
-              ))}
+              {outrasVagas.map((professional) =>
+              <ProfessionalCard
+                key={professional.id}
+                professional={professional}
+                type="DENTISTA"
+                onClick={(p) => console.log("Ver detalhes:", p)} />
+
+              )}
             </div>
 
-            {outrasVagas.length === 0 && (
-              <EmptyState
-                icon={TrendingUp}
-                title="Nenhuma outra vaga no momento"
-                description="Novas oportunidades aparecem todos os dias. Volte em breve!"
-              />
-            )}
+            {outrasVagas.length === 0 &&
+            <EmptyState
+              icon={TrendingUp}
+              title="Nenhuma outra vaga no momento"
+              description="Novas oportunidades aparecem todos os dias. Volte em breve!" />
+
+            }
           </TabsContent>
         </Tabs>
       </div>
-    </div>
-  );
+    </div>);
+
 }
 
 function StatCard({ icon: Icon, title, count, description, gradient }) {
   return (
     <motion.div
       whileHover={{ scale: 1.05, y: -5 }}
-      className="bg-white rounded-2xl p-6 shadow-xl border-2 border-gray-100 hover:border-yellow-400 transition-all"
-    >
+      className="bg-white rounded-2xl p-6 shadow-xl border-2 border-gray-100 hover:border-yellow-400 transition-all">
+
       <div className="flex items-center justify-between mb-4">
         <div className={`p-3 rounded-xl bg-gradient-to-br ${gradient} shadow-lg`}>
           <Icon className="w-6 h-6 text-white" />
@@ -344,8 +344,8 @@ function StatCard({ icon: Icon, title, count, description, gradient }) {
       </div>
       <h3 className="text-lg font-bold text-gray-900 mb-1">{title}</h3>
       <p className="text-sm text-gray-600 font-semibold">{description}</p>
-    </motion.div>
-  );
+    </motion.div>);
+
 }
 
 function EmptyState({ icon: Icon, title, description }) {
@@ -354,6 +354,6 @@ function EmptyState({ icon: Icon, title, description }) {
       <Icon className="w-20 h-20 mx-auto mb-6 text-gray-300" />
       <h3 className="text-2xl font-bold text-gray-900 mb-3">{title}</h3>
       <p className="text-gray-600 font-semibold">{description}</p>
-    </div>
-  );
+    </div>);
+
 }
