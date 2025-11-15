@@ -11,8 +11,8 @@ import {
   TrendingUp,
   Zap,
   ArrowRight,
-  CheckCircle,
-} from "lucide-react";
+  CheckCircle } from
+"lucide-react";
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -27,31 +27,31 @@ export default function HomePage() {
   }, []);
 
   const features = [
-    {
-      icon: Briefcase,
-      title: "SUPER JOBS",
-      description: "Vagas 100% compatíveis com seu perfil",
-      color: "from-yellow-400 to-orange-500",
-    },
-    {
-      icon: Users,
-      title: "Networking",
-      description: "Conecte-se com profissionais da sua área",
-      color: "from-blue-400 to-purple-500",
-    },
-    {
-      icon: Star,
-      title: "Avaliações",
-      description: "Sistema de reputação confiável",
-      color: "from-pink-400 to-red-500",
-    },
-    {
-      icon: TrendingUp,
-      title: "Matching Inteligente",
-      description: "Algoritmo que encontra as melhores oportunidades",
-      color: "from-green-400 to-teal-500",
-    },
-  ];
+  {
+    icon: Briefcase,
+    title: "SUPER JOBS",
+    description: "Vagas 100% compatíveis com seu perfil",
+    color: "from-yellow-400 to-orange-500"
+  },
+  {
+    icon: Users,
+    title: "Networking",
+    description: "Conecte-se com profissionais da sua área",
+    color: "from-blue-400 to-purple-500"
+  },
+  {
+    icon: Star,
+    title: "Avaliações",
+    description: "Sistema de reputação confiável",
+    color: "from-pink-400 to-red-500"
+  },
+  {
+    icon: TrendingUp,
+    title: "Matching Inteligente",
+    description: "Algoritmo que encontra as melhores oportunidades",
+    color: "from-green-400 to-teal-500"
+  }];
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50">
@@ -68,8 +68,8 @@ export default function HomePage() {
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-            >
+              transition={{ duration: 0.8 }}>
+
               {/* Logo */}
               <div className="flex items-center gap-3 mb-8">
                 <div className="bg-gradient-to-br from-pink-500 to-red-600 p-4 rounded-2xl shadow-xl">
@@ -100,8 +100,8 @@ export default function HomePage() {
                     <motion.span
                       animate={{ scale: [1, 1.2, 1] }}
                       transition={{ repeat: Infinity, duration: 1.5 }}
-                      className="inline-block"
-                    >
+                      className="inline-block">
+
                       🎯
                     </motion.span>
                   </span>
@@ -116,8 +116,8 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   onClick={() => navigate(createPageUrl("NewJobs"))}
-                  className="w-full gradient-yellow-pink text-white font-bold text-lg py-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-105"
-                >
+                  className="w-full gradient-yellow-pink text-white font-bold text-lg py-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-105">
+
                   <Zap className="w-6 h-6 mr-2" />
                   Encontrar Oportunidades Agora
                   <ArrowRight className="w-6 h-6 ml-2" />
@@ -137,17 +137,17 @@ export default function HomePage() {
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative"
-            >
+              className="relative">
+
               {/* Megaphone Decoration */}
               <motion.div
                 animate={{
                   rotate: [0, 10, 0, -10, 0],
-                  scale: [1, 1.1, 1],
+                  scale: [1, 1.1, 1]
                 }}
                 transition={{ repeat: Infinity, duration: 3 }}
-                className="absolute -left-16 top-1/4 z-20"
-              >
+                className="absolute -left-16 top-1/4 z-20">
+
                 <Megaphone className="w-32 h-32 text-pink-500 megaphone-icon" />
               </motion.div>
 
@@ -155,8 +155,8 @@ export default function HomePage() {
               <motion.div
                 animate={{ y: [0, -10, 0] }}
                 transition={{ repeat: Infinity, duration: 2 }}
-                className="absolute top-10 -left-8 z-10"
-              >
+                className="absolute top-10 -left-8 z-10">
+
                 <div className="chat-bubble-blue">
                   <p className="text-sm font-semibold">Nova vaga disponível! 🎉</p>
                 </div>
@@ -165,8 +165,8 @@ export default function HomePage() {
               <motion.div
                 animate={{ y: [0, 10, 0] }}
                 transition={{ repeat: Infinity, duration: 2.5, delay: 0.5 }}
-                className="absolute bottom-20 -right-8 z-10"
-              >
+                className="absolute bottom-20 -right-8 z-10">
+
                 <div className="chat-bubble-blue">
                   <p className="text-sm font-semibold">Match perfeito! ⚡</p>
                 </div>
@@ -186,8 +186,8 @@ export default function HomePage() {
                         type="text"
                         placeholder="especialidade"
                         className="w-full px-4 py-2 border-2 border-pink-300 rounded-full text-sm"
-                        readOnly
-                      />
+                        readOnly />
+
                       <div className="absolute right-2 top-1/2 -translate-y-1/2 bg-pink-500 w-8 h-8 rounded-full flex items-center justify-center">
                         <span className="text-white">🔍</span>
                       </div>
@@ -199,18 +199,18 @@ export default function HomePage() {
                     <MiniProfessionalCard
                       name="Dr. João Silva"
                       specialty="Ortodontia"
-                      rating={5}
-                    />
+                      rating={5} />
+
                     <MiniProfessionalCard
                       name="Dra. Maria Santos"
                       specialty="Endodontia"
-                      rating={5}
-                    />
+                      rating={5} />
+
                     <MiniProfessionalCard
                       name="Dr. Pedro Costa"
                       specialty="Implantodontia"
-                      rating={5}
-                    />
+                      rating={5} />
+
                   </div>
 
                   {/* Bottom Section */}
@@ -235,28 +235,28 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-black text-center mb-16"
-          >
+            className="text-4xl md:text-5xl font-black text-center mb-16">
+
             Por que escolher a{" "}
-            <span className="gradient-yellow-pink bg-clip-text text-transparent">
-              NEW JOBS?
+            <span className="bg-clip-text text-orange-600 gradient-yellow-pink">NEW JOBS?
+
             </span>
           </motion.h2>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ scale: 1.05 }}
-                className="text-center"
-              >
+            {features.map((feature, index) =>
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1 }}
+              whileHover={{ scale: 1.05 }}
+              className="text-center">
+
                 <div
-                  className={`w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center shadow-xl`}
-                >
+                className={`w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center shadow-xl`}>
+
                   <feature.icon className="w-10 h-10 text-white" />
                 </div>
                 <h3 className="text-xl font-bold mb-3 text-gray-900">
@@ -264,7 +264,7 @@ export default function HomePage() {
                 </h3>
                 <p className="text-gray-600">{feature.description}</p>
               </motion.div>
-            ))}
+            )}
           </div>
         </div>
       </div>
@@ -280,8 +280,8 @@ export default function HomePage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-          >
+            viewport={{ once: true }}>
+
             <h2 className="text-4xl md:text-6xl font-black text-white mb-6 text-shadow-lg">
               Pronto para começar?
             </h2>
@@ -292,32 +292,32 @@ export default function HomePage() {
             <Button
               size="lg"
               onClick={() => navigate(createPageUrl("NewJobs"))}
-              className="bg-white text-pink-600 font-bold text-lg py-6 px-12 rounded-2xl shadow-2xl hover:shadow-3xl transition-all hover:scale-105"
-            >
+              className="bg-white text-pink-600 font-bold text-lg py-6 px-12 rounded-2xl shadow-2xl hover:shadow-3xl transition-all hover:scale-105">
+
               Criar Minha Conta Grátis
               <ArrowRight className="w-6 h-6 ml-2" />
             </Button>
           </motion.div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }
 
 function Badge({ text, color }) {
   const colorClasses = {
     yellow: "bg-yellow-100 text-yellow-800 border-yellow-300",
     pink: "bg-pink-100 text-pink-800 border-pink-300",
-    blue: "bg-blue-100 text-blue-800 border-blue-300",
+    blue: "bg-blue-100 text-blue-800 border-blue-300"
   };
 
   return (
     <span
-      className={`px-4 py-2 rounded-full text-sm font-bold border-2 ${colorClasses[color]}`}
-    >
+      className={`px-4 py-2 rounded-full text-sm font-bold border-2 ${colorClasses[color]}`}>
+
       {text}
-    </span>
-  );
+    </span>);
+
 }
 
 function StatCard({ number, label }) {
@@ -327,16 +327,16 @@ function StatCard({ number, label }) {
         {number}
       </p>
       <p className="text-xs text-gray-600 font-semibold">{label}</p>
-    </div>
-  );
+    </div>);
+
 }
 
 function MiniProfessionalCard({ name, specialty, rating }) {
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
-      className="bg-white rounded-2xl p-3 shadow-md border-2 border-gray-100 flex items-center gap-3"
-    >
+      className="bg-white rounded-2xl p-3 shadow-md border-2 border-gray-100 flex items-center gap-3">
+
       <div className="w-12 h-12 rounded-full gradient-yellow-pink flex items-center justify-center text-white font-bold">
         {name[4]}
       </div>
@@ -344,9 +344,9 @@ function MiniProfessionalCard({ name, specialty, rating }) {
         <p className="font-bold text-sm text-gray-900 truncate">{name}</p>
         <p className="text-xs text-gray-600 truncate">{specialty}</p>
         <div className="flex gap-0.5 mt-1">
-          {[...Array(rating)].map((_, i) => (
-            <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-          ))}
+          {[...Array(rating)].map((_, i) =>
+          <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+          )}
         </div>
       </div>
       <div className="flex items-center gap-1">
@@ -355,6 +355,6 @@ function MiniProfessionalCard({ name, specialty, rating }) {
           📞
         </button>
       </div>
-    </motion.div>
-  );
+    </motion.div>);
+
 }
