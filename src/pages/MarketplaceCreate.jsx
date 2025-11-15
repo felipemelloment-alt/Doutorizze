@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import RadarInterested from "../components/marketplace/RadarInterested";
 import { toast } from "sonner";
 import { ArrowLeft, Upload, X, Check } from "lucide-react";
 
@@ -49,13 +51,43 @@ export default function MarketplaceCreate() {
     loadUser();
   }, []);
 
+  // Buscar interessados no radar para este produto
+  const { data: interessados = [] } = useQuery({
+    queryKey: ["radarInteressados", formData.tipo_mundo, formData.titulo_item],
+    queryFn: async () => {
+      if (!formData.tipo_mundo || !formData.titulo_item) return [];
+      
+      const allRadars = await base44.entities.RadarProduto.filter({
+        tipo_mundo: formData.tipo_mundo,
+        status: "ATIVO",
+      });
+      
+      // Filtrar por nome do produto (busca parcial)
+      return allRadars.filter(radar => 
+        radar.nome_produto?.toLowerCase().includes(formData.titulo_item.toLowerCase()) ||
+        formData.titulo_item.toLowerCase().includes(radar.nome_produto?.toLowerCase())
+      );
+    },
+    enabled: !!formData.tipo_mundo && !!formData.titulo_item && formData.titulo_item.length > 3,
+  });
+
   const createMutation = useMutation({
     mutationFn: async (data) => {
       return await base44.entities.MarketplaceItem.create(data);
     },
-    onSuccess: () => {
+    onSuccess: async (newItem) => {
       queryClient.invalidateQueries(["marketplaceItems"]);
-      toast.success("Anúncio criado com sucesso!");
+      
+      // Notificar interessados do radar
+      if (interessados.length > 0) {
+        toast.success(`Anúncio criado! ${interessados.length} pessoa(s) serão notificadas.`);
+        
+        // Aqui você pode criar notificações para os interessados
+        // (implementar lógica de notificação)
+      } else {
+        toast.success("Anúncio criado com sucesso!");
+      }
+      
       navigate(createPageUrl("Marketplace"));
     },
     onError: (error) => {
@@ -141,7 +173,12 @@ export default function MarketplaceCreate() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 max-w-4xl space-y-8">
+        {/* Interessados do Radar */}
+        {interessados.length > 0 && (
+          <RadarInterested interessados={interessados} />
+        )}
+
         <form onSubmit={handleSubmit}>
           <Card className="shadow-xl border-4 border-yellow-400">
             <CardHeader>
