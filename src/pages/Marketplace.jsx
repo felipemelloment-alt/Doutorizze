@@ -12,8 +12,8 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  SelectValue } from
+"@/components/ui/select";
 import MarketplaceItemCard from "../components/marketplace/MarketplaceItemCard";
 import RadarActivationModal from "../components/marketplace/RadarActivationModal";
 import { motion } from "framer-motion";
@@ -26,8 +26,8 @@ import {
   Stethoscope,
   Activity,
   Zap,
-  Radar,
-} from "lucide-react";
+  Radar } from
+"lucide-react";
 
 export default function Marketplace() {
   const navigate = useNavigate();
@@ -58,17 +58,17 @@ export default function Marketplace() {
         { tipo_mundo: activeTab, status: "ATIVO" },
         "-created_date"
       );
-    },
+    }
   });
 
   const filteredItems = items.filter((item) => {
-    const matchSearch = item.titulo_item
-      ?.toLowerCase()
-      .includes(searchTerm.toLowerCase());
+    const matchSearch = item.titulo_item?.
+    toLowerCase().
+    includes(searchTerm.toLowerCase());
     const matchCity =
-      selectedCity === "all" || item.localizacao?.includes(selectedCity);
+    selectedCity === "all" || item.localizacao?.includes(selectedCity);
     const matchCondition =
-      condition === "all" || item.condicao === condition;
+    condition === "all" || item.condicao === condition;
 
     let matchPrice = true;
     if (priceRange !== "all") {
@@ -103,8 +103,8 @@ export default function Marketplace() {
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-yellow-400 mx-auto mb-4"></div>
           <p className="text-gray-600 font-semibold">Carregando marketplace...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -115,15 +115,15 @@ export default function Marketplace() {
         <motion.div
           animate={{ rotate: [0, 10, 0], y: [0, -20, 0] }}
           transition={{ repeat: Infinity, duration: 3 }}
-          className="absolute top-10 left-10 opacity-20"
-        >
+          className="absolute top-10 left-10 opacity-20">
+
           <Stethoscope className="w-32 h-32 text-white" />
         </motion.div>
         <motion.div
           animate={{ rotate: [0, -10, 0], y: [0, 20, 0] }}
           transition={{ repeat: Infinity, duration: 3, delay: 1 }}
-          className="absolute bottom-10 right-10 opacity-20"
-        >
+          className="absolute bottom-10 right-10 opacity-20">
+
           <Activity className="w-40 h-40 text-white" />
         </motion.div>
 
@@ -132,8 +132,8 @@ export default function Marketplace() {
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
-              className="flex-1"
-            >
+              className="flex-1">
+
               <div className="flex items-center gap-4 mb-6">
                 <div className="p-4 bg-white rounded-2xl shadow-xl">
                   <ShoppingBag className="w-10 h-10 text-pink-600" />
@@ -142,8 +142,8 @@ export default function Marketplace() {
                   <h1 className="text-5xl md:text-7xl font-black text-yellow-400 text-shadow-lg">
                     MARKETPLACE
                   </h1>
-                  <p className="text-white text-xl font-semibold mt-2">
-                    Equipamentos médicos e odontológicos ⚡
+                  <p className="text-orange-600 mt-2 text-xl font-semibold">Equipamentos médicos e odontológicos ⚡
+
                   </p>
                 </div>
               </div>
@@ -152,8 +152,8 @@ export default function Marketplace() {
                 <Button
                   size="lg"
                   onClick={() => navigate(createPageUrl("MarketplaceCreate"))}
-                  className="bg-white text-pink-600 font-bold px-8 py-6 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all"
-                >
+                  className="bg-white text-pink-600 font-bold px-8 py-6 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all">
+
                   <Plus className="w-6 h-6 mr-2" />
                   Anunciar Equipamento
                 </Button>
@@ -164,8 +164,8 @@ export default function Marketplace() {
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="relative"
-            >
+              className="relative">
+
               <div className="w-64 h-96 bg-white rounded-[3rem] shadow-2xl border-8 border-gray-800 p-4 relative overflow-hidden">
                 <div className="absolute top-4 left-1/2 -translate-x-1/2 w-20 h-1 bg-gray-800 rounded-full"></div>
                 <div className="h-full bg-gradient-to-br from-blue-50 to-purple-50 rounded-[2rem] mt-6 p-4">
@@ -196,19 +196,19 @@ export default function Marketplace() {
         <Tabs
           value={activeTab}
           onValueChange={setActiveTab}
-          className="mb-8"
-        >
+          className="mb-8">
+
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 h-auto p-2 bg-white rounded-2xl shadow-lg">
             <TabsTrigger
               value="ODONTOLOGIA"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-400 data-[state=active]:to-cyan-500 data-[state=active]:text-white font-bold text-lg py-4 rounded-xl"
-            >
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-400 data-[state=active]:to-cyan-500 data-[state=active]:text-white font-bold text-lg py-4 rounded-xl">
+
               🦷 Odontologia
             </TabsTrigger>
             <TabsTrigger
               value="MEDICINA"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-400 data-[state=active]:to-red-500 data-[state=active]:text-white font-bold text-lg py-4 rounded-xl"
-            >
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-400 data-[state=active]:to-red-500 data-[state=active]:text-white font-bold text-lg py-4 rounded-xl">
+
               ⚕️ Medicina
             </TabsTrigger>
           </TabsList>
@@ -223,8 +223,8 @@ export default function Marketplace() {
                 placeholder="Buscar equipamento..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 h-14 text-lg border-2 border-gray-200 rounded-2xl focus:border-yellow-400"
-              />
+                className="pl-12 h-14 text-lg border-2 border-gray-200 rounded-2xl focus:border-yellow-400" />
+
             </div>
 
             <Select value={selectedCity} onValueChange={setSelectedCity}>
@@ -233,11 +233,11 @@ export default function Marketplace() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas as cidades</SelectItem>
-                {cities.map((city) => (
-                  <SelectItem key={city} value={city}>
+                {cities.map((city) =>
+                <SelectItem key={city} value={city}>
                     {city}
                   </SelectItem>
-                ))}
+                )}
               </SelectContent>
             </Select>
 
@@ -276,8 +276,8 @@ export default function Marketplace() {
         </div>
 
         {/* Items Grid */}
-        {filteredItems.length === 0 ? (
-          <div className="space-y-6">
+        {filteredItems.length === 0 ?
+        <div className="space-y-6">
             <div className="bg-white rounded-3xl p-12 text-center shadow-xl border-4 border-gray-100">
               <ShoppingBag className="w-20 h-20 mx-auto mb-6 text-gray-300" />
               <h3 className="text-2xl font-bold text-gray-900 mb-3">
@@ -288,34 +288,34 @@ export default function Marketplace() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
-                  onClick={() => navigate(createPageUrl("MarketplaceCreate"))}
-                  className="gradient-yellow-pink text-white font-bold px-8 py-4 rounded-2xl"
-                >
+                onClick={() => navigate(createPageUrl("MarketplaceCreate"))}
+                className="gradient-yellow-pink text-white font-bold px-8 py-4 rounded-2xl">
+
                   <Plus className="w-5 h-5 mr-2" />
                   Criar Anúncio
                 </Button>
                 <Button
-                  onClick={() => setRadarModalOpen(true)}
-                  className="bg-gradient-to-r from-green-400 to-teal-500 text-white font-bold px-8 py-4 rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-105"
-                >
+                onClick={() => setRadarModalOpen(true)}
+                className="bg-gradient-to-r from-green-400 to-teal-500 text-white font-bold px-8 py-4 rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-105">
+
                   <Radar className="w-5 h-5 mr-2" />
                   Ativar Radar de Produtos 🎯
                 </Button>
               </div>
             </div>
-          </div>
-        ) : (
-          <div>
+          </div> :
+
+        <div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredItems.map((item) => (
-                <MarketplaceItemCard
-                  key={item.id}
-                  item={item}
-                  onClick={() =>
-                    navigate(createPageUrl(`MarketplaceDetail?id=${item.id}`))
-                  }
-                />
-              ))}
+              {filteredItems.map((item) =>
+            <MarketplaceItemCard
+              key={item.id}
+              item={item}
+              onClick={() =>
+              navigate(createPageUrl(`MarketplaceDetail?id=${item.id}`))
+              } />
+
+            )}
             </div>
 
             {/* Radar CTA After Results */}
@@ -329,16 +329,16 @@ export default function Marketplace() {
                 equipamento que você procura!
               </p>
               <Button
-                onClick={() => setRadarModalOpen(true)}
-                size="lg"
-                className="bg-gradient-to-r from-green-400 to-teal-500 text-white font-bold text-lg px-10 py-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-105"
-              >
+              onClick={() => setRadarModalOpen(true)}
+              size="lg"
+              className="bg-gradient-to-r from-green-400 to-teal-500 text-white font-bold text-lg px-10 py-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-105">
+
                 <Radar className="w-6 h-6 mr-2" />
                 Ativar Radar Agora 🎯
               </Button>
             </div>
           </div>
-        )}
+        }
       </div>
 
       {/* Radar Modal */}
@@ -346,8 +346,8 @@ export default function Marketplace() {
         open={radarModalOpen}
         onOpenChange={setRadarModalOpen}
         initialCategory={activeTab}
-        initialSearch={searchTerm}
-      />
-    </div>
-  );
+        initialSearch={searchTerm} />
+
+    </div>);
+
 }
