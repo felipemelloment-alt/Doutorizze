@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
@@ -16,9 +15,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import MarketplaceItemCard from "../components/marketplace/MarketplaceItemCard";
-import RadarActivateButton from "../components/marketplace/RadarActivateButton";
+import RadarActivationModal from "../components/marketplace/RadarActivationModal";
 import { motion } from "framer-motion";
-import { toast } from "sonner";
 import {
   ShoppingBag,
   Plus,
@@ -28,17 +26,18 @@ import {
   Stethoscope,
   Activity,
   Zap,
+  Radar,
 } from "lucide-react";
 
 export default function Marketplace() {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState("ODONTOLOGIA");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCity, setSelectedCity] = useState("all");
   const [priceRange, setPriceRange] = useState("all");
   const [condition, setCondition] = useState("all");
+  const [radarModalOpen, setRadarModalOpen] = useState(false);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -59,28 +58,6 @@ export default function Marketplace() {
         { tipo_mundo: activeTab, status: "ATIVO" },
         "-created_date"
       );
-    },
-  });
-
-  const createRadarMutation = useMutation({
-    mutationFn: async (data) => {
-      return await base44.entities.RadarProduto.create({
-        ...data,
-        usuario_id: user?.id,
-        usuario_nome: user?.full_name,
-        usuario_tipo: user?.role === "admin" ? "CLINICA" : "DENTISTA", // Assuming 'admin' is a clinic for this context, adjust as needed
-        status: "ATIVO",
-        notificacoes_enviadas: 0,
-        produtos_encontrados: [],
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(["radarProdutos"]);
-      toast.success("🎯 Radar ativado! Você será notificado quando alguém anunciar este produto.");
-    },
-    onError: (error) => {
-      toast.error("Erro ao ativar radar. Tente novamente.");
-      console.error(error);
     },
   });
 
@@ -118,10 +95,6 @@ export default function Marketplace() {
   const cities = [...new Set(items.map((item) => item.localizacao))].filter(
     Boolean
   );
-
-  const handleActivateRadar = (radarData) => {
-    createRadarMutation.mutate(radarData);
-  };
 
   if (isLoading) {
     return (
@@ -282,7 +255,7 @@ export default function Marketplace() {
             </Select>
           </div>
 
-          <div className="flex gap-4 mt-4">
+          <div className="flex flex-wrap gap-4 mt-4">
             <Select value={condition} onValueChange={setCondition}>
               <SelectTrigger className="h-12 rounded-xl border-2 max-w-xs">
                 <SelectValue placeholder="Condição" />
@@ -302,7 +275,7 @@ export default function Marketplace() {
           </div>
         </div>
 
-        {/* Items Grid ou Radar */}
+        {/* Items Grid */}
         {filteredItems.length === 0 ? (
           <div className="space-y-6">
             <div className="bg-white rounded-3xl p-12 text-center shadow-xl border-4 border-gray-100">
@@ -311,44 +284,70 @@ export default function Marketplace() {
                 Nenhum item encontrado
               </h3>
               <p className="text-gray-600 font-semibold mb-6">
-                {searchTerm ? `Não encontramos "${searchTerm}" disponível no momento` : "Nenhum produto disponível com estes filtros"}
+                Não encontrou o que procura? Ative o Radar de Produtos!
               </p>
-              <div className="flex flex-col md:flex-row gap-4 justify-center items-center max-w-2xl mx-auto">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
                   onClick={() => navigate(createPageUrl("MarketplaceCreate"))}
                   className="gradient-yellow-pink text-white font-bold px-8 py-4 rounded-2xl"
                 >
                   <Plus className="w-5 h-5 mr-2" />
-                  Criar Primeiro Anúncio
+                  Criar Anúncio
+                </Button>
+                <Button
+                  onClick={() => setRadarModalOpen(true)}
+                  className="bg-gradient-to-r from-green-400 to-teal-500 text-white font-bold px-8 py-4 rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-105"
+                >
+                  <Radar className="w-5 h-5 mr-2" />
+                  Ativar Radar de Produtos 🎯
                 </Button>
               </div>
             </div>
-
-            {/* Radar Activate Button */}
-            {searchTerm && user && (
-              <div className="max-w-3xl mx-auto">
-                <RadarActivateButton
-                  tipo_mundo={activeTab}
-                  searchTerm={searchTerm}
-                  onActivate={handleActivateRadar}
-                />
-              </div>
-            )}
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredItems.map((item) => (
-              <MarketplaceItemCard
-                key={item.id}
-                item={item}
-                onClick={() =>
-                  navigate(createPageUrl(`MarketplaceDetail?id=${item.id}`))
-                }
-              />
-            ))}
+          <div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredItems.map((item) => (
+                <MarketplaceItemCard
+                  key={item.id}
+                  item={item}
+                  onClick={() =>
+                    navigate(createPageUrl(`MarketplaceDetail?id=${item.id}`))
+                  }
+                />
+              ))}
+            </div>
+
+            {/* Radar CTA After Results */}
+            <div className="mt-12 bg-gradient-to-r from-green-50 to-teal-50 border-4 border-green-300 rounded-3xl p-8 text-center">
+              <Radar className="w-16 h-16 mx-auto mb-4 text-green-600" />
+              <h3 className="text-2xl font-black text-gray-900 mb-2">
+                Não encontrou exatamente o que precisa?
+              </h3>
+              <p className="text-gray-700 font-semibold mb-6">
+                Ative o <strong>Radar de Produtos</strong> e seja notificado quando aparecer o
+                equipamento que você procura!
+              </p>
+              <Button
+                onClick={() => setRadarModalOpen(true)}
+                size="lg"
+                className="bg-gradient-to-r from-green-400 to-teal-500 text-white font-bold text-lg px-10 py-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-105"
+              >
+                <Radar className="w-6 h-6 mr-2" />
+                Ativar Radar Agora 🎯
+              </Button>
+            </div>
           </div>
         )}
       </div>
+
+      {/* Radar Modal */}
+      <RadarActivationModal
+        open={radarModalOpen}
+        onOpenChange={setRadarModalOpen}
+        initialCategory={activeTab}
+        initialSearch={searchTerm}
+      />
     </div>
   );
 }
