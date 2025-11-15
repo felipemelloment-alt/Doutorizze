@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
@@ -9,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -16,15 +16,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import RadarInterested from "../components/marketplace/RadarInterested";
+import RadarInterestsModal from "../components/marketplace/RadarInterestsModal";
 import { toast } from "sonner";
-import { ArrowLeft, Upload, X, Check } from "lucide-react";
+import { ArrowLeft, Upload, X, Check, Users, Radar, Zap } from "lucide-react";
 
 export default function MarketplaceCreate() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [radarInterestsModalOpen, setRadarInterestsModalOpen] = useState(false);
+  const [matchingInterests, setMatchingInterests] = useState([]);
 
   const [formData, setFormData] = useState({
     tipo_mundo: "",
@@ -51,43 +53,65 @@ export default function MarketplaceCreate() {
     loadUser();
   }, []);
 
-  // Buscar interessados no radar para este produto
-  const { data: interessados = [] } = useQuery({
-    queryKey: ["radarInteressados", formData.tipo_mundo, formData.titulo_item],
+  // Buscar radares ativos
+  const { data: allRadars = [] } = useQuery({
+    queryKey: ["productRadars"],
     queryFn: async () => {
-      if (!formData.tipo_mundo || !formData.titulo_item) return [];
-      
-      const allRadars = await base44.entities.RadarProduto.filter({
-        tipo_mundo: formData.tipo_mundo,
-        status: "ATIVO",
-      });
-      
-      // Filtrar por nome do produto (busca parcial)
-      return allRadars.filter(radar => 
-        radar.nome_produto?.toLowerCase().includes(formData.titulo_item.toLowerCase()) ||
-        formData.titulo_item.toLowerCase().includes(radar.nome_produto?.toLowerCase())
-      );
+      return await base44.entities.ProductRadar.filter({ ativo: true });
     },
-    enabled: !!formData.tipo_mundo && !!formData.titulo_item && formData.titulo_item.length > 3,
   });
+
+  // Verificar matches quando o título ou categoria mudar
+  useEffect(() => {
+    if (formData.titulo_item && formData.tipo_mundo) {
+      const matches = allRadars.filter((radar) => {
+        const matchCategory = radar.tipo_mundo === formData.tipo_mundo;
+        const matchProduct =
+          radar.nome_produto?.toLowerCase().includes(formData.titulo_item.toLowerCase()) ||
+          formData.titulo_item.toLowerCase().includes(radar.nome_produto?.toLowerCase());
+        return matchCategory && matchProduct;
+      });
+      setMatchingInterests(matches);
+    } else {
+      setMatchingInterests([]);
+    }
+  }, [formData.titulo_item, formData.tipo_mundo, allRadars]);
 
   const createMutation = useMutation({
     mutationFn: async (data) => {
       return await base44.entities.MarketplaceItem.create(data);
     },
-    onSuccess: async (newItem) => {
-      queryClient.invalidateQueries(["marketplaceItems"]);
-      
+    onSuccess: async () => {
       // Notificar interessados do radar
-      if (interessados.length > 0) {
-        toast.success(`Anúncio criado! ${interessados.length} pessoa(s) serão notificadas.`);
-        
-        // Aqui você pode criar notificações para os interessados
-        // (implementar lógica de notificação)
-      } else {
-        toast.success("Anúncio criado com sucesso!");
+      if (matchingInterests.length > 0) {
+        try {
+          for (const interest of matchingInterests) {
+            await base44.entities.Notification.create({
+              destinatario_id: interest.interessado_id,
+              destinatario_tipo: interest.interessado_tipo,
+              tipo: "NOVO_ITEM_MARKETPLACE",
+              titulo: `🎯 Produto do seu Radar disponível!`,
+              mensagem: `O produto "${formData.titulo_item}" que você estava procurando foi anunciado! Preço: R$ ${formData.preco}`,
+              dados_contexto: {
+                radar_id: interest.id,
+              },
+              canais_enviados: ["PUSH", "EMAIL"],
+              enviada_com_sucesso: true,
+            });
+
+            // Incrementar contador de notificações
+            await base44.entities.ProductRadar.update(interest.id, {
+              notificacoes_recebidas: (interest.notificacoes_recebidas || 0) + 1,
+            });
+          }
+          toast.success(`✅ ${matchingInterests.length} interessados foram notificados!`);
+        } catch (error) {
+          console.error("Erro ao notificar interessados:", error);
+        }
       }
-      
+
+      queryClient.invalidateQueries(["marketplaceItems"]);
+      toast.success("Anúncio criado com sucesso!");
       navigate(createPageUrl("Marketplace"));
     },
     onError: (error) => {
@@ -143,7 +167,7 @@ export default function MarketplaceCreate() {
       preco: parseFloat(formData.preco),
       ano_fabricacao: formData.ano_fabricacao ? parseInt(formData.ano_fabricacao) : null,
       anunciante_id: user?.id,
-      anunciante_tipo: "DENTISTA", // Ajustar baseado no tipo de usuário
+      anunciante_tipo: "DENTISTA",
       anunciante_nome: user?.full_name || "Anônimo",
       status: "ATIVO",
       visualizacoes: 0,
@@ -173,10 +197,42 @@ export default function MarketplaceCreate() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8 max-w-4xl space-y-8">
-        {/* Interessados do Radar */}
-        {interessados.length > 0 && (
-          <RadarInterested interessados={interessados} />
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Radar Alert */}
+        {matchingInterests.length > 0 && (
+          <Card className="mb-8 border-4 border-green-400 bg-gradient-to-r from-green-50 to-teal-50 shadow-xl">
+            <CardContent className="p-6">
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-green-500 rounded-2xl">
+                  <Radar className="w-8 h-8 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-2xl font-black text-gray-900 mb-2">
+                    🎯 {matchingInterests.length}{" "}
+                    {matchingInterests.length === 1 ? "pessoa está" : "pessoas estão"} procurando
+                    este produto!
+                  </h3>
+                  <p className="text-gray-700 font-semibold mb-4">
+                    Existem interessados no <strong>Radar de Produtos</strong> que serão
+                    automaticamente notificados quando você publicar este anúncio.
+                  </p>
+                  <div className="flex gap-3">
+                    <Button
+                      onClick={() => setRadarInterestsModalOpen(true)}
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105"
+                    >
+                      <Users className="w-5 h-5 mr-2" />
+                      Ver Interessados
+                    </Button>
+                    <Badge className="px-4 py-2 bg-green-500 text-white text-base">
+                      <Zap className="w-4 h-4 mr-1" />
+                      Notificação automática ao publicar
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         <form onSubmit={handleSubmit}>
@@ -413,12 +469,25 @@ export default function MarketplaceCreate() {
                 <>
                   <Check className="w-6 h-6 mr-2" />
                   Publicar Anúncio
+                  {matchingInterests.length > 0 && (
+                    <Badge className="ml-2 bg-green-500 text-white">
+                      +{matchingInterests.length} 🎯
+                    </Badge>
+                  )}
                 </>
               )}
             </Button>
           </div>
         </form>
       </div>
+
+      {/* Radar Interests Modal */}
+      <RadarInterestsModal
+        open={radarInterestsModalOpen}
+        onOpenChange={setRadarInterestsModalOpen}
+        interests={matchingInterests}
+        productName={formData.titulo_item}
+      />
     </div>
   );
 }
