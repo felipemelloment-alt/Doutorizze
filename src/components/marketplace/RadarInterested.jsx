@@ -128,10 +128,10 @@ export default function RadarInterested({ interessados = [] }) {
                         </span>
                       </div>
                     )}
-                    {interessado.localizacao_desejada && (
+                    {interessado.localizacao_preferida && (
                       <div className="flex items-center gap-2">
                         <MapPin className="w-4 h-4 text-orange-600" />
-                        <span className="text-gray-700">{interessado.localizacao_desejada}</span>
+                        <span className="text-gray-700">{interessado.localizacao_preferida}</span>
                       </div>
                     )}
                   </div>
