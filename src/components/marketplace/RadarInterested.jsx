@@ -114,7 +114,7 @@ export default function RadarInterested({ interessados = [] }) {
                         {interessado.interessado_nome || "Anônimo"}
                       </p>
                       <Badge variant="secondary" className="text-xs">
-                        {interessado.usuario_tipo}
+                        {interessado.interessado_tipo}
                       </Badge>
                     </div>
                   </div>
