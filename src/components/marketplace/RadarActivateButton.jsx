@@ -27,7 +27,7 @@ export default function RadarActivateButton({ tipo_mundo, searchTerm, onActivate
     nome_produto: searchTerm || "",
     preco_maximo: "",
     localizacao_preferida: "",
-    condicao_aceita: ["NOVO", "SEMINOVO", "USADO"],
+    condicao_preferida: ["NOVO", "SEMINOVO", "USADO"],
     telefone_contato: "",
     detalhes_adicionais: "",
   });
