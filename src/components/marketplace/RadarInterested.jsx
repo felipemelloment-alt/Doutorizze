@@ -152,9 +152,9 @@ export default function RadarInterested({ interessados = [] }) {
                     </div>
                   )}
 
-                  {interessado.detalhes_adicionais && (
+                  {interessado.observacoes && (
                     <p className="text-sm text-gray-600 italic">
-                      "{interessado.detalhes_adicionais}"
+                      "{interessado.observacoes}"
                     </p>
                   )}
                 </div>
