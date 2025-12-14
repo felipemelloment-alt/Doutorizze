@@ -201,7 +201,7 @@ export default function NotificationCenter() {
       );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["notifications"]);
+      queryClient.invalidateQueries({ queryKey: ["notifications", user?.id] });
     },
   });
 
