@@ -36,12 +36,12 @@ export default function RadarActivateButton({ tipo_mundo, searchTerm, onActivate
     if (checked) {
       setFormData({
         ...formData,
-        condicao_aceita: [...formData.condicao_aceita, condicao],
+        condicao_preferida: [...formData.condicao_preferida, condicao],
       });
     } else {
       setFormData({
         ...formData,
-        condicao_aceita: formData.condicao_aceita.filter((c) => c !== condicao),
+        condicao_preferida: formData.condicao_preferida.filter((c) => c !== condicao),
       });
     }
   };
@@ -140,7 +140,7 @@ export default function RadarActivateButton({ tipo_mundo, searchTerm, onActivate
                 <div className="flex items-center gap-2">
                   <Checkbox
                     id="novo"
-                    checked={formData.condicao_aceita.includes("NOVO")}
+                    checked={formData.condicao_preferida.includes("NOVO")}
                     onCheckedChange={(checked) =>
                       handleCheckboxChange("NOVO", checked)
                     }
@@ -152,7 +152,7 @@ export default function RadarActivateButton({ tipo_mundo, searchTerm, onActivate
                 <div className="flex items-center gap-2">
                   <Checkbox
                     id="seminovo"
-                    checked={formData.condicao_aceita.includes("SEMINOVO")}
+                    checked={formData.condicao_preferida.includes("SEMINOVO")}
                     onCheckedChange={(checked) =>
                       handleCheckboxChange("SEMINOVO", checked)
                     }
@@ -164,7 +164,7 @@ export default function RadarActivateButton({ tipo_mundo, searchTerm, onActivate
                 <div className="flex items-center gap-2">
                   <Checkbox
                     id="usado"
-                    checked={formData.condicao_aceita.includes("USADO")}
+                    checked={formData.condicao_preferida.includes("USADO")}
                     onCheckedChange={(checked) =>
                       handleCheckboxChange("USADO", checked)
                     }
