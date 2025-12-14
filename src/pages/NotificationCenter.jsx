@@ -160,9 +160,9 @@ export default function NotificationCenter() {
     queryFn: async () => {
       if (!user) return [];
       return await base44.entities.Notification.filter(
-        { destinatario_id: user.email },
-        "-created_date"
-      );
+  { created_by: user.email },
+  "-created_date"
+);
     },
     enabled: !!user,
   });
