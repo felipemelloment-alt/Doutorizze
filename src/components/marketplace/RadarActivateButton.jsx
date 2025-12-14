@@ -123,9 +123,9 @@ export default function RadarActivateButton({ tipo_mundo, searchTerm, onActivate
                 <Label className="text-base font-bold">Localização preferida</Label>
                 <Input
                   placeholder="Ex: Goiânia - GO"
-                  value={formData.localizacao_desejada}
+                  value={formData.localizacao_preferida}
                   onChange={(e) =>
-                    setFormData({ ...formData, localizacao_desejada: e.target.value })
+                    setFormData({ ...formData, localizacao_preferida: e.target.value })
                   }
                   className="h-14 text-lg rounded-xl border-2 mt-2"
                 />
