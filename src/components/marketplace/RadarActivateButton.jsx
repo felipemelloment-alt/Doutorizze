@@ -29,7 +29,7 @@ export default function RadarActivateButton({ tipo_mundo, searchTerm, onActivate
     localizacao_preferida: "",
     condicao_preferida: ["NOVO", "SEMINOVO", "USADO"],
     telefone_contato: "",
-    detalhes_adicionais: "",
+    observacoes: "",
   });
 
   const handleCheckboxChange = (condicao, checked) => {
@@ -195,9 +195,9 @@ export default function RadarActivateButton({ tipo_mundo, searchTerm, onActivate
               </Label>
               <Textarea
                 placeholder="Marca preferida, características específicas, etc."
-                value={formData.detalhes_adicionais}
+                value={formData.observacoes}
                 onChange={(e) =>
-                  setFormData({ ...formData, detalhes_adicionais: e.target.value })
+                  setFormData({ ...formData, observacoes: e.target.value })
                 }
                 className="min-h-24 text-lg rounded-xl border-2 mt-2"
               />
