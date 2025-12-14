@@ -107,11 +107,11 @@ export default function RadarInterested({ interessados = [] }) {
                 <div className="flex-1 space-y-2">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white font-bold text-lg">
-                      {interessado.usuario_nome?.[0]?.toUpperCase() || "?"}
+                      {interessado.interessado_nome?.[0]?.toUpperCase() || "?"}
                     </div>
                     <div>
                       <p className="font-bold text-gray-900">
-                        {interessado.usuario_nome || "Anônimo"}
+                        {interessado.interessado_nome || "Anônimo"}
                       </p>
                       <Badge variant="secondary" className="text-xs">
                         {interessado.usuario_tipo}
