@@ -136,9 +136,9 @@ export default function RadarInterested({ interessados = [] }) {
                     )}
                   </div>
 
-                  {interessado.condicao_aceita && interessado.condicao_aceita.length > 0 && (
+                  {interessado.condicao_preferida && interessado.condicao_preferida.length > 0 && (
                     <div className="flex gap-2">
-                      {interessado.condicao_aceita.map((cond) => (
+                      {interessado.condicao_preferida.map((cond) => (
                         <Badge
                           key={cond}
                           variant="outline"
