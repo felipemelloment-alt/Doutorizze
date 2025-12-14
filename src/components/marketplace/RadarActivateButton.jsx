@@ -26,7 +26,7 @@ export default function RadarActivateButton({ tipo_mundo, searchTerm, onActivate
   const [formData, setFormData] = useState({
     nome_produto: searchTerm || "",
     preco_maximo: "",
-    localizacao_desejada: "",
+    localizacao_preferida: "",
     condicao_aceita: ["NOVO", "SEMINOVO", "USADO"],
     telefone_contato: "",
     detalhes_adicionais: "",
