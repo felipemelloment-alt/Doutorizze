@@ -184,7 +184,7 @@ export default function NotificationCenter() {
       return await base44.entities.Notification.delete(notificationId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["notifications"]);
+      queryClient.invalidateQueries({ queryKey: ["notifications", user?.id] });
     },
   });
 
