@@ -47,10 +47,10 @@ export default function NotificationBell() {
     queryFn: async () => {
       if (!user) return [];
       const allNotifications = await base44.entities.Notification.filter(
-        { created_by: user.email },
-        "-created_date",
-        5
-      );
+  { destinatario_id: user.id },
+  "-created_date",
+  5
+);
       return allNotifications;
     },
     enabled: !!user,
