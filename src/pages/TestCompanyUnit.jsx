@@ -3,8 +3,9 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, RefreshCcw, MapPin, Star, Briefcase, ShoppingBag } from "lucide-react";
+import { Plus, RefreshCcw, MapPin, Star, Briefcase, ShoppingBag, User } from "lucide-react";
 
 // Função para formatar CNPJ
 const formatCNPJ = (cnpj) => {
@@ -12,8 +13,16 @@ const formatCNPJ = (cnpj) => {
   return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
 };
 
+// Função para formatar WhatsApp
+const formatWhatsApp = (whatsapp) => {
+  if (!whatsapp) return "";
+  return whatsapp.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
+};
+
 export default function TestCompanyUnit() {
   const [loading, setLoading] = useState(false);
+  const [selectedOwner, setSelectedOwner] = useState(null);
+  const [ownerModalOpen, setOwnerModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   // Buscar todas as unidades
@@ -29,6 +38,21 @@ export default function TestCompanyUnit() {
       }
     }
   });
+
+  const handleVerResponsavel = async (ownerId) => {
+    try {
+      const owner = await base44.entities.CompanyOwner.filter({ id: ownerId });
+      if (owner && owner.length > 0) {
+        setSelectedOwner(owner[0]);
+        setOwnerModalOpen(true);
+      } else {
+        toast.error("Responsável não encontrado");
+      }
+    } catch (error) {
+      console.error("Erro ao buscar responsável:", error);
+      toast.error("Erro ao carregar dados do responsável");
+    }
+  };
 
   const criarUnidadeTeste = async () => {
     setLoading(true);
@@ -383,23 +407,34 @@ export default function TestCompanyUnit() {
                             color: "#718096",
                             fontWeight: 600,
                             textTransform: "uppercase",
-                            margin: "0 0 4px 0"
+                            margin: "0 0 8px 0"
                           }}>
                             👤 RESPONSÁVEL
                           </p>
-                          <p style={{
-                            fontSize: "14px",
-                            color: "#2D3748",
-                            fontWeight: 500,
-                            margin: 0
-                          }}>
-                            {unit.nome_responsavel}
-                            {unit.cro_responsavel && (
-                              <span style={{ color: "#718096", marginLeft: "8px" }}>
-                                ({unit.cro_responsavel})
-                              </span>
-                            )}
-                          </p>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                            <p style={{
+                              fontSize: "14px",
+                              color: "#2D3748",
+                              fontWeight: 500,
+                              margin: 0
+                            }}>
+                              {unit.nome_responsavel}
+                              {unit.cro_responsavel && (
+                                <span style={{ color: "#718096", marginLeft: "8px" }}>
+                                  ({unit.cro_responsavel})
+                                </span>
+                              )}
+                            </p>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleVerResponsavel(unit.owner_id)}
+                              className="border-blue-200 text-blue-600 hover:bg-blue-50"
+                            >
+                              <User className="w-3 h-3 mr-1" />
+                              Ver Contato
+                            </Button>
+                          </div>
                         </div>
                       )}
 
@@ -486,6 +521,65 @@ export default function TestCompanyUnit() {
             )}
           </CardContent>
         </Card>
+
+        {/* Modal de Informações do Responsável */}
+        <Dialog open={ownerModalOpen} onOpenChange={setOwnerModalOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold text-gray-900">
+                Informações do Responsável
+              </DialogTitle>
+            </DialogHeader>
+            {selectedOwner && (
+              <div className="space-y-4 py-4">
+                {/* Nome */}
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase mb-1">
+                    👤 Nome Completo
+                  </p>
+                  <p className="text-base font-semibold text-gray-900">
+                    {selectedOwner.nome_completo}
+                  </p>
+                </div>
+
+                {/* WhatsApp */}
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase mb-1">
+                    📱 WhatsApp
+                  </p>
+                  <a
+                    href={`https://wa.me/55${selectedOwner.whatsapp}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-base font-semibold text-green-600 hover:text-green-700 hover:underline"
+                  >
+                    {formatWhatsApp(selectedOwner.whatsapp)}
+                  </a>
+                </div>
+
+                {/* Email */}
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase mb-1">
+                    ✉️ Email
+                  </p>
+                  <a
+                    href={`mailto:${selectedOwner.email}`}
+                    className="text-base font-semibold text-blue-600 hover:text-blue-700 hover:underline"
+                  >
+                    {selectedOwner.email}
+                  </a>
+                </div>
+
+                {/* Nota sobre CPF */}
+                <div className="pt-4 border-t border-gray-200">
+                  <p className="text-xs text-gray-500 italic">
+                    💡 CPF e documentos são visíveis apenas para administradores
+                  </p>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

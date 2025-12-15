@@ -163,33 +163,13 @@ export default function TestCompanyOwner() {
 
                     <div style={{ borderTop: "1px solid #E2E8F0", margin: "16px 0" }} />
 
-                    {/* INFORMAÇÕES */}
+                    {/* INFORMAÇÕES PÚBLICAS */}
+                    {/* NOTA: CPF e documentos são visíveis APENAS para ADMIN */}
                     <div style={{
                       display: "grid",
                       gridTemplateColumns: "1fr 1fr",
                       gap: "16px"
                     }}>
-                      {/* CPF */}
-                      <div>
-                        <p style={{
-                          fontSize: "11px",
-                          color: "#718096",
-                          fontWeight: 600,
-                          textTransform: "uppercase",
-                          margin: "0 0 4px 0"
-                        }}>
-                          🆔 CPF
-                        </p>
-                        <p style={{
-                          fontSize: "14px",
-                          color: "#2D3748",
-                          fontWeight: 500,
-                          margin: 0
-                        }}>
-                          {formatCPF(owner.cpf)}
-                        </p>
-                      </div>
-
                       {/* WhatsApp */}
                       <div>
                         <p style={{
@@ -212,7 +192,7 @@ export default function TestCompanyOwner() {
                       </div>
 
                       {/* Email */}
-                      <div style={{ gridColumn: "1 / -1" }}>
+                      <div>
                         <p style={{
                           fontSize: "11px",
                           color: "#718096",
