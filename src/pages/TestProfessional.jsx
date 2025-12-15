@@ -517,6 +517,141 @@ export default function TestProfessional() {
                         </div>
                       </>
                     )}
+
+                    {/* SEÇÃO 3: DISPONIBILIDADE E CONDIÇÕES */}
+                    <div style={{ borderTop: "1px solid #E2E8F0", margin: "16px 0" }} />
+                    <div>
+                      <p style={{
+                        fontSize: "12px",
+                        color: "#718096",
+                        fontWeight: 600,
+                        textTransform: "uppercase",
+                        margin: "0 0 12px 0"
+                      }}>
+                        🕐 Disponibilidade e Condições
+                      </p>
+                      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                        {/* Badge Disponibilidade */}
+                        {prof.disponibilidade_inicio && (
+                          <span style={{
+                            padding: "6px 12px",
+                            borderRadius: "12px",
+                            fontSize: "12px",
+                            fontWeight: 600,
+                            ...(prof.disponibilidade_inicio === "IMEDIATO" && { background: "#D1FAE5", color: "#065F46" }),
+                            ...(prof.disponibilidade_inicio === "15_DIAS" && { background: "#FEF3C7", color: "#B7791F" }),
+                            ...(prof.disponibilidade_inicio === "30_DIAS" && { background: "#FED7AA", color: "#9A3412" }),
+                            ...(prof.disponibilidade_inicio === "A_COMBINAR" && { background: "#DBEAFE", color: "#1E40AF" })
+                          }}>
+                            {prof.disponibilidade_inicio === "IMEDIATO" && "IMEDIATO"}
+                            {prof.disponibilidade_inicio === "15_DIAS" && "EM 15 DIAS"}
+                            {prof.disponibilidade_inicio === "30_DIAS" && "EM 30 DIAS"}
+                            {prof.disponibilidade_inicio === "A_COMBINAR" && "A COMBINAR"}
+                          </span>
+                        )}
+
+                        {/* Badges Forma Remuneração */}
+                        {prof.forma_remuneracao && prof.forma_remuneracao.map((forma, idx) => (
+                          <span key={idx} style={{
+                            padding: "6px 12px",
+                            borderRadius: "12px",
+                            fontSize: "12px",
+                            fontWeight: 600,
+                            ...(forma === "DIARIA" && { background: "#E0F2FE", color: "#075985" }),
+                            ...(forma === "PORCENTAGEM" && { background: "#DCFCE7", color: "#166534" }),
+                            ...(forma === "FIXO" && { background: "#F3E8FF", color: "#6B21A8" }),
+                            ...(forma === "A_COMBINAR" && { background: "#DBEAFE", color: "#1E40AF" })
+                          }}>
+                            {forma === "DIARIA" && "DIÁRIA"}
+                            {forma === "PORCENTAGEM" && "% PRODUÇÃO"}
+                            {forma === "FIXO" && "FIXO"}
+                            {forma === "A_COMBINAR" && "A COMBINAR"}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* SEÇÃO 4: CIDADES DE ATENDIMENTO */}
+                    <div>
+                      <p style={{
+                        fontSize: "12px",
+                        color: "#718096",
+                        fontWeight: 600,
+                        textTransform: "uppercase",
+                        margin: "16px 0 8px 0"
+                      }}>
+                        📍 Cidades de Atendimento
+                      </p>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                        {prof.cidades_atendimento && prof.cidades_atendimento.length > 0 ? (
+                          prof.cidades_atendimento.map((cidade, idx) => (
+                            <span key={idx} style={{
+                              background: "#F0F9FF",
+                              color: "#0369A1",
+                              padding: "6px 12px",
+                              borderRadius: "12px",
+                              fontSize: "13px",
+                              fontWeight: 500,
+                              border: "1px solid #BAE6FD"
+                            }}>
+                              {cidade}
+                            </span>
+                          ))
+                        ) : (
+                          <span style={{ color: "#A0AEC0", fontSize: "13px" }}>
+                            Não informado
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* SEÇÃO 5: DIAS DISPONÍVEIS */}
+                    <div>
+                      <p style={{
+                        fontSize: "12px",
+                        color: "#718096",
+                        fontWeight: 600,
+                        textTransform: "uppercase",
+                        margin: "12px 0 8px 0"
+                      }}>
+                        📅 Dias Disponíveis
+                      </p>
+                      <div style={{ display: "flex", gap: "6px" }}>
+                        {prof.dias_semana_disponiveis && prof.dias_semana_disponiveis.length > 0 ? (
+                          prof.dias_semana_disponiveis.map((dia, idx) => (
+                            <div key={idx} style={{
+                              width: "40px",
+                              height: "40px",
+                              borderRadius: "50%",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: "11px",
+                              fontWeight: 700,
+                              ...(dia === "SEG" && { background: "#DBEAFE", color: "#1E40AF" }),
+                              ...(dia === "TER" && { background: "#FCE7F3", color: "#9F1239" }),
+                              ...(dia === "QUA" && { background: "#D1FAE5", color: "#065F46" }),
+                              ...(dia === "QUI" && { background: "#FEF3C7", color: "#B7791F" }),
+                              ...(dia === "SEX" && { background: "#F3E8FF", color: "#6B21A8" }),
+                              ...(dia === "SAB" && { background: "#FED7AA", color: "#9A3412" }),
+                              ...(dia === "DOM" && { background: "#FEE2E2", color: "#991B1B" })
+                            }}>
+                              {dia === "SEG" && "S"}
+                              {dia === "TER" && "T"}
+                              {dia === "QUA" && "Q"}
+                              {dia === "QUI" && "Q"}
+                              {dia === "SEX" && "S"}
+                              {dia === "SAB" && "S"}
+                              {dia === "DOM" && "D"}
+                            </div>
+                          ))
+                        ) : (
+                          <span style={{ color: "#A0AEC0", fontSize: "13px" }}>
+                            Não informado
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
