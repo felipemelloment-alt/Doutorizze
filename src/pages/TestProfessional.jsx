@@ -80,13 +80,18 @@ export default function TestProfessional() {
         uf_conselho: "GO",
         tempo_formado_anos: 10,
         especialidade_principal: "Endodontia",
+        tempo_especialidade_anos: 3,
         cidades_atendimento: ["Goiânia - GO", "Anápolis - GO"],
         dias_semana_disponiveis: ["SEG", "TER", "QUA"],
         disponibilidade_inicio: "IMEDIATO",
+        status_disponibilidade: "DISPONIVEL",
         aceita_freelance: true,
         forma_remuneracao: ["DIARIA", "PORCENTAGEM"],
         observacoes: "Profissional experiente com foco em qualidade",
         new_jobs_ativo: true,
+        media_avaliacoes: 4.8,
+        total_avaliacoes: 23,
+        total_contratacoes: 45,
         status_cadastro: "EM_ANALISE"
       });
 
@@ -158,9 +163,9 @@ export default function TestProfessional() {
                     key={prof.id}
                     style={{
                       background: "#FFFFFF",
-                      border: "1px solid #E2E8F0",
+                      border: "2px solid #E2E8F0",
                       borderRadius: "12px",
-                      padding: "24px",
+                      padding: "20px",
                       boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
                       transition: "all 0.2s ease"
                     }}
@@ -173,268 +178,198 @@ export default function TestProfessional() {
                       e.currentTarget.style.transform = "translateY(0)";
                     }}
                   >
-                    {/* SEÇÃO 1: HEADER (FOTO + NOME + BADGES) */}
-                    <div style={{ display: "flex", gap: "16px", alignItems: "flex-start", marginBottom: "20px" }}>
-                      {/* Foto ou Iniciais */}
-                      {prof.selfie_documento_url ? (
-                        <img
-                          src={prof.selfie_documento_url}
-                          alt={prof.nome_completo}
-                          style={{
-                            width: "80px",
-                            height: "80px",
-                            borderRadius: "50%",
-                            border: "3px solid #0B95DA",
-                            objectFit: "cover"
-                          }}
-                        />
-                      ) : (
-                        <div style={{
-                          width: "80px",
-                          height: "80px",
-                          borderRadius: "50%",
-                          background: "linear-gradient(135deg, #0B95DA, #26D9D9)",
-                          color: "#FFFFFF",
-                          fontSize: "32px",
+                    {/* HEADER COMPACTO */}
+                    <div style={{ marginBottom: "16px" }}>
+                      {/* Linha 1: NEW JOBS + Categoria */}
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                        {prof.new_jobs_ativo && (
+                          <span style={{
+                            padding: "3px 10px",
+                            borderRadius: "12px",
+                            fontSize: "11px",
+                            fontWeight: 700,
+                            background: "#DCFCE7",
+                            color: "#166534"
+                          }}>
+                            🎯 NEW JOBS
+                          </span>
+                        )}
+                        <span style={{
+                          padding: "3px 10px",
+                          borderRadius: "12px",
+                          fontSize: "11px",
                           fontWeight: 700,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center"
+                          ...(prof.tipo_profissional === "DENTISTA" && { background: "#F3E8FF", color: "#6B21A8" }),
+                          ...(prof.tipo_profissional === "MEDICO" && { background: "#E0F2FE", color: "#075985" })
                         }}>
-                          {obterIniciais(prof.nome_completo)}
+                          {prof.tipo_profissional}
+                        </span>
+                      </div>
+
+                      {/* Linha 2: Nome */}
+                      <h3 style={{
+                        fontSize: "18px",
+                        fontWeight: 700,
+                        color: "#2D3748",
+                        margin: "0 0 6px 0"
+                      }}>
+                        {prof.nome_completo}
+                      </h3>
+
+                      {/* Linha 3: Cidade principal */}
+                      <p style={{
+                        fontSize: "13px",
+                        color: "#718096",
+                        margin: "0 0 6px 0"
+                      }}>
+                        Cidade: {prof.cidades_atendimento?.[0] || "N/A"}
+                      </p>
+
+                      {/* Linha 4: Especialidade + tempo + status */}
+                      <p style={{
+                        fontSize: "13px",
+                        color: "#2D3748",
+                        margin: "0 0 8px 0"
+                      }}>
+                        Espe: <strong>{prof.especialidade_principal || "N/A"}</strong>
+                        {prof.tempo_especialidade_anos > 0 && (
+                          <> / tempo: {prof.tempo_especialidade_anos} anos</>
+                        )}
+                        {" / "}
+                        <span style={{
+                          ...(prof.status_disponibilidade === "DISPONIVEL" && { color: "#065F46" }),
+                          ...(prof.status_disponibilidade === "OCUPADO" && { color: "#B7791F" }),
+                          ...(prof.status_disponibilidade === "INDISPONIVEL" && { color: "#991B1B" })
+                        }}>
+                          {prof.status_disponibilidade === "DISPONIVEL" && "Disponível"}
+                          {prof.status_disponibilidade === "OCUPADO" && "Ocupado"}
+                          {prof.status_disponibilidade === "INDISPONIVEL" && "Indisponível"}
+                        </span>
+                      </p>
+
+                      {/* Linha 5: Badges Freelance + Cidade */}
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                        {prof.aceita_freelance && (
+                          <span style={{
+                            padding: "3px 10px",
+                            borderRadius: "12px",
+                            fontSize: "11px",
+                            fontWeight: 600,
+                            background: "#FEF3C7",
+                            color: "#B7791F"
+                          }}>
+                            ✅ FAZ FREELANCE
+                          </span>
+                        )}
+                        <span style={{
+                          padding: "3px 10px",
+                          borderRadius: "12px",
+                          fontSize: "11px",
+                          fontWeight: 600,
+                          background: "#F0F9FF",
+                          color: "#0369A1"
+                        }}>
+                          📍 {prof.cidades_atendimento?.[0] || "N/A"}
+                        </span>
+                      </div>
+
+                      {/* Linha 6: Avaliações */}
+                      {prof.total_avaliacoes > 0 && (
+                        <div style={{ display: "flex", alignItems: "center", gap: "4px", marginBottom: "8px" }}>
+                          <span style={{ fontSize: "14px" }}>⭐</span>
+                          <span style={{
+                            fontSize: "14px",
+                            fontWeight: 700,
+                            color: "#2D3748"
+                          }}>
+                            {prof.media_avaliacoes.toFixed(1)}
+                          </span>
+                          <span style={{
+                            fontSize: "12px",
+                            color: "#718096"
+                          }}>
+                            ({prof.total_avaliacoes} {prof.total_avaliacoes === 1 ? "avaliação" : "avaliações"})
+                          </span>
                         </div>
                       )}
 
-                      {/* Nome + Badges */}
-                      <div style={{ flex: 1 }}>
-                        <h3 style={{
-                          fontSize: "22px",
-                          fontWeight: 700,
-                          color: "#2D3748",
-                          margin: "0 0 4px 0"
+                      {/* Badge Status Cadastro (visível só pro próprio usuário) */}
+                      {prof.status_cadastro !== "APROVADO" && (
+                        <span style={{
+                          display: "inline-block",
+                          padding: "4px 12px",
+                          borderRadius: "16px",
+                          fontSize: "11px",
+                          fontWeight: 600,
+                          textTransform: "uppercase",
+                          ...(prof.status_cadastro === "EM_ANALISE" && { background: "#DBEAFE", color: "#1E40AF" }),
+                          ...(prof.status_cadastro === "REPROVADO" && { background: "#FEE2E2", color: "#991B1B" })
                         }}>
-                          {prof.nome_completo}
-                        </h3>
-                        <p style={{
-                          fontSize: "14px",
-                          color: "#718096",
-                          fontStyle: "italic",
-                          margin: "0 0 8px 0"
-                        }}>
-                          {prof.especialidade_principal}
-                        </p>
-
-                        {/* Badges */}
-                        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                          {/* Badge Status */}
-                          <span style={{
-                            padding: "4px 12px",
-                            borderRadius: "16px",
-                            fontSize: "12px",
-                            fontWeight: 600,
-                            textTransform: "uppercase",
-                            ...(prof.status_cadastro === "EM_ANALISE" && { background: "#DBEAFE", color: "#1E40AF" }),
-                            ...(prof.status_cadastro === "APROVADO" && { background: "#D1FAE5", color: "#065F46" }),
-                            ...(prof.status_cadastro === "REPROVADO" && { background: "#FEE2E2", color: "#991B1B" })
-                          }}>
-                            {prof.status_cadastro === "EM_ANALISE" ? "EM ANÁLISE" : prof.status_cadastro}
-                          </span>
-
-                          {/* Badge Tipo */}
-                          <span style={{
-                            padding: "4px 12px",
-                            borderRadius: "16px",
-                            fontSize: "12px",
-                            fontWeight: 600,
-                            textTransform: "uppercase",
-                            ...(prof.tipo_profissional === "DENTISTA" && { background: "#F3E8FF", color: "#6B21A8" }),
-                            ...(prof.tipo_profissional === "MEDICO" && { background: "#E0F2FE", color: "#075985" })
-                          }}>
-                            {prof.tipo_profissional}
-                          </span>
-
-                          {/* Badge NEW JOBS */}
-                          {prof.new_jobs_ativo && (
-                            <span style={{
-                              padding: "4px 12px",
-                              borderRadius: "16px",
-                              fontSize: "12px",
-                              fontWeight: 600,
-                              textTransform: "uppercase",
-                              background: "#DCFCE7",
-                              color: "#166534"
-                            }}>
-                              🎯 NEW JOBS
-                            </span>
-                          )}
-
-                          {/* Badge FREELANCE */}
-                          {prof.aceita_freelance && (
-                            <span style={{
-                              padding: "4px 12px",
-                              borderRadius: "16px",
-                              fontSize: "12px",
-                              fontWeight: 600,
-                              textTransform: "uppercase",
-                              background: "#FEF3C7",
-                              color: "#B7791F"
-                            }}>
-                              ✅ FREELANCE
-                            </span>
-                          )}
-                        </div>
-                      </div>
+                          [{prof.status_cadastro === "EM_ANALISE" ? "EM ANÁLISE" : prof.status_cadastro}]
+                        </span>
+                      )}
                     </div>
 
-                    {/* Separador */}
-                    <div style={{ borderTop: "1px solid #E2E8F0", margin: "16px 0" }} />
+                    <div style={{ borderTop: "1px solid #E2E8F0", margin: "12px 0" }} />
 
-                    {/* SEÇÃO 2: INFORMAÇÕES PROFISSIONAIS */}
-                    <div style={{
-                      display: "grid",
-                      gridTemplateColumns: "1fr 1fr",
-                      gap: "16px"
-                    }}>
-                      {/* Registro */}
-                      <div>
-                        <p style={{
-                          fontSize: "11px",
-                          color: "#718096",
-                          fontWeight: 600,
-                          textTransform: "uppercase",
-                          margin: "0 0 4px 0"
-                        }}>
-                          🏥 REGISTRO
-                        </p>
-                        <p style={{
-                          fontSize: "14px",
-                          color: "#2D3748",
-                          fontWeight: 500,
-                          margin: 0
-                        }}>
+                    {/* CORPO DO CARD - INFORMAÇÕES COMPACTAS */}
+                    <div style={{ fontSize: "13px", lineHeight: "1.8" }}>
+                      {/* 1. Registro */}
+                      <div style={{ marginBottom: "8px" }}>
+                        <strong style={{ color: "#718096" }}>🏥 REGISTRO:</strong>{" "}
+                        <span style={{ color: "#2D3748", fontWeight: 500 }}>
                           {prof.registro_conselho}/{prof.uf_conselho}
-                        </p>
+                        </span>
                       </div>
 
-                      {/* Tempo Formado */}
-                      <div>
-                        <p style={{
-                          fontSize: "11px",
-                          color: "#718096",
-                          fontWeight: 600,
-                          textTransform: "uppercase",
-                          margin: "0 0 4px 0"
-                        }}>
-                          📅 TEMPO FORMADO
-                        </p>
-                        <p style={{
-                          fontSize: "14px",
-                          color: "#2D3748",
-                          fontWeight: 500,
-                          margin: 0
-                        }}>
-                          {prof.tempo_formado_anos} anos
-                        </p>
+                      {/* 2. Tempo Formado / Especialista */}
+                      <div style={{ marginBottom: "8px" }}>
+                        <strong style={{ color: "#718096" }}>📅 TEMPO FORMADO / ESPECIALISTA:</strong>{" "}
+                        <span style={{ color: "#2D3748", fontWeight: 500 }}>
+                          Form: {prof.tempo_formado_anos} anos
+                          {prof.tempo_especialidade_anos > 0 && (
+                            <> / Esp: {prof.tempo_especialidade_anos} anos</>
+                          )}
+                        </span>
                       </div>
 
-                      {/* Idade */}
-                      <div>
-                        <p style={{
-                          fontSize: "11px",
-                          color: "#718096",
-                          fontWeight: 600,
-                          textTransform: "uppercase",
-                          margin: "0 0 4px 0"
-                        }}>
-                          🎂 IDADE
-                        </p>
-                        <p style={{
-                          fontSize: "14px",
-                          color: "#2D3748",
-                          fontWeight: 500,
-                          margin: 0
-                        }}>
+                      {/* 3. Idade */}
+                      <div style={{ marginBottom: "8px" }}>
+                        <strong style={{ color: "#718096" }}>🎂 IDADE:</strong>{" "}
+                        <span style={{ color: "#2D3748", fontWeight: 500 }}>
                           {calcularIdade(prof.data_nascimento)} anos
-                        </p>
+                        </span>
                       </div>
 
-                      {/* WhatsApp */}
-                      <div>
-                        <p style={{
-                          fontSize: "11px",
-                          color: "#718096",
-                          fontWeight: 600,
-                          textTransform: "uppercase",
-                          margin: "0 0 4px 0"
-                        }}>
-                          📱 WHATSAPP
-                        </p>
-                        <p style={{
-                          fontSize: "14px",
-                          color: "#2D3748",
-                          fontWeight: 500,
-                          margin: 0
-                        }}>
+                      {/* 4. WhatsApp */}
+                      <div style={{ marginBottom: "8px" }}>
+                        <strong style={{ color: "#718096" }}>📱 WHATSAPP:</strong>{" "}
+                        <a
+                          href={`https://wa.me/55${prof.whatsapp}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            color: "#25D366",
+                            textDecoration: "none",
+                            fontWeight: 600
+                          }}
+                        >
                           {formatWhatsApp(prof.whatsapp)}
-                        </p>
+                        </a>
                       </div>
 
-                      {/* Email */}
-                      <div>
-                        <p style={{
-                          fontSize: "11px",
-                          color: "#718096",
-                          fontWeight: 600,
-                          textTransform: "uppercase",
-                          margin: "0 0 4px 0"
-                        }}>
-                          ✉️ EMAIL
-                        </p>
-                        {prof.exibir_email ? (
-                          <a
-                            href={`mailto:${prof.email}`}
-                            style={{
-                              fontSize: "14px",
-                              color: "#0B95DA",
-                              textDecoration: "none",
-                              fontWeight: 500
-                            }}
-                          >
-                            {prof.email}
-                          </a>
-                        ) : (
-                          <p style={{
-                            fontSize: "14px",
-                            color: "#A0AEC0",
-                            fontWeight: 500,
-                            margin: 0
-                          }}>
-                            (oculto)
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Instagram */}
+                      {/* 5. Instagram */}
                       {prof.instagram && (
-                        <div>
-                          <p style={{
-                            fontSize: "11px",
-                            color: "#718096",
-                            fontWeight: 600,
-                            textTransform: "uppercase",
-                            margin: "0 0 4px 0"
-                          }}>
-                            📸 INSTAGRAM
-                          </p>
+                        <div style={{ marginBottom: "8px" }}>
+                          <strong style={{ color: "#718096" }}>📸 INSTAGRAM:</strong>{" "}
                           <a
                             href={`https://instagram.com/${prof.instagram.replace("@", "")}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             style={{
-                              fontSize: "14px",
                               color: "#0B95DA",
                               textDecoration: "none",
-                              fontWeight: 500
+                              fontWeight: 600
                             }}
                           >
                             {prof.instagram}
@@ -442,219 +377,92 @@ export default function TestProfessional() {
                         </div>
                       )}
 
-                      {/* Disponibilidade */}
-                      {prof.disponibilidade_inicio && (
-                        <div>
-                          <p style={{
-                            fontSize: "11px",
-                            color: "#718096",
-                            fontWeight: 600,
-                            textTransform: "uppercase",
-                            margin: "0 0 4px 0"
-                          }}>
-                            ⏰ DISPONIBILIDADE
-                          </p>
-                          <p style={{
-                            fontSize: "14px",
-                            color: "#2D3748",
-                            fontWeight: 500,
-                            margin: 0
-                          }}>
-                            {prof.disponibilidade_inicio === "IMEDIATO" && "Imediato"}
-                            {prof.disponibilidade_inicio === "15_DIAS" && "15 dias"}
-                            {prof.disponibilidade_inicio === "30_DIAS" && "30 dias"}
-                            {prof.disponibilidade_inicio === "A_COMBINAR" && "A combinar"}
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Formas de Remuneração */}
-                      {prof.forma_remuneracao && prof.forma_remuneracao.length > 0 && (
-                        <div style={{ gridColumn: "1 / -1" }}>
-                          <p style={{
-                            fontSize: "11px",
-                            color: "#718096",
-                            fontWeight: 600,
-                            textTransform: "uppercase",
-                            margin: "0 0 4px 0"
-                          }}>
-                            💰 REMUNERAÇÃO
-                          </p>
-                          <p style={{
-                            fontSize: "14px",
-                            color: "#2D3748",
-                            fontWeight: 500,
-                            margin: 0
-                          }}>
-                            {prof.forma_remuneracao.join(", ")}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* SEÇÃO 3: DISPONIBILIDADE E CONDIÇÕES */}
-                    <div style={{ borderTop: "1px solid #E2E8F0", margin: "16px 0" }} />
-                    <div>
-                      <p style={{
-                        fontSize: "12px",
-                        color: "#718096",
-                        fontWeight: 600,
-                        textTransform: "uppercase",
-                        margin: "0 0 12px 0"
-                      }}>
-                        🕐 Disponibilidade e Condições
-                      </p>
-                      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                        {/* Badge Disponibilidade */}
-                        {prof.disponibilidade_inicio && (
-                          <span style={{
-                            padding: "6px 12px",
-                            borderRadius: "12px",
-                            fontSize: "12px",
-                            fontWeight: 600,
-                            ...(prof.disponibilidade_inicio === "IMEDIATO" && { background: "#D1FAE5", color: "#065F46" }),
-                            ...(prof.disponibilidade_inicio === "15_DIAS" && { background: "#FEF3C7", color: "#B7791F" }),
-                            ...(prof.disponibilidade_inicio === "30_DIAS" && { background: "#FED7AA", color: "#9A3412" }),
-                            ...(prof.disponibilidade_inicio === "A_COMBINAR" && { background: "#DBEAFE", color: "#1E40AF" })
-                          }}>
-                            {prof.disponibilidade_inicio === "IMEDIATO" && "IMEDIATO"}
-                            {prof.disponibilidade_inicio === "15_DIAS" && "EM 15 DIAS"}
-                            {prof.disponibilidade_inicio === "30_DIAS" && "EM 30 DIAS"}
-                            {prof.disponibilidade_inicio === "A_COMBINAR" && "A COMBINAR"}
-                          </span>
-                        )}
-
-                        {/* Badges Forma Remuneração */}
-                        {prof.forma_remuneracao && prof.forma_remuneracao.map((forma, idx) => (
-                          <span key={idx} style={{
-                            padding: "6px 12px",
-                            borderRadius: "12px",
-                            fontSize: "12px",
-                            fontWeight: 600,
-                            ...(forma === "DIARIA" && { background: "#E0F2FE", color: "#075985" }),
-                            ...(forma === "PORCENTAGEM" && { background: "#DCFCE7", color: "#166534" }),
-                            ...(forma === "FIXO" && { background: "#F3E8FF", color: "#6B21A8" }),
-                            ...(forma === "A_COMBINAR" && { background: "#DBEAFE", color: "#1E40AF" })
-                          }}>
-                            {forma === "DIARIA" && "DIÁRIA"}
-                            {forma === "PORCENTAGEM" && "% PRODUÇÃO"}
-                            {forma === "FIXO" && "FIXO"}
-                            {forma === "A_COMBINAR" && "A COMBINAR"}
-                          </span>
-                        ))}
+                      {/* 6. Disponibilidade */}
+                      <div style={{ marginBottom: "8px" }}>
+                        <strong style={{ color: "#718096" }}>⏰ DISPONIBILIDADE:</strong>{" "}
+                        <span style={{ color: "#2D3748", fontWeight: 500 }}>
+                          {prof.disponibilidade_inicio === "IMEDIATO" && "Imediato"}
+                          {prof.disponibilidade_inicio === "15_DIAS" && "15 dias"}
+                          {prof.disponibilidade_inicio === "30_DIAS" && "30 dias"}
+                          {prof.disponibilidade_inicio === "60_DIAS" && "60 dias"}
+                          {prof.disponibilidade_inicio === "A_COMBINAR" && "A combinar"}
+                        </span>
                       </div>
-                    </div>
 
-                    {/* SEÇÃO 4: CIDADES DE ATENDIMENTO */}
-                    <div>
-                      <p style={{
-                        fontSize: "12px",
-                        color: "#718096",
-                        fontWeight: 600,
-                        textTransform: "uppercase",
-                        margin: "16px 0 8px 0"
-                      }}>
-                        📍 Cidades de Atendimento
-                      </p>
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-                        {prof.cidades_atendimento && prof.cidades_atendimento.length > 0 ? (
-                          prof.cidades_atendimento.map((cidade, idx) => (
-                            <span key={idx} style={{
-                              background: "#F0F9FF",
-                              color: "#0369A1",
-                              padding: "6px 12px",
-                              borderRadius: "12px",
-                              fontSize: "13px",
-                              fontWeight: 500,
-                              border: "1px solid #BAE6FD"
-                            }}>
-                              {cidade}
-                            </span>
-                          ))
-                        ) : (
-                          <span style={{ color: "#A0AEC0", fontSize: "13px" }}>
-                            Não informado
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* SEÇÃO 5: DIAS DISPONÍVEIS */}
-                    <div>
-                      <p style={{
-                        fontSize: "12px",
-                        color: "#718096",
-                        fontWeight: 600,
-                        textTransform: "uppercase",
-                        margin: "12px 0 8px 0"
-                      }}>
-                        📅 Dias Disponíveis
-                      </p>
-                      <div style={{ display: "flex", gap: "6px" }}>
+                      {/* 7. Dias Disponíveis */}
+                      <div style={{ marginBottom: "8px" }}>
+                        <strong style={{ color: "#718096" }}>📅 DIAS DISPONÍVEIS:</strong>{" "}
                         {prof.dias_semana_disponiveis && prof.dias_semana_disponiveis.length > 0 ? (
-                          prof.dias_semana_disponiveis.map((dia, idx) => (
-                            <div key={idx} style={{
-                              width: "40px",
-                              height: "40px",
-                              borderRadius: "50%",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              fontSize: "11px",
-                              fontWeight: 700,
-                              ...(dia === "SEG" && { background: "#DBEAFE", color: "#1E40AF" }),
-                              ...(dia === "TER" && { background: "#FCE7F3", color: "#9F1239" }),
-                              ...(dia === "QUA" && { background: "#D1FAE5", color: "#065F46" }),
-                              ...(dia === "QUI" && { background: "#FEF3C7", color: "#B7791F" }),
-                              ...(dia === "SEX" && { background: "#F3E8FF", color: "#6B21A8" }),
-                              ...(dia === "SAB" && { background: "#FED7AA", color: "#9A3412" }),
-                              ...(dia === "DOM" && { background: "#FEE2E2", color: "#991B1B" })
-                            }}>
-                              {dia === "SEG" && "S"}
-                              {dia === "TER" && "T"}
-                              {dia === "QUA" && "Q"}
-                              {dia === "QUI" && "Q"}
-                              {dia === "SEX" && "S"}
-                              {dia === "SAB" && "S"}
-                              {dia === "DOM" && "D"}
-                            </div>
-                          ))
-                        ) : (
-                          <span style={{ color: "#A0AEC0", fontSize: "13px" }}>
-                            Não informado
+                          <span style={{ color: "#2D3748", fontWeight: 500 }}>
+                            {prof.dias_semana_disponiveis.includes("INTEGRAL") ? (
+                              "INTEGRAL (todos os dias)"
+                            ) : (
+                              prof.dias_semana_disponiveis.map((dia, idx) => (
+                                <span key={idx}>
+                                  {dia === "SEG" && "Seg"}
+                                  {dia === "TER" && "Ter"}
+                                  {dia === "QUA" && "Qua"}
+                                  {dia === "QUI" && "Qui"}
+                                  {dia === "SEX" && "Sex"}
+                                  {dia === "SAB" && "Sáb"}
+                                  {dia === "DOM" && "Dom"}
+                                  {idx < prof.dias_semana_disponiveis.length - 1 && " | "}
+                                </span>
+                              ))
+                            )}
                           </span>
+                        ) : (
+                          <span style={{ color: "#A0AEC0" }}>Não informado</span>
                         )}
                       </div>
-                    </div>
 
-                    {/* SEÇÃO 6: OBSERVAÇÕES */}
-                    {prof.observacoes && (
-                      <>
-                        <div style={{ borderTop: "1px solid #E2E8F0", margin: "16px 0" }} />
-                        <div>
+                      {/* 8. Cidades */}
+                      <div style={{ marginBottom: "8px" }}>
+                        <strong style={{ color: "#718096" }}>📍 CIDADES:</strong>{" "}
+                        {prof.cidades_atendimento && prof.cidades_atendimento.length > 0 ? (
+                          <span style={{ color: "#2D3748", fontWeight: 500 }}>
+                            {prof.cidades_atendimento.join(" / ")}
+                          </span>
+                        ) : (
+                          <span style={{ color: "#A0AEC0" }}>Não informado</span>
+                        )}
+                      </div>
+
+                      {/* 9. Remuneração */}
+                      <div style={{ marginBottom: "8px" }}>
+                        <strong style={{ color: "#718096" }}>💰 REMUNERAÇÃO:</strong>{" "}
+                        {prof.forma_remuneracao && prof.forma_remuneracao.length > 0 ? (
+                          <span style={{ color: "#2D3748", fontWeight: 500 }}>
+                            {prof.forma_remuneracao.map((forma, idx) => (
+                              <span key={idx}>
+                                {forma === "DIARIA" && "DIÁRIA"}
+                                {forma === "PORCENTAGEM" && "PORCENTAGEM"}
+                                {forma === "FIXO" && "FIXO"}
+                                {forma === "A_COMBINAR" && "A COMBINAR"}
+                                {idx < prof.forma_remuneracao.length - 1 && " | "}
+                              </span>
+                            ))}
+                          </span>
+                        ) : (
+                          <span style={{ color: "#A0AEC0" }}>Não informado</span>
+                        )}
+                      </div>
+
+                      {/* 10. Observações */}
+                      {prof.observacoes && (
+                        <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px solid #E2E8F0" }}>
+                          <strong style={{ color: "#718096" }}>📝 OBSERVAÇÕES:</strong>
                           <p style={{
-                            fontSize: "12px",
-                            color: "#718096",
-                            fontWeight: 600,
-                            textTransform: "uppercase",
-                            margin: "0 0 8px 0"
-                          }}>
-                            📝 Observações
-                          </p>
-                          <p style={{
-                            fontSize: "14px",
                             color: "#2D3748",
+                            margin: "6px 0 0 0",
                             lineHeight: 1.6,
-                            whiteSpace: "pre-wrap",
-                            maxHeight: "120px",
-                            overflowY: "auto",
-                            margin: 0
+                            whiteSpace: "pre-wrap"
                           }}>
                             {prof.observacoes}
                           </p>
                         </div>
-                      </>
-                    )}
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
