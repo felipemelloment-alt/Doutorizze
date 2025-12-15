@@ -5,6 +5,7 @@ import NewJobs from './pages/NewJobs';
 import Marketplace from './pages/Marketplace';
 import MarketplaceDetail from './pages/MarketplaceDetail';
 import MarketplaceCreate from './pages/MarketplaceCreate';
+import TestProfessional from './pages/TestProfessional';
 
 
 export const PAGES = {
@@ -15,6 +16,7 @@ export const PAGES = {
     "Marketplace": Marketplace,
     "MarketplaceDetail": MarketplaceDetail,
     "MarketplaceCreate": MarketplaceCreate,
+    "TestProfessional": TestProfessional,
 }
 
 export const pagesConfig = {
