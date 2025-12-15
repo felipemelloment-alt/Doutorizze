@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Plus, RefreshCcw } from "lucide-react";
+import { useUserRole } from "@/hooks/useUserRole";
 
 // Função para formatar CPF
 const formatCPF = (cpf) => {
@@ -46,6 +47,22 @@ const obterIniciais = (nomeCompleto) => {
 export default function TestProfessional() {
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
+  const { isAdmin, loading: loadingRole } = useUserRole();
+
+  if (loadingRole) {
+    return <div className="text-center py-12">Verificando permissões...</div>;
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-2">Acesso Restrito</h1>
+          <p className="text-gray-600">Esta página é exclusiva para administradores.</p>
+        </div>
+      </div>
+    );
+  }
 
   // Buscar todos os profissionais
   const { data: profissionais = [], isLoading, refetch } = useQuery({

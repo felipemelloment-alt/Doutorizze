@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Search, X, Star } from "lucide-react";
+import { useUserRole } from "@/hooks/useUserRole";
 
 // Lista de especialidades
 const especialidades = [
@@ -36,6 +37,22 @@ export default function BuscarProfissionais() {
   const [buscando, setBuscando] = useState(false);
   const [buscaRealizada, setBuscaRealizada] = useState(false);
   const [profissionais, setProfissionais] = useState([]);
+  const { isClinic, isAdmin, loading: loadingRole } = useUserRole();
+
+  if (loadingRole) {
+    return <div className="text-center py-12">Verificando permissões...</div>;
+  }
+
+  if (!isClinic && !isAdmin) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-2">Acesso Exclusivo para Clínicas</h1>
+          <p className="text-gray-600">Apenas clínicas podem buscar profissionais.</p>
+        </div>
+      </div>
+    );
+  }
 
   const podesBuscar = especialidade && uf && cidade.trim();
 
