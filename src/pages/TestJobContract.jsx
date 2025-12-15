@@ -89,6 +89,18 @@ export default function TestJobContract() {
       const expiraEm = new Date(agora);
       expiraEm.setDate(expiraEm.getDate() + 7);
 
+      // Check if contract already exists
+      const existingContract = await base44.entities.JobContract.filter({
+        job_id: vaga.id,
+        professional_id: profissional.id
+      });
+
+      if (existingContract.length > 0) {
+        toast.warning("⚠️ A contract already exists for this job and professional!");
+        setLoading(false);
+        return;
+      }
+
       // 5. Criar JobContract
       await base44.entities.JobContract.create({
         job_id: vaga.id,

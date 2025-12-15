@@ -90,6 +90,18 @@ export default function TestJobMatch() {
         matchType = "OUTROS";
       }
 
+      // Check if match already exists
+      const existingMatch = await base44.entities.JobMatch.filter({
+        job_id: vaga.id,
+        professional_id: profissional.id
+      });
+
+      if (existingMatch.length > 0) {
+        toast.warning("⚠️ A match already exists between this job and professional!");
+        setLoading(false);
+        return;
+      }
+
       // Criar match
       await base44.entities.JobMatch.create({
         job_id: vaga.id,
