@@ -12,6 +12,7 @@ import TestCompanyOwner from './pages/TestCompanyOwner';
 import TestCompanyUnit from './pages/TestCompanyUnit';
 import TestJobMatch from './pages/TestJobMatch';
 import TestJobContract from './pages/TestJobContract';
+import TestRating from './pages/TestRating';
 
 
 export const PAGES = {
@@ -29,6 +30,7 @@ export const PAGES = {
     "TestCompanyUnit": TestCompanyUnit,
     "TestJobMatch": TestJobMatch,
     "TestJobContract": TestJobContract,
+    "TestRating": TestRating,
 }
 
 export const pagesConfig = {
