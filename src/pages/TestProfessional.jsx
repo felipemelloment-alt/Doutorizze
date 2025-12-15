@@ -492,32 +492,6 @@ export default function TestProfessional() {
                       )}
                     </div>
 
-                    {/* Observações */}
-                    {prof.observacoes && (
-                      <>
-                        <div style={{ borderTop: "1px solid #E2E8F0", margin: "16px 0" }} />
-                        <div>
-                          <p style={{
-                            fontSize: "11px",
-                            color: "#718096",
-                            fontWeight: 600,
-                            textTransform: "uppercase",
-                            margin: "0 0 8px 0"
-                          }}>
-                            📝 OBSERVAÇÕES
-                          </p>
-                          <p style={{
-                            fontSize: "14px",
-                            color: "#4A5568",
-                            lineHeight: 1.6,
-                            margin: 0
-                          }}>
-                            {prof.observacoes}
-                          </p>
-                        </div>
-                      </>
-                    )}
-
                     {/* SEÇÃO 3: DISPONIBILIDADE E CONDIÇÕES */}
                     <div style={{ borderTop: "1px solid #E2E8F0", margin: "16px 0" }} />
                     <div>
@@ -652,6 +626,35 @@ export default function TestProfessional() {
                         )}
                       </div>
                     </div>
+
+                    {/* SEÇÃO 6: OBSERVAÇÕES */}
+                    {prof.observacoes && (
+                      <>
+                        <div style={{ borderTop: "1px solid #E2E8F0", margin: "16px 0" }} />
+                        <div>
+                          <p style={{
+                            fontSize: "12px",
+                            color: "#718096",
+                            fontWeight: 600,
+                            textTransform: "uppercase",
+                            margin: "0 0 8px 0"
+                          }}>
+                            📝 Observações
+                          </p>
+                          <p style={{
+                            fontSize: "14px",
+                            color: "#2D3748",
+                            lineHeight: 1.6,
+                            whiteSpace: "pre-wrap",
+                            maxHeight: "120px",
+                            overflowY: "auto",
+                            margin: 0
+                          }}>
+                            {prof.observacoes}
+                          </p>
+                        </div>
+                      </>
+                    )}
                   </div>
                 ))}
               </div>
