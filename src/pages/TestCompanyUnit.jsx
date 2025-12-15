@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Plus, RefreshCcw } from "lucide-react";
+import { Plus, RefreshCcw, MapPin, Star, Briefcase, ShoppingBag } from "lucide-react";
 
 // Função para formatar CNPJ
 const formatCNPJ = (cnpj) => {
@@ -71,6 +71,14 @@ export default function TestCompanyUnit() {
         endereco: "Rua Teste",
         numero: "123",
         bairro: "Centro",
+        nome_responsavel: "Dr. João Silva",
+        cro_responsavel: "CRO-GO 12345",
+        documento_responsavel_url: "https://exemplo.com/documento.jpg",
+        google_maps_link: "https://maps.google.com/?q=Goiania,GO",
+        ponto_referencia: "Próximo ao Shopping Flamboyant",
+        media_avaliacoes: 4.5,
+        total_avaliacoes: 18,
+        total_contratacoes: 45,
         status_cadastro: "APROVADO",
         ativo: true
       });
@@ -178,6 +186,26 @@ export default function TestCompanyUnit() {
                         {unit.razao_social}
                       </p>
 
+                      {/* Avaliações */}
+                      {unit.total_avaliacoes > 0 && (
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "12px" }}>
+                          <Star className="w-4 h-4" style={{ color: "#F9B500", fill: "#F9B500" }} />
+                          <span style={{
+                            fontSize: "16px",
+                            fontWeight: 700,
+                            color: "#2D3748"
+                          }}>
+                            {unit.media_avaliacoes.toFixed(1)}
+                          </span>
+                          <span style={{
+                            fontSize: "14px",
+                            color: "#718096"
+                          }}>
+                            ({unit.total_avaliacoes} {unit.total_avaliacoes === 1 ? "avaliação" : "avaliações"})
+                          </span>
+                        </div>
+                      )}
+
                       {/* Badges */}
                       <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                         {/* Badge Status */}
@@ -240,6 +268,65 @@ export default function TestCompanyUnit() {
 
                     <div style={{ borderTop: "1px solid #E2E8F0", margin: "16px 0" }} />
 
+                    {/* FOTOS DA CLÍNICA */}
+                    {(unit.foto_fachada_url || unit.foto_recepcao_url || unit.foto_consultorio_url) && (
+                      <>
+                        <div style={{ marginBottom: "16px" }}>
+                          <p style={{
+                            fontSize: "11px",
+                            color: "#718096",
+                            fontWeight: 600,
+                            textTransform: "uppercase",
+                            margin: "0 0 8px 0"
+                          }}>
+                            📸 FOTOS DA CLÍNICA
+                          </p>
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px" }}>
+                            {unit.foto_fachada_url && (
+                              <img
+                                src={unit.foto_fachada_url}
+                                alt="Fachada"
+                                style={{
+                                  width: "100%",
+                                  height: "80px",
+                                  objectFit: "cover",
+                                  borderRadius: "8px",
+                                  border: "1px solid #E2E8F0"
+                                }}
+                              />
+                            )}
+                            {unit.foto_recepcao_url && (
+                              <img
+                                src={unit.foto_recepcao_url}
+                                alt="Recepção"
+                                style={{
+                                  width: "100%",
+                                  height: "80px",
+                                  objectFit: "cover",
+                                  borderRadius: "8px",
+                                  border: "1px solid #E2E8F0"
+                                }}
+                              />
+                            )}
+                            {unit.foto_consultorio_url && (
+                              <img
+                                src={unit.foto_consultorio_url}
+                                alt="Consultório"
+                                style={{
+                                  width: "100%",
+                                  height: "80px",
+                                  objectFit: "cover",
+                                  borderRadius: "8px",
+                                  border: "1px solid #E2E8F0"
+                                }}
+                              />
+                            )}
+                          </div>
+                        </div>
+                        <div style={{ borderTop: "1px solid #E2E8F0", margin: "16px 0" }} />
+                      </>
+                    )}
+
                     {/* INFORMAÇÕES */}
                     <div style={{
                       display: "grid",
@@ -288,29 +375,110 @@ export default function TestCompanyUnit() {
                         </p>
                       </div>
 
-                      {/* Email */}
-                      <div style={{ gridColumn: "1 / -1" }}>
-                        <p style={{
-                          fontSize: "11px",
-                          color: "#718096",
-                          fontWeight: 600,
-                          textTransform: "uppercase",
-                          margin: "0 0 4px 0"
-                        }}>
-                          ✉️ EMAIL
-                        </p>
-                        <a
-                          href={`mailto:${unit.email}`}
-                          style={{
+                      {/* Responsável */}
+                      {unit.nome_responsavel && (
+                        <div style={{ gridColumn: "1 / -1" }}>
+                          <p style={{
+                            fontSize: "11px",
+                            color: "#718096",
+                            fontWeight: 600,
+                            textTransform: "uppercase",
+                            margin: "0 0 4px 0"
+                          }}>
+                            👤 RESPONSÁVEL
+                          </p>
+                          <p style={{
                             fontSize: "14px",
-                            color: "#0B95DA",
+                            color: "#2D3748",
+                            fontWeight: 500,
+                            margin: 0
+                          }}>
+                            {unit.nome_responsavel}
+                            {unit.cro_responsavel && (
+                              <span style={{ color: "#718096", marginLeft: "8px" }}>
+                                ({unit.cro_responsavel})
+                              </span>
+                            )}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Ponto de Referência */}
+                      {unit.ponto_referencia && (
+                        <div style={{ gridColumn: "1 / -1" }}>
+                          <p style={{
+                            fontSize: "11px",
+                            color: "#718096",
+                            fontWeight: 600,
+                            textTransform: "uppercase",
+                            margin: "0 0 4px 0"
+                          }}>
+                            🗺️ PONTO DE REFERÊNCIA
+                          </p>
+                          <p style={{
+                            fontSize: "14px",
+                            color: "#2D3748",
+                            margin: 0
+                          }}>
+                            {unit.ponto_referencia}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Google Maps Link */}
+                    {unit.google_maps_link && (
+                      <>
+                        <div style={{ borderTop: "1px solid #E2E8F0", margin: "16px 0" }} />
+                        <a
+                          href={unit.google_maps_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            padding: "8px 12px",
+                            borderRadius: "8px",
+                            background: "#F0F9FF",
+                            border: "1px solid #BAE6FD",
+                            color: "#0369A1",
                             textDecoration: "none",
-                            fontWeight: 500
+                            fontSize: "14px",
+                            fontWeight: 600,
+                            transition: "all 0.2s ease"
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = "#E0F2FE";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = "#F0F9FF";
                           }}
                         >
-                          {unit.email}
+                          <MapPin className="w-4 h-4" />
+                          Ver no Google Maps
                         </a>
-                      </div>
+                      </>
+                    )}
+
+                    {/* Botões de Ação */}
+                    <div style={{ borderTop: "1px solid #E2E8F0", margin: "16px 0" }} />
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                      <Button
+                        className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold"
+                        size="sm"
+                      >
+                        <Briefcase className="w-4 h-4 mr-2" />
+                        Anunciar Vaga
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="border-2 font-bold"
+                        size="sm"
+                      >
+                        <ShoppingBag className="w-4 h-4 mr-2" />
+                        Marketplace
+                      </Button>
                     </div>
                   </div>
                 ))}
