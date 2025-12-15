@@ -7,6 +7,7 @@ import MarketplaceDetail from './pages/MarketplaceDetail';
 import MarketplaceCreate from './pages/MarketplaceCreate';
 import TestProfessional from './pages/TestProfessional';
 import TestCompany from './pages/TestCompany';
+import TestJob from './pages/TestJob';
 
 
 export const PAGES = {
@@ -19,6 +20,7 @@ export const PAGES = {
     "MarketplaceCreate": MarketplaceCreate,
     "TestProfessional": TestProfessional,
     "TestCompany": TestCompany,
+    "TestJob": TestJob,
 }
 
 export const pagesConfig = {
