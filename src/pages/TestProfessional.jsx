@@ -299,7 +299,7 @@ export default function TestProfessional() {
                             fontWeight: 700,
                             color: "#2D3748"
                           }}>
-                            {prof.media_avaliacoes.toFixed(1)}
+                            {(prof.media_avaliacoes || 0).toFixed(1)}
                           </span>
                           <span style={{
                             fontSize: "12px",

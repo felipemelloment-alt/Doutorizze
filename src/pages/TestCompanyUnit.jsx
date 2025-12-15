@@ -219,7 +219,7 @@ export default function TestCompanyUnit() {
                             fontWeight: 700,
                             color: "#2D3748"
                           }}>
-                            {unit.media_avaliacoes.toFixed(1)}
+                            {(unit.media_avaliacoes || 0).toFixed(1)}
                           </span>
                           <span style={{
                             fontSize: "14px",

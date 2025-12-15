@@ -65,7 +65,14 @@ export default function TestRating() {
       }
 
       const base64 = partes[2];
-      const decoded = atob(base64);
+      let decoded;
+      try {
+        decoded = atob(base64);
+      } catch (e) {
+        toast.error("❌ Token mal formatado!");
+        setValidando(false);
+        return;
+      }
       const [tipo, professionalId, unitId, jobId] = decoded.split("_");
 
       // 5. Buscar informações de quem será avaliado
@@ -145,8 +152,8 @@ export default function TestRating() {
         const prof = await base44.entities.Professional.filter({ id: tokenValido.avaliadoId });
         if (prof.length > 0) {
           const profissional = prof[0];
-          const totalAvaliacoes = profissional.total_avaliacoes + 1;
-          const somaAtual = profissional.media_avaliacoes * profissional.total_avaliacoes;
+          const totalAvaliacoes = (profissional.total_avaliacoes || 0) + 1;
+          const somaAtual = (profissional.media_avaliacoes || 0) * (profissional.total_avaliacoes || 0);
           const novaMedia = (somaAtual + notaSelecionada) / totalAvaliacoes;
 
           await base44.entities.Professional.update(profissional.id, {
@@ -160,8 +167,8 @@ export default function TestRating() {
         const units = await base44.entities.CompanyUnit.filter({ id: tokenValido.avaliadoId });
         if (units.length > 0) {
           const unit = units[0];
-          const totalAvaliacoes = unit.total_avaliacoes + 1;
-          const somaAtual = unit.media_avaliacoes * unit.total_avaliacoes;
+          const totalAvaliacoes = (unit.total_avaliacoes || 0) + 1;
+          const somaAtual = (unit.media_avaliacoes || 0) * (unit.total_avaliacoes || 0);
           const novaMedia = (somaAtual + notaSelecionada) / totalAvaliacoes;
 
           await base44.entities.CompanyUnit.update(unit.id, {
