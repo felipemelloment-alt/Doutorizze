@@ -11,6 +11,7 @@ import TestJob from './pages/TestJob';
 import TestCompanyOwner from './pages/TestCompanyOwner';
 import TestCompanyUnit from './pages/TestCompanyUnit';
 import TestJobMatch from './pages/TestJobMatch';
+import TestJobContract from './pages/TestJobContract';
 
 
 export const PAGES = {
@@ -27,6 +28,7 @@ export const PAGES = {
     "TestCompanyOwner": TestCompanyOwner,
     "TestCompanyUnit": TestCompanyUnit,
     "TestJobMatch": TestJobMatch,
+    "TestJobContract": TestJobContract,
 }
 
 export const pagesConfig = {
