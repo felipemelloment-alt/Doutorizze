@@ -4,8 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Plus, RefreshCcw, MapPin, Clock, DollarSign, Calendar } from "lucide-react";
-import { format } from "date-fns";
+import { Plus, RefreshCcw, MapPin, DollarSign } from "lucide-react";
 
 export default function TestJob() {
   const [loading, setLoading] = useState(false);
@@ -28,51 +27,76 @@ export default function TestJob() {
   const criarVagaTeste = async () => {
     setLoading(true);
     try {
-      // Buscar ou criar uma empresa
-      const empresas = await base44.entities.Company.list();
-      let empresaId;
+      // Buscar ou criar uma unit
+      const units = await base44.entities.CompanyUnit.list();
+      let unitId;
 
-      if (empresas.length === 0) {
-        const user = await base44.auth.me();
+      if (units.length === 0) {
+        // Criar owner primeiro
+        const owners = await base44.entities.CompanyOwner.list();
+        let ownerId;
+
+        if (owners.length === 0) {
+          const user = await base44.auth.me();
+          const cpfAleatorio = Math.random().toString().slice(2, 13);
+          
+          const novoOwner = await base44.entities.CompanyOwner.create({
+            user_id: user.id,
+            nome_completo: "João Silva (AUTO)",
+            cpf: cpfAleatorio,
+            whatsapp: "62999887766",
+            email: "owner@teste.com",
+            status_cadastro: "APROVADO"
+          });
+          ownerId = novoOwner.id;
+        } else {
+          ownerId = owners[0].id;
+        }
+
+        // Criar unit
         const cnpjAleatorio = Math.random().toString().slice(2, 16);
         
-        const novaEmpresa = await base44.entities.Company.create({
-          user_id: user.id,
+        const novaUnit = await base44.entities.CompanyUnit.create({
+          owner_id: ownerId,
           razao_social: "Clínica Teste LTDA",
           nome_fantasia: "Clínica Teste",
           cnpj: cnpjAleatorio,
           tipo_empresa: "CLINICA",
           tipo_mundo: "ODONTOLOGIA",
           whatsapp: "62999998888",
-          email: "teste@clinica.com",
+          email: "clinica@teste.com",
           cidade: "Goiânia",
           uf: "GO",
-          endereco_completo: "Rua Teste, 123",
-          status_cadastro: "APROVADO"
+          status_cadastro: "APROVADO",
+          ativo: true
         });
-        empresaId = novaEmpresa.id;
+        unitId = novaUnit.id;
       } else {
-        empresaId = empresas[0].id;
+        unitId = units[0].id;
       }
 
-      // Criar vaga de teste
+      // Criar vaga
       const expiraEm30Dias = new Date();
       expiraEm30Dias.setDate(expiraEm30Dias.getDate() + 30);
 
       await base44.entities.Job.create({
-        company_id: empresaId,
+        unit_id: unitId,
         titulo: "Dentista para Plantão de Final de Semana",
-        descricao: "Buscamos dentista experiente para plantões aos finais de semana em nossa clínica. Ambiente agradável, equipe colaborativa e ótima remuneração.",
+        descricao: "Buscamos dentista experiente para plantões aos finais de semana.",
         tipo_vaga: "PLANTAO",
-        tipo_mundo: "ODONTOLOGIA",
-        especialidades_aceitas: ["Clínico Geral", "Endodontia", "Periodontia"],
+        tipo_profissional: "DENTISTA",
+        especialidades_aceitas: ["Clínico Geral", "Endodontia"],
+        tempo_minimo_formado: 2,
+        dias_semana: ["SAB", "DOM"],
         cidade: "Goiânia",
         uf: "GO",
-        dias_semana: ["SAB", "DOM"],
-        tempo_minimo_formado: 2,
         valor_proposto: 800,
         tipo_remuneracao: "DIA",
+        horario_inicio: "08:00",
+        horario_fim: "18:00",
         status: "ABERTO",
+        total_candidatos: 0,
+        total_visualizacoes: 0,
         expires_at: expiraEm30Dias.toISOString()
       });
 
@@ -159,11 +183,10 @@ export default function TestJob() {
                       e.currentTarget.style.transform = "translateY(0)";
                     }}
                   >
-                    {/* SEÇÃO 1: HEADER (TÍTULO + BADGES) */}
+                    {/* HEADER */}
                     <div style={{ marginBottom: "16px" }}>
-                      {/* Título */}
                       <h3 style={{
-                        fontSize: "20px",
+                        fontSize: "18px",
                         fontWeight: 700,
                         color: "#2D3748",
                         margin: "0 0 8px 0"
@@ -171,12 +194,11 @@ export default function TestJob() {
                         {vaga.titulo}
                       </h3>
 
-                      {/* Descrição */}
                       {vaga.descricao && (
                         <p style={{
                           fontSize: "14px",
                           color: "#718096",
-                          lineHeight: 1.6,
+                          lineHeight: 1.5,
                           margin: "0 0 12px 0",
                           overflow: "hidden",
                           display: "-webkit-box",
@@ -189,7 +211,7 @@ export default function TestJob() {
 
                       {/* Badges */}
                       <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                        {/* Badge Status */}
+                        {/* Status */}
                         <span style={{
                           padding: "4px 12px",
                           borderRadius: "16px",
@@ -197,13 +219,15 @@ export default function TestJob() {
                           fontWeight: 600,
                           textTransform: "uppercase",
                           ...(vaga.status === "ABERTO" && { background: "#D1FAE5", color: "#065F46" }),
+                          ...(vaga.status === "PAUSADO" && { background: "#FEF3C7", color: "#B7791F" }),
                           ...(vaga.status === "PREENCHIDO" && { background: "#DBEAFE", color: "#1E40AF" }),
-                          ...(vaga.status === "CANCELADO" && { background: "#FEE2E2", color: "#991B1B" })
+                          ...(vaga.status === "CANCELADO" && { background: "#FEE2E2", color: "#991B1B" }),
+                          ...(vaga.status === "RASCUNHO" && { background: "#F3F4F6", color: "#4B5563" })
                         }}>
                           {vaga.status}
                         </span>
 
-                        {/* Badge Tipo Vaga */}
+                        {/* Tipo Vaga */}
                         <span style={{
                           padding: "4px 12px",
                           borderRadius: "16px",
@@ -218,86 +242,38 @@ export default function TestJob() {
                           {vaga.tipo_vaga}
                         </span>
 
-                        {/* Badge Tipo Mundo */}
+                        {/* Tipo Profissional */}
                         <span style={{
                           padding: "4px 12px",
                           borderRadius: "16px",
                           fontSize: "12px",
                           fontWeight: 600,
                           textTransform: "uppercase",
-                          ...(vaga.tipo_mundo === "ODONTOLOGIA" && { background: "#FCE7F3", color: "#9F1239" }),
-                          ...(vaga.tipo_mundo === "MEDICINA" && { background: "#CCFBF1", color: "#115E59" })
+                          ...(vaga.tipo_profissional === "DENTISTA" && { background: "#FCE7F3", color: "#9F1239" }),
+                          ...(vaga.tipo_profissional === "MEDICO" && { background: "#CCFBF1", color: "#115E59" })
                         }}>
-                          {vaga.tipo_mundo}
+                          {vaga.tipo_profissional}
                         </span>
                       </div>
                     </div>
 
-                    {/* Separador */}
                     <div style={{ borderTop: "1px solid #E2E8F0", margin: "16px 0" }} />
 
-                    {/* SEÇÃO 2: LOCALIZAÇÃO E DIAS */}
-                    <div style={{ marginBottom: "16px" }}>
-                      {/* Localização */}
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
-                        <MapPin className="w-4 h-4" style={{ color: "#718096" }} />
-                        <p style={{
-                          fontSize: "14px",
-                          color: "#2D3748",
-                          fontWeight: 500,
-                          margin: 0
-                        }}>
-                          {vaga.cidade} - {vaga.uf}
-                        </p>
-                      </div>
-
-                      {/* Dias da Semana */}
-                      {vaga.dias_semana && vaga.dias_semana.length > 0 && (
-                        <div>
-                          <p style={{
-                            fontSize: "11px",
-                            color: "#718096",
-                            fontWeight: 600,
-                            textTransform: "uppercase",
-                            margin: "0 0 8px 0"
-                          }}>
-                            📅 DIAS NECESSÁRIOS
-                          </p>
-                          <div style={{ display: "flex", gap: "6px" }}>
-                            {vaga.dias_semana.map((dia, idx) => (
-                              <div key={idx} style={{
-                                width: "36px",
-                                height: "36px",
-                                borderRadius: "50%",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                fontSize: "11px",
-                                fontWeight: 700,
-                                ...(dia === "SEG" && { background: "#DBEAFE", color: "#1E40AF" }),
-                                ...(dia === "TER" && { background: "#FCE7F3", color: "#9F1239" }),
-                                ...(dia === "QUA" && { background: "#D1FAE5", color: "#065F46" }),
-                                ...(dia === "QUI" && { background: "#FEF3C7", color: "#B7791F" }),
-                                ...(dia === "SEX" && { background: "#F3E8FF", color: "#6B21A8" }),
-                                ...(dia === "SAB" && { background: "#FED7AA", color: "#9A3412" }),
-                                ...(dia === "DOM" && { background: "#FEE2E2", color: "#991B1B" })
-                              }}>
-                                {dia === "SEG" && "S"}
-                                {dia === "TER" && "T"}
-                                {dia === "QUA" && "Q"}
-                                {dia === "QUI" && "Q"}
-                                {dia === "SEX" && "S"}
-                                {dia === "SAB" && "S"}
-                                {dia === "DOM" && "D"}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                    {/* LOCALIZAÇÃO */}
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+                      <MapPin className="w-4 h-4" style={{ color: "#718096" }} />
+                      <p style={{
+                        fontSize: "14px",
+                        color: "#2D3748",
+                        fontWeight: 500,
+                        margin: 0
+                      }}>
+                        {vaga.cidade} - {vaga.uf}
+                      </p>
                     </div>
 
-                    {/* SEÇÃO 3: ESPECIALIDADES */}
-                    {vaga.especialidades_aceitas && vaga.especialidades_aceitas.length > 0 && (
+                    {/* DIAS DA SEMANA */}
+                    {vaga.dias_semana && vaga.dias_semana.length > 0 && (
                       <div style={{ marginBottom: "16px" }}>
                         <p style={{
                           fontSize: "11px",
@@ -306,102 +282,50 @@ export default function TestJob() {
                           textTransform: "uppercase",
                           margin: "0 0 8px 0"
                         }}>
-                          🎯 ESPECIALIDADES ACEITAS
+                          📅 DIAS
                         </p>
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                          {vaga.especialidades_aceitas.map((esp, idx) => (
-                            <span key={idx} style={{
-                              background: "#F0F9FF",
-                              color: "#0369A1",
-                              padding: "4px 10px",
-                              borderRadius: "12px",
-                              fontSize: "12px",
-                              fontWeight: 500,
-                              border: "1px solid #BAE6FD"
+                        <div style={{ display: "flex", gap: "6px" }}>
+                          {vaga.dias_semana.map((dia, idx) => (
+                            <div key={idx} style={{
+                              width: "36px",
+                              height: "36px",
+                              borderRadius: "50%",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: "11px",
+                              fontWeight: 700,
+                              ...(dia === "SEG" && { background: "#DBEAFE", color: "#1E40AF" }),
+                              ...(dia === "TER" && { background: "#FCE7F3", color: "#9F1239" }),
+                              ...(dia === "QUA" && { background: "#D1FAE5", color: "#065F46" }),
+                              ...(dia === "QUI" && { background: "#FEF3C7", color: "#B7791F" }),
+                              ...(dia === "SEX" && { background: "#F3E8FF", color: "#6B21A8" }),
+                              ...(dia === "SAB" && { background: "#FED7AA", color: "#9A3412" }),
+                              ...(dia === "DOM" && { background: "#FEE2E2", color: "#991B1B" })
                             }}>
-                              {esp}
-                            </span>
+                              {dia[0]}
+                            </div>
                           ))}
                         </div>
                       </div>
                     )}
 
-                    {/* Separador */}
-                    <div style={{ borderTop: "1px solid #E2E8F0", margin: "16px 0" }} />
-
-                    {/* SEÇÃO 4: REQUISITOS E REMUNERAÇÃO */}
-                    <div style={{
-                      display: "grid",
-                      gridTemplateColumns: "1fr 1fr",
-                      gap: "12px"
-                    }}>
-                      {/* Tempo Mínimo */}
-                      {vaga.tempo_minimo_formado > 0 && (
-                        <div>
-                          <p style={{
-                            fontSize: "11px",
-                            color: "#718096",
-                            fontWeight: 600,
-                            textTransform: "uppercase",
-                            margin: "0 0 4px 0"
-                          }}>
-                            <Clock className="w-3 h-3 inline mr-1" />
-                            TEMPO MÍNIMO
-                          </p>
-                          <p style={{
-                            fontSize: "14px",
-                            color: "#2D3748",
-                            fontWeight: 500,
-                            margin: 0
-                          }}>
-                            {vaga.tempo_minimo_formado} anos
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Remuneração */}
-                      {vaga.valor_proposto && (
-                        <div>
-                          <p style={{
-                            fontSize: "11px",
-                            color: "#718096",
-                            fontWeight: 600,
-                            textTransform: "uppercase",
-                            margin: "0 0 4px 0"
-                          }}>
-                            <DollarSign className="w-3 h-3 inline mr-1" />
-                            REMUNERAÇÃO
-                          </p>
-                          <p style={{
-                            fontSize: "14px",
-                            color: "#2D3748",
-                            fontWeight: 500,
-                            margin: 0
-                          }}>
-                            R$ {vaga.valor_proposto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                            <span style={{ fontSize: "12px", color: "#718096", marginLeft: "4px" }}>
-                              /{vaga.tipo_remuneracao?.toLowerCase()}
-                            </span>
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Data de Expiração */}
-                    {vaga.expires_at && (
-                      <>
-                        <div style={{ borderTop: "1px solid #E2E8F0", margin: "12px 0" }} />
-                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                          <Calendar className="w-4 h-4" style={{ color: "#718096" }} />
-                          <p style={{
-                            fontSize: "12px",
-                            color: "#718096",
-                            margin: 0
-                          }}>
-                            Expira em: {format(new Date(vaga.expires_at), "dd/MM/yyyy")}
-                          </p>
-                        </div>
-                      </>
+                    {/* VALOR */}
+                    {vaga.valor_proposto && (
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <DollarSign className="w-4 h-4" style={{ color: "#065F46" }} />
+                        <p style={{
+                          fontSize: "16px",
+                          color: "#065F46",
+                          fontWeight: 700,
+                          margin: 0
+                        }}>
+                          R$ {vaga.valor_proposto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          <span style={{ fontSize: "12px", color: "#718096", marginLeft: "4px" }}>
+                            /{vaga.tipo_remuneracao?.toLowerCase()}
+                          </span>
+                        </p>
+                      </div>
                     )}
                   </div>
                 ))}

@@ -8,6 +8,9 @@ import MarketplaceCreate from './pages/MarketplaceCreate';
 import TestProfessional from './pages/TestProfessional';
 import TestCompany from './pages/TestCompany';
 import TestJob from './pages/TestJob';
+import TestCompanyOwner from './pages/TestCompanyOwner';
+import TestCompanyUnit from './pages/TestCompanyUnit';
+import TestJobMatch from './pages/TestJobMatch';
 
 
 export const PAGES = {
@@ -21,6 +24,9 @@ export const PAGES = {
     "TestProfessional": TestProfessional,
     "TestCompany": TestCompany,
     "TestJob": TestJob,
+    "TestCompanyOwner": TestCompanyOwner,
+    "TestCompanyUnit": TestCompanyUnit,
+    "TestJobMatch": TestJobMatch,
 }
 
 export const pagesConfig = {
