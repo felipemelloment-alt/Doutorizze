@@ -13,6 +13,7 @@ import TestCompanyUnit from './pages/TestCompanyUnit';
 import TestJobMatch from './pages/TestJobMatch';
 import TestJobContract from './pages/TestJobContract';
 import TestRating from './pages/TestRating';
+import BuscarProfissionais from './pages/BuscarProfissionais';
 
 
 export const PAGES = {
@@ -31,6 +32,7 @@ export const PAGES = {
     "TestJobMatch": TestJobMatch,
     "TestJobContract": TestJobContract,
     "TestRating": TestRating,
+    "BuscarProfissionais": BuscarProfissionais,
 }
 
 export const pagesConfig = {
