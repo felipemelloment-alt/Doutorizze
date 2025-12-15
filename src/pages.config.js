@@ -20,6 +20,6 @@ export const PAGES = {
 }
 
 export const pagesConfig = {
-    mainPage: "NotificationSettings",
+    mainPage: "TestProfessional",
     Pages: PAGES,
 };
