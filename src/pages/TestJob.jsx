@@ -26,14 +26,33 @@ const especialidadeCores = {
 
 export default function TestJob() {
   const [loading, setLoading] = useState(false);
+  const [unitsMap, setUnitsMap] = useState({});
   const queryClient = useQueryClient();
 
-  // Buscar todas as vagas
+  // Buscar todas as vagas e suas units relacionadas
   const { data: vagas = [], isLoading, refetch } = useQuery({
     queryKey: ["jobs"],
     queryFn: async () => {
       try {
-        return await base44.entities.Job.list("-created_date");
+        const jobs = await base44.entities.Job.list("-created_date");
+
+        // Buscar todas as units relacionadas
+        const unitIds = [...new Set(jobs.map(j => j.unit_id).filter(Boolean))];
+        const unitsData = {};
+
+        for (const unitId of unitIds) {
+          try {
+            const units = await base44.entities.CompanyUnit.filter({ id: unitId });
+            if (units.length > 0) {
+              unitsData[unitId] = units[0];
+            }
+          } catch (e) {
+            console.error("Erro ao buscar unit:", unitId);
+          }
+        }
+
+        setUnitsMap(unitsData);
+        return jobs;
       } catch (error) {
         console.error("Erro ao buscar vagas:", error);
         toast.error("Erro ao carregar vagas");
@@ -186,7 +205,9 @@ export default function TestJob() {
               </div>
             ) : (
               <div className="grid md:grid-cols-2 gap-6">
-                {vagas.map((vaga) => (
+                {vagas.map((vaga) => {
+                  const unit = unitsMap[vaga.unit_id];
+                  return (
                   <div
                     key={vaga.id}
                     style={{
@@ -249,32 +270,34 @@ export default function TestJob() {
                         {vaga.titulo}
                       </h3>
 
-                      {/* Nome da Clínica (mock - viria da CompanyUnit) */}
+                      {/* Nome da Clínica */}
                       <p style={{
                         fontSize: "14px",
                         color: "#718096",
                         margin: "0 0 8px 0"
                       }}>
-                        Clínica Sorriso Saúde
+                        {unit?.nome_fantasia || "Clínica"}
                       </p>
 
-                      {/* Avaliações (mock - viria da CompanyUnit) */}
-                      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                        <Star className="w-4 h-4" style={{ color: "#F9B500", fill: "#F9B500" }} />
-                        <span style={{
-                          fontSize: "14px",
-                          fontWeight: 700,
-                          color: "#2D3748"
-                        }}>
-                          4.5
-                        </span>
-                        <span style={{
-                          fontSize: "12px",
-                          color: "#718096"
-                        }}>
-                          (18 avaliações)
-                        </span>
-                      </div>
+                      {/* Avaliações */}
+                      {unit?.total_avaliacoes > 0 && (
+                        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                          <Star className="w-4 h-4" style={{ color: "#F9B500", fill: "#F9B500" }} />
+                          <span style={{
+                            fontSize: "14px",
+                            fontWeight: 700,
+                            color: "#2D3748"
+                          }}>
+                            {(unit.media_avaliacoes || 0).toFixed(1)}
+                          </span>
+                          <span style={{
+                            fontSize: "12px",
+                            color: "#718096"
+                          }}>
+                            ({unit.total_avaliacoes} {unit.total_avaliacoes === 1 ? "avaliação" : "avaliações"})
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     <div style={{ borderTop: "1px solid #E2E8F0", margin: "12px 0" }} />
@@ -285,35 +308,41 @@ export default function TestJob() {
                       <div style={{ marginBottom: "8px" }}>
                         <strong style={{ color: "#718096" }}>📍 ENDEREÇO:</strong>{" "}
                         <span style={{ color: "#2D3748", fontWeight: 500 }}>
-                          Rua das Flores, 123 - Centro, {vaga.cidade} - {vaga.uf}
+                          {unit?.endereco ? (
+                            `${unit.endereco}, ${unit.numero || "S/N"} - ${unit.bairro || ""}, ${unit.cidade} - ${unit.uf}`
+                          ) : (
+                            `${vaga.cidade} - ${vaga.uf}`
+                          )}
                         </span>
                       </div>
 
                       {/* 2. Google Maps */}
-                      <div style={{ marginBottom: "8px" }}>
-                        <a
-                          href="https://maps.google.com/?q=Goiania,GO"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "4px",
-                            color: "#0B95DA",
-                            textDecoration: "none",
-                            fontWeight: 600
-                          }}
-                        >
-                          🗺️ Ver no Google Maps
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
-                      </div>
+                      {unit?.google_maps_link && (
+                        <div style={{ marginBottom: "8px" }}>
+                          <a
+                            href={unit.google_maps_link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "4px",
+                              color: "#0B95DA",
+                              textDecoration: "none",
+                              fontWeight: 600
+                            }}
+                          >
+                            🗺️ Ver no Google Maps
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        </div>
+                      )}
 
                       {/* 3. WhatsApp */}
                       <div style={{ marginBottom: "8px" }}>
                         <strong style={{ color: "#718096" }}>📱 WHATSAPP:</strong>{" "}
                         <a
-                          href="https://wa.me/5562999998888"
+                          href={`https://wa.me/55${unit?.whatsapp || ""}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{
@@ -322,7 +351,7 @@ export default function TestJob() {
                             fontWeight: 600
                           }}
                         >
-                          (62) 99999-8888
+                          {formatWhatsApp(unit?.whatsapp || "")}
                         </a>
                       </div>
 
@@ -426,7 +455,8 @@ export default function TestJob() {
                       )}
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </CardContent>
