@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Plus, RefreshCcw } from "lucide-react";
-import { useUserRole } from "@/hooks/useUserRole";
+import { useUserRole } from "@/components/hooks/useUserRole";
 
 // Função para formatar CPF
 const formatCPF = (cpf) => {

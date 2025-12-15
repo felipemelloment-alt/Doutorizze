@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Search, X, Star } from "lucide-react";
-import { useUserRole } from "@/hooks/useUserRole";
+import { useUserRole } from "@/components/hooks/useUserRole";
 
 // Lista de especialidades
 const especialidades = [
