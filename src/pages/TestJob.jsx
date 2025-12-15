@@ -4,7 +4,25 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Plus, RefreshCcw, MapPin, DollarSign } from "lucide-react";
+import { Plus, RefreshCcw, MapPin, DollarSign, Clock, User, Instagram, ExternalLink, Star } from "lucide-react";
+
+// Função para formatar WhatsApp
+const formatWhatsApp = (whatsapp) => {
+  if (!whatsapp) return "";
+  return whatsapp.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
+};
+
+// Cores das especialidades
+const especialidadeCores = {
+  "Endodontia": { bg: "#FCE7F3", color: "#9F1239" },
+  "Implantodontia": { bg: "#D1FAE5", color: "#065F46" },
+  "Ortodontia": { bg: "#DBEAFE", color: "#1E40AF" },
+  "Periodontia": { bg: "#FEF3C7", color: "#B7791F" },
+  "Clínico Geral": { bg: "#E0F2FE", color: "#075985" },
+  "Cirurgia": { bg: "#F3E8FF", color: "#6B21A8" },
+  "Protese": { bg: "#FED7AA", color: "#9A3412" },
+  "Estética": { bg: "#FCE7F3", color: "#BE185D" }
+};
 
 export default function TestJob() {
   const [loading, setLoading] = useState(false);
@@ -81,19 +99,24 @@ export default function TestJob() {
 
       await base44.entities.Job.create({
         unit_id: unitId,
-        titulo: "Dentista para Plantão de Final de Semana",
-        descricao: "Buscamos dentista experiente para plantões aos finais de semana.",
-        tipo_vaga: "PLANTAO",
+        titulo: "Implantodontista P/ Goiânia",
+        descricao: "Buscamos implantodontista experiente para clínica moderna.",
+        tipo_vaga: "FIXO",
         tipo_profissional: "DENTISTA",
-        especialidades_aceitas: ["Clínico Geral", "Endodontia"],
+        especialidades_aceitas: ["Implantodontia", "Endodontia"],
         tempo_minimo_formado: 2,
-        dias_semana: ["SAB", "DOM"],
+        exige_experiencia: true,
+        tempo_experiencia_minimo: 2,
+        dias_semana: ["SEG", "TER", "QUA"],
+        selecao_dias: "ESPECIFICOS",
         cidade: "Goiânia",
         uf: "GO",
         valor_proposto: 800,
-        tipo_remuneracao: "DIA",
+        tipo_remuneracao: "DIARIA",
         horario_inicio: "08:00",
         horario_fim: "18:00",
+        falar_com: "João Carlos",
+        instagram_clinica: "@clinicasorriso",
         status: "ABERTO",
         total_candidatos: 0,
         total_visualizacoes: 0,
@@ -168,9 +191,9 @@ export default function TestJob() {
                     key={vaga.id}
                     style={{
                       background: "#FFFFFF",
-                      border: "1px solid #E2E8F0",
+                      border: "2px solid #E2E8F0",
                       borderRadius: "12px",
-                      padding: "24px",
+                      padding: "20px",
                       boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
                       transition: "all 0.2s ease"
                     }}
@@ -183,150 +206,225 @@ export default function TestJob() {
                       e.currentTarget.style.transform = "translateY(0)";
                     }}
                   >
-                    {/* HEADER */}
+                    {/* NOVO HEADER */}
                     <div style={{ marginBottom: "16px" }}>
+                      {/* Badge CONTRATA-SE + Especialidades */}
+                      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "12px" }}>
+                        <span style={{
+                          padding: "4px 12px",
+                          borderRadius: "16px",
+                          fontSize: "11px",
+                          fontWeight: 700,
+                          background: "#D1FAE5",
+                          color: "#065F46",
+                          textTransform: "uppercase"
+                        }}>
+                          CONTRATA-SE
+                        </span>
+                        {vaga.especialidades_aceitas && vaga.especialidades_aceitas.map((esp, idx) => {
+                          const cores = especialidadeCores[esp] || { bg: "#F3F4F6", color: "#4B5563" };
+                          return (
+                            <span key={idx} style={{
+                              padding: "4px 12px",
+                              borderRadius: "16px",
+                              fontSize: "11px",
+                              fontWeight: 700,
+                              background: cores.bg,
+                              color: cores.color,
+                              textTransform: "uppercase"
+                            }}>
+                              {esp}
+                            </span>
+                          );
+                        })}
+                      </div>
+
+                      {/* Título */}
                       <h3 style={{
                         fontSize: "18px",
                         fontWeight: 700,
                         color: "#2D3748",
-                        margin: "0 0 8px 0"
+                        margin: "0 0 6px 0"
                       }}>
                         {vaga.titulo}
                       </h3>
 
-                      {vaga.descricao && (
-                        <p style={{
-                          fontSize: "14px",
-                          color: "#718096",
-                          lineHeight: 1.5,
-                          margin: "0 0 12px 0",
-                          overflow: "hidden",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical"
-                        }}>
-                          {vaga.descricao}
-                        </p>
-                      )}
-
-                      {/* Badges */}
-                      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                        {/* Status */}
-                        <span style={{
-                          padding: "4px 12px",
-                          borderRadius: "16px",
-                          fontSize: "12px",
-                          fontWeight: 600,
-                          textTransform: "uppercase",
-                          ...(vaga.status === "ABERTO" && { background: "#D1FAE5", color: "#065F46" }),
-                          ...(vaga.status === "PAUSADO" && { background: "#FEF3C7", color: "#B7791F" }),
-                          ...(vaga.status === "PREENCHIDO" && { background: "#DBEAFE", color: "#1E40AF" }),
-                          ...(vaga.status === "CANCELADO" && { background: "#FEE2E2", color: "#991B1B" }),
-                          ...(vaga.status === "RASCUNHO" && { background: "#F3F4F6", color: "#4B5563" })
-                        }}>
-                          {vaga.status}
-                        </span>
-
-                        {/* Tipo Vaga */}
-                        <span style={{
-                          padding: "4px 12px",
-                          borderRadius: "16px",
-                          fontSize: "12px",
-                          fontWeight: 600,
-                          textTransform: "uppercase",
-                          ...(vaga.tipo_vaga === "PLANTAO" && { background: "#FED7AA", color: "#9A3412" }),
-                          ...(vaga.tipo_vaga === "SUBSTITUICAO" && { background: "#FEF3C7", color: "#B7791F" }),
-                          ...(vaga.tipo_vaga === "FIXO" && { background: "#D1FAE5", color: "#065F46" }),
-                          ...(vaga.tipo_vaga === "TEMPORARIO" && { background: "#F3E8FF", color: "#6B21A8" })
-                        }}>
-                          {vaga.tipo_vaga}
-                        </span>
-
-                        {/* Tipo Profissional */}
-                        <span style={{
-                          padding: "4px 12px",
-                          borderRadius: "16px",
-                          fontSize: "12px",
-                          fontWeight: 600,
-                          textTransform: "uppercase",
-                          ...(vaga.tipo_profissional === "DENTISTA" && { background: "#FCE7F3", color: "#9F1239" }),
-                          ...(vaga.tipo_profissional === "MEDICO" && { background: "#CCFBF1", color: "#115E59" })
-                        }}>
-                          {vaga.tipo_profissional}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div style={{ borderTop: "1px solid #E2E8F0", margin: "16px 0" }} />
-
-                    {/* LOCALIZAÇÃO */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
-                      <MapPin className="w-4 h-4" style={{ color: "#718096" }} />
+                      {/* Nome da Clínica (mock - viria da CompanyUnit) */}
                       <p style={{
                         fontSize: "14px",
-                        color: "#2D3748",
-                        fontWeight: 500,
-                        margin: 0
+                        color: "#718096",
+                        margin: "0 0 8px 0"
                       }}>
-                        {vaga.cidade} - {vaga.uf}
+                        Clínica Sorriso Saúde
                       </p>
+
+                      {/* Avaliações (mock - viria da CompanyUnit) */}
+                      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                        <Star className="w-4 h-4" style={{ color: "#F9B500", fill: "#F9B500" }} />
+                        <span style={{
+                          fontSize: "14px",
+                          fontWeight: 700,
+                          color: "#2D3748"
+                        }}>
+                          4.5
+                        </span>
+                        <span style={{
+                          fontSize: "12px",
+                          color: "#718096"
+                        }}>
+                          (18 avaliações)
+                        </span>
+                      </div>
                     </div>
 
-                    {/* DIAS DA SEMANA */}
-                    {vaga.dias_semana && vaga.dias_semana.length > 0 && (
-                      <div style={{ marginBottom: "16px" }}>
-                        <p style={{
-                          fontSize: "11px",
-                          color: "#718096",
-                          fontWeight: 600,
-                          textTransform: "uppercase",
-                          margin: "0 0 8px 0"
-                        }}>
-                          📅 DIAS
-                        </p>
-                        <div style={{ display: "flex", gap: "6px" }}>
-                          {vaga.dias_semana.map((dia, idx) => (
-                            <div key={idx} style={{
-                              width: "36px",
-                              height: "36px",
-                              borderRadius: "50%",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              fontSize: "11px",
-                              fontWeight: 700,
-                              ...(dia === "SEG" && { background: "#DBEAFE", color: "#1E40AF" }),
-                              ...(dia === "TER" && { background: "#FCE7F3", color: "#9F1239" }),
-                              ...(dia === "QUA" && { background: "#D1FAE5", color: "#065F46" }),
-                              ...(dia === "QUI" && { background: "#FEF3C7", color: "#B7791F" }),
-                              ...(dia === "SEX" && { background: "#F3E8FF", color: "#6B21A8" }),
-                              ...(dia === "SAB" && { background: "#FED7AA", color: "#9A3412" }),
-                              ...(dia === "DOM" && { background: "#FEE2E2", color: "#991B1B" })
-                            }}>
-                              {dia[0]}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                    <div style={{ borderTop: "1px solid #E2E8F0", margin: "12px 0" }} />
 
-                    {/* VALOR */}
-                    {vaga.valor_proposto && (
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <DollarSign className="w-4 h-4" style={{ color: "#065F46" }} />
-                        <p style={{
-                          fontSize: "16px",
-                          color: "#065F46",
-                          fontWeight: 700,
-                          margin: 0
-                        }}>
-                          R$ {vaga.valor_proposto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                          <span style={{ fontSize: "12px", color: "#718096", marginLeft: "4px" }}>
-                            /{vaga.tipo_remuneracao?.toLowerCase()}
-                          </span>
-                        </p>
+                    {/* CORPO DO CARD */}
+                    <div style={{ fontSize: "13px", lineHeight: "1.8" }}>
+                      {/* 1. Endereço */}
+                      <div style={{ marginBottom: "8px" }}>
+                        <strong style={{ color: "#718096" }}>📍 ENDEREÇO:</strong>{" "}
+                        <span style={{ color: "#2D3748", fontWeight: 500 }}>
+                          Rua das Flores, 123 - Centro, {vaga.cidade} - {vaga.uf}
+                        </span>
                       </div>
-                    )}
+
+                      {/* 2. Google Maps */}
+                      <div style={{ marginBottom: "8px" }}>
+                        <a
+                          href="https://maps.google.com/?q=Goiania,GO"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "4px",
+                            color: "#0B95DA",
+                            textDecoration: "none",
+                            fontWeight: 600
+                          }}
+                        >
+                          🗺️ Ver no Google Maps
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+
+                      {/* 3. WhatsApp */}
+                      <div style={{ marginBottom: "8px" }}>
+                        <strong style={{ color: "#718096" }}>📱 WHATSAPP:</strong>{" "}
+                        <a
+                          href="https://wa.me/5562999998888"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            color: "#25D366",
+                            textDecoration: "none",
+                            fontWeight: 600
+                          }}
+                        >
+                          (62) 99999-8888
+                        </a>
+                      </div>
+
+                      {/* 4. Falar com */}
+                      {vaga.falar_com && (
+                        <div style={{ marginBottom: "8px" }}>
+                          <strong style={{ color: "#718096" }}>👤 FALAR COM:</strong>{" "}
+                          <span style={{ color: "#2D3748", fontWeight: 500 }}>
+                            {vaga.falar_com}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* 5. Valor */}
+                      <div style={{ marginBottom: "8px" }}>
+                        <strong style={{ color: "#718096" }}>💰 VALOR:</strong>{" "}
+                        {vaga.tipo_remuneracao === "A_COMBINAR" ? (
+                          <span style={{ color: "#2D3748", fontWeight: 600 }}>
+                            A Combinar
+                          </span>
+                        ) : vaga.valor_proposto ? (
+                          <span style={{ color: "#065F46", fontWeight: 700 }}>
+                            R$ {vaga.valor_proposto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            {vaga.tipo_remuneracao === "DIARIA" && "/dia"}
+                            {vaga.tipo_remuneracao === "FIXO" && "/mês"}
+                            {vaga.tipo_remuneracao === "PORCENTAGEM" && "% produção"}
+                          </span>
+                        ) : (
+                          <span style={{ color: "#A0AEC0" }}>Não informado</span>
+                        )}
+                      </div>
+
+                      {/* 6. Dias */}
+                      <div style={{ marginBottom: "8px" }}>
+                        <strong style={{ color: "#718096" }}>📅 DIAS:</strong>{" "}
+                        {vaga.selecao_dias === "SEMANA_TODA" ? (
+                          <span style={{ color: "#2D3748", fontWeight: 500 }}>
+                            Semana Toda
+                          </span>
+                        ) : vaga.selecao_dias === "MES_TODO" ? (
+                          <span style={{ color: "#2D3748", fontWeight: 500 }}>
+                            Mês Todo
+                          </span>
+                        ) : vaga.dias_semana && vaga.dias_semana.length > 0 ? (
+                          <span style={{ color: "#2D3748", fontWeight: 500 }}>
+                            {vaga.dias_semana.map((dia, idx) => (
+                              <span key={idx}>
+                                {dia === "SEG" && "Segunda"}
+                                {dia === "TER" && "Terça"}
+                                {dia === "QUA" && "Quarta"}
+                                {dia === "QUI" && "Quinta"}
+                                {dia === "SEX" && "Sexta"}
+                                {dia === "SAB" && "Sábado"}
+                                {dia === "DOM" && "Domingo"}
+                                {idx < vaga.dias_semana.length - 1 && " | "}
+                              </span>
+                            ))}
+                          </span>
+                        ) : (
+                          <span style={{ color: "#A0AEC0" }}>Não informado</span>
+                        )}
+                      </div>
+
+                      {/* 7. Horário */}
+                      {(vaga.horario_inicio || vaga.horario_fim) && (
+                        <div style={{ marginBottom: "8px" }}>
+                          <strong style={{ color: "#718096" }}>⏰ HORÁRIO:</strong>{" "}
+                          <span style={{ color: "#2D3748", fontWeight: 500 }}>
+                            {vaga.horario_inicio || "00:00"} às {vaga.horario_fim || "00:00"}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* 8. Experiência */}
+                      {vaga.exige_experiencia && vaga.tempo_experiencia_minimo > 0 && (
+                        <div style={{ marginBottom: "8px" }}>
+                          <strong style={{ color: "#718096" }}>🎓 EXPERIÊNCIA:</strong>{" "}
+                          <span style={{ color: "#2D3748", fontWeight: 500 }}>
+                            Mínimo {vaga.tempo_experiencia_minimo} {vaga.tempo_experiencia_minimo === 1 ? "ano" : "anos"}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* 9. Instagram */}
+                      {vaga.instagram_clinica && (
+                        <div style={{ marginBottom: "8px" }}>
+                          <strong style={{ color: "#718096" }}>📸 INSTAGRAM:</strong>{" "}
+                          <a
+                            href={`https://instagram.com/${vaga.instagram_clinica.replace("@", "")}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              color: "#E4405F",
+                              textDecoration: "none",
+                              fontWeight: 600
+                            }}
+                          >
+                            {vaga.instagram_clinica}
+                          </a>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
