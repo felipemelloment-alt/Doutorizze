@@ -241,26 +241,11 @@ export default function Marketplace() {
               animate={{ opacity: 1, scale: 1 }}
               className="relative">
 
-              <div className="w-full max-w-[256px] sm:w-64 h-96 bg-white rounded-[3rem] shadow-2xl border-8 border-gray-800 p-4 relative overflow-hidden mx-auto">
-                <div className="absolute top-4 left-1/2 -translate-x-1/2 w-20 h-1 bg-gray-800 rounded-full"></div>
-                <div className="h-full bg-gradient-to-br from-blue-50 to-purple-50 rounded-[2rem] mt-6 p-4">
-                  <div className="bg-white rounded-2xl p-3 shadow-lg">
-                    <div className="w-full h-32 bg-gray-200 rounded-xl mb-3 flex items-center justify-center">
-                      <Activity className="w-16 h-16 text-gray-400" />
-                    </div>
-                    <h3 className="font-bold text-sm gradient-yellow-pink bg-clip-text text-transparent">
-                      Cadeira Odontológica
-                    </h3>
-                    <p className="text-2xl font-black text-pink-600 mt-1">
-                      R$14.000
-                    </p>
-                    <div className="flex items-center gap-1 text-xs text-gray-600 mt-2">
-                      <MapPin className="w-3 h-3" />
-                      Goiânia - GO
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6916d492cc9abf019259139b/5520ba8d3_image.png"
+                alt="Marketplace New Jobs"
+                className="w-full max-w-md h-auto object-contain drop-shadow-2xl"
+              />
             </motion.div>
           </div>
         </div>
