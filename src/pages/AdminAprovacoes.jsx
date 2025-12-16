@@ -8,13 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { CheckCircle, XCircle, Eye, Search, Clock, FileText } from "lucide-react";
+import { CheckCircle, XCircle, Eye, Clock } from "lucide-react";
 import { useUserRole } from "@/components/hooks/useUserRole";
 
 export default function AdminAprovacoes() {
   const { isAdmin, loading: loadingRole } = useUserRole();
   const queryClient = useQueryClient();
-  const [busca, setBusca] = useState("");
   const [modalDocumento, setModalDocumento] = useState(null);
   const [modalRejeitar, setModalRejeitar] = useState(null);
   const [motivoRejeicao, setMotivoRejeicao] = useState("");
