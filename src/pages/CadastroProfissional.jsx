@@ -30,11 +30,13 @@ export default function CadastroProfissional() {
     instagram: "",
 
     // ETAPA 2: Formação e Especialidade
-    registro_conselho: "",
-    uf_conselho: "",
+    numero_registro: "",
+    uf_registro: "",
     tempo_formado_anos: "",
     especialidade_principal: "",
+    outras_especialidades: [],
     tempo_especialidade_anos: "",
+    instituicao_formacao: "",
 
     // ETAPA 3: Disponibilidade
     cidades_atendimento: [""],
@@ -127,6 +129,15 @@ export default function CadastroProfissional() {
     });
   };
 
+  const toggleOutraEspecialidade = (especialidade) => {
+    setFormData(prev => {
+      const especialidades = prev.outras_especialidades.includes(especialidade)
+        ? prev.outras_especialidades.filter(e => e !== especialidade)
+        : [...prev.outras_especialidades, especialidade];
+      return { ...prev, outras_especialidades: especialidades };
+    });
+  };
+
   // Validação por etapa
   const validarEtapa = (etapa) => {
     switch (etapa) {
@@ -158,12 +169,12 @@ export default function CadastroProfissional() {
         return true;
 
       case 2:
-        if (!formData.registro_conselho) {
+        if (!formData.numero_registro) {
           toast.error(`Preencha o número ${getRegistroLabel(formData.tipo_profissional === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA")}`);
           return false;
         }
-        if (!formData.uf_conselho) {
-          toast.error("Selecione a UF do conselho");
+        if (!formData.uf_registro) {
+          toast.error("Selecione a UF do registro");
           return false;
         }
         if (!formData.tempo_formado_anos) {
@@ -241,8 +252,8 @@ export default function CadastroProfissional() {
         exibir_email: false,
         instagram: formData.instagram || "",
         tipo_profissional: formData.tipo_profissional,
-        registro_conselho: formData.registro_conselho,
-        uf_conselho: formData.uf_conselho,
+        registro_conselho: formData.numero_registro,
+        uf_conselho: formData.uf_registro,
         tempo_formado_anos: parseInt(formData.tempo_formado_anos),
         especialidade_principal: formData.especialidade_principal,
         tempo_especialidade_anos: formData.tempo_especialidade_anos ? parseInt(formData.tempo_especialidade_anos) : 0,
@@ -388,40 +399,103 @@ export default function CadastroProfissional() {
           <div className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="registro_conselho">
-                  {getRegistroLabel(formData.tipo_profissional === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA")} *
+                <Label htmlFor="numero_registro">
+                  Número do {getRegistroLabel(formData.tipo_profissional === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA")} *
                 </Label>
                 <Input
-                  id="registro_conselho"
-                  value={formData.registro_conselho}
-                  onChange={(e) => handleInputChange("registro_conselho", e.target.value)}
+                  id="numero_registro"
+                  value={formData.numero_registro}
+                  onChange={(e) => handleInputChange("numero_registro", e.target.value)}
                   placeholder="12345"
                 />
               </div>
 
               <div>
-                <Label htmlFor="uf_conselho">UF do Conselho *</Label>
-                <Select value={formData.uf_conselho} onValueChange={(value) => handleInputChange("uf_conselho", value)}>
+                <Label htmlFor="uf_registro">UF do Registro *</Label>
+                <Select value={formData.uf_registro} onValueChange={(value) => handleInputChange("uf_registro", value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="GO">GO</SelectItem>
-                    <SelectItem value="SP">SP</SelectItem>
-                    <SelectItem value="RJ">RJ</SelectItem>
-                    <SelectItem value="MG">MG</SelectItem>
+                    <SelectItem value="AC">AC</SelectItem>
+                    <SelectItem value="AL">AL</SelectItem>
+                    <SelectItem value="AP">AP</SelectItem>
+                    <SelectItem value="AM">AM</SelectItem>
                     <SelectItem value="BA">BA</SelectItem>
-                    <SelectItem value="PR">PR</SelectItem>
-                    <SelectItem value="RS">RS</SelectItem>
-                    <SelectItem value="PE">PE</SelectItem>
                     <SelectItem value="CE">CE</SelectItem>
+                    <SelectItem value="DF">DF</SelectItem>
+                    <SelectItem value="ES">ES</SelectItem>
+                    <SelectItem value="GO">GO</SelectItem>
+                    <SelectItem value="MA">MA</SelectItem>
+                    <SelectItem value="MT">MT</SelectItem>
+                    <SelectItem value="MS">MS</SelectItem>
+                    <SelectItem value="MG">MG</SelectItem>
                     <SelectItem value="PA">PA</SelectItem>
+                    <SelectItem value="PB">PB</SelectItem>
+                    <SelectItem value="PR">PR</SelectItem>
+                    <SelectItem value="PE">PE</SelectItem>
+                    <SelectItem value="PI">PI</SelectItem>
+                    <SelectItem value="RJ">RJ</SelectItem>
+                    <SelectItem value="RN">RN</SelectItem>
+                    <SelectItem value="RS">RS</SelectItem>
+                    <SelectItem value="RO">RO</SelectItem>
+                    <SelectItem value="RR">RR</SelectItem>
+                    <SelectItem value="SC">SC</SelectItem>
+                    <SelectItem value="SP">SP</SelectItem>
+                    <SelectItem value="SE">SE</SelectItem>
+                    <SelectItem value="TO">TO</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+            </div>
 
+            {/* Especialidade Principal */}
+            <div>
+              <Label htmlFor="especialidade_principal">Especialidade Principal *</Label>
+              <Select
+                value={formData.especialidade_principal}
+                onValueChange={(value) => handleInputChange("especialidade_principal", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+                <SelectContent>
+                  {especialidades.map((esp) => (
+                    <SelectItem key={esp} value={esp}>
+                      {esp}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Outras Especialidades */}
+            <div>
+              <Label className="text-base font-semibold mb-3 block">Outras Especialidades (opcional)</Label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-4">
+                {especialidades
+                  .filter(esp => esp !== formData.especialidade_principal)
+                  .map((esp) => (
+                    <div key={esp} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id={`esp-${esp}`}
+                        checked={formData.outras_especialidades.includes(esp)}
+                        onChange={() => toggleOutraEspecialidade(esp)}
+                        className="w-4 h-4 text-blue-600"
+                      />
+                      <Label htmlFor={`esp-${esp}`} className="text-sm cursor-pointer">
+                        {esp}
+                      </Label>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* Tempo de Formado e Especialista */}
+            <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="tempo_formado_anos">Tempo de Formado (anos) *</Label>
+                <Label htmlFor="tempo_formado_anos">Anos de Formado *</Label>
                 <Input
                   id="tempo_formado_anos"
                   type="number"
@@ -434,26 +508,7 @@ export default function CadastroProfissional() {
               </div>
 
               <div>
-                <Label htmlFor="especialidade_principal">Especialidade Principal *</Label>
-                <Select
-                  value={formData.especialidade_principal}
-                  onValueChange={(value) => handleInputChange("especialidade_principal", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {especialidades.map((esp) => (
-                      <SelectItem key={esp} value={esp}>
-                        {esp}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="md:col-span-2">
-                <Label htmlFor="tempo_especialidade_anos">Tempo como Especialista (anos) - Opcional</Label>
+                <Label htmlFor="tempo_especialidade_anos">Anos de Especialidade (opcional)</Label>
                 <Input
                   id="tempo_especialidade_anos"
                   type="number"
@@ -464,6 +519,17 @@ export default function CadastroProfissional() {
                   max="99"
                 />
               </div>
+            </div>
+
+            {/* Instituição de Formação */}
+            <div>
+              <Label htmlFor="instituicao_formacao">Instituição de Formação (opcional)</Label>
+              <Input
+                id="instituicao_formacao"
+                value={formData.instituicao_formacao}
+                onChange={(e) => handleInputChange("instituicao_formacao", e.target.value)}
+                placeholder="Ex: Universidade Federal de Goiás"
+              />
             </div>
           </div>
         );
