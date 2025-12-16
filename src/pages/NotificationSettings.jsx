@@ -81,43 +81,43 @@ export default function NotificationSettings() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 p-4 md:p-8">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 px-4 py-6 md:p-8">
+      <div className="max-w-4xl mx-auto space-y-6 w-full">
         
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <div className="p-3 bg-blue-600 rounded-2xl shadow-lg">
-            <Bell className="w-8 h-8 text-white" />
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-6 md:mb-8">
+          <div className="p-3 gradient-yellow-pink rounded-2xl shadow-lg flex-shrink-0">
+            <Bell className="w-6 h-6 md:w-8 md:h-8 text-white" />
           </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Notificações</h1>
-            <p className="text-gray-600">Personalize como você quer ser notificado</p>
+          <div className="w-full max-w-full">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 truncate">Notificações</h1>
+            <p className="text-sm md:text-base text-gray-600">Personalize como você quer ser notificado</p>
           </div>
         </div>
 
         {/* Vagas & Matching */}
-        <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <Briefcase className="w-6 h-6 text-blue-600" />
-              <div>
-                <CardTitle>Vagas & Oportunidades</CardTitle>
-                <CardDescription>Notificações sobre vagas compatíveis com seu perfil</CardDescription>
+        <Card className="border-2 border-gray-100 hover:border-[#F9B500] shadow-xl transition-all overflow-hidden w-full max-w-full">
+          <CardHeader className="p-4 md:p-6">
+            <div className="flex items-start gap-3 w-full">
+              <Briefcase className="w-5 h-5 md:w-6 md:h-6 text-[#F9B500] flex-shrink-0 mt-1" />
+              <div className="w-full max-w-full overflow-hidden">
+                <CardTitle className="text-lg md:text-xl truncate">Vagas & Oportunidades</CardTitle>
+                <CardDescription className="text-sm line-clamp-2">Notificações sobre vagas compatíveis com seu perfil</CardDescription>
               </div>
             </div>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 p-4 md:p-6 w-full max-w-full overflow-hidden">
             
             {/* Super Jobs */}
-            <div className="space-y-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border border-yellow-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-yellow-500 rounded-lg">
-                    <Star className="w-5 h-5 text-white" />
+            <div className="space-y-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border-2 border-[#F9B500] w-full max-w-full overflow-hidden">
+              <div className="flex items-start md:items-center justify-between gap-3 w-full">
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <div className="p-2 bg-[#F9B500] rounded-lg flex-shrink-0">
+                    <Star className="w-4 h-4 md:w-5 md:h-5 text-white" />
                   </div>
-                  <div>
-                    <Label className="text-base font-semibold text-gray-900">SUPER JOBS 🌟</Label>
-                    <p className="text-sm text-gray-600">Vagas perfeitas para você (100% compatível)</p>
+                  <div className="min-w-0 flex-1">
+                    <Label className="text-sm md:text-base font-semibold text-gray-900 block truncate">SUPER JOBS 🌟</Label>
+                    <p className="text-xs md:text-sm text-gray-600 line-clamp-2">Vagas perfeitas para você (100% compatível)</p>
                   </div>
                 </div>
                 <Switch
@@ -125,11 +125,12 @@ export default function NotificationSettings() {
                   onCheckedChange={(checked) =>
                     setDraft("vagas_super_jobs", { ...preferences.vagas_super_jobs, ativo: checked })
                   }
+                  className="flex-shrink-0"
                 />
               </div>
               
               {preferences.vagas_super_jobs?.ativo && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pl-12">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pl-0 md:pl-12 w-full">
                   <div className="flex items-center gap-2">
                     <Switch
                       checked={preferences.vagas_super_jobs?.canal_push ?? true}
@@ -162,15 +163,15 @@ export default function NotificationSettings() {
             </div>
 
             {/* Jobs Semelhante */}
-            <div className="space-y-4 p-4 bg-orange-50 rounded-xl border border-orange-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-orange-500 rounded-lg">
-                    <Star className="w-5 h-5 text-white" />
+            <div className="space-y-4 p-4 bg-orange-50 rounded-xl border-2 border-[#E94560] w-full max-w-full overflow-hidden">
+              <div className="flex items-start md:items-center justify-between gap-3 w-full">
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <div className="p-2 bg-[#E94560] rounded-lg flex-shrink-0">
+                    <Star className="w-4 h-4 md:w-5 md:h-5 text-white" />
                   </div>
-                  <div>
-                    <Label className="text-base font-semibold text-gray-900">Jobs Semelhante ⭐</Label>
-                    <p className="text-sm text-gray-600">Vagas compatíveis (75% de match)</p>
+                  <div className="min-w-0 flex-1">
+                    <Label className="text-sm md:text-base font-semibold text-gray-900 block truncate">Jobs Semelhante ⭐</Label>
+                    <p className="text-xs md:text-sm text-gray-600 line-clamp-2">Vagas compatíveis (75% de match)</p>
                   </div>
                 </div>
                 <Switch
@@ -178,11 +179,12 @@ export default function NotificationSettings() {
                   onCheckedChange={(checked) =>
                     setDraft("vagas_semelhante", { ...preferences.vagas_semelhante, ativo: checked })
                   }
+                  className="flex-shrink-0"
                 />
               </div>
               
               {preferences.vagas_semelhante?.ativo && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pl-12">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pl-0 md:pl-12 w-full">
                   <div className="flex items-center gap-2">
                     <Switch
                       checked={preferences.vagas_semelhante?.canal_push ?? true}
@@ -318,27 +320,28 @@ export default function NotificationSettings() {
         </Card>
 
         {/* Mensagens & Chat */}
-        <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <MessageSquare className="w-6 h-6 text-green-600" />
-              <div>
-                <CardTitle>Mensagens & Chat</CardTitle>
-                <CardDescription>Notificações de novas mensagens</CardDescription>
+        <Card className="border-2 border-gray-100 hover:border-[#F9B500] shadow-xl transition-all overflow-hidden w-full max-w-full">
+          <CardHeader className="p-4 md:p-6">
+            <div className="flex items-start gap-3 w-full">
+              <MessageSquare className="w-5 h-5 md:w-6 md:h-6 text-green-600 flex-shrink-0 mt-1" />
+              <div className="w-full max-w-full overflow-hidden">
+                <CardTitle className="text-lg md:text-xl truncate">Mensagens & Chat</CardTitle>
+                <CardDescription className="text-sm line-clamp-2">Notificações de novas mensagens</CardDescription>
               </div>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <Label className="text-base font-semibold">Novas Mensagens no Chat</Label>
-                <p className="text-sm text-gray-600">Seja notificado quando recebernovas mensagens</p>
+          <CardContent className="p-4 md:p-6 w-full max-w-full overflow-hidden">
+            <div className="flex items-start md:items-center justify-between gap-3 w-full">
+              <div className="flex-1 min-w-0">
+                <Label className="text-sm md:text-base font-semibold block truncate">Novas Mensagens no Chat</Label>
+                <p className="text-xs md:text-sm text-gray-600 line-clamp-2">Seja notificado quando receber novas mensagens</p>
               </div>
               <Switch
                 checked={preferences.mensagens_chat?.ativo ?? true}
                 onCheckedChange={(checked) =>
                   setDraft("mensagens_chat", { ...preferences.mensagens_chat, ativo: checked })
                 }
+                className="flex-shrink-0"
               />
             </div>
             
@@ -801,16 +804,16 @@ export default function NotificationSettings() {
         </Card>
 
         {/* Botões de Ação */}
-        <div className="flex gap-3">
+        <div className="flex flex-col md:flex-row gap-3 w-full max-w-full">
           <Button
             variant="outline"
-            className="flex-1"
+            className="w-full md:flex-1 h-12 rounded-xl border-2 border-gray-200 hover:border-[#F9B500] font-bold"
             onClick={() => window.history.back()}
           >
             Voltar
           </Button>
           <Button
-            className="flex-1 bg-blue-600 hover:bg-blue-700"
+            className="w-full md:flex-1 h-12 gradient-yellow-pink text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all border-0"
             onClick={() => toast.success("Todas as preferências foram salvas!")}
           >
             <CheckCircle className="w-4 h-4 mr-2" />
