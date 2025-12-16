@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Plus, RefreshCcw, MapPin, DollarSign, Clock, User, Instagram, ExternalLink, Star } from "lucide-react";
+import { useUserRole } from "@/components/hooks/useUserRole";
+import { getEspecialidades, getProfissionalLabel } from "@/components/constants/especialidades";
 
 // Função para formatar WhatsApp
 const formatWhatsApp = (whatsapp) => {
@@ -28,13 +30,20 @@ export default function TestJob() {
   const [loading, setLoading] = useState(false);
   const [unitsMap, setUnitsMap] = useState({});
   const queryClient = useQueryClient();
+  const { userWorld, isAdmin, loading: loadingRole } = useUserRole();
 
   // Buscar todas as vagas e suas units relacionadas
   const { data: vagas = [], isLoading, refetch } = useQuery({
-    queryKey: ["jobs"],
+    queryKey: ["jobs", userWorld],
     queryFn: async () => {
       try {
-        const jobs = await base44.entities.Job.list("-created_date");
+        let jobs = await base44.entities.Job.list("-created_date");
+
+        // Filter by world unless admin
+        if (userWorld && userWorld !== "AMBOS") {
+          const tipoProfissional = userWorld === "ODONTOLOGIA" ? "DENTISTA" : "MEDICO";
+          jobs = jobs.filter(j => j.tipo_profissional === tipoProfissional);
+        }
 
         // Buscar todas as units relacionadas
         const unitIds = [...new Set(jobs.map(j => j.unit_id).filter(Boolean))];
@@ -180,7 +189,7 @@ export default function TestJob() {
           <CardHeader className="bg-gradient-to-r from-gray-700 to-gray-900 text-white rounded-t-lg">
             <div className="flex items-center justify-between">
               <CardTitle className="text-2xl">
-                Lista de Vagas ({vagas.length})
+                Lista de Vagas {userWorld === "ODONTOLOGIA" ? "Odontológicas" : userWorld === "MEDICINA" ? "Médicas" : ""} ({vagas.length})
               </CardTitle>
               <Button
                 variant="outline"
