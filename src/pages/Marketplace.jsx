@@ -145,10 +145,10 @@ export default function Marketplace() {
                   <ShoppingBag className="w-10 h-10 text-pink-600" />
                 </div>
                 <div>
-                  <h1 className="text-5xl md:text-7xl font-black text-yellow-400 text-shadow-lg">
+                  <h1 className="text-5xl md:text-7xl font-black text-[#F9B500] text-shadow-lg">
                     MARKETPLACE
                   </h1>
-                  <p className="text-orange-600 mt-2 text-xl font-semibold">Equipamentos médicos e odontológicos ⚡
+                  <p className="text-white mt-2 text-xl font-semibold">Equipamentos médicos e odontológicos ⚡
 
                   </p>
                 </div>
@@ -158,7 +158,7 @@ export default function Marketplace() {
                 <Button
                   size="lg"
                   onClick={() => navigate(createPageUrl("MarketplaceCreate"))}
-                  className="bg-white text-pink-600 font-bold px-8 py-6 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all">
+                  className="bg-white text-[#E94560] font-bold px-8 py-6 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all border-0">
 
                   <Plus className="w-6 h-6 mr-2" />
                   Anunciar Equipamento
@@ -204,16 +204,16 @@ export default function Marketplace() {
           onValueChange={setActiveTab}
           className="mb-8">
 
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 h-auto p-2 bg-white rounded-2xl shadow-lg">
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-1 md:grid-cols-2 h-auto p-2 bg-white rounded-2xl shadow-lg gap-2">
             <TabsTrigger
               value="ODONTOLOGIA"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-400 data-[state=active]:to-cyan-500 data-[state=active]:text-white font-bold text-lg py-4 rounded-xl">
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-400 data-[state=active]:to-cyan-500 data-[state=active]:text-white font-bold text-sm md:text-lg py-3 md:py-4 rounded-xl flex items-center justify-center">
 
               🦷 Odontologia
             </TabsTrigger>
             <TabsTrigger
               value="MEDICINA"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-400 data-[state=active]:to-red-500 data-[state=active]:text-white font-bold text-lg py-4 rounded-xl">
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-400 data-[state=active]:to-red-500 data-[state=active]:text-white font-bold text-sm md:text-lg py-3 md:py-4 rounded-xl flex items-center justify-center">
 
               ⚕️ Medicina
             </TabsTrigger>
@@ -221,7 +221,7 @@ export default function Marketplace() {
         </Tabs>
 
         {/* Search and Filters */}
-        <div className="bg-white rounded-3xl p-6 shadow-xl mb-8 border-4 border-yellow-400">
+        <div className="bg-white rounded-3xl p-6 shadow-xl mb-8 border-4 border-[#F9B500]">
           <div className="grid md:grid-cols-4 gap-4">
             <div className="md:col-span-2 relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -229,7 +229,7 @@ export default function Marketplace() {
                 placeholder="Buscar equipamento..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 h-14 text-lg border-2 border-gray-200 rounded-2xl focus:border-yellow-400" />
+                className="pl-12 h-14 text-lg border-2 border-gray-200 rounded-2xl focus:border-[#F9B500]" />
 
             </div>
 
@@ -295,7 +295,7 @@ export default function Marketplace() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
                 onClick={() => navigate(createPageUrl("MarketplaceCreate"))}
-                className="gradient-yellow-pink text-white font-bold px-8 py-4 rounded-2xl">
+                className="gradient-yellow-pink text-white font-bold px-8 py-4 rounded-2xl border-0">
 
                   <Plus className="w-5 h-5 mr-2" />
                   Criar Anúncio
