@@ -58,20 +58,26 @@ export default function Marketplace() {
     };
     loadUser();
   }, []);
-  const { data: items = [], isLoading } = useQuery({
+  const { data: items = [], isLoading, isError } = useQuery({
   queryKey: ["marketplaceItems", { activeTab }],
   queryFn: async () => {
-    const where = { status: "ATIVO" };
+    try {
+      const where = { status: "ATIVO" };
 
-    // Se você tiver um tab "TODOS", não filtra por tipo_mundo
-    if (activeTab && activeTab !== "TODOS") {
-      where.tipo_mundo = activeTab; // "ODONTOLOGIA" | "MEDICINA"
+      if (activeTab && activeTab !== "TODOS") {
+        where.tipo_mundo = activeTab;
+      }
+
+      const result = await base44.entities.MarketplaceItem.filter(where);
+      return result || [];
+    } catch (err) {
+      console.error("Error fetching marketplace items:", err);
+      return [];
     }
-
-    return await base44.entities.MarketplaceItem.filter(where, "-created_date");
   },
-  // evita rodar antes do tab estar pronto
   enabled: !!activeTab,
+  retry: 1,
+  staleTime: 1000 * 60 * 5,
 });
 
 
@@ -153,8 +159,27 @@ export default function Marketplace() {
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-yellow-400 mx-auto mb-4"></div>
           <p className="text-gray-600 font-semibold">Carregando marketplace...</p>
         </div>
-      </div>);
+      </div>
+    );
+  }
 
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 p-6 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-20 h-20 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center">
+            <ShoppingBag className="w-10 h-10 text-red-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Erro ao carregar</h2>
+          <p className="text-gray-600 mb-6">Não foi possível carregar o marketplace. Tente novamente.</p>
+          <Button
+            onClick={() => window.location.reload()}
+            className="gradient-yellow-pink text-white font-bold px-8 py-4 rounded-2xl border-0">
+            Tentar Novamente
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
