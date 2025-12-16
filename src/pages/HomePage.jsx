@@ -116,7 +116,7 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   onClick={() => navigate(createPageUrl("NewJobs"))}
-                  className="w-full gradient-yellow-pink text-white font-bold text-lg py-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-105">
+                  className="w-full gradient-yellow-pink text-white font-bold text-lg py-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-105 border-0">
 
                   <Zap className="w-6 h-6 mr-2" />
                   Encontrar Oportunidades Agora
