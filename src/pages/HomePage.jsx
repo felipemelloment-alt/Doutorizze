@@ -82,7 +82,7 @@ export default function HomePage() {
               </div>
 
               {/* Main Title */}
-              <h2 className="text-4xl md:text-7xl font-black mb-6 leading-tight break-words">
+              <h2 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black mb-6 leading-tight whitespace-nowrap">
                 <span className="text-[#F9B500] text-shadow-lg">OPORTUNIDADES</span>
               </h2>
 
@@ -125,7 +125,7 @@ export default function HomePage() {
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-2 w-full overflow-hidden">
                 <StatCard number="500+" label="Vagas Ativas" />
                 <StatCard number="1.2K+" label="Profissionais" />
                 <StatCard number="98%" label="Satisfação" />
@@ -323,11 +323,11 @@ function Badge({ text, color }) {
 
 function StatCard({ number, label }) {
   return (
-    <div className="bg-white rounded-2xl p-4 shadow-xl hover:shadow-2xl text-center border-2 border-gray-100 hover:border-[#F9B500] transition-all">
-      <p className="text-2xl font-black gradient-yellow-pink bg-clip-text text-transparent">
+    <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl text-center border-2 border-gray-100 hover:border-[#F9B500] transition-all w-full min-w-0">
+      <p className="text-xl md:text-2xl font-black gradient-yellow-pink bg-clip-text text-transparent">
         {number}
       </p>
-      <p className="text-xs text-gray-600 font-semibold">{label}</p>
+      <p className="text-xs text-gray-600 font-semibold truncate">{label}</p>
     </div>);
 
 }
