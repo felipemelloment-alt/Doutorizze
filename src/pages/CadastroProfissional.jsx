@@ -39,8 +39,12 @@ export default function CadastroProfissional() {
     instituicao_formacao: "",
 
     // ETAPA 3: Disponibilidade
-    cidades_atendimento: [""],
+    cidades_atendimento: [],
+    cidade_input: "",
+    uf_input: "",
     dias_semana_disponiveis: [],
+    turno_preferido: "",
+    carga_horaria_desejada: "",
     disponibilidade_inicio: "",
     status_disponibilidade: "DISPONIVEL",
     aceita_freelance: false,
@@ -89,26 +93,37 @@ export default function CadastroProfissional() {
     setFormData(prev => ({ ...prev, [campo]: valor }));
   };
 
-  const handleCidadeChange = (index, valor) => {
-    const novasCidades = [...formData.cidades_atendimento];
-    novasCidades[index] = valor;
-    setFormData(prev => ({ ...prev, cidades_atendimento: novasCidades }));
-  };
-
   const adicionarCidade = () => {
-    if (formData.cidades_atendimento.length < 5) {
-      setFormData(prev => ({
-        ...prev,
-        cidades_atendimento: [...prev.cidades_atendimento, ""]
-      }));
+    if (!formData.cidade_input.trim() || !formData.uf_input) {
+      toast.error("Preencha a cidade e UF");
+      return;
     }
+    
+    if (formData.cidades_atendimento.length >= 5) {
+      toast.error("Máximo de 5 cidades");
+      return;
+    }
+
+    const cidadeCompleta = `${formData.cidade_input.trim()} - ${formData.uf_input}`;
+    
+    if (formData.cidades_atendimento.includes(cidadeCompleta)) {
+      toast.error("Cidade já adicionada");
+      return;
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      cidades_atendimento: [...prev.cidades_atendimento, cidadeCompleta],
+      cidade_input: "",
+      uf_input: ""
+    }));
   };
 
-  const removerCidade = (index) => {
-    if (formData.cidades_atendimento.length > 1) {
-      const novasCidades = formData.cidades_atendimento.filter((_, i) => i !== index);
-      setFormData(prev => ({ ...prev, cidades_atendimento: novasCidades }));
-    }
+  const removerCidade = (cidade) => {
+    setFormData(prev => ({
+      ...prev,
+      cidades_atendimento: prev.cidades_atendimento.filter(c => c !== cidade)
+    }));
   };
 
   const toggleDiaSemana = (dia) => {
@@ -188,16 +203,16 @@ export default function CadastroProfissional() {
         return true;
 
       case 3:
-        if (formData.cidades_atendimento.filter(c => c.trim()).length === 0) {
-          toast.error("Preencha pelo menos uma cidade de atendimento");
+        if (formData.cidades_atendimento.length === 0) {
+          toast.error("Adicione pelo menos uma cidade de atendimento");
           return false;
         }
         if (formData.dias_semana_disponiveis.length === 0) {
-          toast.error("Selecione pelo menos um dia da semana");
+          toast.error("Selecione pelo menos um dia disponível");
           return false;
         }
-        if (!formData.disponibilidade_inicio) {
-          toast.error("Selecione quando pode começar");
+        if (!formData.turno_preferido) {
+          toast.error("Selecione o turno preferido");
           return false;
         }
         return true;
@@ -539,84 +554,156 @@ export default function CadastroProfissional() {
           <div className="space-y-6">
             {/* Cidades de Atendimento */}
             <div>
-              <Label className="text-base font-semibold mb-4 block">Cidades de Atendimento * (máx. 5)</Label>
-              {formData.cidades_atendimento.map((cidade, index) => (
-                <div key={index} className="flex gap-2 mb-3">
+              <Label className="text-base font-semibold mb-4 block">Cidades que Você Atende * (máx. 5)</Label>
+              
+              {/* Input para adicionar cidade */}
+              <div className="grid grid-cols-12 gap-3 mb-4">
+                <div className="col-span-7">
                   <Input
-                    value={cidade}
-                    onChange={(e) => handleCidadeChange(index, e.target.value)}
-                    placeholder="Goiânia - GO"
-                    className="flex-1"
+                    value={formData.cidade_input}
+                    onChange={(e) => handleInputChange("cidade_input", e.target.value)}
+                    placeholder="Ex: Goiânia"
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), adicionarCidade())}
                   />
-                  {formData.cidades_atendimento.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => removerCidade(index)}
-                      className="text-red-600"
-                    >
-                      Remover
-                    </Button>
-                  )}
                 </div>
-              ))}
-              {formData.cidades_atendimento.length < 5 && (
-                <Button type="button" variant="outline" onClick={adicionarCidade} className="w-full">
-                  + Adicionar Cidade
-                </Button>
+                <div className="col-span-3">
+                  <Select 
+                    value={formData.uf_input} 
+                    onValueChange={(value) => handleInputChange("uf_input", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="UF" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="AC">AC</SelectItem>
+                      <SelectItem value="AL">AL</SelectItem>
+                      <SelectItem value="AP">AP</SelectItem>
+                      <SelectItem value="AM">AM</SelectItem>
+                      <SelectItem value="BA">BA</SelectItem>
+                      <SelectItem value="CE">CE</SelectItem>
+                      <SelectItem value="DF">DF</SelectItem>
+                      <SelectItem value="ES">ES</SelectItem>
+                      <SelectItem value="GO">GO</SelectItem>
+                      <SelectItem value="MA">MA</SelectItem>
+                      <SelectItem value="MT">MT</SelectItem>
+                      <SelectItem value="MS">MS</SelectItem>
+                      <SelectItem value="MG">MG</SelectItem>
+                      <SelectItem value="PA">PA</SelectItem>
+                      <SelectItem value="PB">PB</SelectItem>
+                      <SelectItem value="PR">PR</SelectItem>
+                      <SelectItem value="PE">PE</SelectItem>
+                      <SelectItem value="PI">PI</SelectItem>
+                      <SelectItem value="RJ">RJ</SelectItem>
+                      <SelectItem value="RN">RN</SelectItem>
+                      <SelectItem value="RS">RS</SelectItem>
+                      <SelectItem value="RO">RO</SelectItem>
+                      <SelectItem value="RR">RR</SelectItem>
+                      <SelectItem value="SC">SC</SelectItem>
+                      <SelectItem value="SP">SP</SelectItem>
+                      <SelectItem value="SE">SE</SelectItem>
+                      <SelectItem value="TO">TO</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="col-span-2">
+                  <Button 
+                    type="button" 
+                    onClick={adicionarCidade}
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                  >
+                    Adicionar
+                  </Button>
+                </div>
+              </div>
+
+              {/* Lista de cidades adicionadas */}
+              {formData.cidades_atendimento.length > 0 && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-2">Cidades adicionadas:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {formData.cidades_atendimento.map((cidade, index) => (
+                      <div
+                        key={index}
+                        className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center gap-2 text-sm"
+                      >
+                        <span>{cidade}</span>
+                        <button
+                          type="button"
+                          onClick={() => removerCidade(cidade)}
+                          className="text-blue-600 hover:text-blue-800 font-bold"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
 
-            {/* Dias da Semana */}
+            {/* Dias Disponíveis */}
             <div>
-              <Label className="text-base font-semibold mb-4 block">Dias da Semana Disponíveis *</Label>
+              <Label className="text-base font-semibold mb-4 block">
+                Dias Disponíveis * (selecione todos que puder)
+              </Label>
               <div className="grid grid-cols-4 gap-3">
-                {["SEG", "TER", "QUA", "QUI", "SEX", "SAB", "DOM", "INTEGRAL"].map((dia) => (
+                {[
+                  { value: "SEG", label: "Segunda" },
+                  { value: "TER", label: "Terça" },
+                  { value: "QUA", label: "Quarta" },
+                  { value: "QUI", label: "Quinta" },
+                  { value: "SEX", label: "Sexta" },
+                  { value: "SAB", label: "Sábado" },
+                  { value: "DOM", label: "Domingo" },
+                  { value: "INTEGRAL", label: "Integral" }
+                ].map((dia) => (
                   <Button
-                    key={dia}
+                    key={dia.value}
                     type="button"
-                    variant={formData.dias_semana_disponiveis.includes(dia) ? "default" : "outline"}
-                    onClick={() => toggleDiaSemana(dia)}
-                    className={formData.dias_semana_disponiveis.includes(dia) ? "bg-blue-600" : ""}
+                    variant={formData.dias_semana_disponiveis.includes(dia.value) ? "default" : "outline"}
+                    onClick={() => toggleDiaSemana(dia.value)}
+                    className={formData.dias_semana_disponiveis.includes(dia.value) ? "bg-blue-600" : ""}
                   >
-                    {dia}
+                    {dia.label}
                   </Button>
                 ))}
               </div>
+              {formData.dias_semana_disponiveis.includes("INTEGRAL") && (
+                <p className="text-xs text-blue-600 mt-2">
+                  ℹ️ Integral significa disponibilidade em todos os dias da semana
+                </p>
+              )}
             </div>
 
-            {/* Disponibilidade de Início */}
-            <div>
-              <Label htmlFor="disponibilidade_inicio">Quando pode começar? *</Label>
-              <Select
-                value={formData.disponibilidade_inicio}
-                onValueChange={(value) => handleInputChange("disponibilidade_inicio", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="IMEDIATO">Imediato</SelectItem>
-                  <SelectItem value="15_DIAS">15 dias</SelectItem>
-                  <SelectItem value="30_DIAS">30 dias</SelectItem>
-                  <SelectItem value="60_DIAS">60 dias</SelectItem>
-                  <SelectItem value="A_COMBINAR">A combinar</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Turno e Carga Horária */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="turno_preferido">Turno Preferido *</Label>
+                <Select
+                  value={formData.turno_preferido}
+                  onValueChange={(value) => handleInputChange("turno_preferido", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="MANHA">Manhã</SelectItem>
+                    <SelectItem value="TARDE">Tarde</SelectItem>
+                    <SelectItem value="NOITE">Noite</SelectItem>
+                    <SelectItem value="INTEGRAL">Integral (qualquer turno)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            {/* Aceita Freelance */}
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="aceita_freelance"
-                checked={formData.aceita_freelance}
-                onChange={(e) => handleInputChange("aceita_freelance", e.target.checked)}
-                className="w-4 h-4"
-              />
-              <Label htmlFor="aceita_freelance" className="cursor-pointer">
-                Aceito trabalho de substituição/freelance
-              </Label>
+              <div>
+                <Label htmlFor="carga_horaria_desejada">Carga Horária Desejada (opcional)</Label>
+                <Input
+                  id="carga_horaria_desejada"
+                  value={formData.carga_horaria_desejada}
+                  onChange={(e) => handleInputChange("carga_horaria_desejada", e.target.value)}
+                  placeholder="Ex: 20h semanais, 4h por dia"
+                />
+              </div>
             </div>
           </div>
         );
