@@ -242,7 +242,7 @@ export default function Marketplace() {
               className="relative">
 
               <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6916d492cc9abf019259139b/5520ba8d3_image.png"
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6916d492cc9abf019259139b/ada8b00cc_Marketplace.png"
                 alt="Marketplace New Jobs"
                 className="w-full max-w-md h-auto object-contain drop-shadow-2xl"
               />
