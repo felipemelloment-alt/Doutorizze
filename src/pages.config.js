@@ -17,6 +17,7 @@ import BuscarProfissionais from './pages/BuscarProfissionais';
 import EscolherTipoCadastro from './pages/EscolherTipoCadastro';
 import CadastroProfissional from './pages/CadastroProfissional';
 import CadastroClinica from './pages/CadastroClinica';
+import CadastroSucesso from './pages/CadastroSucesso';
 
 
 export const PAGES = {
@@ -39,6 +40,7 @@ export const PAGES = {
     "EscolherTipoCadastro": EscolherTipoCadastro,
     "CadastroProfissional": CadastroProfissional,
     "CadastroClinica": CadastroClinica,
+    "CadastroSucesso": CadastroSucesso,
 }
 
 export const pagesConfig = {
