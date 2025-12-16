@@ -87,7 +87,7 @@ export default function NotificationSettings() {
         {/* Header */}
         <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-6 md:mb-8">
           <div className="p-3 gradient-yellow-pink rounded-2xl shadow-lg flex-shrink-0">
-            <Bell className="w-6 h-6 md:w-8 md:h-8 text-white" />
+            <Bell className="w-8 h-8 text-white" />
           </div>
           <div className="w-full max-w-full">
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 truncate">Notificações</h1>
@@ -99,7 +99,7 @@ export default function NotificationSettings() {
         <Card className="border-2 border-gray-100 hover:border-[#F9B500] shadow-xl transition-all overflow-hidden w-full max-w-full">
           <CardHeader className="p-4 md:p-6">
             <div className="flex items-start gap-3 w-full">
-              <Briefcase className="w-5 h-5 md:w-6 md:h-6 text-[#F9B500] flex-shrink-0 mt-1" />
+              <Briefcase className="w-6 h-6 text-[#F9B500] flex-shrink-0 mt-1" />
               <div className="w-full max-w-full overflow-hidden">
                 <CardTitle className="text-lg md:text-xl truncate">Vagas & Oportunidades</CardTitle>
                 <CardDescription className="text-sm line-clamp-2">Notificações sobre vagas compatíveis com seu perfil</CardDescription>
@@ -323,7 +323,7 @@ export default function NotificationSettings() {
         <Card className="border-2 border-gray-100 hover:border-[#F9B500] shadow-xl transition-all overflow-hidden w-full max-w-full">
           <CardHeader className="p-4 md:p-6">
             <div className="flex items-start gap-3 w-full">
-              <MessageSquare className="w-5 h-5 md:w-6 md:h-6 text-green-600 flex-shrink-0 mt-1" />
+              <MessageSquare className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
               <div className="w-full max-w-full overflow-hidden">
                 <CardTitle className="text-lg md:text-xl truncate">Mensagens & Chat</CardTitle>
                 <CardDescription className="text-sm line-clamp-2">Notificações de novas mensagens</CardDescription>
