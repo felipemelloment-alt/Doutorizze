@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Plus, RefreshCcw, Zap, Star, TrendingUp } from "lucide-react";
+import { useUserRole } from "@/components/hooks/useUserRole";
 
 export default function TestJobMatch() {
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
+  const { userWorld, isAdmin } = useUserRole();
 
   // Buscar todos os matches
   const { data: matches = [], isLoading, refetch } = useQuery({
@@ -27,12 +29,27 @@ export default function TestJobMatch() {
   const simularMatch = async () => {
     setLoading(true);
     try {
-      // Buscar uma vaga e um profissional
-      const vagas = await base44.entities.Job.filter({ status: "ABERTO" });
-      const profissionais = await base44.entities.Professional.filter({ 
+      // Filter jobs by world
+      const tipoProfissional = userWorld === "ODONTOLOGIA" ? "DENTISTA" :
+                               userWorld === "MEDICINA" ? "MEDICO" : null;
+
+      let vagasFilter = { status: "ABERTO" };
+      if (tipoProfissional) {
+        vagasFilter.tipo_profissional = tipoProfissional;
+      }
+
+      const vagas = await base44.entities.Job.filter(vagasFilter);
+
+      // Filter professionals by world
+      let profFilter = {
         status_cadastro: "APROVADO",
-        new_jobs_ativo: true 
-      });
+        new_jobs_ativo: true
+      };
+      if (tipoProfissional) {
+        profFilter.tipo_profissional = tipoProfissional;
+      }
+
+      const profissionais = await base44.entities.Professional.filter(profFilter);
 
       if (vagas.length === 0) {
         toast.error("❌ Nenhuma vaga ABERTA encontrada. Crie uma vaga primeiro!");
