@@ -183,99 +183,55 @@ export default function Marketplace() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50">
-      {/* Hero Header */}
-      <div className="relative overflow-hidden py-16 gradient-yellow-pink">
-        {/* Decorative Elements */}
-        <motion.div
-          animate={{ rotate: [0, 10, 0], y: [0, -20, 0] }}
-          transition={{ repeat: Infinity, duration: 3 }}
-          className="absolute top-10 left-10 opacity-20">
-
-          <Stethoscope className="w-32 h-32 text-white" />
-        </motion.div>
-        <motion.div
-          animate={{ rotate: [0, -10, 0], y: [0, 20, 0] }}
-          transition={{ repeat: Infinity, duration: 3, delay: 1 }}
-          className="absolute bottom-10 right-10 opacity-20">
-
-          <Activity className="w-40 h-40 text-white" />
-        </motion.div>
-
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex-1">
-
-              <div className="flex items-center gap-4 mb-6">
-                <div className="p-4 bg-white rounded-2xl shadow-xl">
-                  <ShoppingBag className="w-10 h-10 text-pink-600" />
-                </div>
-                <div>
-                  <h1 className="text-5xl md:text-7xl font-black text-[#F9B500] text-shadow-lg">
-                    MARKETPLACE
-                  </h1>
-                  <p className="text-white mt-2 text-xl font-semibold">Equipamentos médicos e odontológicos ⚡
-
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button
-                  size="lg"
-                  onClick={() => navigate(createPageUrl("MarketplaceCreate"))}
-                  className="w-full sm:w-auto bg-white text-[#E94560] font-bold px-8 py-6 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all border-0">
-
-                  <Plus className="w-6 h-6 mr-2" />
-                  Anunciar Equipamento
-                </Button>
-              </div>
-            </motion.div>
-
-            {/* Mockup Visual */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="relative">
-
-              <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6916d492cc9abf019259139b/ada8b00cc_Marketplace.png"
-                alt="Marketplace New Jobs"
-                className="w-full max-w-md h-auto object-contain drop-shadow-2xl"
-              />
-            </motion.div>
-          </div>
+    <div className="min-h-screen bg-white">
+      {/* Botão Anunciar Equipamento - Topo */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4 py-4">
+          <Button
+            onClick={() => navigate(createPageUrl("MarketplaceCreate"))}
+            variant="ghost"
+            className="flex items-center gap-2 text-pink-500 hover:text-pink-600 font-bold text-base">
+            <Plus className="w-5 h-5" />
+            Anunciar Equipamento
+          </Button>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Tabs */}
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="mb-8">
+      {/* Hero Image - Largura Total */}
+      <div className="w-full overflow-hidden">
+        <img 
+          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6916d492cc9abf019259139b/ada8b00cc_Marketplace.png"
+          alt="Marketplace"
+          className="w-full h-auto object-cover"
+        />
+      </div>
 
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-1 md:grid-cols-2 h-auto p-2 bg-white rounded-2xl shadow-lg gap-2">
-            <TabsTrigger
-              value="ODONTOLOGIA"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-400 data-[state=active]:to-cyan-500 data-[state=active]:text-white font-bold text-sm md:text-lg py-3 md:py-4 rounded-xl flex items-center justify-center">
+      {/* Tabs Funcionais - Após a Imagem */}
+      <div className="bg-gradient-to-br from-yellow-50 via-white to-pink-50 py-8">
+        <div className="container mx-auto px-4">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="mb-8">
 
-              🦷 Odontologia
-            </TabsTrigger>
-            <TabsTrigger
-              value="MEDICINA"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-400 data-[state=active]:to-red-500 data-[state=active]:text-white font-bold text-sm md:text-lg py-3 md:py-4 rounded-xl flex items-center justify-center">
+            <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-2 h-auto p-3 bg-white rounded-3xl shadow-2xl gap-3 border-4 border-gray-100">
+              <TabsTrigger
+                value="ODONTOLOGIA"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-400 data-[state=active]:to-blue-500 data-[state=active]:text-white font-black text-base md:text-xl py-4 md:py-5 rounded-2xl flex items-center justify-center gap-2 transition-all hover:scale-105">
 
-              ⚕️ Medicina
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+                🦷 Odontologia
+              </TabsTrigger>
+              <TabsTrigger
+                value="MEDICINA"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-400 data-[state=active]:to-red-500 data-[state=active]:text-white font-black text-base md:text-xl py-4 md:py-5 rounded-2xl flex items-center justify-center gap-2 transition-all hover:scale-105">
 
-        {/* Search and Filters */}
-        <div className="bg-white rounded-3xl p-6 shadow-xl mb-8 border-4 border-[#F9B500]">
+                ⚕️ Medicina
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          {/* Search and Filters */}
+          <div className="bg-white rounded-3xl p-6 shadow-xl mb-8 border-4 border-[#F9B500]">
           {/* Search Bar */}
           <div className="grid md:grid-cols-4 gap-4 mb-4">
             <div className="md:col-span-2 relative">
@@ -398,8 +354,8 @@ export default function Marketplace() {
           </div>
         </div>
 
-        {/* Items Grid */}
-        {sortedItems.length === 0 ?
+          {/* Items Grid */}
+          {sortedItems.length === 0 ?
         <div className="space-y-6">
             <div className="bg-white rounded-3xl p-12 text-center shadow-xl border-4 border-gray-100">
               <ShoppingBag className="w-20 h-20 mx-auto mb-6 text-gray-300" />
@@ -513,7 +469,8 @@ export default function Marketplace() {
               </Button>
             </div>
           </div>
-        }
+          }
+        </div>
       </div>
 
       {/* Radar Modal */}
