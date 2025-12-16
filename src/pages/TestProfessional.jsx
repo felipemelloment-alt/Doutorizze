@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Plus, RefreshCcw } from "lucide-react";
 import { useUserRole } from "@/components/hooks/useUserRole";
+import { getRegistroLabel } from "@/components/constants/especialidades";
 
 // Função para formatar CPF
 const formatCPF = (cpf) => {
@@ -333,7 +334,9 @@ export default function TestProfessional() {
                     <div style={{ fontSize: "13px", lineHeight: "1.8" }}>
                       {/* 1. Registro */}
                       <div style={{ marginBottom: "8px" }}>
-                        <strong style={{ color: "#718096" }}>🏥 REGISTRO:</strong>{" "}
+                        <strong style={{ color: "#718096" }}>
+                          🏥 {prof.tipo_profissional === "DENTISTA" ? "CRO" : "CRM"}:
+                        </strong>{" "}
                         <span style={{ color: "#2D3748", fontWeight: 500 }}>
                           {prof.registro_conselho}/{prof.uf_conselho}
                         </span>
