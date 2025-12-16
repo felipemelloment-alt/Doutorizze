@@ -78,7 +78,7 @@ function NotificationCard({ notification, onMarkAsRead, onDelete, onClick }) {
       <CardContent className="p-4 md:p-6 w-full max-w-full">
         <div className="flex gap-3 md:gap-4 w-full max-w-full overflow-hidden">
           <div className={`p-3 md:p-4 ${colorClass} rounded-2xl h-fit flex-shrink-0 shadow-lg`}>
-            <Icon className="w-6 h-6 md:w-7 md:h-7 text-white" />
+            <Icon className="w-6 h-6 text-white" />
           </div>
 
           <div className="flex-1 min-w-0 w-full max-w-full overflow-hidden">
@@ -255,7 +255,7 @@ export default function NotificationCenter() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-4 w-full md:w-auto">
               <div className="p-4 bg-white rounded-2xl shadow-xl flex-shrink-0">
-                <Bell className="w-8 h-8 md:w-10 md:h-10 text-pink-600" />
+                <Bell className="w-10 h-10 text-pink-600" />
               </div>
               <div className="min-w-0 flex-1">
                 <h1 className="text-4xl md:text-5xl font-black text-white text-shadow-lg truncate">
@@ -341,7 +341,7 @@ export default function NotificationCenter() {
             <Card className="border-4 border-gray-100 shadow-2xl rounded-3xl overflow-hidden">
               <CardContent className="p-10 md:p-16 text-center">
                 <div className="w-20 h-20 md:w-24 md:h-24 gradient-yellow-pink rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
-                  <Bell className="w-10 h-10 md:w-12 md:h-12 text-white" />
+                  <Bell className="w-12 h-12 text-white" />
                 </div>
                 <h3 className="text-2xl md:text-3xl font-black text-gray-900 mb-3">
                   Nenhuma notificação
