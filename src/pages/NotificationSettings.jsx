@@ -9,20 +9,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { 
-  Bell, 
-  BellOff, 
-  Briefcase, 
-  MessageSquare, 
-  CheckCircle, 
-  Star, 
-  Image, 
-  ShoppingBag, 
+import {
+  Bell,
+  BellOff,
+  Briefcase,
+  MessageSquare,
+  CheckCircle,
+  Star,
+  Image,
+  ShoppingBag,
   Newspaper,
   Moon,
   Volume2,
-  Smartphone
-} from "lucide-react";
+  Smartphone } from
+"lucide-react";
 
 export default function NotificationSettings() {
   const queryClient = useQueryClient();
@@ -46,13 +46,13 @@ export default function NotificationSettings() {
       if (!user) return null;
       const prefs = await base44.entities.NotificationPreference.filter({ created_by: user.email });
       if (prefs.length > 0) return prefs[0];
-      
+
       // Criar preferências padrão
       return await base44.entities.NotificationPreference.create({
         usuario_tipo: user.role === "admin" ? "CLINICA" : "DENTISTA"
       });
     },
-    enabled: !!user,
+    enabled: !!user
   });
 
   const updateMutation = useMutation({
@@ -62,7 +62,7 @@ export default function NotificationSettings() {
     onSuccess: () => {
       queryClient.invalidateQueries(["notificationPreferences"]);
       toast.success("Preferências atualizadas com sucesso!");
-    },
+    }
   });
 
   const setDraft = (field, value) => {
@@ -76,8 +76,8 @@ export default function NotificationSettings() {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Carregando preferências...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -86,8 +86,8 @@ export default function NotificationSettings() {
         
         {/* Header */}
         <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-6 md:mb-8">
-          <div className="p-3 gradient-yellow-pink rounded-2xl shadow-lg flex-shrink-0">
-            <Bell className="w-8 h-8 text-white" />
+          <div className="bg-[#E94560] text-[#f80d0d] p-3 rounded-2xl gradient-yellow-pink flex-shrink-0 shadow-lg">
+            <Bell className="text-[#E94560] lucide lucide-bell w-6 h-6 md:w-8 md:h-8" />
           </div>
           <div className="w-full max-w-full">
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 truncate">Notificações</h1>
@@ -99,7 +99,7 @@ export default function NotificationSettings() {
         <Card className="border-2 border-gray-100 hover:border-[#F9B500] shadow-xl transition-all overflow-hidden w-full max-w-full">
           <CardHeader className="p-4 md:p-6">
             <div className="flex items-start gap-3 w-full">
-              <Briefcase className="w-6 h-6 text-[#F9B500] flex-shrink-0 mt-1" />
+              <Briefcase className="w-5 h-5 md:w-6 md:h-6 text-[#F9B500] flex-shrink-0 mt-1" />
               <div className="w-full max-w-full overflow-hidden">
                 <CardTitle className="text-lg md:text-xl truncate">Vagas & Oportunidades</CardTitle>
                 <CardDescription className="text-sm line-clamp-2">Notificações sobre vagas compatíveis com seu perfil</CardDescription>
@@ -113,7 +113,7 @@ export default function NotificationSettings() {
               <div className="flex items-start md:items-center justify-between gap-3 w-full">
                 <div className="flex items-start gap-3 flex-1 min-w-0">
                   <div className="p-2 bg-[#F9B500] rounded-lg flex-shrink-0">
-                    <Star className="w-5 h-5 text-white" />
+                    <Star className="w-4 h-4 md:w-5 md:h-5 text-white" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <Label className="text-sm md:text-base font-semibold text-gray-900 block truncate">SUPER JOBS 🌟</Label>
@@ -123,43 +123,43 @@ export default function NotificationSettings() {
                 <Switch
                   checked={preferences.vagas_super_jobs?.ativo ?? true}
                   onCheckedChange={(checked) =>
-                    setDraft("vagas_super_jobs", { ...preferences.vagas_super_jobs, ativo: checked })
+                  setDraft("vagas_super_jobs", { ...preferences.vagas_super_jobs, ativo: checked })
                   }
-                  className="flex-shrink-0"
-                />
+                  className="flex-shrink-0" />
+
               </div>
               
-              {preferences.vagas_super_jobs?.ativo && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pl-0 md:pl-12 w-full">
+              {preferences.vagas_super_jobs?.ativo &&
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pl-0 md:pl-12 w-full">
                   <div className="flex items-center gap-2">
                     <Switch
-                      checked={preferences.vagas_super_jobs?.canal_push ?? true}
-                      onCheckedChange={(checked) =>
-                        setDraft("vagas_super_jobs", { ...preferences.vagas_super_jobs, canal_push: checked })
-                      }
-                    />
+                    checked={preferences.vagas_super_jobs?.canal_push ?? true}
+                    onCheckedChange={(checked) =>
+                    setDraft("vagas_super_jobs", { ...preferences.vagas_super_jobs, canal_push: checked })
+                    } />
+
                     <Label className="text-sm">Push</Label>
                   </div>
                   <div className="flex items-center gap-2">
                     <Switch
-                      checked={preferences.vagas_super_jobs?.canal_email ?? true}
-                      onCheckedChange={(checked) =>
-                        setDraft("vagas_super_jobs", { ...preferences.vagas_super_jobs, canal_email: checked })
-                      }
-                    />
+                    checked={preferences.vagas_super_jobs?.canal_email ?? true}
+                    onCheckedChange={(checked) =>
+                    setDraft("vagas_super_jobs", { ...preferences.vagas_super_jobs, canal_email: checked })
+                    } />
+
                     <Label className="text-sm">Email</Label>
                   </div>
                   <div className="flex items-center gap-2">
                     <Switch
-                      checked={preferences.vagas_super_jobs?.canal_whatsapp ?? false}
-                      onCheckedChange={(checked) =>
-                        setDraft("vagas_super_jobs", { ...preferences.vagas_super_jobs, canal_whatsapp: checked })
-                      }
-                    />
+                    checked={preferences.vagas_super_jobs?.canal_whatsapp ?? false}
+                    onCheckedChange={(checked) =>
+                    setDraft("vagas_super_jobs", { ...preferences.vagas_super_jobs, canal_whatsapp: checked })
+                    } />
+
                     <Label className="text-sm">WhatsApp</Label>
                   </div>
                 </div>
-              )}
+              }
             </div>
 
             {/* Jobs Semelhante */}
@@ -167,7 +167,7 @@ export default function NotificationSettings() {
               <div className="flex items-start md:items-center justify-between gap-3 w-full">
                 <div className="flex items-start gap-3 flex-1 min-w-0">
                   <div className="p-2 bg-[#E94560] rounded-lg flex-shrink-0">
-                    <Star className="w-5 h-5 text-white" />
+                    <Star className="w-4 h-4 md:w-5 md:h-5 text-white" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <Label className="text-sm md:text-base font-semibold text-gray-900 block truncate">Jobs Semelhante ⭐</Label>
@@ -177,34 +177,34 @@ export default function NotificationSettings() {
                 <Switch
                   checked={preferences.vagas_semelhante?.ativo ?? true}
                   onCheckedChange={(checked) =>
-                    setDraft("vagas_semelhante", { ...preferences.vagas_semelhante, ativo: checked })
+                  setDraft("vagas_semelhante", { ...preferences.vagas_semelhante, ativo: checked })
                   }
-                  className="flex-shrink-0"
-                />
+                  className="flex-shrink-0" />
+
               </div>
               
-              {preferences.vagas_semelhante?.ativo && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pl-0 md:pl-12 w-full">
+              {preferences.vagas_semelhante?.ativo &&
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pl-0 md:pl-12 w-full">
                   <div className="flex items-center gap-2">
                     <Switch
-                      checked={preferences.vagas_semelhante?.canal_push ?? true}
-                      onCheckedChange={(checked) =>
-                        setDraft("vagas_semelhante", { ...preferences.vagas_semelhante, canal_push: checked })
-                      }
-                    />
+                    checked={preferences.vagas_semelhante?.canal_push ?? true}
+                    onCheckedChange={(checked) =>
+                    setDraft("vagas_semelhante", { ...preferences.vagas_semelhante, canal_push: checked })
+                    } />
+
                     <Label className="text-sm">Push</Label>
                   </div>
                   <div className="flex items-center gap-2">
                     <Switch
-                      checked={preferences.vagas_semelhante?.canal_email ?? false}
-                      onCheckedChange={(checked) =>
-                        setDraft("vagas_semelhante", { ...preferences.vagas_semelhante, canal_email: checked })
-                      }
-                    />
+                    checked={preferences.vagas_semelhante?.canal_email ?? false}
+                    onCheckedChange={(checked) =>
+                    setDraft("vagas_semelhante", { ...preferences.vagas_semelhante, canal_email: checked })
+                    } />
+
                     <Label className="text-sm">Email</Label>
                   </div>
                 </div>
-              )}
+              }
             </div>
 
             {/* Vagas Normais */}
@@ -222,21 +222,21 @@ export default function NotificationSettings() {
                 <Switch
                   checked={preferences.vagas_normais?.ativo ?? false}
                   onCheckedChange={(checked) =>
-                    setDraft("vagas_normais", { ...preferences.vagas_normais, ativo: checked })
-                  }
-                />
+                  setDraft("vagas_normais", { ...preferences.vagas_normais, ativo: checked })
+                  } />
+
               </div>
               
-              {preferences.vagas_normais?.ativo && (
-                <div className="space-y-4 pl-12">
+              {preferences.vagas_normais?.ativo &&
+              <div className="space-y-4 pl-12">
                   <div className="flex items-center gap-4">
                     <Label className="text-sm">Frequência:</Label>
                     <Select
-                      value={preferences.vagas_normais?.frequencia ?? "DIARIO"}
-                      onValueChange={(value) =>
-                        setDraft("vagas_normais", { ...preferences.vagas_normais, frequencia: value })
-                      }
-                    >
+                    value={preferences.vagas_normais?.frequencia ?? "DIARIO"}
+                    onValueChange={(value) =>
+                    setDraft("vagas_normais", { ...preferences.vagas_normais, frequencia: value })
+                    }>
+
                       <SelectTrigger className="w-40">
                         <SelectValue />
                       </SelectTrigger>
@@ -251,25 +251,25 @@ export default function NotificationSettings() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div className="flex items-center gap-2">
                       <Switch
-                        checked={preferences.vagas_normais?.canal_push ?? false}
-                        onCheckedChange={(checked) =>
-                          setDraft("vagas_normais", { ...preferences.vagas_normais, canal_push: checked })
-                        }
-                      />
+                      checked={preferences.vagas_normais?.canal_push ?? false}
+                      onCheckedChange={(checked) =>
+                      setDraft("vagas_normais", { ...preferences.vagas_normais, canal_push: checked })
+                      } />
+
                       <Label className="text-sm">Push</Label>
                     </div>
                     <div className="flex items-center gap-2">
                       <Switch
-                        checked={preferences.vagas_normais?.canal_email ?? false}
-                        onCheckedChange={(checked) =>
-                          setDraft("vagas_normais", { ...preferences.vagas_normais, canal_email: checked })
-                        }
-                      />
+                      checked={preferences.vagas_normais?.canal_email ?? false}
+                      onCheckedChange={(checked) =>
+                      setDraft("vagas_normais", { ...preferences.vagas_normais, canal_email: checked })
+                      } />
+
                       <Label className="text-sm">Email</Label>
                     </div>
                   </div>
                 </div>
-              )}
+              }
             </div>
 
             {/* Atualizações de Match */}
@@ -287,33 +287,33 @@ export default function NotificationSettings() {
                 <Switch
                   checked={preferences.atualizacoes_match?.canal_push ?? true}
                   onCheckedChange={(checked) =>
-                    setDraft("atualizacoes_match", { ...preferences.atualizacoes_match, canal_push: checked })
-                  }
-                />
+                  setDraft("atualizacoes_match", { ...preferences.atualizacoes_match, canal_push: checked })
+                  } />
+
               </div>
               
-              {preferences.atualizacoes_match?.canal_push && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-12">
+              {preferences.atualizacoes_match?.canal_push &&
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-12">
                   <div className="flex items-center gap-2">
                     <Switch
-                      checked={preferences.atualizacoes_match?.profissional_visualizou ?? true}
-                      onCheckedChange={(checked) =>
-                        setDraft("atualizacoes_match", { ...preferences.atualizacoes_match, profissional_visualizou: checked })
-                      }
-                    />
+                    checked={preferences.atualizacoes_match?.profissional_visualizou ?? true}
+                    onCheckedChange={(checked) =>
+                    setDraft("atualizacoes_match", { ...preferences.atualizacoes_match, profissional_visualizou: checked })
+                    } />
+
                     <Label className="text-sm">Visualizações</Label>
                   </div>
                   <div className="flex items-center gap-2">
                     <Switch
-                      checked={preferences.atualizacoes_match?.profissional_contatou ?? true}
-                      onCheckedChange={(checked) =>
-                        setDraft("atualizacoes_match", { ...preferences.atualizacoes_match, profissional_contatou: checked })
-                      }
-                    />
+                    checked={preferences.atualizacoes_match?.profissional_contatou ?? true}
+                    onCheckedChange={(checked) =>
+                    setDraft("atualizacoes_match", { ...preferences.atualizacoes_match, profissional_contatou: checked })
+                    } />
+
                     <Label className="text-sm">Contatos</Label>
                   </div>
                 </div>
-              )}
+              }
             </div>
 
           </CardContent>
@@ -323,7 +323,7 @@ export default function NotificationSettings() {
         <Card className="border-2 border-gray-100 hover:border-[#F9B500] shadow-xl transition-all overflow-hidden w-full max-w-full">
           <CardHeader className="p-4 md:p-6">
             <div className="flex items-start gap-3 w-full">
-              <MessageSquare className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
+              <MessageSquare className="w-5 h-5 md:w-6 md:h-6 text-green-600 flex-shrink-0 mt-1" />
               <div className="w-full max-w-full overflow-hidden">
                 <CardTitle className="text-lg md:text-xl truncate">Mensagens & Chat</CardTitle>
                 <CardDescription className="text-sm line-clamp-2">Notificações de novas mensagens</CardDescription>
@@ -339,34 +339,34 @@ export default function NotificationSettings() {
               <Switch
                 checked={preferences.mensagens_chat?.ativo ?? true}
                 onCheckedChange={(checked) =>
-                  setDraft("mensagens_chat", { ...preferences.mensagens_chat, ativo: checked })
+                setDraft("mensagens_chat", { ...preferences.mensagens_chat, ativo: checked })
                 }
-                className="flex-shrink-0"
-              />
+                className="flex-shrink-0" />
+
             </div>
             
-            {preferences.mensagens_chat?.ativo && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+            {preferences.mensagens_chat?.ativo &&
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
                 <div className="flex items-center gap-2">
                   <Switch
-                    checked={preferences.mensagens_chat?.canal_push ?? true}
-                    onCheckedChange={(checked) =>
-                      setDraft("mensagens_chat", { ...preferences.mensagens_chat, canal_push: checked })
-                    }
-                  />
+                  checked={preferences.mensagens_chat?.canal_push ?? true}
+                  onCheckedChange={(checked) =>
+                  setDraft("mensagens_chat", { ...preferences.mensagens_chat, canal_push: checked })
+                  } />
+
                   <Label className="text-sm">Push</Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <Switch
-                    checked={preferences.mensagens_chat?.canal_email ?? false}
-                    onCheckedChange={(checked) =>
-                      setDraft("mensagens_chat", { ...preferences.mensagens_chat, canal_email: checked })
-                    }
-                  />
+                  checked={preferences.mensagens_chat?.canal_email ?? false}
+                  onCheckedChange={(checked) =>
+                  setDraft("mensagens_chat", { ...preferences.mensagens_chat, canal_email: checked })
+                  } />
+
                   <Label className="text-sm">Email</Label>
                 </div>
               </div>
-            )}
+            }
           </CardContent>
         </Card>
 
@@ -393,42 +393,42 @@ export default function NotificationSettings() {
                 <Switch
                   checked={preferences.status_cadastro?.ativo ?? true}
                   onCheckedChange={(checked) =>
-                    setDraft("status_cadastro", { ...preferences.status_cadastro, ativo: checked })
-                  }
-                />
+                  setDraft("status_cadastro", { ...preferences.status_cadastro, ativo: checked })
+                  } />
+
               </div>
               
-              {preferences.status_cadastro?.ativo && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pl-6">
+              {preferences.status_cadastro?.ativo &&
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pl-6">
                   <div className="flex items-center gap-2">
                     <Switch
-                      checked={preferences.status_cadastro?.canal_push ?? true}
-                      onCheckedChange={(checked) =>
-                        setDraft("status_cadastro", { ...preferences.status_cadastro, canal_push: checked })
-                      }
-                    />
+                    checked={preferences.status_cadastro?.canal_push ?? true}
+                    onCheckedChange={(checked) =>
+                    setDraft("status_cadastro", { ...preferences.status_cadastro, canal_push: checked })
+                    } />
+
                     <Label className="text-sm">Push</Label>
                   </div>
                   <div className="flex items-center gap-2">
                     <Switch
-                      checked={preferences.status_cadastro?.canal_email ?? true}
-                      onCheckedChange={(checked) =>
-                        setDraft("status_cadastro", { ...preferences.status_cadastro, canal_email: checked })
-                      }
-                    />
+                    checked={preferences.status_cadastro?.canal_email ?? true}
+                    onCheckedChange={(checked) =>
+                    setDraft("status_cadastro", { ...preferences.status_cadastro, canal_email: checked })
+                    } />
+
                     <Label className="text-sm">Email</Label>
                   </div>
                   <div className="flex items-center gap-2">
                     <Switch
-                      checked={preferences.status_cadastro?.canal_whatsapp ?? true}
-                      onCheckedChange={(checked) =>
-                        setDraft("status_cadastro", { ...preferences.status_cadastro, canal_whatsapp: checked })
-                      }
-                    />
+                    checked={preferences.status_cadastro?.canal_whatsapp ?? true}
+                    onCheckedChange={(checked) =>
+                    setDraft("status_cadastro", { ...preferences.status_cadastro, canal_whatsapp: checked })
+                    } />
+
                     <Label className="text-sm">WhatsApp</Label>
                   </div>
                 </div>
-              )}
+              }
             </div>
 
             <Separator />
@@ -443,50 +443,50 @@ export default function NotificationSettings() {
                 <Switch
                   checked={preferences.lembrete_avaliacao?.ativo ?? true}
                   onCheckedChange={(checked) =>
-                    setDraft("lembrete_avaliacao", { ...preferences.lembrete_avaliacao, ativo: checked })
-                  }
-                />
+                  setDraft("lembrete_avaliacao", { ...preferences.lembrete_avaliacao, ativo: checked })
+                  } />
+
               </div>
               
-              {preferences.lembrete_avaliacao?.ativo && (
-                <div className="space-y-4 pl-6">
+              {preferences.lembrete_avaliacao?.ativo &&
+              <div className="space-y-4 pl-6">
                   <div className="flex items-center gap-4">
                     <Label className="text-sm">Lembrar após:</Label>
                     <Input
-                      type="number"
-                      min="1"
-                      max="30"
-                      value={preferences.lembrete_avaliacao?.dias_apos_contrato ?? 7}
-                      onChange={(e) =>
-                        setDraft("lembrete_avaliacao", { ...preferences.lembrete_avaliacao, dias_apos_contrato: parseInt(e.target.value) })
-                      }
-                      className="w-20"
-                    />
+                    type="number"
+                    min="1"
+                    max="30"
+                    value={preferences.lembrete_avaliacao?.dias_apos_contrato ?? 7}
+                    onChange={(e) =>
+                    setDraft("lembrete_avaliacao", { ...preferences.lembrete_avaliacao, dias_apos_contrato: parseInt(e.target.value) })
+                    }
+                    className="w-20" />
+
                     <span className="text-sm text-gray-600">dias</span>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div className="flex items-center gap-2">
                       <Switch
-                        checked={preferences.lembrete_avaliacao?.canal_push ?? true}
-                        onCheckedChange={(checked) =>
-                          setDraft("lembrete_avaliacao", { ...preferences.lembrete_avaliacao, canal_push: checked })
-                        }
-                      />
+                      checked={preferences.lembrete_avaliacao?.canal_push ?? true}
+                      onCheckedChange={(checked) =>
+                      setDraft("lembrete_avaliacao", { ...preferences.lembrete_avaliacao, canal_push: checked })
+                      } />
+
                       <Label className="text-sm">Push</Label>
                     </div>
                     <div className="flex items-center gap-2">
                       <Switch
-                        checked={preferences.lembrete_avaliacao?.canal_email ?? true}
-                        onCheckedChange={(checked) =>
-                          setDraft("lembrete_avaliacao", { ...preferences.lembrete_avaliacao, canal_email: checked })
-                        }
-                      />
+                      checked={preferences.lembrete_avaliacao?.canal_email ?? true}
+                      onCheckedChange={(checked) =>
+                      setDraft("lembrete_avaliacao", { ...preferences.lembrete_avaliacao, canal_email: checked })
+                      } />
+
                       <Label className="text-sm">Email</Label>
                     </div>
                   </div>
                 </div>
-              )}
+              }
             </div>
 
           </CardContent>
@@ -515,33 +515,33 @@ export default function NotificationSettings() {
                 <Switch
                   checked={preferences.novos_posts_feed?.ativo ?? false}
                   onCheckedChange={(checked) =>
-                    setDraft("novos_posts_feed", { ...preferences.novos_posts_feed, ativo: checked })
-                  }
-                />
+                  setDraft("novos_posts_feed", { ...preferences.novos_posts_feed, ativo: checked })
+                  } />
+
               </div>
               
-              {preferences.novos_posts_feed?.ativo && (
-                <div className="space-y-3 pl-6">
+              {preferences.novos_posts_feed?.ativo &&
+              <div className="space-y-3 pl-6">
                   <div className="flex items-center gap-2">
                     <Switch
-                      checked={preferences.novos_posts_feed?.apenas_minha_regiao ?? true}
-                      onCheckedChange={(checked) =>
-                        setDraft("novos_posts_feed", { ...preferences.novos_posts_feed, apenas_minha_regiao: checked })
-                      }
-                    />
+                    checked={preferences.novos_posts_feed?.apenas_minha_regiao ?? true}
+                    onCheckedChange={(checked) =>
+                    setDraft("novos_posts_feed", { ...preferences.novos_posts_feed, apenas_minha_regiao: checked })
+                    } />
+
                     <Label className="text-sm">Apenas da minha região</Label>
                   </div>
                   <div className="flex items-center gap-2">
                     <Switch
-                      checked={preferences.novos_posts_feed?.canal_push ?? false}
-                      onCheckedChange={(checked) =>
-                        setDraft("novos_posts_feed", { ...preferences.novos_posts_feed, canal_push: checked })
-                      }
-                    />
+                    checked={preferences.novos_posts_feed?.canal_push ?? false}
+                    onCheckedChange={(checked) =>
+                    setDraft("novos_posts_feed", { ...preferences.novos_posts_feed, canal_push: checked })
+                    } />
+
                     <Label className="text-sm">Notificações Push</Label>
                   </div>
                 </div>
-              )}
+              }
             </div>
 
             <Separator />
@@ -556,33 +556,33 @@ export default function NotificationSettings() {
                 <Switch
                   checked={preferences.interacoes_posts?.canal_push ?? true}
                   onCheckedChange={(checked) =>
-                    setDraft("interacoes_posts", { ...preferences.interacoes_posts, canal_push: checked })
-                  }
-                />
+                  setDraft("interacoes_posts", { ...preferences.interacoes_posts, canal_push: checked })
+                  } />
+
               </div>
               
-              {preferences.interacoes_posts?.canal_push && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-6">
+              {preferences.interacoes_posts?.canal_push &&
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-6">
                   <div className="flex items-center gap-2">
                     <Switch
-                      checked={preferences.interacoes_posts?.curtidas ?? true}
-                      onCheckedChange={(checked) =>
-                        setDraft("interacoes_posts", { ...preferences.interacoes_posts, curtidas: checked })
-                      }
-                    />
+                    checked={preferences.interacoes_posts?.curtidas ?? true}
+                    onCheckedChange={(checked) =>
+                    setDraft("interacoes_posts", { ...preferences.interacoes_posts, curtidas: checked })
+                    } />
+
                     <Label className="text-sm">Curtidas</Label>
                   </div>
                   <div className="flex items-center gap-2">
                     <Switch
-                      checked={preferences.interacoes_posts?.comentarios ?? true}
-                      onCheckedChange={(checked) =>
-                        setDraft("interacoes_posts", { ...preferences.interacoes_posts, comentarios: checked })
-                      }
-                    />
+                    checked={preferences.interacoes_posts?.comentarios ?? true}
+                    onCheckedChange={(checked) =>
+                    setDraft("interacoes_posts", { ...preferences.interacoes_posts, comentarios: checked })
+                    } />
+
                     <Label className="text-sm">Comentários</Label>
                   </div>
                 </div>
-              )}
+              }
             </div>
 
             <Separator />
@@ -597,33 +597,33 @@ export default function NotificationSettings() {
                 <Switch
                   checked={preferences.marketplace_novos_itens?.ativo ?? false}
                   onCheckedChange={(checked) =>
-                    setDraft("marketplace_novos_itens", { ...preferences.marketplace_novos_itens, ativo: checked })
-                  }
-                />
+                  setDraft("marketplace_novos_itens", { ...preferences.marketplace_novos_itens, ativo: checked })
+                  } />
+
               </div>
               
-              {preferences.marketplace_novos_itens?.ativo && (
-                <div className="space-y-3 pl-6">
+              {preferences.marketplace_novos_itens?.ativo &&
+              <div className="space-y-3 pl-6">
                   <div className="flex items-center gap-2">
                     <Switch
-                      checked={preferences.marketplace_novos_itens?.apenas_minha_regiao ?? true}
-                      onCheckedChange={(checked) =>
-                        setDraft("marketplace_novos_itens", { ...preferences.marketplace_novos_itens, apenas_minha_regiao: checked })
-                      }
-                    />
+                    checked={preferences.marketplace_novos_itens?.apenas_minha_regiao ?? true}
+                    onCheckedChange={(checked) =>
+                    setDraft("marketplace_novos_itens", { ...preferences.marketplace_novos_itens, apenas_minha_regiao: checked })
+                    } />
+
                     <Label className="text-sm">Apenas da minha região</Label>
                   </div>
                   <div className="flex items-center gap-2">
                     <Switch
-                      checked={preferences.marketplace_novos_itens?.canal_push ?? false}
-                      onCheckedChange={(checked) =>
-                        setDraft("marketplace_novos_itens", { ...preferences.marketplace_novos_itens, canal_push: checked })
-                      }
-                    />
+                    checked={preferences.marketplace_novos_itens?.canal_push ?? false}
+                    onCheckedChange={(checked) =>
+                    setDraft("marketplace_novos_itens", { ...preferences.marketplace_novos_itens, canal_push: checked })
+                    } />
+
                     <Label className="text-sm">Notificações Push</Label>
                   </div>
                 </div>
-              )}
+              }
             </div>
 
           </CardContent>
@@ -649,21 +649,21 @@ export default function NotificationSettings() {
               <Switch
                 checked={preferences.noticias?.ativo ?? true}
                 onCheckedChange={(checked) =>
-                  setDraft("noticias", { ...preferences.noticias, ativo: checked })
-                }
-              />
+                setDraft("noticias", { ...preferences.noticias, ativo: checked })
+                } />
+
             </div>
             
-            {preferences.noticias?.ativo && (
-              <div className="space-y-4 pl-6">
+            {preferences.noticias?.ativo &&
+            <div className="space-y-4 pl-6">
                 <div className="flex items-center gap-4">
                   <Label className="text-sm">Frequência:</Label>
                   <Select
-                    value={preferences.noticias?.frequencia ?? "IMEDIATO"}
-                    onValueChange={(value) =>
-                      setDraft("noticias", { ...preferences.noticias, frequencia: value })
-                    }
-                  >
+                  value={preferences.noticias?.frequencia ?? "IMEDIATO"}
+                  onValueChange={(value) =>
+                  setDraft("noticias", { ...preferences.noticias, frequencia: value })
+                  }>
+
                     <SelectTrigger className="w-40">
                       <SelectValue />
                     </SelectTrigger>
@@ -678,25 +678,25 @@ export default function NotificationSettings() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="flex items-center gap-2">
                     <Switch
-                      checked={preferences.noticias?.canal_push ?? true}
-                      onCheckedChange={(checked) =>
-                        setDraft("noticias", { ...preferences.noticias, canal_push: checked })
-                      }
-                    />
+                    checked={preferences.noticias?.canal_push ?? true}
+                    onCheckedChange={(checked) =>
+                    setDraft("noticias", { ...preferences.noticias, canal_push: checked })
+                    } />
+
                     <Label className="text-sm">Push</Label>
                   </div>
                   <div className="flex items-center gap-2">
                     <Switch
-                      checked={preferences.noticias?.canal_email ?? false}
-                      onCheckedChange={(checked) =>
-                        setDraft("noticias", { ...preferences.noticias, canal_email: checked })
-                      }
-                    />
+                    checked={preferences.noticias?.canal_email ?? false}
+                    onCheckedChange={(checked) =>
+                    setDraft("noticias", { ...preferences.noticias, canal_email: checked })
+                    } />
+
                     <Label className="text-sm">Email</Label>
                   </div>
                 </div>
               </div>
-            )}
+            }
           </CardContent>
         </Card>
 
@@ -726,37 +726,37 @@ export default function NotificationSettings() {
                 <Switch
                   checked={preferences.modo_nao_perturbe?.ativo ?? false}
                   onCheckedChange={(checked) =>
-                    setDraft("modo_nao_perturbe", { ...preferences.modo_nao_perturbe, ativo: checked })
-                  }
-                />
+                  setDraft("modo_nao_perturbe", { ...preferences.modo_nao_perturbe, ativo: checked })
+                  } />
+
               </div>
               
-              {preferences.modo_nao_perturbe?.ativo && (
-                <div className="grid grid-cols-2 gap-4 pl-12">
+              {preferences.modo_nao_perturbe?.ativo &&
+              <div className="grid grid-cols-2 gap-4 pl-12">
                   <div>
                     <Label className="text-sm">Das:</Label>
                     <Input
-                      type="time"
-                      value={preferences.modo_nao_perturbe?.horario_inicio ?? "22:00"}
-                      onChange={(e) =>
-                        setDraft("modo_nao_perturbe", { ...preferences.modo_nao_perturbe, horario_inicio: e.target.value })
-                      }
-                      className="mt-1"
-                    />
+                    type="time"
+                    value={preferences.modo_nao_perturbe?.horario_inicio ?? "22:00"}
+                    onChange={(e) =>
+                    setDraft("modo_nao_perturbe", { ...preferences.modo_nao_perturbe, horario_inicio: e.target.value })
+                    }
+                    className="mt-1" />
+
                   </div>
                   <div>
                     <Label className="text-sm">Até:</Label>
                     <Input
-                      type="time"
-                      value={preferences.modo_nao_perturbe?.horario_fim ?? "08:00"}
-                      onChange={(e) =>
-                        setDraft("modo_nao_perturbe", { ...preferences.modo_nao_perturbe, horario_fim: e.target.value })
-                      }
-                      className="mt-1"
-                    />
+                    type="time"
+                    value={preferences.modo_nao_perturbe?.horario_fim ?? "08:00"}
+                    onChange={(e) =>
+                    setDraft("modo_nao_perturbe", { ...preferences.modo_nao_perturbe, horario_fim: e.target.value })
+                    }
+                    className="mt-1" />
+
                   </div>
                 </div>
-              )}
+              }
             </div>
 
             <Separator />
@@ -770,8 +770,8 @@ export default function NotificationSettings() {
                 </div>
                 <Switch
                   checked={preferences.agrupar_notificacoes ?? true}
-                  onCheckedChange={(checked) => setDraft("agrupar_notificacoes", checked)}
-                />
+                  onCheckedChange={(checked) => setDraft("agrupar_notificacoes", checked)} />
+
               </div>
 
               <div className="flex items-center justify-between">
@@ -784,8 +784,8 @@ export default function NotificationSettings() {
                 </div>
                 <Switch
                   checked={preferences.som_notificacao ?? true}
-                  onCheckedChange={(checked) => setDraft("som_notificacao", checked)}
-                />
+                  onCheckedChange={(checked) => setDraft("som_notificacao", checked)} />
+
               </div>
 
               <div className="flex items-center justify-between">
@@ -795,8 +795,8 @@ export default function NotificationSettings() {
                 </div>
                 <Switch
                   checked={preferences.vibracao ?? true}
-                  onCheckedChange={(checked) => setDraft("vibracao", checked)}
-                />
+                  onCheckedChange={(checked) => setDraft("vibracao", checked)} />
+
               </div>
             </div>
 
@@ -808,20 +808,20 @@ export default function NotificationSettings() {
           <Button
             variant="outline"
             className="w-full md:flex-1 h-12 rounded-xl border-2 border-gray-200 hover:border-[#F9B500] font-bold"
-            onClick={() => window.history.back()}
-          >
+            onClick={() => window.history.back()}>
+
             Voltar
           </Button>
           <Button
             className="w-full md:flex-1 h-12 gradient-yellow-pink text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all border-0"
-            onClick={() => toast.success("Todas as preferências foram salvas!")}
-          >
+            onClick={() => toast.success("Todas as preferências foram salvas!")}>
+
             <CheckCircle className="w-4 h-4 mr-2" />
             Salvar Tudo
           </Button>
         </div>
 
       </div>
-    </div>
-  );
+    </div>);
+
 }
