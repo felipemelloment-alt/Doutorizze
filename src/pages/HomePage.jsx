@@ -125,7 +125,7 @@ export default function HomePage() {
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-2 w-full overflow-hidden">
+              <div className="grid grid-cols-3 gap-1 w-full overflow-hidden">
                 <StatCard number="500+" label="Vagas Ativas" />
                 <StatCard number="1.2K+" label="Profissionais" />
                 <StatCard number="98%" label="Satisfação" />
