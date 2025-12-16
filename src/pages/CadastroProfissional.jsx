@@ -51,6 +51,8 @@ export default function CadastroProfissional() {
 
     // ETAPA 4: Preferências Financeiras
     forma_remuneracao: [],
+    valor_minimo_diaria: "",
+    porcentagem_minima: "",
     observacoes: "",
 
     // ETAPA 5: Documentos
@@ -713,25 +715,92 @@ export default function CadastroProfissional() {
           <div className="space-y-6">
             {/* Formas de Remuneração */}
             <div>
-              <Label className="text-base font-semibold mb-4 block">Formas de Remuneração Aceitas *</Label>
-              <div className="grid grid-cols-2 gap-3">
+              <Label className="text-base font-semibold mb-4 block">Formas de Remuneração que Aceita *</Label>
+              <div className="space-y-3">
                 {[
-                  { value: "DIARIA", label: "Diária" },
-                  { value: "PORCENTAGEM", label: "Porcentagem" },
-                  { value: "FIXO", label: "Fixo" },
+                  { value: "DIARIA", label: "Diária (valor por dia trabalhado)" },
+                  { value: "PORCENTAGEM", label: "Porcentagem (% sobre procedimentos)" },
+                  { value: "FIXO", label: "Fixo (salário mensal fixo)" },
                   { value: "A_COMBINAR", label: "A Combinar" }
                 ].map((forma) => (
-                  <Button
+                  <div
                     key={forma.value}
-                    type="button"
-                    variant={formData.forma_remuneracao.includes(forma.value) ? "default" : "outline"}
+                    className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                      formData.forma_remuneracao.includes(forma.value)
+                        ? "border-blue-600 bg-blue-50"
+                        : "border-gray-200 hover:border-blue-300"
+                    }`}
                     onClick={() => toggleFormaRemuneracao(forma.value)}
-                    className={formData.forma_remuneracao.includes(forma.value) ? "bg-blue-600" : ""}
                   >
-                    {forma.label}
-                  </Button>
+                    <div className="flex items-center space-x-3">
+                      <input
+                        type="checkbox"
+                        checked={formData.forma_remuneracao.includes(forma.value)}
+                        onChange={() => {}}
+                        className="w-5 h-5 text-blue-600"
+                      />
+                      <Label className="cursor-pointer text-base">
+                        {forma.label}
+                      </Label>
+                    </div>
+                  </div>
                 ))}
               </div>
+            </div>
+
+            {/* Campos Condicionais */}
+            {(formData.forma_remuneracao.includes("DIARIA") || formData.forma_remuneracao.includes("PORCENTAGEM")) && (
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Valor Mínimo Diária */}
+                {formData.forma_remuneracao.includes("DIARIA") && (
+                  <div>
+                    <Label htmlFor="valor_minimo_diaria">Valor Mínimo Diária (opcional)</Label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                        R$
+                      </span>
+                      <Input
+                        id="valor_minimo_diaria"
+                        type="number"
+                        value={formData.valor_minimo_diaria}
+                        onChange={(e) => handleInputChange("valor_minimo_diaria", e.target.value)}
+                        placeholder="500"
+                        className="pl-10"
+                        min="0"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Porcentagem Mínima */}
+                {formData.forma_remuneracao.includes("PORCENTAGEM") && (
+                  <div>
+                    <Label htmlFor="porcentagem_minima">Porcentagem Mínima (opcional)</Label>
+                    <div className="relative">
+                      <Input
+                        id="porcentagem_minima"
+                        type="number"
+                        value={formData.porcentagem_minima}
+                        onChange={(e) => handleInputChange("porcentagem_minima", e.target.value)}
+                        placeholder="30"
+                        className="pr-10"
+                        min="0"
+                        max="100"
+                      />
+                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                        %
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Dica */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="text-sm text-blue-800">
+                💡 <strong>DICA:</strong> Deixar valores em branco significa que você está aberto a negociação.
+              </p>
             </div>
 
             {/* Observações */}
@@ -743,7 +812,7 @@ export default function CadastroProfissional() {
                 id="observacoes"
                 value={formData.observacoes}
                 onChange={(e) => handleInputChange("observacoes", e.target.value)}
-                placeholder="Fale sobre sua experiência, preferências de trabalho, etc."
+                placeholder="Fale sobre sua experiência, preferências de trabalho, horários que prefere, tipo de clínica que procura, etc."
                 className="w-full min-h-[150px] p-3 border border-gray-300 rounded-md"
                 maxLength={500}
               />
