@@ -83,10 +83,10 @@ export default function HomePage() {
 
               {/* Main Title */}
               <h2 className="text-5xl md:text-7xl font-black mb-6 leading-tight">
-                <span className="text-yellow-400 text-shadow-lg">OPORTUNIDADES</span>
+                <span className="text-[#F9B500] text-shadow-lg">OPORTUNIDADES</span>
               </h2>
 
-              <div className="bg-white rounded-3xl p-8 shadow-2xl mb-8 border-4 border-yellow-400">
+              <div className="bg-white rounded-3xl p-8 shadow-2xl mb-8 border-4 border-[#F9B500] hover:shadow-[0_15px_40px_rgba(249,181,0,0.4)]">
                 <h3 className="text-3xl md:text-4xl font-black mb-4">
                   SEU NOVO
                   <br />
@@ -322,7 +322,7 @@ function Badge({ text, color }) {
 
 function StatCard({ number, label }) {
   return (
-    <div className="bg-white rounded-2xl p-4 shadow-lg text-center border-2 border-gray-100 hover:border-yellow-400 transition-all">
+    <div className="bg-white rounded-2xl p-4 shadow-xl hover:shadow-2xl text-center border-2 border-gray-100 hover:border-[#F9B500] transition-all">
       <p className="text-2xl font-black gradient-yellow-pink bg-clip-text text-transparent">
         {number}
       </p>
@@ -335,7 +335,7 @@ function MiniProfessionalCard({ name, specialty, rating }) {
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
-      className="bg-white rounded-2xl p-3 shadow-md border-2 border-gray-100 flex items-center gap-3">
+      className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl border-2 border-gray-100 hover:border-[#F9B500] transition-all flex items-center gap-3">
 
       <div className="w-12 h-12 rounded-full gradient-yellow-pink flex items-center justify-center text-white font-bold">
         {name[4]}
