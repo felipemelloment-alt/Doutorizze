@@ -178,54 +178,61 @@ export default function MarketplaceCreate() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50">
       {/* Header */}
-      <div className="gradient-yellow-pink py-6 shadow-xl">
+      <div className="gradient-yellow-pink py-8 md:py-12 shadow-xl">
         <div className="container mx-auto px-4">
           <Button
             variant="ghost"
             onClick={() => navigate(createPageUrl("Marketplace"))}
-            className="text-white hover:bg-white/20 mb-4">
+            className="text-white hover:bg-white/20 mb-6 font-bold">
 
             <ArrowLeft className="w-5 h-5 mr-2" />
-            Voltar
+            Voltar ao Marketplace
           </Button>
-          <h1 className="text-rose-500 text-4xl font-black">Criar Anúncio
-
-          </h1>
-          <p className="text-orange-600 mt-2 font-semibold">Anuncie seu equipamento no marketplace 🚀
-
-          </p>
+          <div className="flex items-center gap-4 mb-4">
+            <div className="p-4 bg-white rounded-2xl shadow-xl">
+              <Upload className="w-10 h-10 text-pink-600" />
+            </div>
+            <div>
+              <h1 className="text-4xl md:text-6xl font-black text-[#F9B500] text-shadow-lg whitespace-nowrap">
+                CRIAR ANÚNCIO
+              </h1>
+              <p className="text-white text-base md:text-lg mt-2 font-bold">
+                Anuncie seu equipamento no marketplace 🚀
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Radar Alert */}
         {matchingInterests.length > 0 &&
-        <Card className="mb-8 border-4 border-green-400 bg-gradient-to-r from-green-50 to-teal-50 shadow-xl">
-            <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-green-500 rounded-2xl">
-                  <Radar className="w-8 h-8 text-white" />
+        <Card className="mb-8 border-4 border-green-400 bg-gradient-to-r from-green-50 to-teal-50 shadow-2xl rounded-3xl overflow-hidden">
+            <CardContent className="p-6 md:p-8">
+              <div className="flex flex-col md:flex-row items-start gap-6">
+                <div className="p-4 bg-gradient-to-br from-green-400 to-teal-500 rounded-2xl shadow-xl flex-shrink-0">
+                  <Radar className="w-10 h-10 md:w-12 md:h-12 text-white" />
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-2xl font-black text-gray-900 mb-2">
+                <div className="flex-1 w-full min-w-0">
+                  <h3 className="text-2xl md:text-3xl font-black text-gray-900 mb-3 break-words">
                     🎯 {matchingInterests.length}{" "}
                     {matchingInterests.length === 1 ? "pessoa está" : "pessoas estão"} procurando
                     este produto!
                   </h3>
-                  <p className="text-gray-700 font-semibold mb-4">
-                    Existem interessados no <strong>Radar de Produtos</strong> que serão
+                  <p className="text-base md:text-lg text-gray-700 font-bold mb-6">
+                    Existem interessados no <span className="text-green-600">Radar de Produtos</span> que serão
                     automaticamente notificados quando você publicar este anúncio.
                   </p>
-                  <div className="flex gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <Button
                     onClick={() => setRadarInterestsModalOpen(true)}
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105">
+                    className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-pink-500 text-white font-black text-base rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-105 border-0 px-6 py-4">
 
                       <Users className="w-5 h-5 mr-2" />
                       Ver Interessados
                     </Button>
-                    <Badge className="px-4 py-2 bg-green-500 text-white text-base">
-                      <Zap className="w-4 h-4 mr-1" />
+                    <Badge className="px-6 py-3 bg-green-500 text-white text-base font-bold rounded-xl shadow-lg flex items-center justify-center">
+                      <Zap className="w-5 h-5 mr-2" />
                       Notificação automática ao publicar
                     </Badge>
                   </div>
@@ -236,11 +243,11 @@ export default function MarketplaceCreate() {
         }
 
         <form onSubmit={handleSubmit}>
-          <Card className="shadow-xl border-4 border-yellow-400">
-            <CardHeader>
-              <CardTitle className="text-2xl">Informações do Equipamento</CardTitle>
+          <Card className="shadow-2xl border-4 border-[#F9B500] rounded-3xl overflow-hidden">
+            <CardHeader className="p-6 md:p-8 bg-gradient-to-r from-yellow-50 to-orange-50 border-b-4 border-[#F9B500]">
+              <CardTitle className="text-2xl md:text-3xl font-black text-gray-900">📦 Informações do Equipamento</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 p-6 md:p-8">
               {/* Tipo */}
               <div>
                 <Label className="text-base font-bold">Categoria *</Label>
@@ -444,13 +451,13 @@ export default function MarketplaceCreate() {
           </Card>
 
           {/* Submit Button */}
-          <div className="mt-8 flex gap-4">
+          <div className="mt-8 flex flex-col sm:flex-row gap-4">
             <Button
               type="button"
               variant="outline"
               size="lg"
               onClick={() => navigate(createPageUrl("Marketplace"))}
-              className="flex-1 h-16 rounded-2xl border-2 font-bold text-lg">
+              className="w-full sm:flex-1 h-14 md:h-16 rounded-2xl border-4 border-gray-200 hover:border-[#F9B500] font-black text-base md:text-lg transition-all">
 
               Cancelar
             </Button>
@@ -458,19 +465,19 @@ export default function MarketplaceCreate() {
               type="submit"
               size="lg"
               disabled={createMutation.isPending}
-              className="flex-1 h-16 gradient-yellow-pink text-white font-bold text-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-105">
+              className="w-full sm:flex-1 h-14 md:h-16 gradient-yellow-pink text-white font-black text-base md:text-lg rounded-2xl shadow-2xl hover:shadow-[0_20px_60px_rgba(249,181,0,0.4)] transition-all hover:scale-105 border-0">
 
               {createMutation.isPending ?
               <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  Criando...
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-4 border-white mr-2"></div>
+                  <span className="font-black">Criando...</span>
                 </> :
 
               <>
                   <Check className="w-6 h-6 mr-2" />
                   Publicar Anúncio
                   {matchingInterests.length > 0 &&
-                <Badge className="ml-2 bg-green-500 text-white">
+                <Badge className="ml-2 bg-white text-green-600 font-black px-3 py-1 rounded-full">
                       +{matchingInterests.length} 🎯
                     </Badge>
                 }
