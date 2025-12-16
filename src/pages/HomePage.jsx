@@ -82,7 +82,7 @@ export default function HomePage() {
               </div>
 
               {/* Main Title */}
-              <h2 className="text-5xl md:text-7xl font-black mb-6 leading-tight">
+              <h2 className="text-4xl md:text-7xl font-black mb-6 leading-tight break-words">
                 <span className="text-[#F9B500] text-shadow-lg">OPORTUNIDADES</span>
               </h2>
 
@@ -116,11 +116,11 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   onClick={() => navigate(createPageUrl("NewJobs"))}
-                  className="w-full gradient-yellow-pink text-white font-bold text-lg py-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-105 border-0">
+                  className="w-full max-w-full gradient-yellow-pink text-white font-bold text-base md:text-lg py-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-105 border-0">
 
-                  <Zap className="w-6 h-6 mr-2" />
-                  Encontrar Oportunidades Agora
-                  <ArrowRight className="w-6 h-6 ml-2" />
+                  <Zap className="w-5 h-5 mr-2" />
+                  Encontrar Oportunidades
+                  <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </div>
 
@@ -146,16 +146,16 @@ export default function HomePage() {
                   scale: [1, 1.1, 1]
                 }}
                 transition={{ repeat: Infinity, duration: 3 }}
-                className="absolute -left-16 top-1/4 z-20">
+                className="hidden md:block absolute -left-16 top-1/4 z-20">
 
-                <Megaphone className="w-32 h-32 text-pink-500 megaphone-icon" />
+                <Megaphone className="w-24 h-24 md:w-32 md:h-32 text-pink-500 megaphone-icon" />
               </motion.div>
 
               {/* Chat Bubbles */}
               <motion.div
                 animate={{ y: [0, -10, 0] }}
                 transition={{ repeat: Infinity, duration: 2 }}
-                className="absolute top-10 -left-8 z-10">
+                className="hidden md:block absolute top-10 -left-8 z-10">
 
                 <div className="chat-bubble-blue">
                   <p className="text-sm font-semibold">Nova vaga disponível! 🎉</p>
@@ -165,7 +165,7 @@ export default function HomePage() {
               <motion.div
                 animate={{ y: [0, 10, 0] }}
                 transition={{ repeat: Infinity, duration: 2.5, delay: 0.5 }}
-                className="absolute bottom-20 -right-8 z-10">
+                className="hidden md:block absolute bottom-20 -right-8 z-10">
 
                 <div className="chat-bubble-blue">
                   <p className="text-sm font-semibold">Match perfeito! ⚡</p>
@@ -173,8 +173,9 @@ export default function HomePage() {
               </motion.div>
 
               {/* Phone Mockup */}
-              <div className="relative mx-auto w-full max-w-[320px] sm:w-80 h-[600px] bg-white rounded-[3rem] shadow-2xl border-8 border-gray-800 p-4">
-                <div className="w-full h-full bg-gradient-to-br from-blue-50 to-purple-50 rounded-[2rem] overflow-hidden">
+              <div className="relative mx-auto w-full max-w-[320px] sm:w-80 h-[600px] bg-white rounded-[3rem] shadow-2xl border-8 border-gray-800 p-4 overflow-hidden">
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 w-20 h-1 bg-gray-800 rounded-full"></div>
+                <div className="w-full h-full bg-gradient-to-br from-blue-50 to-purple-50 rounded-[2rem] overflow-hidden mt-6">
                   {/* Header */}
                   <div className="bg-white p-4 shadow-md">
                     <div className="flex items-center gap-2 mb-3">
@@ -282,20 +283,20 @@ export default function HomePage() {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}>
 
-            <h2 className="text-4xl md:text-6xl font-black text-white mb-6 text-shadow-lg">
+            <h2 className="text-3xl md:text-5xl font-black text-white mb-6 text-shadow-lg">
               Pronto para começar?
             </h2>
-            <p className="text-xl text-white mb-8 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl mx-auto font-semibold">
               Junte-se a milhares de profissionais e clínicas que já encontraram
               oportunidades incríveis!
             </p>
             <Button
               size="lg"
               onClick={() => navigate(createPageUrl("NewJobs"))}
-              className="bg-white text-pink-600 font-bold text-lg py-6 px-12 rounded-2xl shadow-2xl hover:shadow-3xl transition-all hover:scale-105">
+              className="bg-white text-pink-600 font-bold text-base md:text-lg py-6 px-8 md:px-12 rounded-2xl shadow-2xl hover:shadow-[0_20px_60px_rgba(255,255,255,0.4)] transition-all hover:scale-105">
 
               Criar Minha Conta Grátis
-              <ArrowRight className="w-6 h-6 ml-2" />
+              <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </motion.div>
         </div>
