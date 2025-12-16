@@ -126,7 +126,7 @@ export default function NewJobs() {
 
       <div className="container mx-auto px-4 py-8">
         {/* Search Bar */}
-        <div className="bg-white rounded-3xl p-6 shadow-xl mb-8 border-4 border-yellow-400">
+        <div className="bg-white rounded-3xl p-6 shadow-xl mb-8 border-4 border-[#F9B500]">
           <div className="grid md:grid-cols-2 gap-4">
             <div className="relative">
               <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -147,7 +147,7 @@ export default function NewJobs() {
 
             </div>
           </div>
-          <Button className="w-full mt-4 h-14 gradient-yellow-pink text-white font-bold text-lg rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-105">
+          <Button className="w-full mt-4 h-14 gradient-yellow-pink text-white font-bold text-lg rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-105 border-0">
             <Search className="w-6 h-6 mr-2" />
             Buscar Oportunidades
           </Button>
@@ -180,24 +180,24 @@ export default function NewJobs() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 h-auto p-2 bg-white rounded-2xl shadow-lg">
+          <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 h-auto p-2 bg-white rounded-2xl shadow-lg gap-2">
             <TabsTrigger
               value="super-jobs"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-400 data-[state=active]:to-orange-500 data-[state=active]:text-white font-bold text-lg py-4 rounded-xl">
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-400 data-[state=active]:to-orange-500 data-[state=active]:text-white font-bold text-sm md:text-lg py-3 md:py-4 rounded-xl flex items-center justify-center">
 
               <Sparkles className="w-5 h-5 mr-2" />
               SUPER JOBS
             </TabsTrigger>
             <TabsTrigger
               value="semelhante"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-400 data-[state=active]:to-pink-500 data-[state=active]:text-white font-bold text-lg py-4 rounded-xl">
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-400 data-[state=active]:to-pink-500 data-[state=active]:text-white font-bold text-sm md:text-lg py-3 md:py-4 rounded-xl flex items-center justify-center">
 
               <Star className="w-5 h-5 mr-2" />
               Semelhante
             </TabsTrigger>
             <TabsTrigger
               value="outras"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-400 data-[state=active]:to-purple-500 data-[state=active]:text-white font-bold text-lg py-4 rounded-xl">
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-400 data-[state=active]:to-purple-500 data-[state=active]:text-white font-bold text-sm md:text-lg py-3 md:py-4 rounded-xl flex items-center justify-center">
 
               <TrendingUp className="w-5 h-5 mr-2" />
               Outras
