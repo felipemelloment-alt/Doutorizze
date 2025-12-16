@@ -93,10 +93,10 @@ export default function NewJobs() {
                 <Zap className="w-10 h-10 text-pink-600" />
               </div>
               <div>
-                <h1 className="text-orange-600 text-4xl font-black">OPORTUNIDADES
+                <h1 className="text-[#F9B500] text-4xl md:text-5xl font-black text-shadow-lg">OPORTUNIDADES
 
                 </h1>
-                <p className="text-slate-950 font-semibold">Encontre seu próximo emprego aqui! 🎯
+                <p className="text-white font-semibold">Encontre seu próximo emprego aqui! 🎯
 
                 </p>
               </div>
@@ -134,7 +134,7 @@ export default function NewJobs() {
                 placeholder="Digite a cidade..."
                 value={searchCity}
                 onChange={(e) => setSearchCity(e.target.value)}
-                className="pl-12 h-14 text-lg border-2 border-gray-200 rounded-2xl focus:border-yellow-400" />
+                className="pl-12 h-14 text-lg border-2 border-gray-200 rounded-2xl focus:border-[#F9B500]" />
 
             </div>
             <div className="relative">
@@ -143,7 +143,7 @@ export default function NewJobs() {
                 placeholder="Especialidade..."
                 value={searchSpecialty}
                 onChange={(e) => setSearchSpecialty(e.target.value)}
-                className="pl-12 h-14 text-lg border-2 border-gray-200 rounded-2xl focus:border-pink-400" />
+                className="pl-12 h-14 text-lg border-2 border-gray-200 rounded-2xl focus:border-[#F9B500]" />
 
             </div>
           </div>
@@ -205,7 +205,7 @@ export default function NewJobs() {
           </TabsList>
 
           <TabsContent value="super-jobs" className="space-y-6">
-            <div className="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6 border-2 border-yellow-400">
+            <div className="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6 border-4 border-[#F9B500]">
               <div className="flex items-center gap-3 mb-2">
                 <Sparkles className="w-8 h-8 text-yellow-600" />
                 <h2 className="text-2xl font-black text-gray-900">
@@ -238,7 +238,7 @@ export default function NewJobs() {
           </TabsContent>
 
           <TabsContent value="semelhante" className="space-y-6">
-            <div className="bg-gradient-to-r from-orange-100 to-pink-100 rounded-2xl p-6 border-2 border-orange-400">
+            <div className="bg-gradient-to-r from-orange-100 to-pink-100 rounded-2xl p-6 border-4 border-[#E94560]">
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
@@ -291,7 +291,7 @@ export default function NewJobs() {
           </TabsContent>
 
           <TabsContent value="outras" className="space-y-6">
-            <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-6 border-2 border-blue-400">
+            <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-6 border-4 border-[#4A90E2]">
               <div className="flex items-center gap-3 mb-2">
                 <TrendingUp className="w-8 h-8 text-blue-600" />
                 <h2 className="text-2xl font-black text-gray-900">
@@ -332,7 +332,7 @@ function StatCard({ icon: Icon, title, count, description, gradient }) {
   return (
     <motion.div
       whileHover={{ scale: 1.05, y: -5 }}
-      className="bg-white rounded-2xl p-6 shadow-xl border-2 border-gray-100 hover:border-yellow-400 transition-all">
+      className="bg-white rounded-2xl p-6 shadow-xl border-2 border-gray-100 hover:border-[#F9B500] hover:shadow-2xl transition-all">
 
       <div className="flex items-center justify-between mb-4">
         <div className={`p-3 rounded-xl bg-gradient-to-br ${gradient} shadow-lg`}>
