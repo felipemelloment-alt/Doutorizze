@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Plus, RefreshCcw, MapPin, Star, Briefcase, ShoppingBag, User } from "lucide-react";
+import { useUserRole } from "@/components/hooks/useUserRole";
+import { getRegistroLabel, getClinicaLabel } from "@/components/constants/especialidades";
 
 // Função para formatar CNPJ
 const formatCNPJ = (cnpj) => {
@@ -24,13 +26,23 @@ export default function TestCompanyUnit() {
   const [selectedOwner, setSelectedOwner] = useState(null);
   const [ownerModalOpen, setOwnerModalOpen] = useState(false);
   const queryClient = useQueryClient();
+  const { userWorld, isAdmin, loading: loadingRole } = useUserRole();
 
   // Buscar todas as unidades
   const { data: units = [], isLoading, refetch } = useQuery({
-    queryKey: ["companyUnits"],
+    queryKey: ["companyUnits", userWorld],
     queryFn: async () => {
       try {
-        return await base44.entities.CompanyUnit.list("-created_date");
+        let allUnits = await base44.entities.CompanyUnit.list("-created_date");
+
+        // Filter by world unless admin
+        if (userWorld && userWorld !== "AMBOS") {
+          allUnits = allUnits.filter(u =>
+            u.tipo_mundo === userWorld || u.tipo_mundo === "AMBOS"
+          );
+        }
+
+        return allUnits;
       } catch (error) {
         console.error("Erro ao buscar unidades:", error);
         toast.error("Erro ao carregar unidades");
@@ -419,9 +431,9 @@ export default function TestCompanyUnit() {
                               margin: 0
                             }}>
                               {unit.nome_responsavel}
-                              {unit.cro_responsavel && (
+                              {(unit.cro_responsavel || unit.crm_responsavel) && (
                                 <span style={{ color: "#718096", marginLeft: "8px" }}>
-                                  ({unit.cro_responsavel})
+                                  ({unit.tipo_mundo === "MEDICINA" ? unit.crm_responsavel : unit.cro_responsavel})
                                 </span>
                               )}
                             </p>
