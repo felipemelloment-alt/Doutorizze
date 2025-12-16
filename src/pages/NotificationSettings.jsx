@@ -87,7 +87,7 @@ export default function NotificationSettings() {
         {/* Header */}
         <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-6 md:mb-8">
           <div className="bg-[#E94560] text-[#f80d0d] p-3 rounded-2xl gradient-yellow-pink flex-shrink-0 shadow-lg">
-            <Bell className="text-[#E94560] lucide lucide-bell w-6 h-6 md:w-8 md:h-8" />
+            <Bell className="text-[#ffffff] lucide lucide-bell w-6 h-6 md:w-8 md:h-8" />
           </div>
           <div className="w-full max-w-full">
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 truncate">Notificações</h1>
