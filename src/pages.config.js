@@ -14,6 +14,8 @@ import TestJobMatch from './pages/TestJobMatch';
 import TestJobContract from './pages/TestJobContract';
 import TestRating from './pages/TestRating';
 import BuscarProfissionais from './pages/BuscarProfissionais';
+import EscolherTipoCadastro from './pages/EscolherTipoCadastro';
+import CadastroProfissional from './pages/CadastroProfissional';
 
 
 export const PAGES = {
@@ -33,6 +35,8 @@ export const PAGES = {
     "TestJobContract": TestJobContract,
     "TestRating": TestRating,
     "BuscarProfissionais": BuscarProfissionais,
+    "EscolherTipoCadastro": EscolherTipoCadastro,
+    "CadastroProfissional": CadastroProfissional,
 }
 
 export const pagesConfig = {
