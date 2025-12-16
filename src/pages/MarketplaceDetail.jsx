@@ -138,7 +138,7 @@ export default function MarketplaceDetail() {
           {/* Left Column - Images */}
           <div className="space-y-4">
             {/* Main Image */}
-            <Card className="border-4 border-yellow-400 overflow-hidden shadow-xl">
+            <Card className="border-4 border-[#F9B500] overflow-hidden shadow-xl">
               <CardContent className="p-0">
                 <div className="relative w-full h-96 bg-gray-100">
                   {images.length > 0 ? (
@@ -169,7 +169,7 @@ export default function MarketplaceDetail() {
                     onClick={() => setSelectedImageIndex(idx)}
                     className={`flex-1 h-24 rounded-xl overflow-hidden border-4 ${
                       selectedImageIndex === idx
-                        ? "border-yellow-400"
+                        ? "border-[#F9B500]"
                         : "border-gray-200"
                     }`}
                   >
@@ -205,16 +205,16 @@ export default function MarketplaceDetail() {
                 {item.titulo_item}
               </h1>
 
-              <div className="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-3xl p-6 border-4 border-yellow-400 shadow-xl">
+              <div className="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-3xl p-6 border-4 border-[#F9B500] shadow-xl">
                 <p className="text-sm text-gray-600 font-semibold mb-2">Preço</p>
-                <p className="text-5xl font-black gradient-yellow-pink bg-clip-text text-transparent">
+                <p className="text-5xl font-black text-[#F9B500]">
                   {formatPrice(item.preco)}
                 </p>
               </div>
             </div>
 
             {/* Description */}
-            <Card className="shadow-lg">
+            <Card className="shadow-xl border-2 border-gray-100 hover:border-[#F9B500] transition-all">
               <CardContent className="p-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-3">Descrição</h3>
                 <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
@@ -224,7 +224,7 @@ export default function MarketplaceDetail() {
             </Card>
 
             {/* Details */}
-            <Card className="shadow-lg">
+            <Card className="shadow-xl border-2 border-gray-100 hover:border-[#F9B500] transition-all">
               <CardContent className="p-6 space-y-4">
                 <h3 className="text-xl font-bold text-gray-900 mb-4">Detalhes</h3>
 
@@ -279,7 +279,7 @@ export default function MarketplaceDetail() {
             </Card>
 
             {/* Anunciante */}
-            <Card className="shadow-lg">
+            <Card className="shadow-xl border-2 border-gray-100">
               <CardContent className="p-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-4">Anunciante</h3>
                 <div className="flex items-center gap-4">
@@ -305,7 +305,7 @@ export default function MarketplaceDetail() {
               <Button
                 size="lg"
                 onClick={handleWhatsAppContact}
-                className="w-full h-16 bg-gradient-to-r from-orange-400 to-orange-600 text-white font-bold text-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-105"
+                className="w-full h-16 gradient-yellow-pink text-white font-bold text-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-105 border-0"
               >
                 <MessageCircle className="w-6 h-6 mr-3" />
                 TENHO INTERESSE
@@ -317,7 +317,7 @@ export default function MarketplaceDetail() {
                   variant="outline"
                   size="lg"
                   onClick={handleShare}
-                  className="h-14 rounded-2xl border-2 font-bold"
+                  className="h-14 rounded-2xl border-2 border-gray-200 hover:border-[#F9B500] font-bold"
                 >
                   <Share2 className="w-5 h-5 mr-2" />
                   Compartilhar
@@ -325,7 +325,7 @@ export default function MarketplaceDetail() {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="h-14 rounded-2xl border-2 font-bold"
+                  className="h-14 rounded-2xl border-2 border-gray-200 hover:border-[#F9B500] font-bold"
                 >
                   <Heart className="w-5 h-5 mr-2" />
                   Favoritar
