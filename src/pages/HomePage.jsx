@@ -323,7 +323,7 @@ function Badge({ text, color }) {
 
 function StatCard({ number, label }) {
   return (
-    <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl text-center border-2 border-gray-100 hover:border-[#F9B500] transition-all w-full min-w-0">
+    <div className="bg-white rounded-2xl p-1 shadow-xl hover:shadow-2xl text-center border-2 border-gray-100 hover:border-[#F9B500] transition-all w-full min-w-0">
       <p className="text-xl md:text-2xl font-black gradient-yellow-pink bg-clip-text text-transparent">
         {number}
       </p>
