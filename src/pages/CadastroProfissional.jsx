@@ -56,10 +56,10 @@ export default function CadastroProfissional() {
     observacoes: "",
 
     // ETAPA 5: Documentos
-    selfie_documento_url: "",
-    documento_frente_url: "",
-    documento_verso_url: "",
-    carteirinha_conselho_url: ""
+    foto_perfil: null,
+    documento_registro: null,
+    curriculo: null,
+    aceita_termos: false
   });
 
   const totalEtapas = 5;
@@ -231,6 +231,14 @@ export default function CadastroProfissional() {
         return true;
 
       case 5:
+        if (!formData.documento_registro) {
+          toast.error("É obrigatório enviar o documento do registro (CRO/CRM)");
+          return false;
+        }
+        if (!formData.aceita_termos) {
+          toast.error("Você deve aceitar os Termos de Uso e Política de Privacidade");
+          return false;
+        }
         return true;
 
       default:
@@ -246,6 +254,35 @@ export default function CadastroProfissional() {
 
   const etapaAnterior = () => {
     setEtapaAtual(prev => Math.max(prev - 1, 1));
+  };
+
+  const handleFileUpload = async (campo, file) => {
+    if (!file) return;
+
+    // Validar tipo de arquivo
+    const allowedTypes = campo === "curriculo" 
+      ? ["application/pdf"]
+      : ["image/jpeg", "image/jpg", "image/png"];
+    
+    if (!allowedTypes.includes(file.type)) {
+      toast.error(campo === "curriculo" ? "Apenas arquivos PDF são permitidos" : "Apenas imagens JPG/PNG são permitidas");
+      return;
+    }
+
+    // Validar tamanho (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Arquivo muito grande. Máximo 5MB");
+      return;
+    }
+
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      handleInputChange(campo, file_url);
+      toast.success("Arquivo enviado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao enviar arquivo:", error);
+      toast.error("Erro ao enviar arquivo: " + error.message);
+    }
   };
 
   const finalizarCadastro = async () => {
@@ -274,9 +311,9 @@ export default function CadastroProfissional() {
         tempo_formado_anos: parseInt(formData.tempo_formado_anos),
         especialidade_principal: formData.especialidade_principal,
         tempo_especialidade_anos: formData.tempo_especialidade_anos ? parseInt(formData.tempo_especialidade_anos) : 0,
-        cidades_atendimento: formData.cidades_atendimento.filter(c => c.trim()),
+        cidades_atendimento: formData.cidades_atendimento,
         dias_semana_disponiveis: formData.dias_semana_disponiveis,
-        disponibilidade_inicio: formData.disponibilidade_inicio,
+        disponibilidade_inicio: "IMEDIATO",
         status_disponibilidade: formData.status_disponibilidade,
         aceita_freelance: formData.aceita_freelance,
         forma_remuneracao: formData.forma_remuneracao,
@@ -285,11 +322,8 @@ export default function CadastroProfissional() {
         status_cadastro: "EM_ANALISE"
       };
 
-      // Adicionar URLs de documentos se existirem
-      if (formData.selfie_documento_url) dadosProfissional.selfie_documento_url = formData.selfie_documento_url;
-      if (formData.documento_frente_url) dadosProfissional.documento_frente_url = formData.documento_frente_url;
-      if (formData.documento_verso_url) dadosProfissional.documento_verso_url = formData.documento_verso_url;
-      if (formData.carteirinha_conselho_url) dadosProfissional.carteirinha_conselho_url = formData.carteirinha_conselho_url;
+      // Adicionar documentos
+      if (formData.documento_registro) dadosProfissional.carteirinha_conselho_url = formData.documento_registro;
 
       await base44.entities.Professional.create(dadosProfissional);
 
@@ -826,45 +860,135 @@ export default function CadastroProfissional() {
       case 5:
         return (
           <div className="space-y-6">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <p className="text-sm text-blue-800">
-                📄 O envio de documentos é opcional nesta etapa. Você pode finalizar o cadastro agora e enviar os documentos depois.
-              </p>
-            </div>
+            {/* Uploads */}
+            <div className="border-2 border-gray-200 rounded-lg p-6">
+              <h3 className="text-lg font-semibold mb-4">📤 UPLOADS</h3>
+              
+              <div className="space-y-4">
+                {/* Foto de Perfil */}
+                <div>
+                  <Label htmlFor="foto_perfil">Foto de Perfil (recomendado)</Label>
+                  <div className="mt-2">
+                    <Input
+                      id="foto_perfil"
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png"
+                      onChange={(e) => handleFileUpload("foto_perfil", e.target.files[0])}
+                      className="cursor-pointer"
+                    />
+                    {formData.foto_perfil && (
+                      <p className="text-xs text-green-600 mt-1">✓ Arquivo enviado</p>
+                    )}
+                  </div>
+                </div>
 
-            <div className="space-y-4">
-              <div>
-                <Label>Selfie segurando documento (opcional)</Label>
-                <Input type="file" accept="image/*" className="mt-1" />
-              </div>
+                {/* Documento do Registro */}
+                <div>
+                  <Label htmlFor="documento_registro" className="text-red-600">
+                    Documento do {getRegistroLabel(formData.tipo_profissional === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA")} * (obrigatório)
+                  </Label>
+                  <div className="mt-2">
+                    <Input
+                      id="documento_registro"
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png,application/pdf"
+                      onChange={(e) => handleFileUpload("documento_registro", e.target.files[0])}
+                      className="cursor-pointer"
+                    />
+                    {formData.documento_registro && (
+                      <p className="text-xs text-green-600 mt-1">✓ Arquivo enviado</p>
+                    )}
+                  </div>
+                </div>
 
-              <div>
-                <Label>Documento frente (opcional)</Label>
-                <Input type="file" accept="image/*" className="mt-1" />
-              </div>
-
-              <div>
-                <Label>Documento verso (opcional)</Label>
-                <Input type="file" accept="image/*" className="mt-1" />
-              </div>
-
-              <div>
-                <Label>Carteirinha do conselho (opcional)</Label>
-                <Input type="file" accept="image/*" className="mt-1" />
+                {/* Currículo */}
+                <div>
+                  <Label htmlFor="curriculo">Currículo (opcional)</Label>
+                  <div className="mt-2">
+                    <Input
+                      id="curriculo"
+                      type="file"
+                      accept="application/pdf"
+                      onChange={(e) => handleFileUpload("curriculo", e.target.files[0])}
+                      className="cursor-pointer"
+                    />
+                    {formData.curriculo && (
+                      <p className="text-xs text-green-600 mt-1">✓ Arquivo enviado</p>
+                    )}
+                    <p className="text-xs text-gray-500 mt-1">Apenas PDF, máximo 5MB</p>
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Revisão dos Dados */}
-            <div className="border-t pt-6 mt-6">
-              <h3 className="text-lg font-semibold mb-4">Revisão dos Dados</h3>
+            <div className="border-2 border-blue-200 rounded-lg p-6">
+              <h3 className="text-lg font-semibold mb-4">📋 REVISÃO DOS DADOS</h3>
               <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
-                <p><strong>Tipo:</strong> {formData.tipo_profissional}</p>
+                <p><strong>Tipo:</strong> {formData.tipo_profissional === "DENTISTA" ? "Dentista" : "Médico"}</p>
                 <p><strong>Nome:</strong> {formData.nome_completo}</p>
                 <p><strong>Email:</strong> {formData.email}</p>
                 <p><strong>WhatsApp:</strong> {formData.whatsapp}</p>
+                <p>
+                  <strong>{getRegistroLabel(formData.tipo_profissional === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA")}:</strong>{" "}
+                  {formData.numero_registro} - {formData.uf_registro}
+                </p>
                 <p><strong>Especialidade:</strong> {formData.especialidade_principal}</p>
-                <p><strong>Cidades:</strong> {formData.cidades_atendimento.filter(c => c).join(", ")}</p>
+                {formData.outras_especialidades.length > 0 && (
+                  <p><strong>Outras especialidades:</strong> {formData.outras_especialidades.join(", ")}</p>
+                )}
+                <p><strong>Formado há:</strong> {formData.tempo_formado_anos} anos</p>
+                {formData.tempo_especialidade_anos && (
+                  <p><strong>Especialista há:</strong> {formData.tempo_especialidade_anos} anos</p>
+                )}
+                {formData.instituicao_formacao && (
+                  <p><strong>Instituição:</strong> {formData.instituicao_formacao}</p>
+                )}
+                <p><strong>Cidades:</strong> {formData.cidades_atendimento.join(", ")}</p>
+                <p>
+                  <strong>Dias:</strong>{" "}
+                  {formData.dias_semana_disponiveis.map(d => {
+                    const dias = {
+                      SEG: "Segunda", TER: "Terça", QUA: "Quarta", QUI: "Quinta",
+                      SEX: "Sexta", SAB: "Sábado", DOM: "Domingo", INTEGRAL: "Integral"
+                    };
+                    return dias[d];
+                  }).join(", ")}
+                </p>
+                <p><strong>Turno:</strong> {
+                  formData.turno_preferido === "MANHA" ? "Manhã" :
+                  formData.turno_preferido === "TARDE" ? "Tarde" :
+                  formData.turno_preferido === "NOITE" ? "Noite" : "Integral"
+                }</p>
+                {formData.carga_horaria_desejada && (
+                  <p><strong>Carga horária:</strong> {formData.carga_horaria_desejada}</p>
+                )}
+                <p>
+                  <strong>Remuneração:</strong>{" "}
+                  {formData.forma_remuneracao.map(f => {
+                    const formas = { DIARIA: "Diária", PORCENTAGEM: "Porcentagem", FIXO: "Fixo", A_COMBINAR: "A Combinar" };
+                    let texto = formas[f];
+                    if (f === "DIARIA" && formData.valor_minimo_diaria) texto += ` (mín R$ ${formData.valor_minimo_diaria})`;
+                    if (f === "PORCENTAGEM" && formData.porcentagem_minima) texto += ` (mín ${formData.porcentagem_minima}%)`;
+                    return texto;
+                  }).join(", ")}
+                </p>
               </div>
+            </div>
+
+            {/* Aceitar Termos */}
+            <div className="flex items-start space-x-3 border-2 border-gray-200 rounded-lg p-4">
+              <input
+                type="checkbox"
+                id="aceita_termos"
+                checked={formData.aceita_termos}
+                onChange={(e) => handleInputChange("aceita_termos", e.target.checked)}
+                className="w-5 h-5 mt-1"
+              />
+              <Label htmlFor="aceita_termos" className="cursor-pointer text-sm">
+                Li e aceito os <span className="text-blue-600 underline">Termos de Uso</span> e{" "}
+                <span className="text-blue-600 underline">Política de Privacidade</span>
+              </Label>
             </div>
           </div>
         );
