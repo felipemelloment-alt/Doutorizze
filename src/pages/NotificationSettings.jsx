@@ -113,7 +113,7 @@ export default function NotificationSettings() {
               <div className="flex items-start md:items-center justify-between gap-3 w-full">
                 <div className="flex items-start gap-3 flex-1 min-w-0">
                   <div className="p-2 bg-[#F9B500] rounded-lg flex-shrink-0">
-                    <Star className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                    <Star className="w-5 h-5 text-white" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <Label className="text-sm md:text-base font-semibold text-gray-900 block truncate">SUPER JOBS 🌟</Label>
@@ -167,7 +167,7 @@ export default function NotificationSettings() {
               <div className="flex items-start md:items-center justify-between gap-3 w-full">
                 <div className="flex items-start gap-3 flex-1 min-w-0">
                   <div className="p-2 bg-[#E94560] rounded-lg flex-shrink-0">
-                    <Star className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                    <Star className="w-5 h-5 text-white" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <Label className="text-sm md:text-base font-semibold text-gray-900 block truncate">Jobs Semelhante ⭐</Label>
