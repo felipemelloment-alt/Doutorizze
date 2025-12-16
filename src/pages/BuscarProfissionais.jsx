@@ -7,21 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Search, X, Star } from "lucide-react";
 import { useUserRole } from "@/components/hooks/useUserRole";
-
-// Lista de especialidades
-const especialidades = [
-  "Clínico Geral",
-  "Endodontia",
-  "Implantodontia",
-  "Ortodontia",
-  "Periodontia",
-  "Protese",
-  "Odontopediatria",
-  "Cirurgia",
-  "Radiologia",
-  "Harmonização Orofacial",
-  "Outros"
-];
+import { getEspecialidades, getProfissionalLabel } from "@/components/constants/especialidades";
 
 // Lista de estados brasileiros
 const estados = [
@@ -37,7 +23,10 @@ export default function BuscarProfissionais() {
   const [buscando, setBuscando] = useState(false);
   const [buscaRealizada, setBuscaRealizada] = useState(false);
   const [profissionais, setProfissionais] = useState([]);
-  const { isClinic, isAdmin, loading: loadingRole } = useUserRole();
+  const { isClinic, isAdmin, userWorld, loading: loadingRole } = useUserRole();
+  
+  const especialidades = getEspecialidades(userWorld);
+  const profissionalLabel = getProfissionalLabel(userWorld);
 
   if (loadingRole) {
     return <div className="text-center py-12">Verificando permissões...</div>;
@@ -59,11 +48,15 @@ export default function BuscarProfissionais() {
   const buscarProfissionais = async () => {
     setBuscando(true);
     try {
+      // Determine which tipo_profissional to search for
+      const tipoProfissional = userWorld === "ODONTOLOGIA" ? "DENTISTA" : "MEDICO";
+
       // Buscar profissionais aprovados e disponíveis com a especialidade
       const resultados = await base44.entities.Professional.filter({
         status_cadastro: "APROVADO",
         status_disponibilidade: "DISPONIVEL",
-        especialidade_principal: especialidade
+        especialidade_principal: especialidade,
+        tipo_profissional: tipoProfissional
       });
 
       // Filtrar por cidade
@@ -109,10 +102,10 @@ export default function BuscarProfissionais() {
         <Card className="border-2 border-blue-200 shadow-lg">
           <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-t-lg">
             <CardTitle className="text-2xl">
-              🔍 Buscar Profissionais Disponíveis
+              🔍 Buscar {profissionalLabel}s Disponíveis
             </CardTitle>
             <p className="text-sm text-blue-100 mt-2">
-              Preencha os filtros abaixo para encontrar dentistas
+              Preencha os filtros abaixo para encontrar {profissionalLabel.toLowerCase()}s
             </p>
           </CardHeader>
           <CardContent className="pt-6">
