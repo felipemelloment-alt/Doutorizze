@@ -26,7 +26,11 @@ import {
   Stethoscope,
   Activity,
   Zap,
-  Radar } from
+  Radar,
+  ArrowUpDown,
+  SlidersHorizontal,
+  ChevronLeft,
+  ChevronRight } from
 "lucide-react";
 
 export default function Marketplace() {
@@ -37,7 +41,11 @@ export default function Marketplace() {
   const [selectedCity, setSelectedCity] = useState("all");
   const [priceRange, setPriceRange] = useState("all");
   const [condition, setCondition] = useState("all");
+  const [sortBy, setSortBy] = useState("recent");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showFilters, setShowFilters] = useState(true);
   const [radarModalOpen, setRadarModalOpen] = useState(false);
+  const itemsPerPage = 12;
 
   useEffect(() => {
     const loadUser = async () => {
@@ -67,10 +75,14 @@ export default function Marketplace() {
 });
 
 
+  // Filtrar items
   const filteredItems = items.filter((item) => {
     const matchSearch = item.titulo_item?.
     toLowerCase().
-    includes(searchTerm.toLowerCase());
+    includes(searchTerm.toLowerCase()) ||
+    item.descricao?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.marca?.toLowerCase().includes(searchTerm.toLowerCase());
+    
     const matchCity =
     selectedCity === "all" || item.localizacao?.includes(selectedCity);
     const matchCondition =
@@ -97,6 +109,38 @@ export default function Marketplace() {
 
     return matchSearch && matchCity && matchPrice && matchCondition;
   });
+
+  // Ordenar items
+  const sortedItems = [...filteredItems].sort((a, b) => {
+    switch (sortBy) {
+      case "recent":
+        return new Date(b.created_date) - new Date(a.created_date);
+      case "oldest":
+        return new Date(a.created_date) - new Date(b.created_date);
+      case "price-asc":
+        return (a.preco || 0) - (b.preco || 0);
+      case "price-desc":
+        return (b.preco || 0) - (a.preco || 0);
+      case "relevant":
+        // Relevância por views e recência
+        const scoreA = (a.visualizacoes || 0) + (Date.now() - new Date(a.created_date)) / 1000000;
+        const scoreB = (b.visualizacoes || 0) + (Date.now() - new Date(b.created_date)) / 1000000;
+        return scoreB - scoreA;
+      default:
+        return 0;
+    }
+  });
+
+  // Paginação
+  const totalPages = Math.ceil(sortedItems.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedItems = sortedItems.slice(startIndex, endIndex);
+
+  // Reset página ao mudar filtros
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCity, priceRange, condition, activeTab, sortBy]);
 
   const cities = [...new Set(items.map((item) => item.localizacao))].filter(
     Boolean
@@ -222,67 +266,130 @@ export default function Marketplace() {
 
         {/* Search and Filters */}
         <div className="bg-white rounded-3xl p-6 shadow-xl mb-8 border-4 border-[#F9B500]">
-          <div className="grid md:grid-cols-4 gap-4">
+          {/* Search Bar */}
+          <div className="grid md:grid-cols-4 gap-4 mb-4">
             <div className="md:col-span-2 relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <Input
-                placeholder="Buscar equipamento..."
+                placeholder="Buscar equipamento, marca ou descrição..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-12 h-14 text-lg border-2 border-gray-200 rounded-2xl focus:border-[#F9B500]" />
-
             </div>
 
-            <Select value={selectedCity} onValueChange={setSelectedCity}>
+            <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="h-14 rounded-2xl border-2 text-lg">
-                <SelectValue placeholder="Todas as cidades" />
+                <ArrowUpDown className="w-5 h-5 mr-2" />
+                <SelectValue placeholder="Ordenar por" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todas as cidades</SelectItem>
-                {cities.map((city) =>
-                <SelectItem key={city} value={city}>
-                    {city}
-                  </SelectItem>
-                )}
+                <SelectItem value="relevant">Mais relevantes</SelectItem>
+                <SelectItem value="recent">Mais recentes</SelectItem>
+                <SelectItem value="oldest">Mais antigos</SelectItem>
+                <SelectItem value="price-asc">Menor preço</SelectItem>
+                <SelectItem value="price-desc">Maior preço</SelectItem>
               </SelectContent>
             </Select>
 
-            <Select value={priceRange} onValueChange={setPriceRange}>
-              <SelectTrigger className="h-14 rounded-2xl border-2 text-lg">
-                <SelectValue placeholder="Faixa de preço" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os preços</SelectItem>
-                <SelectItem value="0-5000">Até R$ 5.000</SelectItem>
-                <SelectItem value="5000-15000">R$ 5.000 - R$ 15.000</SelectItem>
-                <SelectItem value="15000-30000">R$ 15.000 - R$ 30.000</SelectItem>
-                <SelectItem value="30000+">Acima de R$ 30.000</SelectItem>
-              </SelectContent>
-            </Select>
+            <Button
+              onClick={() => setShowFilters(!showFilters)}
+              variant="outline"
+              className="h-14 rounded-2xl border-2 font-bold text-base hover:border-[#F9B500] transition-all">
+              <SlidersHorizontal className="w-5 h-5 mr-2" />
+              Filtros {!showFilters && `(${[selectedCity !== "all", priceRange !== "all", condition !== "all"].filter(Boolean).length})`}
+            </Button>
           </div>
 
-          <div className="flex flex-wrap gap-4 mt-4">
-            <Select value={condition} onValueChange={setCondition}>
-              <SelectTrigger className="h-12 rounded-xl border-2 max-w-xs">
-                <SelectValue placeholder="Condição" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas as condições</SelectItem>
-                <SelectItem value="NOVO">Novo</SelectItem>
-                <SelectItem value="SEMINOVO">Seminovo</SelectItem>
-                <SelectItem value="USADO">Usado</SelectItem>
-              </SelectContent>
-            </Select>
+          {/* Advanced Filters */}
+          {showFilters && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="grid md:grid-cols-3 gap-4 pt-4 border-t-2 border-gray-100">
+              <div>
+                <label className="text-sm font-bold text-gray-700 mb-2 block">Localização</label>
+                <Select value={selectedCity} onValueChange={setSelectedCity}>
+                  <SelectTrigger className="h-12 rounded-xl border-2">
+                    <MapPin className="w-4 h-4 mr-2" />
+                    <SelectValue placeholder="Todas as cidades" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as cidades</SelectItem>
+                    {cities.map((city) =>
+                      <SelectItem key={city} value={city}>
+                        {city}
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <Badge variant="secondary" className="px-4 py-2 text-base">
-              {filteredItems.length} {filteredItems.length === 1 ? "item" : "itens"}{" "}
-              encontrado{filteredItems.length === 1 ? "" : "s"}
-            </Badge>
+              <div>
+                <label className="text-sm font-bold text-gray-700 mb-2 block">Faixa de Preço</label>
+                <Select value={priceRange} onValueChange={setPriceRange}>
+                  <SelectTrigger className="h-12 rounded-xl border-2">
+                    <SelectValue placeholder="Todos os preços" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os preços</SelectItem>
+                    <SelectItem value="0-5000">Até R$ 5.000</SelectItem>
+                    <SelectItem value="5000-15000">R$ 5.000 - R$ 15.000</SelectItem>
+                    <SelectItem value="15000-30000">R$ 15.000 - R$ 30.000</SelectItem>
+                    <SelectItem value="30000+">Acima de R$ 30.000</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-sm font-bold text-gray-700 mb-2 block">Condição</label>
+                <Select value={condition} onValueChange={setCondition}>
+                  <SelectTrigger className="h-12 rounded-xl border-2">
+                    <SelectValue placeholder="Todas as condições" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as condições</SelectItem>
+                    <SelectItem value="NOVO">Novo</SelectItem>
+                    <SelectItem value="SEMINOVO">Seminovo</SelectItem>
+                    <SelectItem value="USADO">Usado</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Results Info */}
+          <div className="flex flex-wrap items-center justify-between gap-4 mt-4 pt-4 border-t-2 border-gray-100">
+            <div className="flex flex-wrap gap-2">
+              <Badge className="px-4 py-2 text-base bg-gradient-to-r from-[#F9B500] to-[#E94560] text-white font-bold">
+                {sortedItems.length} {sortedItems.length === 1 ? "resultado" : "resultados"}
+              </Badge>
+              {(selectedCity !== "all" || priceRange !== "all" || condition !== "all" || searchTerm) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSearchTerm("");
+                    setSelectedCity("all");
+                    setPriceRange("all");
+                    setCondition("all");
+                  }}
+                  className="text-gray-600 hover:text-[#E94560] font-bold">
+                  Limpar filtros
+                </Button>
+              )}
+            </div>
+
+            {totalPages > 1 && (
+              <div className="text-sm text-gray-600 font-semibold">
+                Página {currentPage} de {totalPages}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Items Grid */}
-        {filteredItems.length === 0 ?
+        {sortedItems.length === 0 ?
         <div className="space-y-6">
             <div className="bg-white rounded-3xl p-12 text-center shadow-xl border-4 border-gray-100">
               <ShoppingBag className="w-20 h-20 mx-auto mb-6 text-gray-300" />
@@ -312,8 +419,8 @@ export default function Marketplace() {
           </div> :
 
         <div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredItems.map((item) =>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {paginatedItems.map((item) =>
             <MarketplaceItemCard
               key={item.id}
               item={item}
@@ -323,6 +430,58 @@ export default function Marketplace() {
 
             )}
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mb-8">
+                <Button
+                  variant="outline"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  className="h-12 px-6 rounded-xl border-2 font-bold disabled:opacity-50">
+                  <ChevronLeft className="w-5 h-5 mr-2" />
+                  Anterior
+                </Button>
+
+                <div className="flex gap-2">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`h-12 w-12 rounded-xl border-2 font-black ${
+                          currentPage === pageNum 
+                            ? "gradient-yellow-pink text-white border-0" 
+                            : "hover:border-[#F9B500]"
+                        }`}>
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+
+                <Button
+                  variant="outline"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  className="h-12 px-6 rounded-xl border-2 font-bold disabled:opacity-50">
+                  Próxima
+                  <ChevronRight className="w-5 h-5 ml-2" />
+                </Button>
+              </div>
+            )}
 
             {/* Radar CTA After Results */}
             <div className="mt-12 bg-gradient-to-r from-green-50 to-teal-50 border-4 border-green-300 rounded-3xl p-8 text-center">
