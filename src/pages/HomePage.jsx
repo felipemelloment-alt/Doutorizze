@@ -173,7 +173,7 @@ export default function HomePage() {
               </motion.div>
 
               {/* Phone Mockup */}
-              <div className="relative mx-auto w-80 h-[600px] bg-white rounded-[3rem] shadow-2xl border-8 border-gray-800 p-4">
+              <div className="relative mx-auto w-full max-w-[320px] sm:w-80 h-[600px] bg-white rounded-[3rem] shadow-2xl border-8 border-gray-800 p-4">
                 <div className="w-full h-full bg-gradient-to-br from-blue-50 to-purple-50 rounded-[2rem] overflow-hidden">
                   {/* Header */}
                   <div className="bg-white p-4 shadow-md">

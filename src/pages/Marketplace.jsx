@@ -154,11 +154,11 @@ export default function Marketplace() {
                 </div>
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <Button
                   size="lg"
                   onClick={() => navigate(createPageUrl("MarketplaceCreate"))}
-                  className="bg-white text-[#E94560] font-bold px-8 py-6 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all border-0">
+                  className="w-full sm:w-auto bg-white text-[#E94560] font-bold px-8 py-6 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all border-0">
 
                   <Plus className="w-6 h-6 mr-2" />
                   Anunciar Equipamento
@@ -172,7 +172,7 @@ export default function Marketplace() {
               animate={{ opacity: 1, scale: 1 }}
               className="relative">
 
-              <div className="w-64 h-96 bg-white rounded-[3rem] shadow-2xl border-8 border-gray-800 p-4 relative overflow-hidden">
+              <div className="w-full max-w-[256px] sm:w-64 h-96 bg-white rounded-[3rem] shadow-2xl border-8 border-gray-800 p-4 relative overflow-hidden mx-auto">
                 <div className="absolute top-4 left-1/2 -translate-x-1/2 w-20 h-1 bg-gray-800 rounded-full"></div>
                 <div className="h-full bg-gradient-to-br from-blue-50 to-purple-50 rounded-[2rem] mt-6 p-4">
                   <div className="bg-white rounded-2xl p-3 shadow-lg">

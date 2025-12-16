@@ -103,7 +103,7 @@ export default function NewJobs() {
             </div>
 
             {/* Toggle New Jobs */}
-            <div className="bg-white rounded-2xl p-6 shadow-xl border-4 border-white">
+            <div className="w-full bg-white rounded-2xl p-6 shadow-xl border-4 border-white">
               <div className="flex items-center gap-4">
                 <div>
                   <Label className="text-lg font-bold text-gray-900">
@@ -257,7 +257,7 @@ export default function NewJobs() {
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleWhatsAppContact}
-                  className="flex items-center gap-3 bg-gradient-to-r from-green-400 to-green-600 text-white px-6 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all font-bold">
+                  className="w-full sm:w-auto flex items-center justify-center sm:justify-start gap-3 bg-gradient-to-r from-green-400 to-green-600 text-white px-6 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all font-bold">
 
                   <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
                     <MessageCircle className="w-6 h-6 text-green-600" />
