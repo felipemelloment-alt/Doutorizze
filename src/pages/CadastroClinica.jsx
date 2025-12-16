@@ -342,7 +342,7 @@ export default function CadastroClinica() {
       await base44.entities.CompanyUnit.create(dadosUnidade);
 
       toast.success("✅ Cadastro realizado com sucesso! Aguarde a aprovação.");
-      navigate("/");
+      navigate("/CadastroSucesso");
     } catch (error) {
       console.error("Erro ao cadastrar:", error);
       toast.error("❌ Erro ao realizar cadastro: " + error.message);

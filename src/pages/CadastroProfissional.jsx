@@ -328,7 +328,7 @@ export default function CadastroProfissional() {
       await base44.entities.Professional.create(dadosProfissional);
 
       toast.success("✅ Cadastro realizado com sucesso! Aguarde a aprovação.");
-      navigate("/");
+      navigate("/CadastroSucesso");
     } catch (error) {
       console.error("Erro ao cadastrar:", error);
       toast.error("❌ Erro ao realizar cadastro: " + error.message);
