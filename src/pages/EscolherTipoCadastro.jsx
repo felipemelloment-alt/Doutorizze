@@ -25,7 +25,7 @@ export default function EscolherTipoCadastro() {
           {/* Card Profissional */}
           <Card
             className="border-2 border-blue-200 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer"
-            onClick={() => navigate("/cadastro/profissional")}
+            onClick={() => navigate("/CadastroProfissional")}
           >
             <CardContent className="p-8 text-center">
               <div className="w-20 h-20 mx-auto mb-6 bg-blue-100 rounded-full flex items-center justify-center">
@@ -46,7 +46,7 @@ export default function EscolherTipoCadastro() {
           {/* Card Clinica */}
           <Card
             className="border-2 border-green-200 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer"
-            onClick={() => navigate("/cadastro/clinica")}
+            onClick={() => navigate("/CadastroClinica")}
           >
             <CardContent className="p-8 text-center">
               <div className="w-20 h-20 mx-auto mb-6 bg-green-100 rounded-full flex items-center justify-center">
