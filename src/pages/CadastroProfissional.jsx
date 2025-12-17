@@ -468,10 +468,8 @@ export default function CadastroProfissional() {
               </div>
             </div>
 
-            {/* Grid de Campos Originais */}
+            {/* Grid Email e Gênero */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
                 <input
