@@ -1,16 +1,20 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Progress } from "@/components/ui/progress";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { 
+  ChevronLeft, 
+  ArrowRight, 
+  Building2, 
+  User, 
+  MapPin, 
+  Stethoscope, 
+  Upload,
+  Camera,
+  CheckCircle2
+} from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import { getEspecialidades, getRegistroLabel } from "@/components/constants/especialidades";
+import { getEspecialidades } from "@/components/constants/especialidades";
 
 export default function CadastroClinica() {
   const navigate = useNavigate();
@@ -18,22 +22,24 @@ export default function CadastroClinica() {
   const [loading, setLoading] = useState(false);
   const [buscandoCep, setBuscandoCep] = useState(false);
 
+  // Estado do formulário
   const [formData, setFormData] = useState({
-    // ETAPA 1: Tipo e Dados do Responsável
-    tipo_clinica: "",
-    nome_responsavel: "",
-    email: "",
-    whatsapp: "",
-    cpf_responsavel: "",
-    data_nascimento: "",
-
-    // ETAPA 2: Dados da Empresa
+    // ETAPA 1: Tipo e Dados da Empresa
+    tipo_mundo: "",
     razao_social: "",
     nome_fantasia: "",
     cnpj: "",
+    telefone_comercial: "",
+    email: "",
+    whatsapp: "",
 
-    // ETAPA 3: Primeira Unidade
-    nome_unidade: "",
+    // ETAPA 2: Responsável
+    nome_responsavel: "",
+    cpf_responsavel: "",
+    cargo_responsavel: "",
+    documento_responsavel: null,
+
+    // ETAPA 3: Endereço
     cep: "",
     endereco: "",
     numero: "",
@@ -41,33 +47,21 @@ export default function CadastroClinica() {
     bairro: "",
     cidade: "",
     uf: "",
-    telefone: "",
-    whatsapp_unidade: "",
-    email_unidade: "",
-    registro_responsavel: "",
-    nome_responsavel_tecnico: "",
+    ponto_referencia: "",
+
+    // ETAPA 4: Especialidades e Fotos
     especialidades_atendidas: [],
-    quantidade_cadeiras: "",
-    horario_funcionamento: "",
+    logo_clinica: null,
     foto_fachada: null,
 
-    // ETAPA 4: Aceite
+    // ETAPA 5: Revisão e Termos
     aceita_termos: false
   });
 
-  const totalEtapas = 4;
+  const totalEtapas = 5;
   const progressoPercentual = (etapaAtual / totalEtapas) * 100;
 
   // Funções de máscara
-  const aplicarMascaraCPF = (value) => {
-    return value
-      .replace(/\D/g, "")
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d{1,2})/, "$1-$2")
-      .replace(/(-\d{2})\d+?$/, "$1");
-  };
-
   const aplicarMascaraCNPJ = (value) => {
     return value
       .replace(/\D/g, "")
@@ -78,19 +72,20 @@ export default function CadastroClinica() {
       .replace(/(-\d{2})\d+?$/, "$1");
   };
 
-  const aplicarMascaraWhatsApp = (value) => {
+  const aplicarMascaraCPF = (value) => {
     return value
       .replace(/\D/g, "")
-      .replace(/(\d{2})(\d)/, "($1) $2")
-      .replace(/(\d{5})(\d)/, "$1-$2")
-      .replace(/(-\d{4})\d+?$/, "$1");
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})/, "$1-$2")
+      .replace(/(-\d{2})\d+?$/, "$1");
   };
 
   const aplicarMascaraTelefone = (value) => {
     return value
       .replace(/\D/g, "")
       .replace(/(\d{2})(\d)/, "($1) $2")
-      .replace(/(\d{4})(\d)/, "$1-$2")
+      .replace(/(\d{4,5})(\d)/, "$1-$2")
       .replace(/(-\d{4})\d+?$/, "$1");
   };
 
@@ -101,16 +96,41 @@ export default function CadastroClinica() {
       .replace(/(-\d{3})\d+?$/, "$1");
   };
 
-  const aplicarMascaraData = (value) => {
-    return value
-      .replace(/\D/g, "")
-      .replace(/(\d{2})(\d)/, "$1/$2")
-      .replace(/(\d{2})(\d)/, "$1/$2")
-      .replace(/(\d{4})\d+?$/, "$1");
-  };
-
   const handleInputChange = (campo, valor) => {
     setFormData(prev => ({ ...prev, [campo]: valor }));
+  };
+
+  const buscarCEP = async () => {
+    const cep = formData.cep.replace(/\D/g, "");
+    if (cep.length !== 8) {
+      toast.error("CEP deve ter 8 dígitos");
+      return;
+    }
+
+    setBuscandoCep(true);
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const data = await response.json();
+
+      if (data.erro) {
+        toast.error("CEP não encontrado");
+        return;
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        endereco: data.logradouro || "",
+        bairro: data.bairro || "",
+        cidade: data.localidade || "",
+        uf: data.uf || "",
+        complemento: data.complemento || ""
+      }));
+
+      toast.success("CEP encontrado!");
+    } catch (error) {
+      toast.error("Erro ao buscar CEP");
+    }
+    setBuscandoCep(false);
   };
 
   const toggleEspecialidade = (especialidade) => {
@@ -122,70 +142,13 @@ export default function CadastroClinica() {
     });
   };
 
-  const buscarCEP = async () => {
-    const cepLimpo = formData.cep.replace(/\D/g, "");
-    
-    if (cepLimpo.length !== 8) {
-      toast.error("CEP inválido");
-      return;
-    }
-
-    setBuscandoCep(true);
-    try {
-      const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
-      const dados = await response.json();
-
-      if (dados.erro) {
-        toast.error("CEP não encontrado");
-        return;
-      }
-
-      setFormData(prev => ({
-        ...prev,
-        endereco: dados.logradouro || "",
-        bairro: dados.bairro || "",
-        cidade: dados.localidade || "",
-        uf: dados.uf || ""
-      }));
-
-      toast.success("Endereço preenchido automaticamente!");
-    } catch (error) {
-      console.error("Erro ao buscar CEP:", error);
-      toast.error("Erro ao buscar CEP");
-    }
-    setBuscandoCep(false);
-  };
-
   const validarEtapa = (etapa) => {
     switch (etapa) {
       case 1:
-        if (!formData.tipo_clinica) {
+        if (!formData.tipo_mundo) {
           toast.error("Selecione o tipo de clínica");
           return false;
         }
-        if (!formData.nome_responsavel) {
-          toast.error("Preencha o nome do responsável");
-          return false;
-        }
-        if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-          toast.error("Preencha um email válido");
-          return false;
-        }
-        if (!formData.whatsapp || formData.whatsapp.replace(/\D/g, "").length !== 11) {
-          toast.error("Preencha um WhatsApp válido (11 dígitos)");
-          return false;
-        }
-        if (!formData.cpf_responsavel || formData.cpf_responsavel.replace(/\D/g, "").length !== 11) {
-          toast.error("Preencha um CPF válido");
-          return false;
-        }
-        if (!formData.data_nascimento) {
-          toast.error("Preencha a data de nascimento");
-          return false;
-        }
-        return true;
-
-      case 2:
         if (!formData.razao_social) {
           toast.error("Preencha a razão social");
           return false;
@@ -198,6 +161,29 @@ export default function CadastroClinica() {
           toast.error("Preencha um CNPJ válido");
           return false;
         }
+        if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+          toast.error("Preencha um email válido");
+          return false;
+        }
+        if (!formData.whatsapp || formData.whatsapp.replace(/\D/g, "").length !== 11) {
+          toast.error("Preencha um WhatsApp válido");
+          return false;
+        }
+        return true;
+
+      case 2:
+        if (!formData.nome_responsavel) {
+          toast.error("Preencha o nome do responsável");
+          return false;
+        }
+        if (!formData.cpf_responsavel || formData.cpf_responsavel.replace(/\D/g, "").length !== 11) {
+          toast.error("Preencha um CPF válido para o responsável");
+          return false;
+        }
+        if (!formData.documento_responsavel) {
+          toast.error("É obrigatório enviar o documento do responsável");
+          return false;
+        }
         return true;
 
       case 3:
@@ -205,39 +191,22 @@ export default function CadastroClinica() {
           toast.error("Preencha o CEP");
           return false;
         }
-        if (!formData.endereco) {
-          toast.error("Preencha o endereço");
-          return false;
-        }
-        if (!formData.numero) {
-          toast.error("Preencha o número");
-          return false;
-        }
-        if (!formData.cidade) {
-          toast.error("Preencha a cidade");
-          return false;
-        }
-        if (!formData.uf) {
-          toast.error("Preencha a UF");
-          return false;
-        }
-        if (!formData.telefone) {
-          toast.error("Preencha o telefone");
-          return false;
-        }
-        if (!formData.registro_responsavel) {
-          toast.error(`Preencha o número ${getRegistroLabel(formData.tipo_clinica === "ODONTOLOGIA" ? "ODONTOLOGIA" : "MEDICINA")} do responsável técnico`);
-          return false;
-        }
-        if (!formData.nome_responsavel_tecnico) {
-          toast.error("Preencha o nome do responsável técnico");
+        if (!formData.endereco || !formData.numero || !formData.cidade || !formData.uf) {
+          toast.error("Preencha todos os campos obrigatórios do endereço");
           return false;
         }
         return true;
 
       case 4:
+        if (formData.especialidades_atendidas.length === 0) {
+          toast.error("Selecione pelo menos uma especialidade atendida");
+          return false;
+        }
+        return true;
+
+      case 5:
         if (!formData.aceita_termos) {
-          toast.error("Você deve aceitar os Termos de Uso e Política de Privacidade");
+          toast.error("Você deve aceitar os Termos de Uso");
           return false;
         }
         return true;
@@ -260,10 +229,10 @@ export default function CadastroClinica() {
   const handleFileUpload = async (campo, file) => {
     if (!file) return;
 
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "application/pdf"];
     
     if (!allowedTypes.includes(file.type)) {
-      toast.error("Apenas imagens JPG/PNG são permitidas");
+      toast.error("Apenas imagens JPG/PNG ou PDF são permitidos");
       return;
     }
 
@@ -283,63 +252,52 @@ export default function CadastroClinica() {
   };
 
   const finalizarCadastro = async () => {
-    if (!validarEtapa(4)) return;
+    if (!validarEtapa(5)) return;
 
     setLoading(true);
     try {
       const user = await base44.auth.me();
 
-      // Converter data de nascimento para formato ddmmaaaa
-      const [dia, mes, ano] = formData.data_nascimento.split("/");
-      const dataNascimento = `${dia}${mes}${ano}`;
-
-      // 1. Criar CompanyOwner
-      const owner = await base44.entities.CompanyOwner.create({
+      // Criar CompanyOwner
+      const dadosOwner = {
         user_id: user.id,
         nome_completo: formData.nome_responsavel,
         cpf: formData.cpf_responsavel.replace(/\D/g, ""),
-        data_nascimento: dataNascimento,
         whatsapp: formData.whatsapp.replace(/\D/g, ""),
         email: formData.email,
+        documento_frente_url: formData.documento_responsavel,
         status_cadastro: "EM_ANALISE"
-      });
+      };
 
-      // 2. Criar CompanyUnit
-      const dadosUnidade = {
+      const owner = await base44.entities.CompanyOwner.create(dadosOwner);
+
+      // Criar CompanyUnit
+      const dadosUnit = {
         owner_id: owner.id,
         razao_social: formData.razao_social,
         nome_fantasia: formData.nome_fantasia,
         cnpj: formData.cnpj.replace(/\D/g, ""),
         tipo_empresa: "CLINICA",
-        tipo_mundo: formData.tipo_clinica,
-        whatsapp: formData.whatsapp_unidade ? formData.whatsapp_unidade.replace(/\D/g, "") : formData.whatsapp.replace(/\D/g, ""),
-        email: formData.email_unidade || formData.email,
-        telefone_fixo: formData.telefone.replace(/\D/g, ""),
+        tipo_mundo: formData.tipo_mundo,
+        whatsapp: formData.whatsapp.replace(/\D/g, ""),
+        email: formData.email,
+        telefone_fixo: formData.telefone_comercial ? formData.telefone_comercial.replace(/\D/g, "") : "",
         cep: formData.cep.replace(/\D/g, ""),
         endereco: formData.endereco,
         numero: formData.numero,
-        complemento: formData.complemento || "",
+        complemento: formData.complemento,
         bairro: formData.bairro,
         cidade: formData.cidade,
         uf: formData.uf,
-        nome_responsavel: formData.nome_responsavel_tecnico,
+        ponto_referencia: formData.ponto_referencia,
+        nome_responsavel: formData.nome_responsavel,
+        documento_responsavel_url: formData.documento_responsavel,
+        foto_fachada_url: formData.foto_fachada,
         status_cadastro: "EM_ANALISE",
         ativo: true
       };
 
-      // Adicionar CRO ou CRM conforme o tipo
-      if (formData.tipo_clinica === "ODONTOLOGIA") {
-        dadosUnidade.cro_responsavel = formData.registro_responsavel;
-      } else {
-        dadosUnidade.crm_responsavel = formData.registro_responsavel;
-      }
-
-      // Adicionar foto se existir
-      if (formData.foto_fachada) {
-        dadosUnidade.foto_fachada_url = formData.foto_fachada;
-      }
-
-      await base44.entities.CompanyUnit.create(dadosUnidade);
+      await base44.entities.CompanyUnit.create(dadosUnit);
 
       toast.success("✅ Cadastro realizado com sucesso! Aguarde a aprovação.");
       navigate("/CadastroSucesso");
@@ -350,7 +308,15 @@ export default function CadastroClinica() {
     setLoading(false);
   };
 
-  const especialidades = getEspecialidades(formData.tipo_clinica || "ODONTOLOGIA");
+  const especialidades = getEspecialidades(formData.tipo_mundo);
+
+  const etapasConfig = [
+    { numero: 1, titulo: "Dados Empresa", icon: Building2 },
+    { numero: 2, titulo: "Responsável", icon: User },
+    { numero: 3, titulo: "Endereço", icon: MapPin },
+    { numero: 4, titulo: "Especialidades", icon: Stethoscope },
+    { numero: 5, titulo: "Documentos", icon: Upload }
+  ];
 
   const renderEtapa = () => {
     switch (etapaAtual) {
@@ -359,76 +325,117 @@ export default function CadastroClinica() {
           <div className="space-y-6">
             {/* Tipo de Clínica */}
             <div>
-              <Label className="text-base font-semibold mb-4 block">Tipo de Clínica: *</Label>
-              <RadioGroup
-                value={formData.tipo_clinica}
-                onValueChange={(value) => handleInputChange("tipo_clinica", value)}
-                className="flex gap-4"
-              >
-                <div className="flex items-center space-x-2 border-2 border-gray-200 rounded-lg p-4 flex-1 cursor-pointer hover:border-blue-400">
-                  <RadioGroupItem value="ODONTOLOGIA" id="odonto" />
-                  <Label htmlFor="odonto" className="cursor-pointer">Odontologia</Label>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">Tipo de Clínica: *</label>
+              <div className="grid grid-cols-2 gap-4">
+                <div
+                  onClick={() => handleInputChange("tipo_mundo", "ODONTOLOGIA")}
+                  className={`border-2 rounded-2xl p-5 cursor-pointer transition-all ${
+                    formData.tipo_mundo === "ODONTOLOGIA"
+                      ? "border-pink-400 bg-pink-50"
+                      : "border-gray-200 hover:border-pink-300"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      formData.tipo_mundo === "ODONTOLOGIA" ? "border-pink-400" : "border-gray-300"
+                    }`}>
+                      {formData.tipo_mundo === "ODONTOLOGIA" && (
+                        <div className="w-3 h-3 rounded-full bg-pink-400"></div>
+                      )}
+                    </div>
+                    <span className="font-bold text-gray-900">Odontologia 🦷</span>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2 border-2 border-gray-200 rounded-lg p-4 flex-1 cursor-pointer hover:border-blue-400">
-                  <RadioGroupItem value="MEDICINA" id="medicina" />
-                  <Label htmlFor="medicina" className="cursor-pointer">Medicina</Label>
+                <div
+                  onClick={() => handleInputChange("tipo_mundo", "MEDICINA")}
+                  className={`border-2 rounded-2xl p-5 cursor-pointer transition-all ${
+                    formData.tipo_mundo === "MEDICINA"
+                      ? "border-pink-400 bg-pink-50"
+                      : "border-gray-200 hover:border-pink-300"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      formData.tipo_mundo === "MEDICINA" ? "border-pink-400" : "border-gray-300"
+                    }`}>
+                      {formData.tipo_mundo === "MEDICINA" && (
+                        <div className="w-3 h-3 rounded-full bg-pink-400"></div>
+                      )}
+                    </div>
+                    <span className="font-bold text-gray-900">Medicina 🩺</span>
+                  </div>
                 </div>
-              </RadioGroup>
+              </div>
             </div>
 
-            {/* Dados do Responsável */}
-            <div className="grid md:grid-cols-2 gap-6">
+            {/* Grid de Campos */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <Label htmlFor="nome_responsavel">Nome Completo do Responsável *</Label>
-                <Input
-                  id="nome_responsavel"
-                  value={formData.nome_responsavel}
-                  onChange={(e) => handleInputChange("nome_responsavel", e.target.value)}
-                  placeholder="João Silva"
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Razão Social *</label>
+                <input
+                  type="text"
+                  value={formData.razao_social}
+                  onChange={(e) => handleInputChange("razao_social", e.target.value)}
+                  placeholder="Clínica Odontológica Silva Ltda"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Nome Fantasia *</label>
+                <input
+                  type="text"
+                  value={formData.nome_fantasia}
+                  onChange={(e) => handleInputChange("nome_fantasia", e.target.value)}
+                  placeholder="Clínica Silva"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
                 />
               </div>
 
               <div>
-                <Label htmlFor="email">Email *</Label>
-                <Input
-                  id="email"
+                <label className="block text-sm font-semibold text-gray-700 mb-2">CNPJ *</label>
+                <input
+                  type="text"
+                  value={formData.cnpj}
+                  onChange={(e) => handleInputChange("cnpj", aplicarMascaraCNPJ(e.target.value))}
+                  placeholder="00.000.000/0000-00"
+                  maxLength={18}
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Telefone Comercial (opcional)</label>
+                <input
+                  type="text"
+                  value={formData.telefone_comercial}
+                  onChange={(e) => handleInputChange("telefone_comercial", aplicarMascaraTelefone(e.target.value))}
+                  placeholder="(62) 3333-3333"
+                  maxLength={15}
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
+                <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
                   placeholder="contato@clinica.com"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
                 />
               </div>
 
               <div>
-                <Label htmlFor="whatsapp">WhatsApp *</Label>
-                <Input
-                  id="whatsapp"
+                <label className="block text-sm font-semibold text-gray-700 mb-2">WhatsApp *</label>
+                <input
+                  type="text"
                   value={formData.whatsapp}
-                  onChange={(e) => handleInputChange("whatsapp", aplicarMascaraWhatsApp(e.target.value))}
+                  onChange={(e) => handleInputChange("whatsapp", aplicarMascaraTelefone(e.target.value))}
                   placeholder="(62) 99999-9999"
                   maxLength={15}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="cpf_responsavel">CPF do Responsável *</Label>
-                <Input
-                  id="cpf_responsavel"
-                  value={formData.cpf_responsavel}
-                  onChange={(e) => handleInputChange("cpf_responsavel", aplicarMascaraCPF(e.target.value))}
-                  placeholder="000.000.000-00"
-                  maxLength={14}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="data_nascimento">Data de Nascimento *</Label>
-                <Input
-                  id="data_nascimento"
-                  value={formData.data_nascimento}
-                  onChange={(e) => handleInputChange("data_nascimento", aplicarMascaraData(e.target.value))}
-                  placeholder="DD/MM/AAAA"
-                  maxLength={10}
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
                 />
               </div>
             </div>
@@ -438,35 +445,74 @@ export default function CadastroClinica() {
       case 2:
         return (
           <div className="space-y-6">
-            <div>
-              <Label htmlFor="razao_social">Razão Social *</Label>
-              <Input
-                id="razao_social"
-                value={formData.razao_social}
-                onChange={(e) => handleInputChange("razao_social", e.target.value)}
-                placeholder="Clínica Exemplo Ltda"
-              />
+            <div className="bg-pink-50 rounded-2xl p-4 border-2 border-pink-100">
+              <p className="text-sm text-gray-700">
+                ℹ️ Informe os dados do responsável técnico ou proprietário da clínica
+              </p>
             </div>
 
-            <div>
-              <Label htmlFor="nome_fantasia">Nome Fantasia *</Label>
-              <Input
-                id="nome_fantasia"
-                value={formData.nome_fantasia}
-                onChange={(e) => handleInputChange("nome_fantasia", e.target.value)}
-                placeholder="Clínica Exemplo"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Nome Completo do Responsável *</label>
+                <input
+                  type="text"
+                  value={formData.nome_responsavel}
+                  onChange={(e) => handleInputChange("nome_responsavel", e.target.value)}
+                  placeholder="Dr. João Silva"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">CPF do Responsável *</label>
+                <input
+                  type="text"
+                  value={formData.cpf_responsavel}
+                  onChange={(e) => handleInputChange("cpf_responsavel", aplicarMascaraCPF(e.target.value))}
+                  placeholder="000.000.000-00"
+                  maxLength={14}
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Cargo (opcional)</label>
+                <input
+                  type="text"
+                  value={formData.cargo_responsavel}
+                  onChange={(e) => handleInputChange("cargo_responsavel", e.target.value)}
+                  placeholder="Ex: Proprietário, Diretor Clínico"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
+                />
+              </div>
             </div>
 
+            {/* Upload Documento Responsável */}
             <div>
-              <Label htmlFor="cnpj">CNPJ *</Label>
-              <Input
-                id="cnpj"
-                value={formData.cnpj}
-                onChange={(e) => handleInputChange("cnpj", aplicarMascaraCNPJ(e.target.value))}
-                placeholder="00.000.000/0000-00"
-                maxLength={18}
-              />
+              <label className="block text-sm font-semibold text-red-600 mb-2 flex items-center gap-1">
+                Documento do Responsável * <span className="text-xs">(RG ou CNH)</span>
+              </label>
+              <div className="border-2 border-dashed border-red-300 rounded-2xl p-8 text-center hover:border-red-400 hover:bg-red-50/50 transition-all cursor-pointer group">
+                <input
+                  type="file"
+                  id="documento_responsavel"
+                  accept="image/jpeg,image/jpg,image/png,application/pdf"
+                  onChange={(e) => handleFileUpload("documento_responsavel", e.target.files[0])}
+                  className="hidden"
+                />
+                <label htmlFor="documento_responsavel" className="cursor-pointer">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-red-100 group-hover:bg-red-200 flex items-center justify-center transition-all">
+                    <Upload className="w-8 h-8 text-red-500" />
+                  </div>
+                  <p className="text-gray-700 font-semibold">Clique para enviar</p>
+                  <p className="text-gray-400 text-sm mt-1">PDF, JPG ou PNG</p>
+                </label>
+                {formData.documento_responsavel && (
+                  <p className="text-green-600 text-sm mt-2 flex items-center justify-center gap-1">
+                    <CheckCircle2 className="w-4 h-4" /> Documento enviado!
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         );
@@ -474,253 +520,108 @@ export default function CadastroClinica() {
       case 3:
         return (
           <div className="space-y-6">
-            {/* CEP com busca automática */}
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="md:col-span-2">
-                <Label htmlFor="cep">CEP *</Label>
-                <Input
-                  id="cep"
+            {/* CEP */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">CEP *</label>
+              <div className="flex gap-3">
+                <input
+                  type="text"
                   value={formData.cep}
                   onChange={(e) => handleInputChange("cep", aplicarMascaraCEP(e.target.value))}
                   placeholder="00000-000"
                   maxLength={9}
-                  onBlur={buscarCEP}
+                  className="flex-1 px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
                 />
-              </div>
-              <div className="flex items-end">
-                <Button
+                <button
                   type="button"
                   onClick={buscarCEP}
                   disabled={buscandoCep}
-                  className="w-full"
-                  variant="outline"
+                  className="px-6 bg-gradient-to-r from-pink-500 to-red-500 text-white font-bold rounded-xl hover:shadow-lg transition-all disabled:opacity-50"
                 >
-                  {buscandoCep ? "Buscando..." : "Buscar CEP"}
-                </Button>
+                  {buscandoCep ? "..." : "Buscar"}
+                </button>
               </div>
             </div>
 
-            {/* Endereço */}
-            <div className="grid md:grid-cols-4 gap-4">
-              <div className="md:col-span-3">
-                <Label htmlFor="endereco">Endereço *</Label>
-                <Input
-                  id="endereco"
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Endereço *</label>
+                <input
+                  type="text"
                   value={formData.endereco}
                   onChange={(e) => handleInputChange("endereco", e.target.value)}
-                  placeholder="Rua Exemplo"
+                  placeholder="Rua, Avenida..."
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
                 />
               </div>
 
               <div>
-                <Label htmlFor="numero">Número *</Label>
-                <Input
-                  id="numero"
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Número *</label>
+                <input
+                  type="text"
                   value={formData.numero}
                   onChange={(e) => handleInputChange("numero", e.target.value)}
                   placeholder="123"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
                 />
               </div>
-            </div>
 
-            <div className="grid md:grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="complemento">Complemento</Label>
-                <Input
-                  id="complemento"
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Complemento</label>
+                <input
+                  type="text"
                   value={formData.complemento}
                   onChange={(e) => handleInputChange("complemento", e.target.value)}
-                  placeholder="Sala 10"
+                  placeholder="Sala 101"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
                 />
               </div>
 
               <div>
-                <Label htmlFor="bairro">Bairro *</Label>
-                <Input
-                  id="bairro"
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Bairro *</label>
+                <input
+                  type="text"
                   value={formData.bairro}
                   onChange={(e) => handleInputChange("bairro", e.target.value)}
                   placeholder="Centro"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <Label htmlFor="cidade">Cidade *</Label>
-                  <Input
-                    id="cidade"
-                    value={formData.cidade}
-                    onChange={(e) => handleInputChange("cidade", e.target.value)}
-                    placeholder="Goiânia"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="uf">UF *</Label>
-                  <Select value={formData.uf} onValueChange={(value) => handleInputChange("uf", value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="UF" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="AC">AC</SelectItem>
-                      <SelectItem value="AL">AL</SelectItem>
-                      <SelectItem value="AP">AP</SelectItem>
-                      <SelectItem value="AM">AM</SelectItem>
-                      <SelectItem value="BA">BA</SelectItem>
-                      <SelectItem value="CE">CE</SelectItem>
-                      <SelectItem value="DF">DF</SelectItem>
-                      <SelectItem value="ES">ES</SelectItem>
-                      <SelectItem value="GO">GO</SelectItem>
-                      <SelectItem value="MA">MA</SelectItem>
-                      <SelectItem value="MT">MT</SelectItem>
-                      <SelectItem value="MS">MS</SelectItem>
-                      <SelectItem value="MG">MG</SelectItem>
-                      <SelectItem value="PA">PA</SelectItem>
-                      <SelectItem value="PB">PB</SelectItem>
-                      <SelectItem value="PR">PR</SelectItem>
-                      <SelectItem value="PE">PE</SelectItem>
-                      <SelectItem value="PI">PI</SelectItem>
-                      <SelectItem value="RJ">RJ</SelectItem>
-                      <SelectItem value="RN">RN</SelectItem>
-                      <SelectItem value="RS">RS</SelectItem>
-                      <SelectItem value="RO">RO</SelectItem>
-                      <SelectItem value="RR">RR</SelectItem>
-                      <SelectItem value="SC">SC</SelectItem>
-                      <SelectItem value="SP">SP</SelectItem>
-                      <SelectItem value="SE">SE</SelectItem>
-                      <SelectItem value="TO">TO</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-
-            {/* Contato */}
-            <div className="grid md:grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="telefone">Telefone Fixo *</Label>
-                <Input
-                  id="telefone"
-                  value={formData.telefone}
-                  onChange={(e) => handleInputChange("telefone", aplicarMascaraTelefone(e.target.value))}
-                  placeholder="(62) 3333-3333"
-                  maxLength={14}
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
                 />
               </div>
 
               <div>
-                <Label htmlFor="whatsapp_unidade">WhatsApp da Unidade</Label>
-                <Input
-                  id="whatsapp_unidade"
-                  value={formData.whatsapp_unidade}
-                  onChange={(e) => handleInputChange("whatsapp_unidade", aplicarMascaraWhatsApp(e.target.value))}
-                  placeholder="(62) 99999-9999"
-                  maxLength={15}
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Cidade *</label>
+                <input
+                  type="text"
+                  value={formData.cidade}
+                  onChange={(e) => handleInputChange("cidade", e.target.value)}
+                  placeholder="Goiânia"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
                 />
               </div>
 
               <div>
-                <Label htmlFor="email_unidade">Email da Unidade</Label>
-                <Input
-                  id="email_unidade"
-                  type="email"
-                  value={formData.email_unidade}
-                  onChange={(e) => handleInputChange("email_unidade", e.target.value)}
-                  placeholder="unidade@clinica.com"
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Estado *</label>
+                <select
+                  value={formData.uf}
+                  onChange={(e) => handleInputChange("uf", e.target.value)}
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 appearance-none bg-white cursor-pointer transition-all outline-none"
+                >
+                  <option value="">Selecione</option>
+                  {["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"].map(uf => (
+                    <option key={uf} value={uf}>{uf}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Ponto de Referência (opcional)</label>
+                <input
+                  type="text"
+                  value={formData.ponto_referencia}
+                  onChange={(e) => handleInputChange("ponto_referencia", e.target.value)}
+                  placeholder="Ex: Em frente ao Shopping..."
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
                 />
-              </div>
-            </div>
-
-            {/* Responsável Técnico */}
-            <div className="border-t pt-6">
-              <h3 className="text-lg font-semibold mb-4">Responsável Técnico</h3>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="nome_responsavel_tecnico">Nome do Responsável Técnico *</Label>
-                  <Input
-                    id="nome_responsavel_tecnico"
-                    value={formData.nome_responsavel_tecnico}
-                    onChange={(e) => handleInputChange("nome_responsavel_tecnico", e.target.value)}
-                    placeholder="Dr. João Silva"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="registro_responsavel">
-                    {getRegistroLabel(formData.tipo_clinica || "ODONTOLOGIA")} do Responsável *
-                  </Label>
-                  <Input
-                    id="registro_responsavel"
-                    value={formData.registro_responsavel}
-                    onChange={(e) => handleInputChange("registro_responsavel", e.target.value)}
-                    placeholder="12345"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Especialidades */}
-            <div>
-              <Label className="text-base font-semibold mb-3 block">Especialidades Atendidas (opcional)</Label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-4">
-                {especialidades.map((esp) => (
-                  <div key={esp} className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id={`esp-${esp}`}
-                      checked={formData.especialidades_atendidas.includes(esp)}
-                      onChange={() => toggleEspecialidade(esp)}
-                      className="w-4 h-4 text-blue-600"
-                    />
-                    <Label htmlFor={`esp-${esp}`} className="text-sm cursor-pointer">
-                      {esp}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Informações Adicionais */}
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="quantidade_cadeiras">
-                  Quantidade de {formData.tipo_clinica === "ODONTOLOGIA" ? "Cadeiras" : "Consultórios"}
-                </Label>
-                <Input
-                  id="quantidade_cadeiras"
-                  type="number"
-                  value={formData.quantidade_cadeiras}
-                  onChange={(e) => handleInputChange("quantidade_cadeiras", e.target.value)}
-                  placeholder="5"
-                  min="1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="horario_funcionamento">Horário de Funcionamento</Label>
-                <Input
-                  id="horario_funcionamento"
-                  value={formData.horario_funcionamento}
-                  onChange={(e) => handleInputChange("horario_funcionamento", e.target.value)}
-                  placeholder="Seg-Sex 8h-18h"
-                />
-              </div>
-            </div>
-
-            {/* Foto da Fachada */}
-            <div>
-              <Label htmlFor="foto_fachada">Foto da Fachada (opcional)</Label>
-              <div className="mt-2">
-                <Input
-                  id="foto_fachada"
-                  type="file"
-                  accept="image/jpeg,image/jpg,image/png"
-                  onChange={(e) => handleFileUpload("foto_fachada", e.target.files[0])}
-                  className="cursor-pointer"
-                />
-                {formData.foto_fachada && (
-                  <p className="text-xs text-green-600 mt-1">✓ Foto enviada</p>
-                )}
               </div>
             </div>
           </div>
@@ -729,67 +630,147 @@ export default function CadastroClinica() {
       case 4:
         return (
           <div className="space-y-6">
-            {/* Revisão dos Dados */}
-            <div className="border-2 border-blue-200 rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">📋 REVISÃO DOS DADOS</h3>
-              
-              <div className="space-y-4">
-                {/* Tipo */}
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-semibold text-sm text-gray-600 mb-2">TIPO DE CLÍNICA</h4>
-                  <p className="text-base">{formData.tipo_clinica}</p>
-                </div>
+            {/* Especialidades */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">Especialidades Atendidas *</label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-96 overflow-y-auto border-2 border-gray-200 rounded-xl p-4">
+                {especialidades.map((esp) => (
+                  <div key={esp} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id={`esp-${esp}`}
+                      checked={formData.especialidades_atendidas.includes(esp)}
+                      onChange={() => toggleEspecialidade(esp)}
+                      className="w-4 h-4 accent-pink-400"
+                    />
+                    <label htmlFor={`esp-${esp}`} className="text-sm cursor-pointer text-gray-700">
+                      {esp}
+                    </label>
+                  </div>
+                ))}
+              </div>
 
-                {/* Responsável */}
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-semibold text-sm text-gray-600 mb-2">RESPONSÁVEL PELA EMPRESA</h4>
-                  <p><strong>Nome:</strong> {formData.nome_responsavel}</p>
-                  <p><strong>Email:</strong> {formData.email}</p>
-                  <p><strong>WhatsApp:</strong> {formData.whatsapp}</p>
-                  <p><strong>CPF:</strong> {formData.cpf_responsavel}</p>
+              {/* Especialidades Selecionadas */}
+              {formData.especialidades_atendidas.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-sm font-medium text-gray-700 mb-2">Selecionadas ({formData.especialidades_atendidas.length}):</p>
+                  <div className="flex flex-wrap gap-2">
+                    {formData.especialidades_atendidas.map((esp) => (
+                      <span
+                        key={esp}
+                        className="inline-flex items-center gap-1 px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-sm font-medium"
+                      >
+                        {esp}
+                        <button
+                          type="button"
+                          onClick={() => toggleEspecialidade(esp)}
+                          className="text-pink-600 hover:text-pink-900 font-bold text-lg leading-none"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
                 </div>
+              )}
+            </div>
 
-                {/* Empresa */}
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-semibold text-sm text-gray-600 mb-2">DADOS DA EMPRESA</h4>
-                  <p><strong>Razão Social:</strong> {formData.razao_social}</p>
-                  <p><strong>Nome Fantasia:</strong> {formData.nome_fantasia}</p>
-                  <p><strong>CNPJ:</strong> {formData.cnpj}</p>
-                </div>
-
-                {/* Unidade */}
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-semibold text-sm text-gray-600 mb-2">PRIMEIRA UNIDADE</h4>
-                  <p><strong>Endereço:</strong> {formData.endereco}, {formData.numero} {formData.complemento && `- ${formData.complemento}`}</p>
-                  <p><strong>Bairro:</strong> {formData.bairro}</p>
-                  <p><strong>Cidade:</strong> {formData.cidade} - {formData.uf}</p>
-                  <p><strong>CEP:</strong> {formData.cep}</p>
-                  <p><strong>Telefone:</strong> {formData.telefone}</p>
-                  {formData.whatsapp_unidade && <p><strong>WhatsApp:</strong> {formData.whatsapp_unidade}</p>}
-                  <p><strong>Responsável Técnico:</strong> {formData.nome_responsavel_tecnico}</p>
-                  <p>
-                    <strong>{getRegistroLabel(formData.tipo_clinica || "ODONTOLOGIA")}:</strong> {formData.registro_responsavel}
+            {/* Upload Logo */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Logo da Clínica (opcional)</label>
+              <div className="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:border-pink-400 hover:bg-pink-50/50 transition-all cursor-pointer group">
+                <input
+                  type="file"
+                  id="logo_clinica"
+                  accept="image/jpeg,image/jpg,image/png"
+                  onChange={(e) => handleFileUpload("logo_clinica", e.target.files[0])}
+                  className="hidden"
+                />
+                <label htmlFor="logo_clinica" className="cursor-pointer">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 group-hover:bg-pink-100 flex items-center justify-center transition-all">
+                    <Camera className="w-8 h-8 text-gray-400 group-hover:text-pink-500" />
+                  </div>
+                  <p className="text-gray-700 font-semibold">Clique para enviar</p>
+                  <p className="text-gray-400 text-sm mt-1">JPG ou PNG, máx 5MB</p>
+                </label>
+                {formData.logo_clinica && (
+                  <p className="text-green-600 text-sm mt-2 flex items-center justify-center gap-1">
+                    <CheckCircle2 className="w-4 h-4" /> Logo enviada!
                   </p>
-                  {formData.especialidades_atendidas.length > 0 && (
-                    <p><strong>Especialidades:</strong> {formData.especialidades_atendidas.join(", ")}</p>
-                  )}
-                </div>
+                )}
+              </div>
+            </div>
+
+            {/* Upload Foto Fachada */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Foto da Fachada (opcional)</label>
+              <div className="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:border-pink-400 hover:bg-pink-50/50 transition-all cursor-pointer group">
+                <input
+                  type="file"
+                  id="foto_fachada"
+                  accept="image/jpeg,image/jpg,image/png"
+                  onChange={(e) => handleFileUpload("foto_fachada", e.target.files[0])}
+                  className="hidden"
+                />
+                <label htmlFor="foto_fachada" className="cursor-pointer">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 group-hover:bg-pink-100 flex items-center justify-center transition-all">
+                    <Camera className="w-8 h-8 text-gray-400 group-hover:text-pink-500" />
+                  </div>
+                  <p className="text-gray-700 font-semibold">Clique para enviar</p>
+                  <p className="text-gray-400 text-sm mt-1">JPG ou PNG, máx 5MB</p>
+                </label>
+                {formData.foto_fachada && (
+                  <p className="text-green-600 text-sm mt-2 flex items-center justify-center gap-1">
+                    <CheckCircle2 className="w-4 h-4" /> Foto enviada!
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 5:
+        return (
+          <div className="space-y-6">
+            {/* Revisão dos Dados */}
+            <div className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-2xl p-6 border-2 border-pink-200">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">📋 Resumo do Cadastro</h3>
+              <div className="bg-white rounded-xl p-5 space-y-2 text-sm">
+                <p><strong>Tipo:</strong> {formData.tipo_mundo === "ODONTOLOGIA" ? "Clínica Odontológica" : "Clínica Médica"}</p>
+                <p><strong>Razão Social:</strong> {formData.razao_social}</p>
+                <p><strong>Nome Fantasia:</strong> {formData.nome_fantasia}</p>
+                <p><strong>CNPJ:</strong> {formData.cnpj}</p>
+                <p><strong>Email:</strong> {formData.email}</p>
+                <p><strong>WhatsApp:</strong> {formData.whatsapp}</p>
+                <hr className="my-2" />
+                <p><strong>Responsável:</strong> {formData.nome_responsavel}</p>
+                <p><strong>CPF Responsável:</strong> {formData.cpf_responsavel}</p>
+                {formData.cargo_responsavel && <p><strong>Cargo:</strong> {formData.cargo_responsavel}</p>}
+                <hr className="my-2" />
+                <p><strong>Endereço:</strong> {formData.endereco}, {formData.numero}</p>
+                <p><strong>Bairro:</strong> {formData.bairro}</p>
+                <p><strong>Cidade:</strong> {formData.cidade} - {formData.uf}</p>
+                <p><strong>CEP:</strong> {formData.cep}</p>
+                <hr className="my-2" />
+                <p><strong>Especialidades:</strong> {formData.especialidades_atendidas.slice(0, 3).join(", ")}{formData.especialidades_atendidas.length > 3 && "..."}</p>
               </div>
             </div>
 
             {/* Aceitar Termos */}
-            <div className="flex items-start space-x-3 border-2 border-gray-200 rounded-lg p-4">
-              <input
-                type="checkbox"
-                id="aceita_termos"
-                checked={formData.aceita_termos}
-                onChange={(e) => handleInputChange("aceita_termos", e.target.checked)}
-                className="w-5 h-5 mt-1"
-              />
-              <Label htmlFor="aceita_termos" className="cursor-pointer text-sm">
-                Li e aceito os <span className="text-blue-600 underline">Termos de Uso</span> e{" "}
-                <span className="text-blue-600 underline">Política de Privacidade</span>
-              </Label>
+            <div className="border-2 border-gray-200 rounded-2xl p-5 hover:border-pink-400 transition-all">
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  id="aceita_termos"
+                  checked={formData.aceita_termos}
+                  onChange={(e) => handleInputChange("aceita_termos", e.target.checked)}
+                  className="w-5 h-5 mt-0.5 accent-pink-400"
+                />
+                <label htmlFor="aceita_termos" className="cursor-pointer text-sm text-gray-700">
+                  Li e aceito os <span className="text-pink-500 font-bold underline">Termos de Uso</span> e{" "}
+                  <span className="text-pink-500 font-bold underline">Política de Privacidade</span>
+                </label>
+              </div>
             </div>
           </div>
         );
@@ -800,68 +781,112 @@ export default function CadastroClinica() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-red-50 p-3 md:p-8">
       <div className="max-w-4xl mx-auto">
-        <Card className="border-2 border-blue-200 shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-t-lg">
-            <CardTitle className="text-2xl">
-              Cadastro de Clínica
-            </CardTitle>
-            <p className="text-sm text-blue-100 mt-2">
-              Etapa {etapaAtual} de {totalEtapas} - {
-                etapaAtual === 1 ? "Tipo e Responsável" :
-                etapaAtual === 2 ? "Dados da Empresa" :
-                etapaAtual === 3 ? "Primeira Unidade" :
-                "Revisão e Finalização"
-              }
-            </p>
-          </CardHeader>
+        {/* Header */}
+        <div className="mb-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-gray-600 hover:text-pink-500 font-medium py-2 transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            Voltar
+          </button>
+        </div>
 
-          <CardContent className="pt-6">
-            {/* Progress Bar */}
-            <div className="mb-8">
-              <Progress value={progressoPercentual} className="h-3" />
-              <p className="text-xs text-gray-500 mt-1 text-right">
-                {Math.round(progressoPercentual)}% concluído
-              </p>
+        {/* Título */}
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-pink-500 to-red-500 flex items-center justify-center shadow-xl">
+            <Building2 className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-black text-gray-900">Cadastro de Clínica</h1>
+          <p className="text-gray-500 mt-2">Preencha os dados da sua clínica</p>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="mb-8">
+          <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${progressoPercentual}%` }}
+              transition={{ duration: 0.5 }}
+              className="h-full bg-gradient-to-r from-pink-500 to-red-500"
+            />
+          </div>
+          <div className="flex justify-between text-sm text-gray-600 mt-2 px-1">
+            <span>Etapa {etapaAtual} de {totalEtapas}</span>
+            <span className="font-bold">{Math.round(progressoPercentual)}% completo</span>
+          </div>
+        </div>
+
+        {/* Indicadores de Etapa */}
+        <div className="flex justify-between mb-8 overflow-x-auto pb-2 px-1">
+          {etapasConfig.map((etapa) => (
+            <div key={etapa.numero} className="flex flex-col items-center min-w-[70px]">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-2 transition-all ${
+                etapaAtual === etapa.numero
+                  ? "bg-gradient-to-br from-pink-500 to-red-500 text-white shadow-lg scale-110"
+                  : etapaAtual > etapa.numero
+                  ? "bg-green-500 text-white"
+                  : "bg-gray-200 text-gray-400"
+              }`}>
+                {etapaAtual > etapa.numero ? (
+                  <CheckCircle2 className="w-6 h-6" />
+                ) : (
+                  <etapa.icon className="w-6 h-6" />
+                )}
+              </div>
+              <span className={`text-xs font-semibold text-center ${
+                etapaAtual === etapa.numero ? "text-gray-900" : "text-gray-500"
+              }`}>
+                {etapa.titulo}
+              </span>
             </div>
+          ))}
+        </div>
 
-            {/* Renderizar Etapa Atual */}
+        {/* Card do Formulário */}
+        <motion.div
+          key={etapaAtual}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-6"
+        >
+          <div className="p-6 md:p-8">
             {renderEtapa()}
+          </div>
 
-            {/* Botões de Navegação */}
-            <div className="flex justify-between mt-8 pt-6 border-t">
-              <Button
-                variant="outline"
-                onClick={etapaAnterior}
-                disabled={etapaAtual === 1}
-                className="flex items-center gap-2"
+          {/* Botões de Ação */}
+          <div className="flex flex-col-reverse md:flex-row gap-4 p-6 bg-gray-50">
+            <button
+              onClick={etapaAnterior}
+              disabled={etapaAtual === 1}
+              className="flex-1 py-4 border-2 border-gray-300 text-gray-700 font-semibold rounded-2xl hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Voltar
+            </button>
+
+            {etapaAtual < totalEtapas ? (
+              <button
+                onClick={proximaEtapa}
+                className="flex-1 py-4 bg-gradient-to-r from-pink-500 to-red-500 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
               >
-                <ChevronLeft className="w-4 h-4" />
-                Voltar
-              </Button>
-
-              {etapaAtual < totalEtapas ? (
-                <Button
-                  onClick={proximaEtapa}
-                  className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
-                >
-                  Próxima
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              ) : (
-                <Button
-                  onClick={finalizarCadastro}
-                  disabled={loading}
-                  className="bg-green-600 hover:bg-green-700 flex items-center gap-2"
-                >
-                  {loading ? "Finalizando..." : "Finalizar Cadastro"}
-                  <Check className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                Continuar
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            ) : (
+              <button
+                onClick={finalizarCadastro}
+                disabled={loading}
+                className="flex-1 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {loading ? "Cadastrando..." : "Cadastrar Clínica"}
+                <CheckCircle2 className="w-5 h-5" />
+              </button>
+            )}
+          </div>
+        </motion.div>
       </div>
     </div>
   );

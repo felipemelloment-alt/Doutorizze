@@ -46,6 +46,6 @@ export const PAGES = {
 }
 
 export const pagesConfig = {
-    mainPage: "TestJob",
+    mainPage: "CadastroSucesso",
     Pages: PAGES,
 };
