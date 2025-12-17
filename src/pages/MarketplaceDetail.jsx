@@ -44,22 +44,9 @@ export default function MarketplaceDetail() {
     queryKey: ["marketplaceItem", itemId],
     queryFn: async () => {
       if (!itemId) return null;
-      const { data: items = [], isLoading } = useQuery({
-  queryKey: ["marketplaceItems", { activeTab }],
-  queryFn: async () => {
-    const where = { status: "ATIVO" };
-
-    // Se você tiver um tab "TODOS", não filtra por tipo_mundo
-    if (activeTab && activeTab !== "TODOS") {
-      where.tipo_mundo = activeTab; // "ODONTOLOGIA" | "MEDICINA"
-    }
-
-    return await base44.entities.MarketplaceItem.filter(where, "-created_date");
-  },
-  // evita rodar antes do tab estar pronto
-  enabled: !!activeTab,
-});
-
+      
+      const items = await base44.entities.MarketplaceItem.filter({ id: itemId });
+      
       if (items.length > 0) {
         // Incrementar visualizações
         await base44.entities.MarketplaceItem.update(items[0].id, {
