@@ -37,6 +37,7 @@ export default function CadastroClinica() {
     nome_responsavel: "",
     cpf_responsavel: "",
     cargo_responsavel: "",
+    whatsapp_responsavel: "",
     documento_responsavel: null,
 
     // ETAPA 3: Endereço
@@ -48,15 +49,20 @@ export default function CadastroClinica() {
     cidade: "",
     uf: "",
     ponto_referencia: "",
+    google_maps_link: "",
 
     // ETAPA 4: Especialidades e Fotos
     especialidades_atendidas: [],
     logo_clinica: null,
     foto_fachada: null,
+    fotos_clinica: [],
+    instagram: "",
 
     // ETAPA 5: Revisão e Termos
     aceita_termos: false
   });
+
+  const [showMapsHelp, setShowMapsHelp] = useState(false);
 
   const totalEtapas = 5;
   const progressoPercentual = (etapaAtual / totalEtapas) * 100;
@@ -146,6 +152,36 @@ export default function CadastroClinica() {
     });
   };
 
+  const handleMultiplePhotosUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (formData.fotos_clinica.length + files.length > 5) {
+      toast.error("Máximo de 5 fotos permitido!");
+      return;
+    }
+
+    try {
+      const uploadPromises = files.map(async (file) => {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+        return file_url;
+      });
+      const uploadedUrls = await Promise.all(uploadPromises);
+      setFormData(prev => ({
+        ...prev,
+        fotos_clinica: [...prev.fotos_clinica, ...uploadedUrls]
+      }));
+      toast.success("Fotos enviadas com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao enviar fotos");
+    }
+  };
+
+  const removePhoto = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      fotos_clinica: prev.fotos_clinica.filter((_, i) => i !== index)
+    }));
+  };
+
   const validarEtapa = (etapa) => {
     switch (etapa) {
       case 1:
@@ -182,6 +218,14 @@ export default function CadastroClinica() {
         }
         if (!formData.cpf_responsavel || formData.cpf_responsavel.replace(/\D/g, "").length !== 11) {
           toast.error("Preencha um CPF válido para o responsável");
+          return false;
+        }
+        if (!formData.cargo_responsavel) {
+          toast.error("Preencha o cargo do responsável");
+          return false;
+        }
+        if (!formData.whatsapp_responsavel || formData.whatsapp_responsavel.replace(/\D/g, "").length !== 11) {
+          toast.error("Preencha um WhatsApp válido para o responsável");
           return false;
         }
         if (!formData.documento_responsavel) {
@@ -372,6 +416,14 @@ export default function CadastroClinica() {
               </div>
             </div>
 
+            {/* Seção Dados da Empresa */}
+            <div className="bg-gradient-to-r from-pink-50 to-red-50 rounded-2xl p-4 mb-4 border-2 border-pink-100">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <div className="w-10 h-10 rounded-xl bg-pink-500 flex items-center justify-center text-xl">🏢</div>
+                Dados da Empresa
+              </h3>
+            </div>
+
             {/* Grid de Campos */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
@@ -453,15 +505,17 @@ export default function CadastroClinica() {
       case 2:
         return (
           <div className="space-y-6">
-            <div className="bg-pink-50 rounded-2xl p-4 border-2 border-pink-100">
-              <p className="text-sm text-gray-700">
-                ℹ️ Informe os dados do responsável técnico ou proprietário da clínica
-              </p>
+            {/* Seção Responsável */}
+            <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-4 mb-6 border-2 border-orange-100">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <div className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center text-xl">👤</div>
+                Responsável
+              </h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Nome Completo do Responsável *</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Nome do Responsável *</label>
                 <input
                   type="text"
                   value={formData.nome_responsavel}
@@ -470,7 +524,6 @@ export default function CadastroClinica() {
                   maxLength={120}
                   className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
                 />
-                <p className="text-xs text-gray-500 mt-1">{formData.nome_responsavel.length}/120 caracteres</p>
               </div>
 
               <div>
@@ -486,7 +539,7 @@ export default function CadastroClinica() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Cargo (opcional)</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Cargo *</label>
                 <input
                   type="text"
                   value={formData.cargo_responsavel}
@@ -494,6 +547,21 @@ export default function CadastroClinica() {
                   placeholder="Ex: Proprietário, Diretor Clínico"
                   className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
                 />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">WhatsApp do Responsável *</label>
+                <div className="relative">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-green-500 text-xl">💬</div>
+                  <input
+                    type="text"
+                    value={formData.whatsapp_responsavel}
+                    onChange={(e) => handleInputChange("whatsapp_responsavel", aplicarMascaraTelefone(e.target.value))}
+                    placeholder="(00) 00000-0000"
+                    maxLength={15}
+                    className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
+                  />
+                </div>
               </div>
             </div>
 
@@ -530,6 +598,14 @@ export default function CadastroClinica() {
       case 3:
         return (
           <div className="space-y-6">
+            {/* Seção Endereço e Localização */}
+            <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-2xl p-4 mb-6 border-2 border-green-100">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <div className="w-10 h-10 rounded-xl bg-green-500 flex items-center justify-center text-xl">📍</div>
+                Endereço e Localização
+              </h3>
+            </div>
+
             {/* CEP */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">CEP *</label>
@@ -634,15 +710,105 @@ export default function CadastroClinica() {
                 />
               </div>
             </div>
+
+            {/* Link do Google Maps */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Link do Google Maps</label>
+              <p className="text-xs text-gray-500 mb-2">Ajuda os profissionais a encontrar sua clínica</p>
+              <div className="relative">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-xl">🗺️</div>
+                <input
+                  type="text"
+                  value={formData.google_maps_link}
+                  onChange={(e) => handleInputChange("google_maps_link", e.target.value)}
+                  placeholder="Cole o link do Google Maps aqui"
+                  className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowMapsHelp(true)}
+                className="text-sm text-pink-500 hover:text-pink-600 font-medium mt-2 flex items-center gap-1">
+                ❓ Como conseguir o link do Google Maps?
+              </button>
+            </div>
+
+            {/* Modal/Tooltip Google Maps */}
+            {showMapsHelp && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowMapsHelp(false)}>
+                <div className="bg-white rounded-3xl p-8 max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                  <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    📍 Como pegar o link do Google Maps
+                  </h3>
+                  <ol className="space-y-3 text-gray-700 mb-6">
+                    <li className="flex gap-3">
+                      <span className="font-bold text-pink-500">1.</span>
+                      <span>Abra o Google Maps</span>
+                    </li>
+                    <li className="flex gap-3">
+                      <span className="font-bold text-pink-500">2.</span>
+                      <span>Pesquise sua clínica</span>
+                    </li>
+                    <li className="flex gap-3">
+                      <span className="font-bold text-pink-500">3.</span>
+                      <span>Clique em "Compartilhar"</span>
+                    </li>
+                    <li className="flex gap-3">
+                      <span className="font-bold text-pink-500">4.</span>
+                      <span>Clique em "Copiar link"</span>
+                    </li>
+                    <li className="flex gap-3">
+                      <span className="font-bold text-pink-500">5.</span>
+                      <span>Cole aqui no campo</span>
+                    </li>
+                  </ol>
+                  <button
+                    onClick={() => setShowMapsHelp(false)}
+                    className="w-full py-3 bg-gradient-to-r from-pink-500 to-red-500 text-white font-bold rounded-xl hover:shadow-lg transition-all">
+                    Entendi
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         );
 
       case 4:
         return (
           <div className="space-y-6">
+            {/* Seção Especialidades */}
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-4 mb-6 border-2 border-purple-100">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <div className="w-10 h-10 rounded-xl bg-purple-500 flex items-center justify-center text-xl">🩺</div>
+                Especialidades Atendidas
+              </h3>
+            </div>
+
             {/* Especialidades */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-3">Especialidades Atendidas *</label>
+              
+              {/* Chips selecionados */}
+              {formData.especialidades_atendidas.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-4 p-3 bg-pink-50 rounded-xl border border-pink-200">
+                  {formData.especialidades_atendidas.map((esp) => (
+                    <span
+                      key={esp}
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-sm font-medium"
+                    >
+                      {esp}
+                      <button
+                        type="button"
+                        onClick={() => toggleEspecialidade(esp)}
+                        className="text-pink-600 hover:text-pink-900 font-bold text-lg leading-none"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-96 overflow-y-auto border-2 border-gray-200 rounded-xl p-4">
                 {especialidades.map((esp) => (
                   <div key={esp} className="flex items-center gap-2">
@@ -659,36 +825,19 @@ export default function CadastroClinica() {
                   </div>
                 ))}
               </div>
+            </div>
 
-              {/* Especialidades Selecionadas */}
-              {formData.especialidades_atendidas.length > 0 && (
-                <div className="mt-4">
-                  <p className="text-sm font-medium text-gray-700 mb-2">Selecionadas ({formData.especialidades_atendidas.length}):</p>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.especialidades_atendidas.map((esp) => (
-                      <span
-                        key={esp}
-                        className="inline-flex items-center gap-1 px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-sm font-medium"
-                      >
-                        {esp}
-                        <button
-                          type="button"
-                          onClick={() => toggleEspecialidade(esp)}
-                          className="text-pink-600 hover:text-pink-900 font-bold text-lg leading-none"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
+            {/* Seção Logo da Clínica */}
+            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl p-4 mb-4 border-2 border-yellow-100">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <div className="w-10 h-10 rounded-xl bg-yellow-400 flex items-center justify-center text-xl">🖼️</div>
+                Logo da Clínica
+              </h3>
             </div>
 
             {/* Upload Logo */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Logo da Clínica (opcional)</label>
-              <div className="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:border-pink-400 hover:bg-pink-50/50 transition-all cursor-pointer group">
+              <div className="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:border-pink-400 transition-all cursor-pointer">
                 <input
                   type="file"
                   id="logo_clinica"
@@ -697,45 +846,120 @@ export default function CadastroClinica() {
                   className="hidden"
                 />
                 <label htmlFor="logo_clinica" className="cursor-pointer">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 group-hover:bg-pink-100 flex items-center justify-center transition-all">
-                    <Camera className="w-8 h-8 text-gray-400 group-hover:text-pink-500" />
+                  {/* Preview quadrado */}
+                  <div className={`w-40 h-40 mx-auto mb-4 rounded-2xl bg-gray-100 overflow-hidden ${
+                    formData.logo_clinica ? "ring-4 ring-pink-400" : ""
+                  }`}>
+                    {formData.logo_clinica ? (
+                      <img src={formData.logo_clinica} alt="Logo" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-6xl">
+                        🖼️
+                      </div>
+                    )}
                   </div>
-                  <p className="text-gray-700 font-semibold">Clique para enviar</p>
-                  <p className="text-gray-400 text-sm mt-1">JPG ou PNG, máx 5MB</p>
+                  <p className="text-gray-700 font-semibold mb-2">Formato recomendado: Quadrado (1:1)</p>
+                  <p className="text-gray-400 text-sm">Tamanho mínimo: 300x300px</p>
+                  {formData.logo_clinica && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        document.getElementById('logo_clinica').click();
+                      }}
+                      className="mt-4 px-6 py-2 bg-pink-400 text-white font-bold rounded-xl hover:bg-pink-500 transition-all">
+                      Trocar Logo
+                    </button>
+                  )}
                 </label>
-                {formData.logo_clinica && (
-                  <p className="text-green-600 text-sm mt-2 flex items-center justify-center gap-1">
-                    <CheckCircle2 className="w-4 h-4" /> Logo enviada!
-                  </p>
-                )}
               </div>
             </div>
 
-            {/* Upload Foto Fachada */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Foto da Fachada (opcional)</label>
-              <div className="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:border-pink-400 hover:bg-pink-50/50 transition-all cursor-pointer group">
-                <input
-                  type="file"
-                  id="foto_fachada"
-                  accept="image/jpeg,image/jpg,image/png"
-                  onChange={(e) => handleFileUpload("foto_fachada", e.target.files[0])}
-                  className="hidden"
-                />
-                <label htmlFor="foto_fachada" className="cursor-pointer">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 group-hover:bg-pink-100 flex items-center justify-center transition-all">
-                    <Camera className="w-8 h-8 text-gray-400 group-hover:text-pink-500" />
-                  </div>
-                  <p className="text-gray-700 font-semibold">Clique para enviar</p>
-                  <p className="text-gray-400 text-sm mt-1">JPG ou PNG, máx 5MB</p>
-                </label>
-                {formData.foto_fachada && (
-                  <p className="text-green-600 text-sm mt-2 flex items-center justify-center gap-1">
-                    <CheckCircle2 className="w-4 h-4" /> Foto enviada!
-                  </p>
-                )}
+            {/* Seção Fotos da Clínica */}
+            <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-2xl p-4 mb-4 border-2 border-cyan-100">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                  <div className="w-10 h-10 rounded-xl bg-cyan-500 flex items-center justify-center text-xl">📷</div>
+                  Fotos da Clínica
+                </h3>
+                <span className="px-3 py-1 bg-cyan-100 text-cyan-700 text-xs font-bold rounded-full">Opcional mas recomendado</span>
               </div>
             </div>
+
+            {/* Galeria de Fotos */}
+            <div>
+              <p className="text-sm text-gray-600 mb-2">Mostre a estrutura da sua clínica</p>
+              <p className="text-xs text-gray-400 mb-4">Ajuda os profissionais a conhecer o ambiente • Formato paisagem recomendado</p>
+
+              {/* Previews das fotos */}
+              {formData.fotos_clinica.length > 0 && (
+                <div className="grid grid-cols-3 gap-3 mb-4">
+                  {formData.fotos_clinica.map((url, index) => (
+                    <div key={index} className="aspect-video rounded-xl overflow-hidden relative group border-2 border-gray-200">
+                      <img src={url} alt={`Foto ${index + 1}`} className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(index)}
+                        className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Upload */}
+              {formData.fotos_clinica.length < 5 && (
+                <div className="border-2 border-dashed border-gray-300 rounded-2xl p-6 text-center hover:border-cyan-400 transition-all cursor-pointer">
+                  <input
+                    type="file"
+                    id="fotos_clinica"
+                    accept="image/jpeg,image/jpg,image/png"
+                    multiple
+                    onChange={handleMultiplePhotosUpload}
+                    className="hidden"
+                  />
+                  <label htmlFor="fotos_clinica" className="cursor-pointer">
+                    <div className="text-6xl mb-3">📷</div>
+                    <p className="text-gray-700 font-semibold mb-2">Clique ou arraste fotos</p>
+                    <p className="text-gray-400 text-sm">Até 5 fotos • JPG ou PNG</p>
+                    {formData.fotos_clinica.length > 0 && (
+                      <p className="text-pink-600 font-bold mt-2">{formData.fotos_clinica.length}/5 fotos</p>
+                    )}
+                  </label>
+                </div>
+              )}
+            </div>
+
+            {/* Seção Redes Sociais */}
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-4 mb-4 border-2 border-purple-100">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                  <div className="w-10 h-10 rounded-xl bg-purple-500 flex items-center justify-center text-xl">📱</div>
+                  Redes Sociais
+                </h3>
+                <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full">Opcional</span>
+              </div>
+            </div>
+
+            {/* Instagram */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Instagram da Clínica</label>
+              <div className="relative">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-pink-500 text-xl">📷</div>
+                <span className="absolute left-12 top-1/2 -translate-y-1/2 text-gray-400 font-semibold">@</span>
+                <input
+                  type="text"
+                  value={formData.instagram}
+                  onChange={(e) => handleInputChange("instagram", e.target.value.replace(/[^a-zA-Z0-9._]/g, ''))}
+                  placeholder="suaclinica"
+                  className="w-full pl-16 pr-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
+                />
+              </div>
+              <p className="text-gray-400 text-sm mt-2">Profissionais podem conhecer mais sobre sua clínica</p>
+            </div>
+
+            {/* Upload Foto Fachada - Removido daqui */}
           </div>
         );
 
