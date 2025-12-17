@@ -85,22 +85,22 @@ export default function NewJobs() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 rounded-3xl mx-4 mt-4 p-8 relative overflow-hidden">
+      <div className="bg-amber-600 mt-4 mx-4 p-8 rounded-3xl from-yellow-400 via-orange-500 to-pink-500 relative overflow-hidden">
         {/* Decoração */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
+        <div className="bg-teal-50 text-black rounded-full absolute top-0 right-0 w-32 h-32 blur-2xl"></div>
         <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-4 right-8 text-4xl animate-pulse">⚡</div>
+        <div className="my-2 text-4xl absolute top-4 right-8 animate-pulse">⚡</div>
         <div className="absolute bottom-4 left-8 text-3xl animate-pulse" style={{ animationDelay: '0.5s' }}>⚡</div>
         
         <div className="relative z-10">
-          <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-3xl mb-4">
+          <div className="bg-slate-50 mx-1 py-3 text-3xl rounded-2xl w-16 h-16 backdrop-blur flex items-center justify-center">
             💼
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-white mb-2" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.2)' }}>
-            OPORTUNIDADES
+          <h1 className="text-white mb-2 text-3xl font-black md:text-5xl" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.2)' }}>OPORTUNIDADES
+
           </h1>
           <p className="text-white/90">Encontre a vaga perfeita para você</p>
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur text-white rounded-full font-semibold mt-4">
+          <div className="bg-red-600 text-white mt-4 px-4 py-2 font-semibold rounded-full inline-flex items-center gap-2 backdrop-blur">
             🔥 523 vagas disponíveis
           </div>
         </div>
@@ -117,8 +117,8 @@ export default function NewJobs() {
               placeholder="Buscar vagas, especialidades..."
               value={searchSpecialty}
               onChange={(e) => setSearchSpecialty(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
-            />
+              className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none" />
+
           </div>
 
           {/* Select Cidade */}
@@ -128,8 +128,8 @@ export default function NewJobs() {
               placeholder="Cidade"
               value={searchCity}
               onChange={(e) => setSearchCity(e.target.value)}
-              className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
-            />
+              className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none" />
+
           </div>
 
           {/* Botão Buscar */}
@@ -181,66 +181,66 @@ export default function NewJobs() {
         {/* Lista de Vagas */}
         <div className="space-y-4 pb-8">
           {/* SUPER JOBS */}
-          {superJobs.length > 0 && (
-            <div className="space-y-4">
+          {superJobs.length > 0 &&
+          <div className="space-y-4">
               <div className="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-4 flex items-center gap-3">
                 <Sparkles className="w-6 h-6 text-yellow-600" />
                 <h2 className="text-xl font-black text-gray-900">SUPER JOBS - Matches Perfeitos! 🌟</h2>
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {superJobs.map((professional) => (
-                  <JobCard key={professional.id} professional={professional} isSuperJob />
-                ))}
+                {superJobs.map((professional) =>
+              <JobCard key={professional.id} professional={professional} isSuperJob />
+              )}
               </div>
             </div>
-          )}
+          }
 
           {/* Jobs Semelhante */}
-          {jobsSemelhante.length > 0 && (
-            <div className="space-y-4">
+          {jobsSemelhante.length > 0 &&
+          <div className="space-y-4">
               <div className="bg-gradient-to-r from-orange-100 to-pink-100 rounded-2xl p-4 flex items-center gap-3">
                 <Star className="w-6 h-6 text-orange-600" />
                 <h2 className="text-xl font-black text-gray-900">Jobs Semelhante ⭐</h2>
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {jobsSemelhante.map((professional) => (
-                  <JobCard key={professional.id} professional={professional} />
-                ))}
+                {jobsSemelhante.map((professional) =>
+              <JobCard key={professional.id} professional={professional} />
+              )}
               </div>
             </div>
-          )}
+          }
 
           {/* Outras Vagas */}
-          {outrasVagas.length > 0 && (
-            <div className="space-y-4">
+          {outrasVagas.length > 0 &&
+          <div className="space-y-4">
               <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-4 flex items-center gap-3">
                 <TrendingUp className="w-6 h-6 text-blue-600" />
                 <h2 className="text-xl font-black text-gray-900">Outras Oportunidades</h2>
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {outrasVagas.map((professional) => (
-                  <JobCard key={professional.id} professional={professional} />
-                ))}
+                {outrasVagas.map((professional) =>
+              <JobCard key={professional.id} professional={professional} />
+              )}
               </div>
             </div>
-          )}
+          }
 
           {/* Estado Vazio */}
-          {superJobs.length === 0 && jobsSemelhante.length === 0 && outrasVagas.length === 0 && (
-            <div className="bg-white rounded-3xl shadow-xl p-12 text-center">
+          {superJobs.length === 0 && jobsSemelhante.length === 0 && outrasVagas.length === 0 &&
+          <div className="bg-white rounded-3xl shadow-xl p-12 text-center">
               <div className="text-8xl mb-6 opacity-50">🔍</div>
               <h3 className="text-2xl font-bold text-gray-400 mb-2">Nenhuma vaga encontrada</h3>
               <p className="text-gray-400 mb-6">Tente ajustar os filtros de busca</p>
               <button
-                onClick={() => {
-                  setSearchCity("");
-                  setSearchSpecialty("");
-                }}
-                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-2xl hover:scale-105 transition-all">
+              onClick={() => {
+                setSearchCity("");
+                setSearchSpecialty("");
+              }}
+              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-2xl hover:scale-105 transition-all">
                 Limpar Filtros
               </button>
             </div>
-          )}
+          }
         </div>
       </div>
 
@@ -285,8 +285,8 @@ function JobCard({ professional, isSuperJob }) {
 
   return (
     <div className={`bg-white rounded-3xl shadow-xl p-6 hover:shadow-2xl hover:scale-[1.01] transition-all cursor-pointer border-2 ${
-      isSuperJob ? "border-yellow-400" : "border-transparent hover:border-yellow-400"
-    }`}>
+    isSuperJob ? "border-yellow-400" : "border-transparent hover:border-yellow-400"}`
+    }>
       {/* Layout */}
       <div className="flex flex-col md:flex-row md:items-start gap-4">
         {/* Logo */}
@@ -305,11 +305,11 @@ function JobCard({ professional, isSuperJob }) {
               <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-bold">
                 {professional.especialidade_principal}
               </span>
-              {isSuperJob && (
-                <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold animate-pulse">
+              {isSuperJob &&
+              <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold animate-pulse">
                   URGENTE
                 </span>
-              )}
+              }
             </div>
             <p className="text-xl font-black text-green-600">R$ 800/dia</p>
           </div>
@@ -360,6 +360,6 @@ function JobCard({ professional, isSuperJob }) {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }
