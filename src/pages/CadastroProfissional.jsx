@@ -109,8 +109,8 @@ export default function CadastroProfissional() {
       return;
     }
     
-    if (formData.cidades_atendimento.length >= 3) {
-      toast.error("Máximo de 3 cidades");
+    if (formData.cidades_atendimento.length >= 6) {
+      toast.error("Máximo de 6 cidades");
       return;
     }
 
@@ -675,7 +675,7 @@ export default function CadastroProfissional() {
             {/* Cidades de Atendimento */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Cidades onde você pode atender *</label>
-              <p className="text-xs text-gray-500 mb-3">Selecione até 3 cidades</p>
+              <p className="text-xs text-gray-500 mb-3">Selecione até 6 cidades</p>
               
               {/* Input para adicionar cidade */}
               <div className="grid grid-cols-12 gap-3 mb-4">
@@ -686,7 +686,7 @@ export default function CadastroProfissional() {
                     onChange={(e) => handleInputChange("cidade_input", e.target.value)}
                     placeholder="Ex: Goiânia"
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), adicionarCidade())}
-                    disabled={formData.cidades_atendimento.length >= 3}
+                    disabled={formData.cidades_atendimento.length >= 6}
                     className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
                 </div>
@@ -694,7 +694,7 @@ export default function CadastroProfissional() {
                   <select
                     value={formData.uf_input}
                     onChange={(e) => handleInputChange("uf_input", e.target.value)}
-                    disabled={formData.cidades_atendimento.length >= 3}
+                    disabled={formData.cidades_atendimento.length >= 6}
                     className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 appearance-none bg-white cursor-pointer transition-all outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                   >
                     <option value="">UF</option>
@@ -707,7 +707,7 @@ export default function CadastroProfissional() {
                   <button
                     type="button"
                     onClick={adicionarCidade}
-                    disabled={formData.cidades_atendimento.length >= 3}
+                    disabled={formData.cidades_atendimento.length >= 6}
                     className="w-full h-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     +
@@ -715,9 +715,9 @@ export default function CadastroProfissional() {
                 </div>
               </div>
               
-              {formData.cidades_atendimento.length >= 3 && (
+              {formData.cidades_atendimento.length >= 6 && (
                 <p className="text-xs text-orange-600 mb-3 font-medium">
-                  ⚠️ Limite máximo de 3 cidades atingido
+                  ⚠️ Limite máximo de 6 cidades atingido
                 </p>
               )}
 
