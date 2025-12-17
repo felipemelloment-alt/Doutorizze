@@ -204,7 +204,7 @@ export default function MarketplaceCreate() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-3 md:px-4 py-6 md:py-8 max-w-4xl">
         {/* Radar Alert */}
         {matchingInterests.length > 0 &&
         <Card className="mb-8 border-4 border-green-400 bg-gradient-to-r from-green-50 to-teal-50 shadow-2xl rounded-3xl overflow-hidden">
