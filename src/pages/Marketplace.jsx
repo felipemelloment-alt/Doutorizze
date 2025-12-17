@@ -200,7 +200,7 @@ export default function Marketplace() {
       {/* Hero Image - Largura Total */}
       <div className="w-full overflow-hidden">
         <img 
-          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6916d492cc9abf019259139b/ada8b00cc_Marketplace.png"
+          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6916d492cc9abf019259139b/e4f50adf8_Designsemnome1.png"
           alt="Marketplace"
           className="w-full h-auto object-cover"
         />
