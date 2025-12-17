@@ -1,22 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { motion } from "framer-motion";
 import {
   ArrowLeft,
   MapPin,
-  Calendar,
   Tag,
   Eye,
   Heart,
-  MessageCircle,
   Share2,
-  AlertCircle,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 
 export default function MarketplaceDetail() {
@@ -94,40 +89,6 @@ export default function MarketplaceDetail() {
       setSelectedImageIndex((prev) => (prev - 1 + images.length) % images.length);
     }
   };
-
-  // Loading state
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="animate-pulse space-y-6">
-            <div className="h-10 w-32 bg-gray-200 rounded-xl"></div>
-            <div className="h-96 bg-gray-200 rounded-3xl"></div>
-            <div className="h-32 bg-gray-200 rounded-3xl"></div>
-            <div className="h-64 bg-gray-200 rounded-3xl"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Not found state
-  if (!itemId || error || !item) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 p-6 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-8xl mb-6">😕</div>
-          <h2 className="text-3xl font-black text-gray-900 mb-2">Equipamento não encontrado</h2>
-          <p className="text-gray-600 mb-6">Este anúncio pode ter sido removido ou não existe.</p>
-          <button
-            onClick={() => navigate(createPageUrl("Marketplace"))}
-            className="px-8 py-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-2xl hover:scale-105 transition-all">
-            Voltar ao Marketplace
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   // Loading state
   if (isLoading) {
