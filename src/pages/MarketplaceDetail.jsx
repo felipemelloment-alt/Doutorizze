@@ -40,7 +40,7 @@ export default function MarketplaceDetail() {
     loadUser();
   }, []);
 
-  const { data: item, isLoading } = useQuery({
+  const { data: item, isLoading, error } = useQuery({
     queryKey: ["marketplaceItem", itemId],
     queryFn: async () => {
       if (!itemId) return null;
@@ -48,19 +48,25 @@ export default function MarketplaceDetail() {
       const items = await base44.entities.MarketplaceItem.filter({ id: itemId });
       
       if (items.length > 0) {
-        // Incrementar visualizações
-        await base44.entities.MarketplaceItem.update(items[0].id, {
-          visualizacoes: (items[0].visualizacoes || 0) + 1,
-        });
         return items[0];
       }
       return null;
     },
     enabled: !!itemId,
+    staleTime: 1000 * 60 * 5,
   });
 
+  // Incrementar visualizações apenas uma vez
+  useEffect(() => {
+    if (item?.id) {
+      base44.entities.MarketplaceItem.update(item.id, {
+        visualizacoes: (item.visualizacoes || 0) + 1,
+      }).catch(err => console.error("Erro ao incrementar views:", err));
+    }
+  }, [item?.id]);
+
   const handleWhatsAppContact = () => {
-    if (!item?.telefone_contato) return;
+    if (!item?.telefone_contato || !item?.titulo_item) return;
     const message = encodeURIComponent(
       `Olá! Tenho interesse no item: ${item.titulo_item} - R$ ${formatPrice(
         item.preco
@@ -70,6 +76,7 @@ export default function MarketplaceDetail() {
   };
 
   const handleShare = () => {
+    if (!item) return;
     const url = window.location.href;
     if (navigator.share) {
       navigator.share({
@@ -91,12 +98,41 @@ export default function MarketplaceDetail() {
     }).format(price);
   };
 
-  if (isLoading || !item) {
+  if (!itemId) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 p-6 flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <p className="text-gray-600 font-semibold">Item não encontrado</p>
+          <Button onClick={() => navigate(createPageUrl("Marketplace"))} className="mt-4">
+            Voltar ao Marketplace
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 p-6 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-yellow-400 mx-auto mb-4"></div>
           <p className="text-gray-600 font-semibold">Carregando item...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !item) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 p-6 flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <p className="text-gray-600 font-semibold mb-2">Erro ao carregar item</p>
+          <p className="text-gray-500 text-sm mb-4">{error?.message || "Item não encontrado"}</p>
+          <Button onClick={() => navigate(createPageUrl("Marketplace"))} className="gradient-yellow-pink text-white border-0">
+            Voltar ao Marketplace
+          </Button>
         </div>
       </div>
     );
