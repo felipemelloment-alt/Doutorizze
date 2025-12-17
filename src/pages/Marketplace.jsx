@@ -30,7 +30,9 @@ import {
   ArrowUpDown,
   SlidersHorizontal,
   ChevronLeft,
-  ChevronRight } from
+  ChevronRight,
+  Tag,
+  ArrowRight } from
 "lucide-react";
 
 export default function Marketplace() {
@@ -544,8 +546,7 @@ export default function Marketplace() {
               </Button>
             </div>
           </div>
-          }
-        </div>
+        )}
       </div>
 
       {/* Radar Modal */}
