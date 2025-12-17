@@ -20,6 +20,7 @@ import CadastroClinica from './pages/CadastroClinica';
 import CadastroSucesso from './pages/CadastroSucesso';
 import AdminAprovacoes from './pages/AdminAprovacoes';
 import SimulacaoCredito from './pages/SimulacaoCredito';
+import DashboardProfissional from './pages/DashboardProfissional';
 
 
 export const PAGES = {
@@ -45,6 +46,7 @@ export const PAGES = {
     "CadastroSucesso": CadastroSucesso,
     "AdminAprovacoes": AdminAprovacoes,
     "SimulacaoCredito": SimulacaoCredito,
+    "DashboardProfissional": DashboardProfissional,
 }
 
 export const pagesConfig = {
