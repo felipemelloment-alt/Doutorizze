@@ -46,6 +46,6 @@ export const PAGES = {
 }
 
 export const pagesConfig = {
-    mainPage: "AdminAprovacoes",
+    mainPage: "CadastroSucesso",
     Pages: PAGES,
 };
