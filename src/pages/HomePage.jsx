@@ -32,13 +32,13 @@ export default function HomePage() {
             </div>
 
             {/* Título Principal */}
-            <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 leading-tight mb-6">
+            <h4 className="text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 leading-tight mb-6">
               OPORTUNIDADES
               <br />
               <span className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 bg-clip-text text-transparent">
                 NA SAÚDE
               </span>
-            </h2>
+            </h4>
 
             {/* Subtítulo */}
             <p className="text-xl text-gray-600 mb-8 max-w-lg">
