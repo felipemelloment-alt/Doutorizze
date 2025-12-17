@@ -83,7 +83,7 @@ export default function NewJobs() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 overflow-x-hidden">
       {/* Header */}
       <div className="gradient-yellow-pink py-8 shadow-xl">
         <div className="container mx-auto px-4">
@@ -124,7 +124,7 @@ export default function NewJobs() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-3 md:px-4 py-6 md:py-8">
         {/* Search Bar */}
         <div className="bg-white rounded-3xl p-6 shadow-xl mb-8 border-4 border-[#F9B500]">
           <div className="grid md:grid-cols-2 gap-4">
@@ -154,7 +154,7 @@ export default function NewJobs() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
           <StatCard
             icon={Sparkles}
             title="SUPER JOBS"
@@ -217,7 +217,7 @@ export default function NewJobs() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {superJobs.map((professional) =>
               <ProfessionalCard
                 key={professional.id}
@@ -270,7 +270,7 @@ export default function NewJobs() {
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {jobsSemelhante.map((professional) =>
               <ProfessionalCard
                 key={professional.id}
@@ -303,7 +303,7 @@ export default function NewJobs() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {outrasVagas.map((professional) =>
               <ProfessionalCard
                 key={professional.id}
