@@ -5,8 +5,8 @@ import { motion } from "framer-motion";
 import {
   Star,
   CheckCircle,
-  ArrowRight
-} from "lucide-react";
+  ArrowRight } from
+"lucide-react";
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -32,12 +32,12 @@ export default function HomePage() {
             </div>
 
             {/* Título Principal */}
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 leading-tight mb-6">
-              OPORTUNIDADES
-              <br />
-              <span className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 bg-clip-text text-transparent">
-                NA SAÚDE
-              </span>
+            <h1 className="text-gray-900 mb-6 text-4xl font-black leading-tight md:text-6xl lg:text-7xl">OPORTUNIDADES
+NA SAÚDE
+
+
+
+
             </h1>
 
             {/* Subtítulo */}
@@ -246,7 +246,7 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center relative z-10">
           {/* Coluna texto */}
-          <div>
+          <div className="mx-10">
             <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
               Encontre os Melhores Profissionais
             </h2>
@@ -275,8 +275,8 @@ export default function HomePage() {
           </div>
 
           {/* Coluna imagem */}
-          <div className="hidden md:block">
-            <div className="text-9xl text-center">🏥</div>
+          <div className="my-1 hidden md:block">
+            <div className="mx-24 my-4 text-9xl text-center">🏥</div>
           </div>
         </div>
       </div>
@@ -295,8 +295,8 @@ export default function HomePage() {
           Começar Agora →
         </button>
       </div>
-    </div>
-  );
+    </div>);
+
 }
 
 function MiniProfessionalCard({ name, specialty, rating }) {
@@ -311,9 +311,9 @@ function MiniProfessionalCard({ name, specialty, rating }) {
         <p className="font-bold text-sm text-gray-900 truncate">{name}</p>
         <p className="text-xs text-gray-600 truncate">{specialty}</p>
         <div className="flex gap-0.5 mt-1">
-          {[...Array(rating)].map((_, i) => (
-            <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-          ))}
+          {[...Array(rating)].map((_, i) =>
+          <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+          )}
         </div>
       </div>
       <div className="flex items-center gap-1">
@@ -322,6 +322,6 @@ function MiniProfessionalCard({ name, specialty, rating }) {
           📞
         </button>
       </div>
-    </motion.div>
-  );
+    </motion.div>);
+
 }
