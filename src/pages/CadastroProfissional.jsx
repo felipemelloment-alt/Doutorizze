@@ -1,14 +1,18 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Progress } from "@/components/ui/progress";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { 
+  ChevronLeft, 
+  ArrowRight, 
+  UserRound, 
+  FileText, 
+  MapPin, 
+  DollarSign, 
+  Upload,
+  Camera,
+  CheckCircle2
+} from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { getEspecialidades, getRegistroLabel } from "@/components/constants/especialidades";
 
@@ -338,6 +342,14 @@ export default function CadastroProfissional() {
 
   const especialidades = getEspecialidades(formData.tipo_profissional === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA");
 
+  const etapasConfig = [
+    { numero: 1, titulo: "Dados Básicos", icon: UserRound },
+    { numero: 2, titulo: "Formação", icon: FileText },
+    { numero: 3, titulo: "Disponibilidade", icon: MapPin },
+    { numero: 4, titulo: "Remuneração", icon: DollarSign },
+    { numero: 5, titulo: "Documentos", icon: Upload }
+  ];
+
   const renderEtapa = () => {
     switch (etapaAtual) {
       case 1:
@@ -345,100 +357,131 @@ export default function CadastroProfissional() {
           <div className="space-y-6">
             {/* Tipo de Profissional */}
             <div>
-              <Label className="text-base font-semibold mb-4 block">Você é: *</Label>
-              <RadioGroup
-                value={formData.tipo_profissional}
-                onValueChange={(value) => handleInputChange("tipo_profissional", value)}
-                className="flex gap-4"
-              >
-                <div className="flex items-center space-x-2 border-2 border-gray-200 rounded-lg p-4 flex-1 cursor-pointer hover:border-blue-400">
-                  <RadioGroupItem value="DENTISTA" id="dentista" />
-                  <Label htmlFor="dentista" className="cursor-pointer">Dentista</Label>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">Você é: *</label>
+              <div className="grid grid-cols-2 gap-4">
+                <div
+                  onClick={() => handleInputChange("tipo_profissional", "DENTISTA")}
+                  className={`border-2 rounded-2xl p-5 cursor-pointer transition-all ${
+                    formData.tipo_profissional === "DENTISTA"
+                      ? "border-yellow-400 bg-yellow-50"
+                      : "border-gray-200 hover:border-yellow-300"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      formData.tipo_profissional === "DENTISTA" ? "border-yellow-400" : "border-gray-300"
+                    }`}>
+                      {formData.tipo_profissional === "DENTISTA" && (
+                        <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                      )}
+                    </div>
+                    <span className="font-bold text-gray-900">Dentista 🦷</span>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2 border-2 border-gray-200 rounded-lg p-4 flex-1 cursor-pointer hover:border-blue-400">
-                  <RadioGroupItem value="MEDICO" id="medico" />
-                  <Label htmlFor="medico" className="cursor-pointer">Médico</Label>
+                <div
+                  onClick={() => handleInputChange("tipo_profissional", "MEDICO")}
+                  className={`border-2 rounded-2xl p-5 cursor-pointer transition-all ${
+                    formData.tipo_profissional === "MEDICO"
+                      ? "border-yellow-400 bg-yellow-50"
+                      : "border-gray-200 hover:border-yellow-300"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      formData.tipo_profissional === "MEDICO" ? "border-yellow-400" : "border-gray-300"
+                    }`}>
+                      {formData.tipo_profissional === "MEDICO" && (
+                        <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                      )}
+                    </div>
+                    <span className="font-bold text-gray-900">Médico 🩺</span>
+                  </div>
                 </div>
-              </RadioGroup>
+              </div>
             </div>
 
             {/* Grid de Campos */}
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="nome_completo">Nome Completo *</Label>
-                <Input
-                  id="nome_completo"
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Nome Completo *</label>
+                <input
+                  type="text"
                   value={formData.nome_completo}
                   onChange={(e) => handleInputChange("nome_completo", e.target.value)}
                   placeholder="João Silva"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                 />
               </div>
 
               <div>
-                <Label htmlFor="email">Email *</Label>
-                <Input
-                  id="email"
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
+                <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
                   placeholder="joao@exemplo.com"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                 />
               </div>
 
               <div>
-                <Label htmlFor="whatsapp">WhatsApp *</Label>
-                <Input
-                  id="whatsapp"
+                <label className="block text-sm font-semibold text-gray-700 mb-2">WhatsApp *</label>
+                <input
+                  type="text"
                   value={formData.whatsapp}
                   onChange={(e) => handleInputChange("whatsapp", aplicarMascaraWhatsApp(e.target.value))}
                   placeholder="(62) 99999-9999"
                   maxLength={15}
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                 />
               </div>
 
               <div>
-                <Label htmlFor="cpf">CPF *</Label>
-                <Input
-                  id="cpf"
+                <label className="block text-sm font-semibold text-gray-700 mb-2">CPF *</label>
+                <input
+                  type="text"
                   value={formData.cpf}
                   onChange={(e) => handleInputChange("cpf", aplicarMascaraCPF(e.target.value))}
                   placeholder="000.000.000-00"
                   maxLength={14}
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                 />
               </div>
 
               <div>
-                <Label htmlFor="data_nascimento">Data de Nascimento *</Label>
-                <Input
-                  id="data_nascimento"
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Data de Nascimento *</label>
+                <input
+                  type="text"
                   value={formData.data_nascimento}
                   onChange={(e) => handleInputChange("data_nascimento", aplicarMascaraData(e.target.value))}
                   placeholder="DD/MM/AAAA"
                   maxLength={10}
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                 />
               </div>
 
               <div>
-                <Label htmlFor="genero">Gênero</Label>
-                <Select value={formData.genero} onValueChange={(value) => handleInputChange("genero", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="MASCULINO">Masculino</SelectItem>
-                    <SelectItem value="FEMININO">Feminino</SelectItem>
-                    <SelectItem value="OUTRO">Outro</SelectItem>
-                  </SelectContent>
-                </Select>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Gênero (opcional)</label>
+                <select
+                  value={formData.genero}
+                  onChange={(e) => handleInputChange("genero", e.target.value)}
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 appearance-none bg-white cursor-pointer transition-all outline-none"
+                >
+                  <option value="">Selecione</option>
+                  <option value="MASCULINO">Masculino</option>
+                  <option value="FEMININO">Feminino</option>
+                  <option value="OUTRO">Outro</option>
+                </select>
               </div>
 
               <div className="md:col-span-2">
-                <Label htmlFor="instagram">Instagram (opcional)</Label>
-                <Input
-                  id="instagram"
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Instagram (opcional)</label>
+                <input
+                  type="text"
                   value={formData.instagram}
                   onChange={(e) => handleInputChange("instagram", e.target.value)}
                   placeholder="@seuperfil"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                 />
               </div>
             </div>
@@ -448,138 +491,111 @@ export default function CadastroProfissional() {
       case 2:
         return (
           <div className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="numero_registro">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Número do {getRegistroLabel(formData.tipo_profissional === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA")} *
-                </Label>
-                <Input
-                  id="numero_registro"
+                </label>
+                <input
+                  type="text"
                   value={formData.numero_registro}
                   onChange={(e) => handleInputChange("numero_registro", e.target.value)}
                   placeholder="12345"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                 />
               </div>
 
               <div>
-                <Label htmlFor="uf_registro">UF do Registro *</Label>
-                <Select value={formData.uf_registro} onValueChange={(value) => handleInputChange("uf_registro", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="AC">AC</SelectItem>
-                    <SelectItem value="AL">AL</SelectItem>
-                    <SelectItem value="AP">AP</SelectItem>
-                    <SelectItem value="AM">AM</SelectItem>
-                    <SelectItem value="BA">BA</SelectItem>
-                    <SelectItem value="CE">CE</SelectItem>
-                    <SelectItem value="DF">DF</SelectItem>
-                    <SelectItem value="ES">ES</SelectItem>
-                    <SelectItem value="GO">GO</SelectItem>
-                    <SelectItem value="MA">MA</SelectItem>
-                    <SelectItem value="MT">MT</SelectItem>
-                    <SelectItem value="MS">MS</SelectItem>
-                    <SelectItem value="MG">MG</SelectItem>
-                    <SelectItem value="PA">PA</SelectItem>
-                    <SelectItem value="PB">PB</SelectItem>
-                    <SelectItem value="PR">PR</SelectItem>
-                    <SelectItem value="PE">PE</SelectItem>
-                    <SelectItem value="PI">PI</SelectItem>
-                    <SelectItem value="RJ">RJ</SelectItem>
-                    <SelectItem value="RN">RN</SelectItem>
-                    <SelectItem value="RS">RS</SelectItem>
-                    <SelectItem value="RO">RO</SelectItem>
-                    <SelectItem value="RR">RR</SelectItem>
-                    <SelectItem value="SC">SC</SelectItem>
-                    <SelectItem value="SP">SP</SelectItem>
-                    <SelectItem value="SE">SE</SelectItem>
-                    <SelectItem value="TO">TO</SelectItem>
-                  </SelectContent>
-                </Select>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">UF do Registro *</label>
+                <select
+                  value={formData.uf_registro}
+                  onChange={(e) => handleInputChange("uf_registro", e.target.value)}
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 appearance-none bg-white cursor-pointer transition-all outline-none"
+                >
+                  <option value="">Selecione</option>
+                  {["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"].map(uf => (
+                    <option key={uf} value={uf}>{uf}</option>
+                  ))}
+                </select>
               </div>
             </div>
 
             {/* Especialidade Principal */}
             <div>
-              <Label htmlFor="especialidade_principal">Especialidade Principal *</Label>
-              <Select
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Especialidade Principal *</label>
+              <select
                 value={formData.especialidade_principal}
-                onValueChange={(value) => handleInputChange("especialidade_principal", value)}
+                onChange={(e) => handleInputChange("especialidade_principal", e.target.value)}
+                className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 appearance-none bg-white cursor-pointer transition-all outline-none"
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione" />
-                </SelectTrigger>
-                <SelectContent>
-                  {especialidades.map((esp) => (
-                    <SelectItem key={esp} value={esp}>
-                      {esp}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                <option value="">Selecione</option>
+                {especialidades.map((esp) => (
+                  <option key={esp} value={esp}>{esp}</option>
+                ))}
+              </select>
             </div>
 
             {/* Outras Especialidades */}
             <div>
-              <Label className="text-base font-semibold mb-3 block">Outras Especialidades (opcional)</Label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-3">Outras Especialidades (opcional)</label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-64 overflow-y-auto border-2 border-gray-200 rounded-xl p-4">
                 {especialidades
                   .filter(esp => esp !== formData.especialidade_principal)
                   .map((esp) => (
-                    <div key={esp} className="flex items-center space-x-2">
+                    <div key={esp} className="flex items-center gap-2">
                       <input
                         type="checkbox"
                         id={`esp-${esp}`}
                         checked={formData.outras_especialidades.includes(esp)}
                         onChange={() => toggleOutraEspecialidade(esp)}
-                        className="w-4 h-4 text-blue-600"
+                        className="w-4 h-4 accent-yellow-400"
                       />
-                      <Label htmlFor={`esp-${esp}`} className="text-sm cursor-pointer">
+                      <label htmlFor={`esp-${esp}`} className="text-sm cursor-pointer text-gray-700">
                         {esp}
-                      </Label>
+                      </label>
                     </div>
                   ))}
               </div>
             </div>
 
             {/* Tempo de Formado e Especialista */}
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="tempo_formado_anos">Anos de Formado *</Label>
-                <Input
-                  id="tempo_formado_anos"
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Anos de Formado *</label>
+                <input
                   type="number"
                   value={formData.tempo_formado_anos}
                   onChange={(e) => handleInputChange("tempo_formado_anos", e.target.value)}
                   placeholder="5"
                   min="0"
                   max="99"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                 />
               </div>
 
               <div>
-                <Label htmlFor="tempo_especialidade_anos">Anos de Especialidade (opcional)</Label>
-                <Input
-                  id="tempo_especialidade_anos"
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Anos de Especialidade (opcional)</label>
+                <input
                   type="number"
                   value={formData.tempo_especialidade_anos}
                   onChange={(e) => handleInputChange("tempo_especialidade_anos", e.target.value)}
                   placeholder="3"
                   min="0"
                   max="99"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                 />
               </div>
             </div>
 
             {/* Instituição de Formação */}
             <div>
-              <Label htmlFor="instituicao_formacao">Instituição de Formação (opcional)</Label>
-              <Input
-                id="instituicao_formacao"
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Instituição de Formação (opcional)</label>
+              <input
+                type="text"
                 value={formData.instituicao_formacao}
                 onChange={(e) => handleInputChange("instituicao_formacao", e.target.value)}
                 placeholder="Ex: Universidade Federal de Goiás"
+                className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
               />
             </div>
           </div>
@@ -590,154 +606,127 @@ export default function CadastroProfissional() {
           <div className="space-y-6">
             {/* Cidades de Atendimento */}
             <div>
-              <Label className="text-base font-semibold mb-4 block">Cidades que Você Atende * (máx. 5)</Label>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">Cidades que Você Atende * (máx. 5)</label>
               
               {/* Input para adicionar cidade */}
               <div className="grid grid-cols-12 gap-3 mb-4">
                 <div className="col-span-7">
-                  <Input
+                  <input
+                    type="text"
                     value={formData.cidade_input}
                     onChange={(e) => handleInputChange("cidade_input", e.target.value)}
                     placeholder="Ex: Goiânia"
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), adicionarCidade())}
+                    className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                   />
                 </div>
                 <div className="col-span-3">
-                  <Select 
-                    value={formData.uf_input} 
-                    onValueChange={(value) => handleInputChange("uf_input", value)}
+                  <select
+                    value={formData.uf_input}
+                    onChange={(e) => handleInputChange("uf_input", e.target.value)}
+                    className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 appearance-none bg-white cursor-pointer transition-all outline-none"
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="UF" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="AC">AC</SelectItem>
-                      <SelectItem value="AL">AL</SelectItem>
-                      <SelectItem value="AP">AP</SelectItem>
-                      <SelectItem value="AM">AM</SelectItem>
-                      <SelectItem value="BA">BA</SelectItem>
-                      <SelectItem value="CE">CE</SelectItem>
-                      <SelectItem value="DF">DF</SelectItem>
-                      <SelectItem value="ES">ES</SelectItem>
-                      <SelectItem value="GO">GO</SelectItem>
-                      <SelectItem value="MA">MA</SelectItem>
-                      <SelectItem value="MT">MT</SelectItem>
-                      <SelectItem value="MS">MS</SelectItem>
-                      <SelectItem value="MG">MG</SelectItem>
-                      <SelectItem value="PA">PA</SelectItem>
-                      <SelectItem value="PB">PB</SelectItem>
-                      <SelectItem value="PR">PR</SelectItem>
-                      <SelectItem value="PE">PE</SelectItem>
-                      <SelectItem value="PI">PI</SelectItem>
-                      <SelectItem value="RJ">RJ</SelectItem>
-                      <SelectItem value="RN">RN</SelectItem>
-                      <SelectItem value="RS">RS</SelectItem>
-                      <SelectItem value="RO">RO</SelectItem>
-                      <SelectItem value="RR">RR</SelectItem>
-                      <SelectItem value="SC">SC</SelectItem>
-                      <SelectItem value="SP">SP</SelectItem>
-                      <SelectItem value="SE">SE</SelectItem>
-                      <SelectItem value="TO">TO</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    <option value="">UF</option>
+                    {["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"].map(uf => (
+                      <option key={uf} value={uf}>{uf}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="col-span-2">
-                  <Button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={adicionarCidade}
-                    className="w-full bg-blue-600 hover:bg-blue-700"
+                    className="w-full h-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-xl hover:shadow-lg transition-all"
                   >
-                    Adicionar
-                  </Button>
+                    +
+                  </button>
                 </div>
               </div>
 
               {/* Lista de cidades adicionadas */}
               {formData.cidades_atendimento.length > 0 && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-2">Cidades adicionadas:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.cidades_atendimento.map((cidade, index) => (
-                      <div
-                        key={index}
-                        className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center gap-2 text-sm"
+                <div className="flex flex-wrap gap-2">
+                  {formData.cidades_atendimento.map((cidade, index) => (
+                    <div
+                      key={index}
+                      className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full flex items-center gap-2 text-sm font-medium"
+                    >
+                      <span>{cidade}</span>
+                      <button
+                        type="button"
+                        onClick={() => removerCidade(cidade)}
+                        className="text-yellow-600 hover:text-yellow-900 font-bold text-lg leading-none"
                       >
-                        <span>{cidade}</span>
-                        <button
-                          type="button"
-                          onClick={() => removerCidade(cidade)}
-                          className="text-blue-600 hover:text-blue-800 font-bold"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+                        ×
+                      </button>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
 
             {/* Dias Disponíveis */}
             <div>
-              <Label className="text-base font-semibold mb-4 block">
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
                 Dias Disponíveis * (selecione todos que puder)
-              </Label>
-              <div className="grid grid-cols-4 gap-3">
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
-                  { value: "SEG", label: "Segunda" },
-                  { value: "TER", label: "Terça" },
-                  { value: "QUA", label: "Quarta" },
-                  { value: "QUI", label: "Quinta" },
-                  { value: "SEX", label: "Sexta" },
-                  { value: "SAB", label: "Sábado" },
-                  { value: "DOM", label: "Domingo" },
+                  { value: "SEG", label: "Seg" },
+                  { value: "TER", label: "Ter" },
+                  { value: "QUA", label: "Qua" },
+                  { value: "QUI", label: "Qui" },
+                  { value: "SEX", label: "Sex" },
+                  { value: "SAB", label: "Sáb" },
+                  { value: "DOM", label: "Dom" },
                   { value: "INTEGRAL", label: "Integral" }
                 ].map((dia) => (
-                  <Button
+                  <button
                     key={dia.value}
                     type="button"
-                    variant={formData.dias_semana_disponiveis.includes(dia.value) ? "default" : "outline"}
                     onClick={() => toggleDiaSemana(dia.value)}
-                    className={formData.dias_semana_disponiveis.includes(dia.value) ? "bg-blue-600" : ""}
+                    className={`py-3 px-4 rounded-xl font-bold transition-all ${
+                      formData.dias_semana_disponiveis.includes(dia.value)
+                        ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-lg"
+                        : "bg-white border-2 border-gray-200 text-gray-700 hover:border-yellow-400"
+                    }`}
                   >
                     {dia.label}
-                  </Button>
+                  </button>
                 ))}
               </div>
               {formData.dias_semana_disponiveis.includes("INTEGRAL") && (
-                <p className="text-xs text-blue-600 mt-2">
+                <p className="text-xs text-yellow-600 mt-2 font-medium">
                   ℹ️ Integral significa disponibilidade em todos os dias da semana
                 </p>
               )}
             </div>
 
             {/* Turno e Carga Horária */}
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="turno_preferido">Turno Preferido *</Label>
-                <Select
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Turno Preferido *</label>
+                <select
                   value={formData.turno_preferido}
-                  onValueChange={(value) => handleInputChange("turno_preferido", value)}
+                  onChange={(e) => handleInputChange("turno_preferido", e.target.value)}
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 appearance-none bg-white cursor-pointer transition-all outline-none"
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="MANHA">Manhã</SelectItem>
-                    <SelectItem value="TARDE">Tarde</SelectItem>
-                    <SelectItem value="NOITE">Noite</SelectItem>
-                    <SelectItem value="INTEGRAL">Integral (qualquer turno)</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <option value="">Selecione</option>
+                  <option value="MANHA">Manhã</option>
+                  <option value="TARDE">Tarde</option>
+                  <option value="NOITE">Noite</option>
+                  <option value="INTEGRAL">Integral (qualquer turno)</option>
+                </select>
               </div>
 
               <div>
-                <Label htmlFor="carga_horaria_desejada">Carga Horária Desejada (opcional)</Label>
-                <Input
-                  id="carga_horaria_desejada"
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Carga Horária Desejada (opcional)</label>
+                <input
+                  type="text"
                   value={formData.carga_horaria_desejada}
                   onChange={(e) => handleInputChange("carga_horaria_desejada", e.target.value)}
                   placeholder="Ex: 20h semanais, 4h por dia"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                 />
               </div>
             </div>
@@ -749,7 +738,7 @@ export default function CadastroProfissional() {
           <div className="space-y-6">
             {/* Formas de Remuneração */}
             <div>
-              <Label className="text-base font-semibold mb-4 block">Formas de Remuneração que Aceita *</Label>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">Formas de Remuneração que Aceita *</label>
               <div className="space-y-3">
                 {[
                   { value: "DIARIA", label: "Diária (valor por dia trabalhado)" },
@@ -759,23 +748,22 @@ export default function CadastroProfissional() {
                 ].map((forma) => (
                   <div
                     key={forma.value}
-                    className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                    className={`border-2 rounded-2xl p-5 cursor-pointer transition-all ${
                       formData.forma_remuneracao.includes(forma.value)
-                        ? "border-blue-600 bg-blue-50"
-                        : "border-gray-200 hover:border-blue-300"
+                        ? "border-yellow-400 bg-yellow-50"
+                        : "border-gray-200 hover:border-yellow-300"
                     }`}
                     onClick={() => toggleFormaRemuneracao(forma.value)}
                   >
-                    <div className="flex items-center space-x-3">
-                      <input
-                        type="checkbox"
-                        checked={formData.forma_remuneracao.includes(forma.value)}
-                        onChange={() => {}}
-                        className="w-5 h-5 text-blue-600"
-                      />
-                      <Label className="cursor-pointer text-base">
-                        {forma.label}
-                      </Label>
+                    <div className="flex items-center gap-3">
+                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                        formData.forma_remuneracao.includes(forma.value) ? "border-yellow-400 bg-yellow-400" : "border-gray-300"
+                      }`}>
+                        {formData.forma_remuneracao.includes(forma.value) && (
+                          <CheckCircle2 className="w-3 h-3 text-white" />
+                        )}
+                      </div>
+                      <span className="font-medium text-gray-900">{forma.label}</span>
                     </div>
                   </div>
                 ))}
@@ -784,73 +772,57 @@ export default function CadastroProfissional() {
 
             {/* Campos Condicionais */}
             {(formData.forma_remuneracao.includes("DIARIA") || formData.forma_remuneracao.includes("PORCENTAGEM")) && (
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* Valor Mínimo Diária */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {formData.forma_remuneracao.includes("DIARIA") && (
                   <div>
-                    <Label htmlFor="valor_minimo_diaria">Valor Mínimo Diária (opcional)</Label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Valor Mínimo Diária (opcional)</label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                        R$
-                      </span>
-                      <Input
-                        id="valor_minimo_diaria"
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">R$</span>
+                      <input
                         type="number"
                         value={formData.valor_minimo_diaria}
                         onChange={(e) => handleInputChange("valor_minimo_diaria", e.target.value)}
                         placeholder="500"
-                        className="pl-10"
                         min="0"
+                        className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                       />
                     </div>
                   </div>
                 )}
 
-                {/* Porcentagem Mínima */}
                 {formData.forma_remuneracao.includes("PORCENTAGEM") && (
                   <div>
-                    <Label htmlFor="porcentagem_minima">Porcentagem Mínima (opcional)</Label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Porcentagem Mínima (opcional)</label>
                     <div className="relative">
-                      <Input
-                        id="porcentagem_minima"
+                      <input
                         type="number"
                         value={formData.porcentagem_minima}
                         onChange={(e) => handleInputChange("porcentagem_minima", e.target.value)}
                         placeholder="30"
-                        className="pr-10"
                         min="0"
                         max="100"
+                        className="w-full pl-4 pr-12 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                       />
-                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                        %
-                      </span>
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">%</span>
                     </div>
                   </div>
                 )}
               </div>
             )}
 
-            {/* Dica */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-sm text-blue-800">
-                💡 <strong>DICA:</strong> Deixar valores em branco significa que você está aberto a negociação.
-              </p>
-            </div>
-
             {/* Observações */}
             <div>
-              <Label htmlFor="observacoes">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Observações sobre trabalho e disponibilidade *
-              </Label>
+              </label>
               <textarea
-                id="observacoes"
                 value={formData.observacoes}
                 onChange={(e) => handleInputChange("observacoes", e.target.value)}
                 placeholder="Fale sobre sua experiência, preferências de trabalho, horários que prefere, tipo de clínica que procura, etc."
-                className="w-full min-h-[150px] p-3 border border-gray-300 rounded-md"
+                className="w-full min-h-[150px] px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none resize-none"
                 maxLength={500}
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 mt-1 text-right">
                 {formData.observacoes.length}/500 caracteres
               </p>
             </div>
@@ -861,70 +833,103 @@ export default function CadastroProfissional() {
         return (
           <div className="space-y-6">
             {/* Uploads */}
-            <div className="border-2 border-gray-200 rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">📤 UPLOADS</h3>
+            <div>
+              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl p-6 mb-6 border-2 border-yellow-100">
+                <h3 className="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">
+                  <Upload className="w-5 h-5 text-yellow-500" />
+                  Documentos
+                </h3>
+                <p className="text-sm text-gray-600">Envie seus documentos para validação do cadastro</p>
+              </div>
               
               <div className="space-y-4">
                 {/* Foto de Perfil */}
                 <div>
-                  <Label htmlFor="foto_perfil">Foto de Perfil (recomendado)</Label>
-                  <div className="mt-2">
-                    <Input
-                      id="foto_perfil"
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Foto de Perfil (recomendado)</label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:border-yellow-400 hover:bg-yellow-50/50 transition-all cursor-pointer group">
+                    <input
                       type="file"
+                      id="foto_perfil"
                       accept="image/jpeg,image/jpg,image/png"
                       onChange={(e) => handleFileUpload("foto_perfil", e.target.files[0])}
-                      className="cursor-pointer"
+                      className="hidden"
                     />
+                    <label htmlFor="foto_perfil" className="cursor-pointer">
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 group-hover:bg-yellow-100 flex items-center justify-center transition-all">
+                        <Camera className="w-8 h-8 text-gray-400 group-hover:text-yellow-500" />
+                      </div>
+                      <p className="text-gray-700 font-semibold">Clique para enviar</p>
+                      <p className="text-gray-400 text-sm mt-1">JPG ou PNG, máx 5MB</p>
+                    </label>
                     {formData.foto_perfil && (
-                      <p className="text-xs text-green-600 mt-1">✓ Arquivo enviado</p>
+                      <p className="text-green-600 text-sm mt-2 flex items-center justify-center gap-1">
+                        <CheckCircle2 className="w-4 h-4" /> Arquivo enviado!
+                      </p>
                     )}
                   </div>
                 </div>
 
                 {/* Documento do Registro */}
                 <div>
-                  <Label htmlFor="documento_registro" className="text-red-600">
-                    Documento do {getRegistroLabel(formData.tipo_profissional === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA")} * (obrigatório)
-                  </Label>
-                  <div className="mt-2">
-                    <Input
-                      id="documento_registro"
+                  <label className="block text-sm font-semibold text-red-600 mb-2 flex items-center gap-1">
+                    Documento do {getRegistroLabel(formData.tipo_profissional === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA")} * 
+                    <span className="text-xs">(obrigatório)</span>
+                  </label>
+                  <div className="border-2 border-dashed border-red-300 rounded-2xl p-8 text-center hover:border-red-400 hover:bg-red-50/50 transition-all cursor-pointer group">
+                    <input
                       type="file"
+                      id="documento_registro"
                       accept="image/jpeg,image/jpg,image/png,application/pdf"
                       onChange={(e) => handleFileUpload("documento_registro", e.target.files[0])}
-                      className="cursor-pointer"
+                      className="hidden"
                     />
+                    <label htmlFor="documento_registro" className="cursor-pointer">
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-red-100 group-hover:bg-red-200 flex items-center justify-center transition-all">
+                        <FileText className="w-8 h-8 text-red-500" />
+                      </div>
+                      <p className="text-gray-700 font-semibold">Clique para enviar</p>
+                      <p className="text-gray-400 text-sm mt-1">PDF, JPG ou PNG</p>
+                    </label>
                     {formData.documento_registro && (
-                      <p className="text-xs text-green-600 mt-1">✓ Arquivo enviado</p>
+                      <p className="text-green-600 text-sm mt-2 flex items-center justify-center gap-1">
+                        <CheckCircle2 className="w-4 h-4" /> Documento enviado!
+                      </p>
                     )}
                   </div>
                 </div>
 
                 {/* Currículo */}
                 <div>
-                  <Label htmlFor="curriculo">Currículo (opcional)</Label>
-                  <div className="mt-2">
-                    <Input
-                      id="curriculo"
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Currículo (opcional)</label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:border-yellow-400 hover:bg-yellow-50/50 transition-all cursor-pointer group">
+                    <input
                       type="file"
+                      id="curriculo"
                       accept="application/pdf"
                       onChange={(e) => handleFileUpload("curriculo", e.target.files[0])}
-                      className="cursor-pointer"
+                      className="hidden"
                     />
+                    <label htmlFor="curriculo" className="cursor-pointer">
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 group-hover:bg-yellow-100 flex items-center justify-center transition-all">
+                        <FileText className="w-8 h-8 text-gray-400 group-hover:text-yellow-500" />
+                      </div>
+                      <p className="text-gray-700 font-semibold">Clique para enviar</p>
+                      <p className="text-gray-400 text-sm mt-1">Apenas PDF, máx 5MB</p>
+                    </label>
                     {formData.curriculo && (
-                      <p className="text-xs text-green-600 mt-1">✓ Arquivo enviado</p>
+                      <p className="text-green-600 text-sm mt-2 flex items-center justify-center gap-1">
+                        <CheckCircle2 className="w-4 h-4" /> Currículo enviado!
+                      </p>
                     )}
-                    <p className="text-xs text-gray-500 mt-1">Apenas PDF, máximo 5MB</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Revisão dos Dados */}
-            <div className="border-2 border-blue-200 rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">📋 REVISÃO DOS DADOS</h3>
-              <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 border-2 border-blue-200">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">📋 Resumo do Cadastro</h3>
+              <div className="bg-white rounded-xl p-5 space-y-2 text-sm">
                 <p><strong>Tipo:</strong> {formData.tipo_profissional === "DENTISTA" ? "Dentista" : "Médico"}</p>
                 <p><strong>Nome:</strong> {formData.nome_completo}</p>
                 <p><strong>Email:</strong> {formData.email}</p>
@@ -935,60 +940,29 @@ export default function CadastroProfissional() {
                 </p>
                 <p><strong>Especialidade:</strong> {formData.especialidade_principal}</p>
                 {formData.outras_especialidades.length > 0 && (
-                  <p><strong>Outras especialidades:</strong> {formData.outras_especialidades.join(", ")}</p>
+                  <p><strong>Outras especialidades:</strong> {formData.outras_especialidades.slice(0, 3).join(", ")}{formData.outras_especialidades.length > 3 && "..."}</p>
                 )}
                 <p><strong>Formado há:</strong> {formData.tempo_formado_anos} anos</p>
-                {formData.tempo_especialidade_anos && (
-                  <p><strong>Especialista há:</strong> {formData.tempo_especialidade_anos} anos</p>
-                )}
-                {formData.instituicao_formacao && (
-                  <p><strong>Instituição:</strong> {formData.instituicao_formacao}</p>
-                )}
-                <p><strong>Cidades:</strong> {formData.cidades_atendimento.join(", ")}</p>
-                <p>
-                  <strong>Dias:</strong>{" "}
-                  {formData.dias_semana_disponiveis.map(d => {
-                    const dias = {
-                      SEG: "Segunda", TER: "Terça", QUA: "Quarta", QUI: "Quinta",
-                      SEX: "Sexta", SAB: "Sábado", DOM: "Domingo", INTEGRAL: "Integral"
-                    };
-                    return dias[d];
-                  }).join(", ")}
-                </p>
-                <p><strong>Turno:</strong> {
-                  formData.turno_preferido === "MANHA" ? "Manhã" :
-                  formData.turno_preferido === "TARDE" ? "Tarde" :
-                  formData.turno_preferido === "NOITE" ? "Noite" : "Integral"
-                }</p>
-                {formData.carga_horaria_desejada && (
-                  <p><strong>Carga horária:</strong> {formData.carga_horaria_desejada}</p>
-                )}
-                <p>
-                  <strong>Remuneração:</strong>{" "}
-                  {formData.forma_remuneracao.map(f => {
-                    const formas = { DIARIA: "Diária", PORCENTAGEM: "Porcentagem", FIXO: "Fixo", A_COMBINAR: "A Combinar" };
-                    let texto = formas[f];
-                    if (f === "DIARIA" && formData.valor_minimo_diaria) texto += ` (mín R$ ${formData.valor_minimo_diaria})`;
-                    if (f === "PORCENTAGEM" && formData.porcentagem_minima) texto += ` (mín ${formData.porcentagem_minima}%)`;
-                    return texto;
-                  }).join(", ")}
-                </p>
+                <p><strong>Cidades:</strong> {formData.cidades_atendimento.slice(0, 2).join(", ")}{formData.cidades_atendimento.length > 2 && "..."}</p>
+                <p><strong>Dias:</strong> {formData.dias_semana_disponiveis.length} dias selecionados</p>
               </div>
             </div>
 
             {/* Aceitar Termos */}
-            <div className="flex items-start space-x-3 border-2 border-gray-200 rounded-lg p-4">
-              <input
-                type="checkbox"
-                id="aceita_termos"
-                checked={formData.aceita_termos}
-                onChange={(e) => handleInputChange("aceita_termos", e.target.checked)}
-                className="w-5 h-5 mt-1"
-              />
-              <Label htmlFor="aceita_termos" className="cursor-pointer text-sm">
-                Li e aceito os <span className="text-blue-600 underline">Termos de Uso</span> e{" "}
-                <span className="text-blue-600 underline">Política de Privacidade</span>
-              </Label>
+            <div className="border-2 border-gray-200 rounded-2xl p-5 hover:border-yellow-400 transition-all">
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  id="aceita_termos"
+                  checked={formData.aceita_termos}
+                  onChange={(e) => handleInputChange("aceita_termos", e.target.checked)}
+                  className="w-5 h-5 mt-0.5 accent-yellow-400"
+                />
+                <label htmlFor="aceita_termos" className="cursor-pointer text-sm text-gray-700">
+                  Li e aceito os <span className="text-yellow-500 font-bold underline">Termos de Uso</span> e{" "}
+                  <span className="text-yellow-500 font-bold underline">Política de Privacidade</span>
+                </label>
+              </div>
             </div>
           </div>
         );
@@ -999,69 +973,112 @@ export default function CadastroProfissional() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-orange-50 p-3 md:p-8">
       <div className="max-w-4xl mx-auto">
-        <Card className="border-2 border-blue-200 shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-t-lg">
-            <CardTitle className="text-2xl">
-              Cadastro de Profissional
-            </CardTitle>
-            <p className="text-sm text-blue-100 mt-2">
-              Etapa {etapaAtual} de {totalEtapas} - {
-                etapaAtual === 1 ? "Dados Básicos" :
-                etapaAtual === 2 ? "Formação e Especialidade" :
-                etapaAtual === 3 ? "Disponibilidade" :
-                etapaAtual === 4 ? "Preferências Financeiras" :
-                "Documentos e Revisão"
-              }
-            </p>
-          </CardHeader>
+        {/* Header */}
+        <div className="mb-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-gray-600 hover:text-yellow-500 font-medium py-2 transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            Voltar
+          </button>
+        </div>
 
-          <CardContent className="pt-6">
-            {/* Progress Bar */}
-            <div className="mb-8">
-              <Progress value={progressoPercentual} className="h-3" />
-              <p className="text-xs text-gray-500 mt-1 text-right">
-                {Math.round(progressoPercentual)}% concluído
-              </p>
+        {/* Título */}
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-xl">
+            <UserRound className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-black text-gray-900">Cadastro Profissional</h1>
+          <p className="text-gray-500 mt-2">Preencha seus dados para começar</p>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="mb-8">
+          <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${progressoPercentual}%` }}
+              transition={{ duration: 0.5 }}
+              className="h-full bg-gradient-to-r from-yellow-400 to-orange-500"
+            />
+          </div>
+          <div className="flex justify-between text-sm text-gray-600 mt-2 px-1">
+            <span>Etapa {etapaAtual} de {totalEtapas}</span>
+            <span className="font-bold">{Math.round(progressoPercentual)}% completo</span>
+          </div>
+        </div>
+
+        {/* Indicadores de Etapa */}
+        <div className="flex justify-between mb-8 overflow-x-auto pb-2 px-1">
+          {etapasConfig.map((etapa) => (
+            <div key={etapa.numero} className="flex flex-col items-center min-w-[70px]">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-2 transition-all ${
+                etapaAtual === etapa.numero
+                  ? "bg-gradient-to-br from-yellow-400 to-orange-500 text-white shadow-lg scale-110"
+                  : etapaAtual > etapa.numero
+                  ? "bg-green-500 text-white"
+                  : "bg-gray-200 text-gray-400"
+              }`}>
+                {etapaAtual > etapa.numero ? (
+                  <CheckCircle2 className="w-6 h-6" />
+                ) : (
+                  <etapa.icon className="w-6 h-6" />
+                )}
+              </div>
+              <span className={`text-xs font-semibold text-center ${
+                etapaAtual === etapa.numero ? "text-gray-900" : "text-gray-500"
+              }`}>
+                {etapa.titulo}
+              </span>
             </div>
+          ))}
+        </div>
 
-            {/* Renderizar Etapa Atual */}
+        {/* Card do Formulário */}
+        <motion.div
+          key={etapaAtual}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-6"
+        >
+          <div className="p-6 md:p-8">
             {renderEtapa()}
+          </div>
 
-            {/* Botões de Navegação */}
-            <div className="flex justify-between mt-8 pt-6 border-t">
-              <Button
-                variant="outline"
-                onClick={etapaAnterior}
-                disabled={etapaAtual === 1}
-                className="flex items-center gap-2"
+          {/* Botões de Ação */}
+          <div className="flex flex-col-reverse md:flex-row gap-4 p-6 bg-gray-50">
+            <button
+              onClick={etapaAnterior}
+              disabled={etapaAtual === 1}
+              className="flex-1 py-4 border-2 border-gray-300 text-gray-700 font-semibold rounded-2xl hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Voltar
+            </button>
+
+            {etapaAtual < totalEtapas ? (
+              <button
+                onClick={proximaEtapa}
+                className="flex-1 py-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
               >
-                <ChevronLeft className="w-4 h-4" />
-                Voltar
-              </Button>
-
-              {etapaAtual < totalEtapas ? (
-                <Button
-                  onClick={proximaEtapa}
-                  className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
-                >
-                  Próxima
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              ) : (
-                <Button
-                  onClick={finalizarCadastro}
-                  disabled={loading}
-                  className="bg-green-600 hover:bg-green-700 flex items-center gap-2"
-                >
-                  {loading ? "Finalizando..." : "Finalizar Cadastro"}
-                  <Check className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                Continuar
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            ) : (
+              <button
+                onClick={finalizarCadastro}
+                disabled={loading}
+                className="flex-1 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {loading ? "Finalizando..." : "Finalizar Cadastro"}
+                <CheckCircle2 className="w-5 h-5" />
+              </button>
+            )}
+          </div>
+        </motion.div>
       </div>
     </div>
   );
