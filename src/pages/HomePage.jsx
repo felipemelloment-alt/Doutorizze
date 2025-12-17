@@ -33,7 +33,8 @@ export default function HomePage() {
 
             {/* Título Principal */}
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 leading-tight mb-6">
-              OPORTUNIDADES
+              OPORTUNI
+              DADES
               <br />
               <span className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 bg-clip-text text-transparent">
                 NA SAÚDE
