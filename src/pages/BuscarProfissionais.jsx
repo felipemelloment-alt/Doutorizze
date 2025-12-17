@@ -104,9 +104,9 @@ export default function BuscarProfissionais() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 overflow-x-hidden">
       {/* Hero Header */}
-      <div className="relative overflow-hidden py-12 md:py-16 gradient-yellow-pink">
+      <div className="relative overflow-hidden py-8 md:py-12 lg:py-16 gradient-yellow-pink">
         {/* Decorative Elements */}
         <motion.div
           animate={{ rotate: [0, 10, 0], y: [0, -20, 0] }}
@@ -131,7 +131,7 @@ export default function BuscarProfissionais() {
                 <Search className="w-10 h-10 text-[#4A90E2]" />
               </div>
             </div>
-            <h1 className="text-4xl md:text-6xl font-black text-[#F9B500] text-shadow-lg mb-4">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-[#F9B500] text-shadow-lg mb-4">
               BUSCAR PROFISSIONAIS
             </h1>
             <p className="text-white text-lg md:text-xl font-bold mb-2">
@@ -144,7 +144,7 @@ export default function BuscarProfissionais() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="container mx-auto px-3 md:px-4 py-6 md:py-8 max-w-7xl">
         {/* SEÇÃO 1 - FILTROS */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -340,7 +340,7 @@ export default function BuscarProfissionais() {
                 </div>
               </CardHeader>
               <CardContent className="p-6 md:p-8">
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 {profissionais.map((prof, index) => (
                   <motion.div
                     key={prof.id}
