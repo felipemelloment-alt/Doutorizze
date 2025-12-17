@@ -1,338 +1,670 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { CheckCircle, XCircle, Eye, Clock } from "lucide-react";
-import { useUserRole } from "@/components/hooks/useUserRole";
+import {
+  Search,
+  User,
+  Building2,
+  MapPin,
+  Check,
+  X,
+  Eye,
+  Calendar,
+  FileText,
+  Phone,
+  Mail,
+  Shield,
+  ChevronLeft,
+  ChevronRight,
+  AlertTriangle
+} from "lucide-react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export default function AdminAprovacoes() {
-  const { isAdmin, loading: loadingRole } = useUserRole();
   const queryClient = useQueryClient();
-  const [modalDocumento, setModalDocumento] = useState(null);
-  const [modalRejeitar, setModalRejeitar] = useState(null);
-  const [motivoRejeicao, setMotivoRejeicao] = useState("");
+  const [user, setUser] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("TODOS");
+  const [filterStatus, setFilterStatus] = useState("EM_ANALISE");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [detailsModal, setDetailsModal] = useState(null);
+  const [rejectionModal, setRejectionModal] = useState(null);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [rejectionCheckboxes, setRejectionCheckboxes] = useState({
+    documento_ilegivel: false,
+    dados_incompletos: false,
+    registro_invalido: false,
+    foto_inadequada: false,
+    outro: false
+  });
+  const itemsPerPage = 10;
 
-  // Fetch pending professionals
-  const { data: profissionaisPendentes = [], isLoading: loadingProf } = useQuery({
-    queryKey: ["profissionaisPendentes"],
-    queryFn: async () => {
+  useEffect(() => {
+    const loadUser = async () => {
       try {
-        return await base44.entities.Professional.filter({ status_cadastro: "EM_ANALISE" });
+        const currentUser = await base44.auth.me();
+        setUser(currentUser);
       } catch (error) {
-        console.error("Error fetching professionals:", error);
-        return [];
+        console.error("Erro ao carregar usuário:", error);
       }
+    };
+    loadUser();
+  }, []);
+
+  // Buscar profissionais
+  const { data: professionals = [] } = useQuery({
+    queryKey: ["professionals", filterStatus],
+    queryFn: async () => {
+      const result = await base44.entities.Professional.filter(
+        filterStatus === "TODOS" ? {} : { status_cadastro: filterStatus }
+      );
+      return result || [];
+    },
+  });
+
+  // Buscar donos de clínicas
+  const { data: owners = [] } = useQuery({
+    queryKey: ["companyOwners", filterStatus],
+    queryFn: async () => {
+      const result = await base44.entities.CompanyOwner.filter(
+        filterStatus === "TODOS" ? {} : { status_cadastro: filterStatus }
+      );
+      return result || [];
+    },
+  });
+
+  // Combinar e processar dados
+  const allCadastros = [
+    ...professionals.map(p => ({
+      ...p,
+      tipo: "PROFISSIONAL",
+      entity: "Professional",
+      nome: p.nome_completo,
+      registro: `${p.tipo_profissional === "DENTISTA" ? "CRO" : "CRM"} ${p.registro_conselho}/${p.uf_conselho}`,
+      localizacao: p.cidades_atendimento?.[0] || "N/A",
+    })),
+    ...owners.map(o => ({
+      ...o,
+      tipo: "CLINICA",
+      entity: "CompanyOwner",
+      nome: o.nome_completo,
+      registro: `CPF ${o.cpf}`,
+      localizacao: "Responsável",
+    }))
+  ].sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+
+  // Filtrar cadastros
+  const filteredCadastros = allCadastros.filter(c => {
+    const matchSearch = c.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        c.registro?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchType = filterType === "TODOS" || c.tipo === filterType;
+    return matchSearch && matchType;
+  });
+
+  // Estatísticas
+  const stats = {
+    pendente: allCadastros.filter(c => c.status_cadastro === "EM_ANALISE").length,
+    aprovado: allCadastros.filter(c => c.status_cadastro === "APROVADO").length,
+    rejeitado: allCadastros.filter(c => c.status_cadastro === "REPROVADO").length,
+    total: allCadastros.length
+  };
+
+  // Paginação
+  const totalPages = Math.ceil(filteredCadastros.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedCadastros = filteredCadastros.slice(startIndex, startIndex + itemsPerPage);
+
+  // Mutação de aprovação
+  const aprovarMutation = useMutation({
+    mutationFn: async (cadastro) => {
+      const updateData = {
+        status_cadastro: "APROVADO",
+        approved_at: new Date().toISOString(),
+        approved_by: user.id,
+        motivo_reprovacao: null
+      };
+
+      await base44.entities[cadastro.entity].update(cadastro.id, updateData);
+
+      // Enviar notificação
+      await base44.entities.Notification.create({
+        destinatario_id: cadastro.user_id,
+        destinatario_tipo: cadastro.tipo === "PROFISSIONAL" 
+          ? cadastro.tipo_profissional 
+          : "CLINICA",
+        tipo: "STATUS_APROVADO",
+        titulo: "🎉 Cadastro Aprovado!",
+        mensagem: `Parabéns! Seu cadastro foi aprovado e você já pode começar a usar o NEW JOBS.`,
+        canais_enviados: ["PUSH"]
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["professionals"] });
+      queryClient.invalidateQueries({ queryKey: ["companyOwners"] });
+      toast.success("✅ Cadastro aprovado com sucesso!");
+      setDetailsModal(null);
+    },
+    onError: (error) => {
+      toast.error("❌ Erro ao aprovar: " + error.message);
     }
   });
 
-  // Fetch pending clinics
-  const { data: clinicasPendentes = [], isLoading: loadingClinica } = useQuery({
-    queryKey: ["clinicasPendentes"],
-    queryFn: async () => {
-      try {
-        return await base44.entities.CompanyOwner.filter({ status_cadastro: "EM_ANALISE" });
-      } catch (error) {
-        console.error("Error fetching clinics:", error);
-        return [];
-      }
+  // Mutação de rejeição
+  const rejeitarMutation = useMutation({
+    mutationFn: async ({ cadastro, motivo }) => {
+      const updateData = {
+        status_cadastro: "REPROVADO",
+        motivo_reprovacao: motivo
+      };
+
+      await base44.entities[cadastro.entity].update(cadastro.id, updateData);
+
+      // Enviar notificação
+      await base44.entities.Notification.create({
+        destinatario_id: cadastro.user_id,
+        destinatario_tipo: cadastro.tipo === "PROFISSIONAL" 
+          ? cadastro.tipo_profissional 
+          : "CLINICA",
+        tipo: "STATUS_REPROVADO",
+        titulo: "❌ Cadastro Reprovado",
+        mensagem: `Seu cadastro foi reprovado. Motivo: ${motivo}`,
+        canais_enviados: ["PUSH", "EMAIL"]
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["professionals"] });
+      queryClient.invalidateQueries({ queryKey: ["companyOwners"] });
+      toast.success("❌ Cadastro reprovado.");
+      setRejectionModal(null);
+      setDetailsModal(null);
+      setRejectionReason("");
+      setRejectionCheckboxes({
+        documento_ilegivel: false,
+        dados_incompletos: false,
+        registro_invalido: false,
+        foto_inadequada: false,
+        outro: false
+      });
+    },
+    onError: (error) => {
+      toast.error("❌ Erro ao rejeitar: " + error.message);
     }
   });
 
-  if (loadingRole) {
-    return <div className="text-center py-12">Carregando...</div>;
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-2">Acesso Restrito</h1>
-          <p className="text-gray-600">Apenas administradores podem acessar esta página.</p>
-        </div>
-      </div>
-    );
-  }
-
-  const aprovarProfissional = async (id) => {
-    try {
-      await base44.entities.Professional.update(id, { 
-        status_cadastro: "APROVADO",
-        approved_at: new Date().toISOString(),
-        approved_by: "admin"
+  const handleReject = () => {
+    const motivos = Object.entries(rejectionCheckboxes)
+      .filter(([_, checked]) => checked)
+      .map(([key, _]) => {
+        const labels = {
+          documento_ilegivel: "Documento ilegível",
+          dados_incompletos: "Dados incompletos",
+          registro_invalido: "Registro profissional inválido",
+          foto_inadequada: "Foto inadequada",
+          outro: "Outro"
+        };
+        return labels[key];
       });
-      toast.success("Profissional aprovado com sucesso!");
-      queryClient.invalidateQueries(["profissionaisPendentes"]);
-    } catch (error) {
-      toast.error("Erro ao aprovar: " + error.message);
-    }
+
+    const motivoFinal = motivos.length > 0 
+      ? `${motivos.join(", ")}${rejectionReason ? `. ${rejectionReason}` : ""}`
+      : rejectionReason || "Não especificado";
+
+    rejeitarMutation.mutate({ cadastro: rejectionModal, motivo: motivoFinal });
   };
 
-  const rejeitarProfissional = async () => {
-    if (!modalRejeitar || !motivoRejeicao.trim()) {
-      toast.error("Informe o motivo da rejeição");
-      return;
-    }
-    try {
-      await base44.entities.Professional.update(modalRejeitar.id, {
-        status_cadastro: "REPROVADO",
-        motivo_reprovacao: motivoRejeicao
-      });
-      toast.success("Cadastro rejeitado");
-      setModalRejeitar(null);
-      setMotivoRejeicao("");
-      queryClient.invalidateQueries(["profissionaisPendentes"]);
-    } catch (error) {
-      toast.error("Erro ao rejeitar: " + error.message);
-    }
+  const getBorderColor = (status) => {
+    if (status === "EM_ANALISE") return "border-yellow-400";
+    if (status === "APROVADO") return "border-green-500";
+    if (status === "REPROVADO") return "border-red-500";
+    return "border-gray-200";
   };
 
-  const aprovarClinica = async (id) => {
-    try {
-      await base44.entities.CompanyOwner.update(id, { 
-        status_cadastro: "APROVADO",
-        approved_at: new Date().toISOString(),
-        approved_by: "admin"
-      });
-      toast.success("Clínica aprovada com sucesso!");
-      queryClient.invalidateQueries(["clinicasPendentes"]);
-    } catch (error) {
-      toast.error("Erro ao aprovar: " + error.message);
+  const getStatusBadge = (status) => {
+    if (status === "EM_ANALISE") {
+      return (
+        <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-bold">
+          🟡 Pendente
+        </span>
+      );
     }
-  };
-
-  const rejeitarClinica = async () => {
-    if (!modalRejeitar || !motivoRejeicao.trim()) {
-      toast.error("Informe o motivo da rejeição");
-      return;
+    if (status === "APROVADO") {
+      return (
+        <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
+          🟢 Aprovado
+        </span>
+      );
     }
-    try {
-      await base44.entities.CompanyOwner.update(modalRejeitar.id, {
-        status_cadastro: "REPROVADO",
-        motivo_reprovacao: motivoRejeicao
-      });
-      toast.success("Cadastro rejeitado");
-      setModalRejeitar(null);
-      setMotivoRejeicao("");
-      queryClient.invalidateQueries(["clinicasPendentes"]);
-    } catch (error) {
-      toast.error("Erro ao rejeitar: " + error.message);
-    }
-  };
-
-  const handleRejeitar = () => {
-    if (modalRejeitar.tipo_profissional) {
-      // É um profissional
-      rejeitarProfissional();
-    } else {
-      // É uma clínica
-      rejeitarClinica();
+    if (status === "REPROVADO") {
+      return (
+        <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold">
+          🔴 Rejeitado
+        </span>
+      );
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <Card className="border-2 border-blue-200 shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-t-lg">
-            <CardTitle className="text-2xl flex items-center gap-2">
-              <Clock className="w-6 h-6" />
-              Painel de Aprovações
-            </CardTitle>
-            <p className="text-blue-100">
-              Gerencie cadastros pendentes de profissionais e clínicas
-            </p>
-          </CardHeader>
-        </Card>
-
-        {/* Tabs and Content */}
-        <Tabs defaultValue="profissionais">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="profissionais">
-              Profissionais ({profissionaisPendentes.length})
-            </TabsTrigger>
-            <TabsTrigger value="clinicas">
-              Clínicas ({clinicasPendentes.length})
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="profissionais" className="mt-6">
-            {/* List of pending professionals */}
-            <div className="grid gap-4">
-              {loadingProf ? (
-                <div className="text-center py-8">Carregando...</div>
-              ) : profissionaisPendentes.length === 0 ? (
-                <Card className="p-8 text-center text-gray-500">
-                  Nenhum profissional pendente de aprovação
-                </Card>
-              ) : (
-                profissionaisPendentes.map((prof) => (
-                  <Card key={prof.id} className="border-2 border-yellow-200 shadow">
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h3 className="text-lg font-bold text-gray-800">
-                            {prof.nome_completo}
-                          </h3>
-                          <p className="text-sm text-gray-600">
-                            {prof.tipo_profissional === "DENTISTA" ? "Dentista" : "Médico"} - {prof.especialidade_principal}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {prof.tipo_profissional === "DENTISTA" ? "CRO" : "CRM"}: {prof.registro_conselho} - {prof.uf_conselho}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {prof.cidades_atendimento?.[0] || "Cidade não informada"}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            Email: {prof.email} | WhatsApp: {prof.whatsapp}
-                          </p>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                          {prof.carteirinha_conselho_url && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setModalDocumento(prof.carteirinha_conselho_url)}
-                            >
-                              <Eye className="w-4 h-4 mr-1" />
-                              Ver Documento
-                            </Button>
-                          )}
-                          <Button
-                            size="sm"
-                            className="bg-green-600 hover:bg-green-700"
-                            onClick={() => aprovarProfissional(prof.id)}
-                          >
-                            <CheckCircle className="w-4 h-4 mr-1" />
-                            Aprovar
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => setModalRejeitar(prof)}
-                          >
-                            <XCircle className="w-4 h-4 mr-1" />
-                            Rejeitar
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="clinicas" className="mt-6">
-            {/* List of pending clinics */}
-            <div className="grid gap-4">
-              {loadingClinica ? (
-                <div className="text-center py-8">Carregando...</div>
-              ) : clinicasPendentes.length === 0 ? (
-                <Card className="p-8 text-center text-gray-500">
-                  Nenhuma clínica pendente de aprovação
-                </Card>
-              ) : (
-                clinicasPendentes.map((clinica) => (
-                  <Card key={clinica.id} className="border-2 border-yellow-200 shadow">
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h3 className="text-lg font-bold text-gray-800">
-                            {clinica.nome_completo}
-                          </h3>
-                          <p className="text-sm text-gray-600">
-                            CPF: {clinica.cpf}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            Email: {clinica.email}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            WhatsApp: {clinica.whatsapp}
-                          </p>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                          <Button
-                            size="sm"
-                            className="bg-green-600 hover:bg-green-700"
-                            onClick={() => aprovarClinica(clinica.id)}
-                          >
-                            <CheckCircle className="w-4 h-4 mr-1" />
-                            Aprovar
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => setModalRejeitar(clinica)}
-                          >
-                            <XCircle className="w-4 h-4 mr-1" />
-                            Rejeitar
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </div>
-          </TabsContent>
-        </Tabs>
-
-        {/* Document Modal */}
-        <Dialog open={!!modalDocumento} onOpenChange={() => setModalDocumento(null)}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Documento do Registro</DialogTitle>
-            </DialogHeader>
-            {modalDocumento && (
-              <div className="flex justify-center">
-                <img
-                  src={modalDocumento}
-                  alt="Documento"
-                  className="max-w-full max-h-96 object-contain"
-                />
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
-
-        {/* Rejection Modal */}
-        <Dialog open={!!modalRejeitar} onOpenChange={() => setModalRejeitar(null)}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Rejeitar Cadastro</DialogTitle>
-            </DialogHeader>
-            <div className="py-4">
-              <label className="text-sm font-medium mb-2 block">
-                Motivo da Rejeição *
-              </label>
-              <Textarea
-                value={motivoRejeicao}
-                onChange={(e) => setMotivoRejeicao(e.target.value)}
-                placeholder="Explique o motivo da rejeição..."
-                rows={4}
-              />
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setModalRejeitar(null)}>
-                Cancelar
-              </Button>
-              <Button
-                onClick={handleRejeitar}
-                className="bg-red-600 hover:bg-red-700"
-              >
-                Confirmar Rejeição
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+    <div className="min-h-screen bg-gray-100">
+      {/* Header Admin */}
+      <div className="bg-white shadow-md py-4 px-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-pink-500 flex items-center justify-center">
+            <Shield className="w-6 h-6 text-white" />
+          </div>
+          <span className="font-black text-xl">NEW JOBS</span>
+        </div>
+        <div className="bg-red-100 text-red-700 px-4 py-1.5 rounded-full text-sm font-bold flex items-center gap-2">
+          🔴 Painel Admin
+        </div>
       </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          onClick={() => setFilterStatus("EM_ANALISE")}
+          className="bg-white rounded-2xl p-5 shadow-md hover:shadow-lg transition-all cursor-pointer"
+        >
+          <div className="flex justify-between items-start mb-2">
+            <div className="text-4xl font-black text-gray-900">{stats.pendente}</div>
+            <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+          </div>
+          <div className="text-sm text-gray-500">Pendentes</div>
+          <div className="text-2xl mt-1">🟡</div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          onClick={() => setFilterStatus("APROVADO")}
+          className="bg-white rounded-2xl p-5 shadow-md hover:shadow-lg transition-all cursor-pointer"
+        >
+          <div className="flex justify-between items-start mb-2">
+            <div className="text-4xl font-black text-gray-900">{stats.aprovado}</div>
+            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+          </div>
+          <div className="text-sm text-gray-500">Aprovados</div>
+          <div className="text-2xl mt-1">🟢</div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          onClick={() => setFilterStatus("REPROVADO")}
+          className="bg-white rounded-2xl p-5 shadow-md hover:shadow-lg transition-all cursor-pointer"
+        >
+          <div className="flex justify-between items-start mb-2">
+            <div className="text-4xl font-black text-gray-900">{stats.rejeitado}</div>
+            <div className="w-3 h-3 rounded-full bg-red-500"></div>
+          </div>
+          <div className="text-sm text-gray-500">Rejeitados</div>
+          <div className="text-2xl mt-1">🔴</div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          onClick={() => setFilterStatus("TODOS")}
+          className="bg-white rounded-2xl p-5 shadow-md hover:shadow-lg transition-all cursor-pointer"
+        >
+          <div className="flex justify-between items-start mb-2">
+            <div className="text-4xl font-black text-gray-900">{stats.total}</div>
+            <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+          </div>
+          <div className="text-sm text-gray-500">Total</div>
+          <div className="text-2xl mt-1">🔵</div>
+        </motion.div>
+      </div>
+
+      {/* Barra de Filtros */}
+      <div className="bg-white shadow-md p-4 flex flex-col md:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <input
+            type="text"
+            placeholder="Buscar por nome ou registro..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-400 outline-none"
+          />
+        </div>
+
+        <select
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value)}
+          className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-400 bg-white min-w-[150px] outline-none"
+        >
+          <option value="TODOS">Todos os Tipos</option>
+          <option value="PROFISSIONAL">Profissionais</option>
+          <option value="CLINICA">Clínicas</option>
+        </select>
+
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-400 bg-white min-w-[150px] outline-none"
+        >
+          <option value="TODOS">Todos os Status</option>
+          <option value="EM_ANALISE">Pendentes</option>
+          <option value="APROVADO">Aprovados</option>
+          <option value="REPROVADO">Rejeitados</option>
+        </select>
+      </div>
+
+      {/* Lista de Cadastros */}
+      <div className="p-4 space-y-4">
+        <AnimatePresence>
+          {paginatedCadastros.length === 0 ? (
+            <div className="text-center py-20 bg-white rounded-2xl">
+              <AlertTriangle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500 font-semibold">Nenhum cadastro encontrado</p>
+            </div>
+          ) : (
+            paginatedCadastros.map((cadastro, index) => (
+              <motion.div
+                key={cadastro.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ delay: index * 0.05 }}
+                className={`bg-white rounded-2xl p-5 shadow-md hover:shadow-lg transition-all border-l-4 ${getBorderColor(cadastro.status_cadastro)}`}
+              >
+                <div className="flex flex-col md:flex-row md:items-center gap-4">
+                  {/* Avatar */}
+                  <div className="w-16 h-16 rounded-2xl bg-gray-200 flex items-center justify-center text-2xl overflow-hidden flex-shrink-0">
+                    {cadastro.tipo === "PROFISSIONAL" ? "👤" : "🏥"}
+                  </div>
+
+                  {/* Informações */}
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg text-gray-900">{cadastro.nome}</h3>
+                    <p className="text-gray-600 text-sm">{cadastro.registro}</p>
+                    <div className="flex items-center gap-4 mt-1">
+                      <p className="text-gray-500 text-sm flex items-center gap-1">
+                        <MapPin className="w-4 h-4" />
+                        {cadastro.localizacao}
+                      </p>
+                      <p className="text-gray-400 text-xs flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {format(new Date(cadastro.created_date), "dd/MM/yyyy", { locale: ptBR })}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Status Badge */}
+                  <div className="flex items-center gap-3">
+                    {getStatusBadge(cadastro.status_cadastro)}
+                  </div>
+
+                  {/* Botões de Ação */}
+                  <div className="flex gap-2 mt-4 md:mt-0">
+                    <button
+                      onClick={() => setDetailsModal(cadastro)}
+                      className="px-4 py-2 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 flex items-center gap-1"
+                    >
+                      <Eye className="w-4 h-4" />
+                      Ver
+                    </button>
+                    {cadastro.status_cadastro === "EM_ANALISE" && (
+                      <>
+                        <button
+                          onClick={() => aprovarMutation.mutate(cadastro)}
+                          disabled={aprovarMutation.isPending}
+                          className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl flex items-center gap-1 disabled:opacity-50"
+                        >
+                          <Check className="w-4 h-4" />
+                          Aprovar
+                        </button>
+                        <button
+                          onClick={() => setRejectionModal(cadastro)}
+                          className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl flex items-center gap-1"
+                        >
+                          <X className="w-4 h-4" />
+                          Rejeitar
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            ))
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Paginação */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 py-6">
+          <button
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 bg-white border-2 border-gray-200 rounded-xl font-semibold hover:border-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+
+          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+            const pageNum = i + 1;
+            return (
+              <button
+                key={pageNum}
+                onClick={() => setCurrentPage(pageNum)}
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
+                  currentPage === pageNum
+                    ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white"
+                    : "bg-white text-gray-600 border-2 border-gray-200 hover:border-yellow-400"
+                }`}
+              >
+                {pageNum}
+              </button>
+            );
+          })}
+
+          <button
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 bg-white border-2 border-gray-200 rounded-xl font-semibold hover:border-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+      )}
+
+      {/* Modal de Detalhes */}
+      <AnimatePresence>
+        {detailsModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setDetailsModal(null)}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+            >
+              {/* Header */}
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                <h2 className="text-xl font-bold">Detalhes do Cadastro</h2>
+                <button
+                  onClick={() => setDetailsModal(null)}
+                  className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Conteúdo */}
+              <div className="p-6 space-y-4">
+                <div className="w-32 h-32 rounded-3xl mx-auto mb-6 bg-gray-200 flex items-center justify-center text-6xl">
+                  {detailsModal.tipo === "PROFISSIONAL" ? "👤" : "🏥"}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">Nome</p>
+                    <p className="font-bold text-gray-900">{detailsModal.nome}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">Tipo</p>
+                    <p className="font-bold text-gray-900">{detailsModal.tipo}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">Registro</p>
+                    <p className="font-bold text-gray-900">{detailsModal.registro}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">Status</p>
+                    {getStatusBadge(detailsModal.status_cadastro)}
+                  </div>
+                  {detailsModal.whatsapp && (
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">WhatsApp</p>
+                      <p className="font-bold text-gray-900">{detailsModal.whatsapp}</p>
+                    </div>
+                  )}
+                  {detailsModal.email && (
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">Email</p>
+                      <p className="font-bold text-gray-900 text-sm">{detailsModal.email}</p>
+                    </div>
+                  )}
+                </div>
+
+                {detailsModal.motivo_reprovacao && (
+                  <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4">
+                    <p className="text-sm font-bold text-red-900 mb-1">Motivo da Rejeição:</p>
+                    <p className="text-sm text-red-700">{detailsModal.motivo_reprovacao}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer */}
+              {detailsModal.status_cadastro === "EM_ANALISE" && (
+                <div className="p-6 border-t border-gray-100 flex gap-4">
+                  <button
+                    onClick={() => aprovarMutation.mutate(detailsModal)}
+                    disabled={aprovarMutation.isPending}
+                    className="flex-1 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    <Check className="w-5 h-5" />
+                    Aprovar
+                  </button>
+                  <button
+                    onClick={() => {
+                      setRejectionModal(detailsModal);
+                      setDetailsModal(null);
+                    }}
+                    className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl flex items-center justify-center gap-2"
+                  >
+                    <X className="w-5 h-5" />
+                    Rejeitar
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal de Rejeição */}
+      <AnimatePresence>
+        {rejectionModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setRejectionModal(null)}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-3xl max-w-md w-full shadow-2xl"
+            >
+              {/* Header */}
+              <div className="p-6 border-b border-gray-100">
+                <h2 className="text-xl font-bold text-red-600">Motivo da Rejeição</h2>
+                <p className="text-sm text-gray-500 mt-1">Selecione os motivos da rejeição</p>
+              </div>
+
+              {/* Conteúdo */}
+              <div className="p-6 space-y-4">
+                {/* Checkboxes */}
+                {Object.keys(rejectionCheckboxes).map((key) => {
+                  const labels = {
+                    documento_ilegivel: "📄 Documento ilegível",
+                    dados_incompletos: "⚠️ Dados incompletos",
+                    registro_invalido: "❌ Registro profissional inválido",
+                    foto_inadequada: "📸 Foto inadequada",
+                    outro: "💬 Outro"
+                  };
+                  
+                  return (
+                    <label key={key} className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={rejectionCheckboxes[key]}
+                        onChange={(e) => setRejectionCheckboxes(prev => ({
+                          ...prev,
+                          [key]: e.target.checked
+                        }))}
+                        className="w-5 h-5 rounded border-2 border-gray-300 text-red-500 focus:ring-2 focus:ring-red-500"
+                      />
+                      <span className="text-gray-700">{labels[key]}</span>
+                    </label>
+                  );
+                })}
+
+                {/* Textarea */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Observações Adicionais
+                  </label>
+                  <textarea
+                    value={rejectionReason}
+                    onChange={(e) => setRejectionReason(e.target.value)}
+                    placeholder="Descreva outros motivos..."
+                    rows={4}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-red-400 outline-none resize-none"
+                  />
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="p-6 border-t border-gray-100 flex gap-4">
+                <button
+                  onClick={() => setRejectionModal(null)}
+                  className="flex-1 py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleReject}
+                  disabled={rejeitarMutation.isPending}
+                  className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl disabled:opacity-50"
+                >
+                  {rejeitarMutation.isPending ? "Rejeitando..." : "Confirmar Rejeição"}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
