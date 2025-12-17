@@ -183,95 +183,122 @@ export default function Marketplace() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Botão Anunciar Equipamento - Topo */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-4 py-4">
-          <Button
-            onClick={() => navigate(createPageUrl("MarketplaceCreate"))}
-            variant="ghost"
-            className="flex items-center gap-2 text-pink-500 hover:text-pink-600 font-bold text-base">
-            <Plus className="w-5 h-5" />
-            Anunciar Equipamento
-          </Button>
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header Hero */}
+        <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 rounded-3xl p-8 mb-6 relative overflow-hidden">
+          {/* Decoração */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
+          <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/20 rounded-full blur-3xl"></div>
+          <div className="absolute top-4 right-8 text-4xl animate-pulse">⚡</div>
+          <div className="absolute bottom-4 left-8 text-3xl animate-pulse" style={{ animationDelay: '0.5s' }}>⚡</div>
+          
+          <div className="relative z-10">
+            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-3xl mb-4">
+              🛒
+            </div>
+            <h1 className="text-4xl md:text-5xl font-black text-white mb-2" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.2)' }}>
+              MARKETPLACE
+            </h1>
+            <p className="text-white/90 text-lg">Equipamentos odontológicos e médicos</p>
+          </div>
         </div>
-      </div>
 
-      {/* Hero Image - Largura Total */}
-      <div className="w-full overflow-hidden">
-        <img 
-          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6916d492cc9abf019259139b/e4f50adf8_Designsemnome1.png"
-          alt="Marketplace"
-          className="w-full h-auto object-cover"
-        />
-      </div>
+        {/* Tabs de Categoria */}
+        <div className="flex gap-3 mb-6">
+          <button
+            onClick={() => setActiveTab("ODONTOLOGIA")}
+            className={`flex-1 py-4 ${
+              activeTab === "ODONTOLOGIA"
+                ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-lg shadow-yellow-200/50"
+                : "bg-white border-2 border-gray-200 text-gray-600 hover:border-yellow-400"
+            } font-bold rounded-2xl flex items-center justify-center gap-2 transition-all`}>
+            🦷 Odontologia
+          </button>
+          <button
+            onClick={() => setActiveTab("MEDICINA")}
+            className={`flex-1 py-4 ${
+              activeTab === "MEDICINA"
+                ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-lg shadow-yellow-200/50"
+                : "bg-white border-2 border-gray-200 text-gray-600 hover:border-yellow-400"
+            } font-bold rounded-2xl flex items-center justify-center gap-2 transition-all`}>
+            ⚕️ Medicina
+          </button>
+        </div>
 
-      {/* Tabs Funcionais - Após a Imagem */}
-      <div className="bg-gradient-to-br from-yellow-50 via-white to-pink-50 py-8">
-        <div className="container mx-auto px-4">
-          <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="mb-8">
+        {/* Busca + Botão Anunciar */}
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl" />
+            <input
+              type="text"
+              placeholder="Buscar equipamentos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-2xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all text-lg outline-none"
+            />
+          </div>
+          <button
+            onClick={() => navigate(createPageUrl("MarketplaceCreate"))}
+            className="py-4 px-8 bg-gradient-to-r from-pink-500 to-red-500 text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 transition-all">
+            <Plus className="w-5 h-5" />
+            Anunciar
+          </button>
+        </div>
 
-            <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-2 h-auto p-3 bg-white rounded-3xl shadow-2xl gap-3 border-4 border-gray-100">
-              <TabsTrigger
-                value="ODONTOLOGIA"
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-400 data-[state=active]:to-blue-500 data-[state=active]:text-white font-black text-base md:text-xl py-4 md:py-5 rounded-2xl flex items-center justify-center gap-2 transition-all hover:scale-105">
+        {/* Seção Radar */}
+        <div className="bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 rounded-3xl p-6 mb-8 relative overflow-hidden">
+          {/* Círculos animados radar */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 border-2 border-white/20 rounded-full animate-ping"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border-2 border-white/30 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 border-2 border-white/40 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
+          
+          <div className="relative z-10">
+            <div className="text-6xl mb-4 animate-bounce">📡</div>
+            <h2 className="text-2xl font-black text-white mb-2">Radar de Equipamentos</h2>
+            <p className="text-white/80 mb-6">Seja notificado quando surgir o equipamento que você procura!</p>
+            
+            <button
+              onClick={() => setRadarModalOpen(true)}
+              className="w-full md:w-auto px-8 py-4 bg-white text-purple-600 font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-yellow-50 transition-all shadow-lg">
+              📡 Ativar Meu Radar
+            </button>
+          </div>
+        </div>
 
-                🦷 Odontologia
-              </TabsTrigger>
-              <TabsTrigger
-                value="MEDICINA"
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-400 data-[state=active]:to-red-500 data-[state=active]:text-white font-black text-base md:text-xl py-4 md:py-5 rounded-2xl flex items-center justify-center gap-2 transition-all hover:scale-105">
-
-                ⚕️ Medicina
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-
-          {/* Search and Filters */}
-          <div className="bg-white rounded-3xl p-6 shadow-xl mb-8 border-4 border-[#F9B500]">
-          {/* Search Bar */}
+        {/* Filtros */}
+        <div className="bg-white rounded-3xl p-6 shadow-xl mb-6">
           <div className="grid md:grid-cols-4 gap-4 mb-4">
-            <div className="md:col-span-2 relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <Input
-                placeholder="Buscar equipamento, marca ou descrição..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 h-14 text-lg border-2 border-gray-200 rounded-2xl focus:border-[#F9B500]" />
+
+            <div>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="h-12 rounded-xl border-2 text-base">
+                  <ArrowUpDown className="w-4 h-4 mr-2" />
+                  <SelectValue placeholder="Ordenar" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="relevant">Relevantes</SelectItem>
+                  <SelectItem value="recent">Recentes</SelectItem>
+                  <SelectItem value="price-asc">Menor preço</SelectItem>
+                  <SelectItem value="price-desc">Maior preço</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="h-14 rounded-2xl border-2 text-lg">
-                <ArrowUpDown className="w-5 h-5 mr-2" />
-                <SelectValue placeholder="Ordenar por" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="relevant">Mais relevantes</SelectItem>
-                <SelectItem value="recent">Mais recentes</SelectItem>
-                <SelectItem value="oldest">Mais antigos</SelectItem>
-                <SelectItem value="price-asc">Menor preço</SelectItem>
-                <SelectItem value="price-desc">Maior preço</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Button
-              onClick={() => setShowFilters(!showFilters)}
-              variant="outline"
-              className="h-14 rounded-2xl border-2 font-bold text-base hover:border-[#F9B500] transition-all">
-              <SlidersHorizontal className="w-5 h-5 mr-2" />
-              Filtros {!showFilters && `(${[selectedCity !== "all", priceRange !== "all", condition !== "all"].filter(Boolean).length})`}
-            </Button>
+            <div>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="w-full h-12 px-4 border-2 border-gray-200 hover:border-yellow-400 rounded-xl font-semibold text-gray-700 flex items-center justify-center gap-2 transition-all">
+                <SlidersHorizontal className="w-4 h-4" />
+                Filtros {!showFilters && `(${[selectedCity !== "all", priceRange !== "all", condition !== "all"].filter(Boolean).length})`}
+              </button>
+            </div>
           </div>
 
-          {/* Advanced Filters */}
           {showFilters && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
               className="grid md:grid-cols-3 gap-4 pt-4 border-t-2 border-gray-100">
               <div>
                 <label className="text-sm font-bold text-gray-700 mb-2 block">Localização</label>
@@ -324,77 +351,125 @@ export default function Marketplace() {
             </motion.div>
           )}
 
-          {/* Results Info */}
           <div className="flex flex-wrap items-center justify-between gap-4 mt-4 pt-4 border-t-2 border-gray-100">
             <div className="flex flex-wrap gap-2">
-              <Badge className="px-4 py-2 text-base bg-gradient-to-r from-[#F9B500] to-[#E94560] text-white font-bold">
+              <span className="px-4 py-2 text-base bg-yellow-100 text-yellow-700 rounded-full font-bold">
                 {sortedItems.length} {sortedItems.length === 1 ? "resultado" : "resultados"}
-              </Badge>
+              </span>
               {(selectedCity !== "all" || priceRange !== "all" || condition !== "all" || searchTerm) && (
-                <Button
-                  variant="ghost"
-                  size="sm"
+                <button
                   onClick={() => {
                     setSearchTerm("");
                     setSelectedCity("all");
                     setPriceRange("all");
                     setCondition("all");
                   }}
-                  className="text-gray-600 hover:text-[#E94560] font-bold">
+                  className="text-gray-600 hover:text-red-500 font-semibold text-sm">
                   Limpar filtros
-                </Button>
+                </button>
               )}
             </div>
-
-            {totalPages > 1 && (
-              <div className="text-sm text-gray-600 font-semibold">
-                Página {currentPage} de {totalPages}
-              </div>
-            )}
           </div>
         </div>
 
-          {/* Items Grid */}
-          {sortedItems.length === 0 ?
-        <div className="space-y-6">
-            <div className="bg-white rounded-3xl p-12 text-center shadow-xl border-4 border-gray-100">
-              <ShoppingBag className="w-20 h-20 mx-auto mb-6 text-gray-300" />
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                Nenhum item encontrado
-              </h3>
-              <p className="text-gray-600 font-semibold mb-6">
-                Não encontrou o que procura? Ative o Radar de Produtos!
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
-                onClick={() => navigate(createPageUrl("MarketplaceCreate"))}
-                className="gradient-yellow-pink text-white font-bold px-8 py-4 rounded-2xl border-0">
+        {/* Header da Seção */}
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-black text-gray-900">
+            Equipamentos Disponíveis
+            <span className="ml-2 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-bold">
+              {sortedItems.length}
+            </span>
+          </h2>
+        </div>
 
-                  <Plus className="w-5 h-5 mr-2" />
-                  Criar Anúncio
-                </Button>
-                <Button
-                onClick={() => setRadarModalOpen(true)}
-                className="bg-gradient-to-r from-green-400 to-teal-500 text-white font-bold px-8 py-4 rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-105">
-
-                  <Radar className="w-5 h-5 mr-2" />
-                  Ativar Radar de Produtos 🎯
-                </Button>
-              </div>
-            </div>
-          </div> :
-
-        <div>
+        {/* Lista de Equipamentos */}
+        {sortedItems.length === 0 ? (
+          <div className="bg-white rounded-3xl p-12 text-center shadow-xl">
+            <div className="text-8xl mb-6 opacity-50">📦</div>
+            <h3 className="text-2xl font-bold text-gray-400 mb-2">
+              Nenhum equipamento encontrado
+            </h3>
+            <p className="text-gray-400 mb-6">Seja o primeiro a anunciar!</p>
+            <button
+              onClick={() => navigate(createPageUrl("MarketplaceCreate"))}
+              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-2xl hover:scale-105 transition-all">
+              <Plus className="w-5 h-5" />
+              Anunciar Equipamento
+            </button>
+          </div>
+        ) : (
+          <div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {paginatedItems.map((item) =>
-            <MarketplaceItemCard
-              key={item.id}
-              item={item}
-              onClick={() =>
-              navigate(createPageUrl(`MarketplaceDetail?id=${item.id}`))
-              } />
+              {paginatedItems.map((item) => (
+                <div
+                  key={item.id}
+                  onClick={() => navigate(createPageUrl(`MarketplaceDetail?id=${item.id}`))}
+                  className="bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 group cursor-pointer">
+                  {/* Imagem */}
+                  <div className="relative h-52 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+                    {item.fotos && item.fotos.length > 0 ? (
+                      <img
+                        src={item.fotos[0]}
+                        alt={item.titulo_item}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-all duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-6xl">
+                        📷
+                      </div>
+                    )}
+                    
+                    {/* Badge estado */}
+                    {item.condicao && (
+                      <div className={`absolute top-3 right-3 px-3 py-1 text-white text-xs font-bold rounded-full ${
+                        item.condicao === "NOVO" ? "bg-green-500" : "bg-yellow-500"
+                      }`}>
+                        {item.condicao === "NOVO" ? "Novo" : item.condicao === "SEMINOVO" ? "Seminovo" : "Usado"}
+                      </div>
+                    )}
+                  </div>
 
-            )}
+                  {/* Conteúdo */}
+                  <div className="p-5">
+                    {/* Badges */}
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-semibold">
+                        {item.tipo_mundo === "ODONTOLOGIA" ? "🦷 Odonto" : "⚕️ Medicina"}
+                      </span>
+                    </div>
+
+                    {/* Título */}
+                    <h3 className="font-bold text-gray-900 text-lg mb-2 line-clamp-2 group-hover:text-yellow-600 transition-all">
+                      {item.titulo_item}
+                    </h3>
+
+                    {/* Preço */}
+                    <p className="text-2xl font-black text-green-600 mb-3">
+                      R$ {item.preco?.toLocaleString('pt-BR') || '0'}
+                    </p>
+
+                    {/* Info */}
+                    <div className="space-y-2 mb-4">
+                      <div className="flex items-center gap-2 text-gray-600 text-sm">
+                        <MapPin className="w-4 h-4" />
+                        {item.localizacao}
+                      </div>
+                      {item.marca && (
+                        <div className="flex items-center gap-2 text-gray-600 text-sm">
+                          <Tag className="w-4 h-4" />
+                          {item.marca}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Botão */}
+                    <button className="w-full py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                      Ver Detalhes
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* Pagination */}
@@ -478,8 +553,9 @@ export default function Marketplace() {
         open={radarModalOpen}
         onOpenChange={setRadarModalOpen}
         initialCategory={activeTab}
-        initialSearch={searchTerm} />
-
-    </div>);
+        initialSearch={searchTerm}
+      />
+    </div>
+  );
 
 }
