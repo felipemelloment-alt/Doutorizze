@@ -45,11 +45,11 @@ export default function NewJobs() {
   const { data: professionals = [], isLoading } = useQuery({
     queryKey: ["professionals"],
     queryFn: async () => {
-      const dentists = await base44.entities.Dentist.filter({
+      const results = await base44.entities.Professional.filter({
         status_cadastro: "APROVADO",
         new_jobs_ativo: true
       });
-      return dentists;
+      return results;
     }
   });
 
