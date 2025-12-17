@@ -1,38 +1,105 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
 import {
+  ChevronLeft,
   Bell,
-  BellOff,
-  Briefcase,
-  MessageSquare,
-  CheckCircle,
-  Star,
-  Image,
-  ShoppingBag,
-  Newspaper,
-  Moon,
-  Volume2,
-  Smartphone } from
-"lucide-react";
+  Mail,
+  MessageCircle,
+  Save,
+  Smartphone,
+  CheckCircle2
+} from "lucide-react";
+
+// Componente Toggle Customizado
+const Toggle = ({ enabled, onChange, label, description }) => {
+  return (
+    <div className="flex items-center justify-between p-4 border-b border-gray-100 last:border-0">
+      <div className="flex-1">
+        <p className="font-semibold text-gray-800">{label}</p>
+        {description && (
+          <p className="text-sm text-gray-500 mt-0.5">{description}</p>
+        )}
+      </div>
+      <button
+        onClick={() => onChange(!enabled)}
+        className={`relative w-14 h-8 rounded-full transition-all duration-300 flex-shrink-0 ml-4 ${
+          enabled
+            ? "bg-gradient-to-r from-yellow-400 to-orange-500"
+            : "bg-gray-300"
+        }`}
+      >
+        <div
+          className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-300 ${
+            enabled ? "left-7" : "left-1"
+          }`}
+        />
+      </button>
+    </div>
+  );
+};
 
 export default function NotificationSettings() {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
+  const [userType, setUserType] = useState(null);
+  const [whatsappNumber, setWhatsappNumber] = useState("");
+
+  // Estado das preferências
+  const [preferences, setPreferences] = useState({
+    vagas_super_jobs: {
+      ativo: true,
+      canal_push: true,
+      canal_email: true,
+      canal_whatsapp: false
+    },
+    vagas_semelhante: {
+      ativo: true,
+      canal_push: true,
+      canal_email: false,
+      canal_whatsapp: false
+    },
+    mensagens_chat: {
+      ativo: true,
+      canal_push: true,
+      canal_email: false
+    },
+    status_cadastro: {
+      ativo: true,
+      canal_push: true,
+      canal_email: true,
+      canal_whatsapp: true
+    },
+    noticias: {
+      ativo: true,
+      canal_push: true,
+      canal_email: false
+    },
+    receber_whatsapp: false
+  });
 
   useEffect(() => {
     const loadUser = async () => {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
+
+        // Determinar tipo de usuário
+        const professionals = await base44.entities.Professional.filter({ user_id: currentUser.id });
+        if (professionals.length > 0) {
+          setUserType(professionals[0].tipo_profissional === "DENTISTA" ? "DENTISTA" : "MEDICO");
+          setWhatsappNumber(professionals[0].whatsapp || "");
+        } else {
+          const owners = await base44.entities.CompanyOwner.filter({ user_id: currentUser.id });
+          if (owners.length > 0) {
+            setUserType("CLINICA");
+            setWhatsappNumber(owners[0].whatsapp || "");
+          }
+        }
       } catch (error) {
         console.error("Erro ao carregar usuário:", error);
       }
@@ -40,788 +107,308 @@ export default function NotificationSettings() {
     loadUser();
   }, []);
 
-  const { data: preferences, isLoading } = useQuery({
+  // Carregar preferências do usuário
+  const { data: existingPreferences, isLoading } = useQuery({
     queryKey: ["notificationPreferences", user?.id],
     queryFn: async () => {
       if (!user) return null;
-      const prefs = await base44.entities.NotificationPreference.filter({ created_by: user.email });
-      if (prefs.length > 0) return prefs[0];
-
-      // Criar preferências padrão
-      return await base44.entities.NotificationPreference.create({
-        usuario_tipo: user.role === "admin" ? "CLINICA" : "DENTISTA"
+      const prefs = await base44.entities.NotificationPreference.filter({
+        created_by: user.email
       });
+      return prefs.length > 0 ? prefs[0] : null;
     },
-    enabled: !!user
+    enabled: !!user,
   });
 
-  const updateMutation = useMutation({
-    mutationFn: async (data) => {
-      return await base44.entities.NotificationPreference.update(preferences.id, data);
+  // Atualizar estado quando carregar preferências
+  useEffect(() => {
+    if (existingPreferences) {
+      setPreferences({
+        vagas_super_jobs: existingPreferences.vagas_super_jobs || preferences.vagas_super_jobs,
+        vagas_semelhante: existingPreferences.vagas_semelhante || preferences.vagas_semelhante,
+        mensagens_chat: existingPreferences.mensagens_chat || preferences.mensagens_chat,
+        status_cadastro: existingPreferences.status_cadastro || preferences.status_cadastro,
+        noticias: existingPreferences.noticias || preferences.noticias,
+        receber_whatsapp: existingPreferences.vagas_super_jobs?.canal_whatsapp || false
+      });
+    }
+  }, [existingPreferences]);
+
+  const salvarPreferenciasMutation = useMutation({
+    mutationFn: async () => {
+      if (!user || !userType) return;
+
+      const dadosPreferencias = {
+        usuario_tipo: userType,
+        vagas_super_jobs: preferences.vagas_super_jobs,
+        vagas_semelhante: preferences.vagas_semelhante,
+        mensagens_chat: preferences.mensagens_chat,
+        status_cadastro: preferences.status_cadastro,
+        noticias: preferences.noticias
+      };
+
+      if (existingPreferences) {
+        await base44.entities.NotificationPreference.update(
+          existingPreferences.id,
+          dadosPreferencias
+        );
+      } else {
+        await base44.entities.NotificationPreference.create(dadosPreferencias);
+      }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["notificationPreferences"]);
-      toast.success("Preferências atualizadas com sucesso!");
-    }
+      queryClient.invalidateQueries({ queryKey: ["notificationPreferences"] });
+      toast.success("✅ Preferências salvas com sucesso!");
+    },
+    onError: (error) => {
+      toast.error("❌ Erro ao salvar preferências: " + error.message);
+    },
   });
 
-  const setDraft = (field, value) => {
-    updateMutation.mutate({ [field]: value });
+  const handleToggle = (categoria, campo, valor) => {
+    setPreferences(prev => ({
+      ...prev,
+      [categoria]: {
+        ...prev[categoria],
+        [campo]: valor
+      }
+    }));
   };
 
-  if (isLoading || !preferences) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 p-6 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando preferências...</p>
-        </div>
-      </div>);
+  const aplicarMascaraTelefone = (value) => {
+    return value
+      .replace(/\D/g, "")
+      .replace(/(\d{2})(\d)/, "($1) $2")
+      .replace(/(\d{5})(\d)/, "$1-$2")
+      .replace(/(-\d{4})\d+?$/, "$1");
+  };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-yellow-400 mx-auto mb-4"></div>
+          <p className="text-gray-600 font-semibold">Carregando configurações...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 px-4 py-6 md:p-8">
-      <div className="max-w-4xl mx-auto space-y-6 w-full">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+      {/* Header */}
+      <div className="px-4 pt-4 pb-6 max-w-2xl mx-auto">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-gray-600 hover:text-yellow-500 font-medium mb-6 transition-colors"
+        >
+          <ChevronLeft className="w-5 h-5" />
+          Voltar
+        </button>
         
-        {/* Header */}
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-6 md:mb-8">
-          <div className="bg-[#E94560] text-[#f80d0d] p-3 rounded-2xl gradient-yellow-pink flex-shrink-0 shadow-lg">
-            <Bell className="text-[#ffffff] lucide lucide-bell w-6 h-6 md:w-8 md:h-8" />
+        <div className="flex items-center gap-4 mb-2">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg">
+            <Bell className="w-6 h-6 text-white" />
           </div>
-          <div className="w-full max-w-full">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 truncate">Notificações</h1>
-            <p className="text-sm md:text-base text-gray-600">Personalize como você quer ser notificado</p>
+          <div>
+            <h1 className="text-2xl font-black text-gray-900">Configurações de Notificações</h1>
+            <p className="text-gray-500 mt-1">Escolha como quer ser notificado</p>
           </div>
         </div>
-
-        {/* Vagas & Matching */}
-        <Card className="border-2 border-gray-100 hover:border-[#F9B500] shadow-xl transition-all overflow-hidden w-full max-w-full">
-          <CardHeader className="p-4 md:p-6">
-            <div className="flex items-start gap-3 w-full">
-              <Briefcase className="w-5 h-5 md:w-6 md:h-6 text-[#F9B500] flex-shrink-0 mt-1" />
-              <div className="w-full max-w-full overflow-hidden">
-                <CardTitle className="text-lg md:text-xl truncate">Vagas & Oportunidades</CardTitle>
-                <CardDescription className="text-sm line-clamp-2">Notificações sobre vagas compatíveis com seu perfil</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6 p-4 md:p-6 w-full max-w-full overflow-hidden">
-            
-            {/* Super Jobs */}
-            <div className="space-y-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border-2 border-[#F9B500] w-full max-w-full overflow-hidden">
-              <div className="flex items-start md:items-center justify-between gap-3 w-full">
-                <div className="flex items-start gap-3 flex-1 min-w-0">
-                  <div className="p-2 bg-[#F9B500] rounded-lg flex-shrink-0">
-                    <Star className="w-4 h-4 md:w-5 md:h-5 text-white" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <Label className="text-sm md:text-base font-semibold text-gray-900 block truncate">SUPER JOBS 🌟</Label>
-                    <p className="text-xs md:text-sm text-gray-600 line-clamp-2">Vagas perfeitas para você (100% compatível)</p>
-                  </div>
-                </div>
-                <Switch
-                  checked={preferences.vagas_super_jobs?.ativo ?? true}
-                  onCheckedChange={(checked) =>
-                  setDraft("vagas_super_jobs", { ...preferences.vagas_super_jobs, ativo: checked })
-                  }
-                  className="flex-shrink-0" />
-
-              </div>
-              
-              {preferences.vagas_super_jobs?.ativo &&
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pl-0 md:pl-12 w-full">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                    checked={preferences.vagas_super_jobs?.canal_push ?? true}
-                    onCheckedChange={(checked) =>
-                    setDraft("vagas_super_jobs", { ...preferences.vagas_super_jobs, canal_push: checked })
-                    } />
-
-                    <Label className="text-sm">Push</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                    checked={preferences.vagas_super_jobs?.canal_email ?? true}
-                    onCheckedChange={(checked) =>
-                    setDraft("vagas_super_jobs", { ...preferences.vagas_super_jobs, canal_email: checked })
-                    } />
-
-                    <Label className="text-sm">Email</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                    checked={preferences.vagas_super_jobs?.canal_whatsapp ?? false}
-                    onCheckedChange={(checked) =>
-                    setDraft("vagas_super_jobs", { ...preferences.vagas_super_jobs, canal_whatsapp: checked })
-                    } />
-
-                    <Label className="text-sm">WhatsApp</Label>
-                  </div>
-                </div>
-              }
-            </div>
-
-            {/* Jobs Semelhante */}
-            <div className="space-y-4 p-4 bg-orange-50 rounded-xl border-2 border-[#E94560] w-full max-w-full overflow-hidden">
-              <div className="flex items-start md:items-center justify-between gap-3 w-full">
-                <div className="flex items-start gap-3 flex-1 min-w-0">
-                  <div className="p-2 bg-[#E94560] rounded-lg flex-shrink-0">
-                    <Star className="w-4 h-4 md:w-5 md:h-5 text-white" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <Label className="text-sm md:text-base font-semibold text-gray-900 block truncate">Jobs Semelhante ⭐</Label>
-                    <p className="text-xs md:text-sm text-gray-600 line-clamp-2">Vagas compatíveis (75% de match)</p>
-                  </div>
-                </div>
-                <Switch
-                  checked={preferences.vagas_semelhante?.ativo ?? true}
-                  onCheckedChange={(checked) =>
-                  setDraft("vagas_semelhante", { ...preferences.vagas_semelhante, ativo: checked })
-                  }
-                  className="flex-shrink-0" />
-
-              </div>
-              
-              {preferences.vagas_semelhante?.ativo &&
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pl-0 md:pl-12 w-full">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                    checked={preferences.vagas_semelhante?.canal_push ?? true}
-                    onCheckedChange={(checked) =>
-                    setDraft("vagas_semelhante", { ...preferences.vagas_semelhante, canal_push: checked })
-                    } />
-
-                    <Label className="text-sm">Push</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                    checked={preferences.vagas_semelhante?.canal_email ?? false}
-                    onCheckedChange={(checked) =>
-                    setDraft("vagas_semelhante", { ...preferences.vagas_semelhante, canal_email: checked })
-                    } />
-
-                    <Label className="text-sm">Email</Label>
-                  </div>
-                </div>
-              }
-            </div>
-
-            {/* Vagas Normais */}
-            <div className="space-y-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-500 rounded-lg">
-                    <Briefcase className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <Label className="text-base font-semibold text-gray-900">Outras Vagas</Label>
-                    <p className="text-sm text-gray-600">Vagas com menor compatibilidade</p>
-                  </div>
-                </div>
-                <Switch
-                  checked={preferences.vagas_normais?.ativo ?? false}
-                  onCheckedChange={(checked) =>
-                  setDraft("vagas_normais", { ...preferences.vagas_normais, ativo: checked })
-                  } />
-
-              </div>
-              
-              {preferences.vagas_normais?.ativo &&
-              <div className="space-y-4 pl-12">
-                  <div className="flex items-center gap-4">
-                    <Label className="text-sm">Frequência:</Label>
-                    <Select
-                    value={preferences.vagas_normais?.frequencia ?? "DIARIO"}
-                    onValueChange={(value) =>
-                    setDraft("vagas_normais", { ...preferences.vagas_normais, frequencia: value })
-                    }>
-
-                      <SelectTrigger className="w-40">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="IMEDIATO">Imediato</SelectItem>
-                        <SelectItem value="DIARIO">Diário</SelectItem>
-                        <SelectItem value="SEMANAL">Semanal</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div className="flex items-center gap-2">
-                      <Switch
-                      checked={preferences.vagas_normais?.canal_push ?? false}
-                      onCheckedChange={(checked) =>
-                      setDraft("vagas_normais", { ...preferences.vagas_normais, canal_push: checked })
-                      } />
-
-                      <Label className="text-sm">Push</Label>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Switch
-                      checked={preferences.vagas_normais?.canal_email ?? false}
-                      onCheckedChange={(checked) =>
-                      setDraft("vagas_normais", { ...preferences.vagas_normais, canal_email: checked })
-                      } />
-
-                      <Label className="text-sm">Email</Label>
-                    </div>
-                  </div>
-                </div>
-              }
-            </div>
-
-            {/* Atualizações de Match */}
-            <div className="space-y-4 p-4 bg-purple-50 rounded-xl border border-purple-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-purple-500 rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <Label className="text-base font-semibold text-gray-900">Atualizações de Match</Label>
-                    <p className="text-sm text-gray-600">Quando clínicas visualizam ou contatam você</p>
-                  </div>
-                </div>
-                <Switch
-                  checked={preferences.atualizacoes_match?.canal_push ?? true}
-                  onCheckedChange={(checked) =>
-                  setDraft("atualizacoes_match", { ...preferences.atualizacoes_match, canal_push: checked })
-                  } />
-
-              </div>
-              
-              {preferences.atualizacoes_match?.canal_push &&
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-12">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                    checked={preferences.atualizacoes_match?.profissional_visualizou ?? true}
-                    onCheckedChange={(checked) =>
-                    setDraft("atualizacoes_match", { ...preferences.atualizacoes_match, profissional_visualizou: checked })
-                    } />
-
-                    <Label className="text-sm">Visualizações</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                    checked={preferences.atualizacoes_match?.profissional_contatou ?? true}
-                    onCheckedChange={(checked) =>
-                    setDraft("atualizacoes_match", { ...preferences.atualizacoes_match, profissional_contatou: checked })
-                    } />
-
-                    <Label className="text-sm">Contatos</Label>
-                  </div>
-                </div>
-              }
-            </div>
-
-          </CardContent>
-        </Card>
-
-        {/* Mensagens & Chat */}
-        <Card className="border-2 border-gray-100 hover:border-[#F9B500] shadow-xl transition-all overflow-hidden w-full max-w-full">
-          <CardHeader className="p-4 md:p-6">
-            <div className="flex items-start gap-3 w-full">
-              <MessageSquare className="w-5 h-5 md:w-6 md:h-6 text-green-600 flex-shrink-0 mt-1" />
-              <div className="w-full max-w-full overflow-hidden">
-                <CardTitle className="text-lg md:text-xl truncate">Mensagens & Chat</CardTitle>
-                <CardDescription className="text-sm line-clamp-2">Notificações de novas mensagens</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-4 md:p-6 w-full max-w-full overflow-hidden">
-            <div className="flex items-start md:items-center justify-between gap-3 w-full">
-              <div className="flex-1 min-w-0">
-                <Label className="text-sm md:text-base font-semibold block truncate">Novas Mensagens no Chat</Label>
-                <p className="text-xs md:text-sm text-gray-600 line-clamp-2">Seja notificado quando receber novas mensagens</p>
-              </div>
-              <Switch
-                checked={preferences.mensagens_chat?.ativo ?? true}
-                onCheckedChange={(checked) =>
-                setDraft("mensagens_chat", { ...preferences.mensagens_chat, ativo: checked })
-                }
-                className="flex-shrink-0" />
-
-            </div>
-            
-            {preferences.mensagens_chat?.ativo &&
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
-                <div className="flex items-center gap-2">
-                  <Switch
-                  checked={preferences.mensagens_chat?.canal_push ?? true}
-                  onCheckedChange={(checked) =>
-                  setDraft("mensagens_chat", { ...preferences.mensagens_chat, canal_push: checked })
-                  } />
-
-                  <Label className="text-sm">Push</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Switch
-                  checked={preferences.mensagens_chat?.canal_email ?? false}
-                  onCheckedChange={(checked) =>
-                  setDraft("mensagens_chat", { ...preferences.mensagens_chat, canal_email: checked })
-                  } />
-
-                  <Label className="text-sm">Email</Label>
-                </div>
-              </div>
-            }
-          </CardContent>
-        </Card>
-
-        {/* Status & Avaliações */}
-        <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-6 h-6 text-emerald-600" />
-              <div>
-                <CardTitle>Status & Avaliações</CardTitle>
-                <CardDescription>Atualizações importantes sobre seu cadastro</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            
-            {/* Status Cadastro */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-base font-semibold">Status do Cadastro</Label>
-                  <p className="text-sm text-gray-600">Aprovação ou reprovação do seu perfil</p>
-                </div>
-                <Switch
-                  checked={preferences.status_cadastro?.ativo ?? true}
-                  onCheckedChange={(checked) =>
-                  setDraft("status_cadastro", { ...preferences.status_cadastro, ativo: checked })
-                  } />
-
-              </div>
-              
-              {preferences.status_cadastro?.ativo &&
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pl-6">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                    checked={preferences.status_cadastro?.canal_push ?? true}
-                    onCheckedChange={(checked) =>
-                    setDraft("status_cadastro", { ...preferences.status_cadastro, canal_push: checked })
-                    } />
-
-                    <Label className="text-sm">Push</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                    checked={preferences.status_cadastro?.canal_email ?? true}
-                    onCheckedChange={(checked) =>
-                    setDraft("status_cadastro", { ...preferences.status_cadastro, canal_email: checked })
-                    } />
-
-                    <Label className="text-sm">Email</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                    checked={preferences.status_cadastro?.canal_whatsapp ?? true}
-                    onCheckedChange={(checked) =>
-                    setDraft("status_cadastro", { ...preferences.status_cadastro, canal_whatsapp: checked })
-                    } />
-
-                    <Label className="text-sm">WhatsApp</Label>
-                  </div>
-                </div>
-              }
-            </div>
-
-            <Separator />
-
-            {/* Lembretes Avaliação */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-base font-semibold">Lembretes de Avaliação</Label>
-                  <p className="text-sm text-gray-600">Lembrar de avaliar após finalizar uma vaga</p>
-                </div>
-                <Switch
-                  checked={preferences.lembrete_avaliacao?.ativo ?? true}
-                  onCheckedChange={(checked) =>
-                  setDraft("lembrete_avaliacao", { ...preferences.lembrete_avaliacao, ativo: checked })
-                  } />
-
-              </div>
-              
-              {preferences.lembrete_avaliacao?.ativo &&
-              <div className="space-y-4 pl-6">
-                  <div className="flex items-center gap-4">
-                    <Label className="text-sm">Lembrar após:</Label>
-                    <Input
-                    type="number"
-                    min="1"
-                    max="30"
-                    value={preferences.lembrete_avaliacao?.dias_apos_contrato ?? 7}
-                    onChange={(e) =>
-                    setDraft("lembrete_avaliacao", { ...preferences.lembrete_avaliacao, dias_apos_contrato: parseInt(e.target.value) })
-                    }
-                    className="w-20" />
-
-                    <span className="text-sm text-gray-600">dias</span>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="flex items-center gap-2">
-                      <Switch
-                      checked={preferences.lembrete_avaliacao?.canal_push ?? true}
-                      onCheckedChange={(checked) =>
-                      setDraft("lembrete_avaliacao", { ...preferences.lembrete_avaliacao, canal_push: checked })
-                      } />
-
-                      <Label className="text-sm">Push</Label>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Switch
-                      checked={preferences.lembrete_avaliacao?.canal_email ?? true}
-                      onCheckedChange={(checked) =>
-                      setDraft("lembrete_avaliacao", { ...preferences.lembrete_avaliacao, canal_email: checked })
-                      } />
-
-                      <Label className="text-sm">Email</Label>
-                    </div>
-                  </div>
-                </div>
-              }
-            </div>
-
-          </CardContent>
-        </Card>
-
-        {/* Feed & Marketplace */}
-        <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <Image className="w-6 h-6 text-pink-600" />
-              <div>
-                <CardTitle>Feed Social & Marketplace</CardTitle>
-                <CardDescription>Notificações sobre posts e produtos</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            
-            {/* Novos Posts */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-base font-semibold">Novos Posts no Feed</Label>
-                  <p className="text-sm text-gray-600">Quando colegas publicam novos posts</p>
-                </div>
-                <Switch
-                  checked={preferences.novos_posts_feed?.ativo ?? false}
-                  onCheckedChange={(checked) =>
-                  setDraft("novos_posts_feed", { ...preferences.novos_posts_feed, ativo: checked })
-                  } />
-
-              </div>
-              
-              {preferences.novos_posts_feed?.ativo &&
-              <div className="space-y-3 pl-6">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                    checked={preferences.novos_posts_feed?.apenas_minha_regiao ?? true}
-                    onCheckedChange={(checked) =>
-                    setDraft("novos_posts_feed", { ...preferences.novos_posts_feed, apenas_minha_regiao: checked })
-                    } />
-
-                    <Label className="text-sm">Apenas da minha região</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                    checked={preferences.novos_posts_feed?.canal_push ?? false}
-                    onCheckedChange={(checked) =>
-                    setDraft("novos_posts_feed", { ...preferences.novos_posts_feed, canal_push: checked })
-                    } />
-
-                    <Label className="text-sm">Notificações Push</Label>
-                  </div>
-                </div>
-              }
-            </div>
-
-            <Separator />
-
-            {/* Interações */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-base font-semibold">Interações nos Meus Posts</Label>
-                  <p className="text-sm text-gray-600">Curtidas e comentários</p>
-                </div>
-                <Switch
-                  checked={preferences.interacoes_posts?.canal_push ?? true}
-                  onCheckedChange={(checked) =>
-                  setDraft("interacoes_posts", { ...preferences.interacoes_posts, canal_push: checked })
-                  } />
-
-              </div>
-              
-              {preferences.interacoes_posts?.canal_push &&
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-6">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                    checked={preferences.interacoes_posts?.curtidas ?? true}
-                    onCheckedChange={(checked) =>
-                    setDraft("interacoes_posts", { ...preferences.interacoes_posts, curtidas: checked })
-                    } />
-
-                    <Label className="text-sm">Curtidas</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                    checked={preferences.interacoes_posts?.comentarios ?? true}
-                    onCheckedChange={(checked) =>
-                    setDraft("interacoes_posts", { ...preferences.interacoes_posts, comentarios: checked })
-                    } />
-
-                    <Label className="text-sm">Comentários</Label>
-                  </div>
-                </div>
-              }
-            </div>
-
-            <Separator />
-
-            {/* Marketplace */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-base font-semibold">Novos Itens no Marketplace</Label>
-                  <p className="text-sm text-gray-600">Equipamentos e materiais novos</p>
-                </div>
-                <Switch
-                  checked={preferences.marketplace_novos_itens?.ativo ?? false}
-                  onCheckedChange={(checked) =>
-                  setDraft("marketplace_novos_itens", { ...preferences.marketplace_novos_itens, ativo: checked })
-                  } />
-
-              </div>
-              
-              {preferences.marketplace_novos_itens?.ativo &&
-              <div className="space-y-3 pl-6">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                    checked={preferences.marketplace_novos_itens?.apenas_minha_regiao ?? true}
-                    onCheckedChange={(checked) =>
-                    setDraft("marketplace_novos_itens", { ...preferences.marketplace_novos_itens, apenas_minha_regiao: checked })
-                    } />
-
-                    <Label className="text-sm">Apenas da minha região</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                    checked={preferences.marketplace_novos_itens?.canal_push ?? false}
-                    onCheckedChange={(checked) =>
-                    setDraft("marketplace_novos_itens", { ...preferences.marketplace_novos_itens, canal_push: checked })
-                    } />
-
-                    <Label className="text-sm">Notificações Push</Label>
-                  </div>
-                </div>
-              }
-            </div>
-
-          </CardContent>
-        </Card>
-
-        {/* Notícias */}
-        <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <Newspaper className="w-6 h-6 text-indigo-600" />
-              <div>
-                <CardTitle>Notícias</CardTitle>
-                <CardDescription>Atualizações e novidades da área</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <Label className="text-base font-semibold">Novas Notícias</Label>
-                <p className="text-sm text-gray-600">Mantenha-se atualizado</p>
-              </div>
-              <Switch
-                checked={preferences.noticias?.ativo ?? true}
-                onCheckedChange={(checked) =>
-                setDraft("noticias", { ...preferences.noticias, ativo: checked })
-                } />
-
-            </div>
-            
-            {preferences.noticias?.ativo &&
-            <div className="space-y-4 pl-6">
-                <div className="flex items-center gap-4">
-                  <Label className="text-sm">Frequência:</Label>
-                  <Select
-                  value={preferences.noticias?.frequencia ?? "IMEDIATO"}
-                  onValueChange={(value) =>
-                  setDraft("noticias", { ...preferences.noticias, frequencia: value })
-                  }>
-
-                    <SelectTrigger className="w-40">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="IMEDIATO">Imediato</SelectItem>
-                      <SelectItem value="DIARIO">Diário</SelectItem>
-                      <SelectItem value="SEMANAL">Semanal</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                    checked={preferences.noticias?.canal_push ?? true}
-                    onCheckedChange={(checked) =>
-                    setDraft("noticias", { ...preferences.noticias, canal_push: checked })
-                    } />
-
-                    <Label className="text-sm">Push</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                    checked={preferences.noticias?.canal_email ?? false}
-                    onCheckedChange={(checked) =>
-                    setDraft("noticias", { ...preferences.noticias, canal_email: checked })
-                    } />
-
-                    <Label className="text-sm">Email</Label>
-                  </div>
-                </div>
-              </div>
-            }
-          </CardContent>
-        </Card>
-
-        {/* Configurações Gerais */}
-        <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <Smartphone className="w-6 h-6 text-gray-600" />
-              <div>
-                <CardTitle>Configurações Gerais</CardTitle>
-                <CardDescription>Personalize a experiência de notificações</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            
-            {/* Modo Não Perturbe */}
-            <div className="space-y-4 p-4 bg-gray-50 rounded-xl">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Moon className="w-5 h-5 text-gray-600" />
-                  <div>
-                    <Label className="text-base font-semibold">Modo Não Perturbe</Label>
-                    <p className="text-sm text-gray-600">Silenciar notificações em horários específicos</p>
-                  </div>
-                </div>
-                <Switch
-                  checked={preferences.modo_nao_perturbe?.ativo ?? false}
-                  onCheckedChange={(checked) =>
-                  setDraft("modo_nao_perturbe", { ...preferences.modo_nao_perturbe, ativo: checked })
-                  } />
-
-              </div>
-              
-              {preferences.modo_nao_perturbe?.ativo &&
-              <div className="grid grid-cols-2 gap-4 pl-12">
-                  <div>
-                    <Label className="text-sm">Das:</Label>
-                    <Input
-                    type="time"
-                    value={preferences.modo_nao_perturbe?.horario_inicio ?? "22:00"}
-                    onChange={(e) =>
-                    setDraft("modo_nao_perturbe", { ...preferences.modo_nao_perturbe, horario_inicio: e.target.value })
-                    }
-                    className="mt-1" />
-
-                  </div>
-                  <div>
-                    <Label className="text-sm">Até:</Label>
-                    <Input
-                    type="time"
-                    value={preferences.modo_nao_perturbe?.horario_fim ?? "08:00"}
-                    onChange={(e) =>
-                    setDraft("modo_nao_perturbe", { ...preferences.modo_nao_perturbe, horario_fim: e.target.value })
-                    }
-                    className="mt-1" />
-
-                  </div>
-                </div>
-              }
-            </div>
-
-            <Separator />
-
-            {/* Outras Configurações */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-base">Agrupar Notificações</Label>
-                  <p className="text-sm text-gray-600">Combinar notificações similares</p>
-                </div>
-                <Switch
-                  checked={preferences.agrupar_notificacoes ?? true}
-                  onCheckedChange={(checked) => setDraft("agrupar_notificacoes", checked)} />
-
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Volume2 className="w-5 h-5 text-gray-600" />
-                  <div>
-                    <Label className="text-base">Som de Notificação</Label>
-                    <p className="text-sm text-gray-600">Tocar som ao receber notificações</p>
-                  </div>
-                </div>
-                <Switch
-                  checked={preferences.som_notificacao ?? true}
-                  onCheckedChange={(checked) => setDraft("som_notificacao", checked)} />
-
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-base">Vibração</Label>
-                  <p className="text-sm text-gray-600">Vibrar ao receber notificações</p>
-                </div>
-                <Switch
-                  checked={preferences.vibracao ?? true}
-                  onCheckedChange={(checked) => setDraft("vibracao", checked)} />
-
-              </div>
-            </div>
-
-          </CardContent>
-        </Card>
-
-        {/* Botões de Ação */}
-        <div className="flex flex-col md:flex-row gap-3 w-full max-w-full">
-          <Button
-            variant="outline"
-            className="w-full md:flex-1 h-12 rounded-xl border-2 border-gray-200 hover:border-[#F9B500] font-bold"
-            onClick={() => window.history.back()}>
-
-            Voltar
-          </Button>
-          <Button
-            className="w-full md:flex-1 h-12 gradient-yellow-pink text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all border-0"
-            onClick={() => toast.success("Todas as preferências foram salvas!")}>
-
-            <CheckCircle className="w-4 h-4 mr-2" />
-            Salvar Tudo
-          </Button>
-        </div>
-
       </div>
-    </div>);
 
+      {/* Container */}
+      <div className="max-w-2xl mx-auto px-4 pb-32">
+        {/* Seção Push Notifications */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-6"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white shadow-md">
+              <Smartphone className="w-5 h-5" />
+            </div>
+            <h2 className="text-lg font-bold text-gray-900">Notificações Push</h2>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <Toggle
+              enabled={preferences.vagas_super_jobs.ativo}
+              onChange={(value) => handleToggle("vagas_super_jobs", "ativo", value)}
+              label="Super Jobs ⚡"
+              description="Vagas com alta compatibilidade com seu perfil"
+            />
+            <Toggle
+              enabled={preferences.vagas_semelhante.ativo}
+              onChange={(value) => handleToggle("vagas_semelhante", "ativo", value)}
+              label="Vagas Semelhantes 🎯"
+              description="Oportunidades relacionadas à sua especialidade"
+            />
+            <Toggle
+              enabled={preferences.mensagens_chat.ativo}
+              onChange={(value) => handleToggle("mensagens_chat", "ativo", value)}
+              label="Mensagens de Clínicas 💬"
+              description="Receba propostas e mensagens diretas"
+            />
+            <Toggle
+              enabled={preferences.status_cadastro.ativo}
+              onChange={(value) => handleToggle("status_cadastro", "ativo", value)}
+              label="Atualizações do Cadastro 📋"
+              description="Aprovações, pendências e verificações"
+            />
+          </div>
+        </motion.div>
+
+        {/* Seção E-mail */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mb-6"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white shadow-md">
+              <Mail className="w-5 h-5" />
+            </div>
+            <h2 className="text-lg font-bold text-gray-900">Notificações por E-mail</h2>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <Toggle
+              enabled={preferences.vagas_super_jobs.canal_email}
+              onChange={(value) => handleToggle("vagas_super_jobs", "canal_email", value)}
+              label="Super Jobs por E-mail 📧"
+              description="Receba as melhores vagas na sua caixa de entrada"
+            />
+            <Toggle
+              enabled={preferences.noticias.canal_email}
+              onChange={(value) => handleToggle("noticias", "canal_email", value)}
+              label="Newsletter NEW JOBS 📰"
+              description="Novidades, dicas e atualizações da plataforma"
+            />
+            <Toggle
+              enabled={preferences.status_cadastro.canal_email}
+              onChange={(value) => handleToggle("status_cadastro", "canal_email", value)}
+              label="Confirmações e Avisos Importantes 🔔"
+              description="Status do cadastro, aprovações e alertas críticos"
+            />
+          </div>
+        </motion.div>
+
+        {/* Seção WhatsApp */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mb-6"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white shadow-md">
+              <MessageCircle className="w-5 h-5" />
+            </div>
+            <h2 className="text-lg font-bold text-gray-900">Notificações por WhatsApp</h2>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-800">Receber por WhatsApp 💚</p>
+                  <p className="text-sm text-gray-500 mt-0.5">Apenas para vagas Super Jobs</p>
+                </div>
+                <button
+                  onClick={() => {
+                    const newValue = !preferences.receber_whatsapp;
+                    setPreferences(prev => ({
+                      ...prev,
+                      receber_whatsapp: newValue,
+                      vagas_super_jobs: {
+                        ...prev.vagas_super_jobs,
+                        canal_whatsapp: newValue
+                      }
+                    }));
+                  }}
+                  className={`relative w-14 h-8 rounded-full transition-all duration-300 flex-shrink-0 ${
+                    preferences.receber_whatsapp
+                      ? "bg-gradient-to-r from-green-400 to-green-600"
+                      : "bg-gray-300"
+                  }`}
+                >
+                  <div
+                    className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-300 ${
+                      preferences.receber_whatsapp ? "left-7" : "left-1"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {preferences.receber_whatsapp && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                >
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Número do WhatsApp
+                  </label>
+                  <input
+                    type="text"
+                    value={whatsappNumber}
+                    onChange={(e) => setWhatsappNumber(aplicarMascaraTelefone(e.target.value))}
+                    placeholder="(62) 99999-9999"
+                    maxLength={15}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-green-400 focus:ring-4 focus:ring-green-100 transition-all outline-none"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">
+                    ℹ️ Usaremos este número para enviar notificações importantes
+                  </p>
+                </motion.div>
+              )}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Dicas de Privacidade */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-5"
+        >
+          <div className="flex gap-3">
+            <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center text-white flex-shrink-0">
+              <CheckCircle2 className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-bold text-blue-900 mb-1">Privacidade</h3>
+              <p className="text-sm text-blue-700">
+                Seus dados estão seguros. Você pode alterar essas preferências a qualquer momento.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Botão Salvar Fixo */}
+      <motion.div
+        initial={{ y: 100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="fixed bottom-6 left-4 right-4 z-30"
+      >
+        <div className="max-w-2xl mx-auto">
+          <button
+            onClick={() => salvarPreferenciasMutation.mutate()}
+            disabled={salvarPreferenciasMutation.isPending}
+            className="w-full py-4 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold text-lg rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            <Save className="w-5 h-5" />
+            {salvarPreferenciasMutation.isPending ? "Salvando..." : "Salvar Preferências"}
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
 }
