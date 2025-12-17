@@ -50,6 +50,6 @@ export const PAGES = {
 }
 
 export const pagesConfig = {
-    mainPage: "CadastroSucesso",
+    mainPage: "HomePage",
     Pages: PAGES,
 };
