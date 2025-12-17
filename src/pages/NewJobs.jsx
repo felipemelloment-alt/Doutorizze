@@ -83,246 +83,175 @@ export default function NewJobs() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50">
       {/* Header */}
-      <div className="gradient-yellow-pink py-8 shadow-xl">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className="p-4 bg-white rounded-2xl shadow-xl">
-                <Zap className="w-10 h-10 text-pink-600" />
-              </div>
-              <div>
-                <h1 className="text-[#F9B500] text-4xl md:text-5xl font-black text-shadow-lg">OPORTUNIDADES
-
-                </h1>
-                <p className="text-white font-semibold">Encontre seu próximo emprego aqui! 🎯
-
-                </p>
-              </div>
-            </div>
-
-            {/* Toggle New Jobs */}
-            <div className="w-full bg-white rounded-2xl p-6 shadow-xl border-4 border-white">
-              <div className="flex items-center gap-4">
-                <div>
-                  <Label className="text-lg font-bold text-gray-900">
-                    Modo NEW JOBS
-                  </Label>
-                  <p className="text-sm text-gray-600">
-                    {newJobsActive ? "Você está visível!" : "Ativar para receber vagas"}
-                  </p>
-                </div>
-                <Switch
-                  checked={newJobsActive}
-                  onCheckedChange={handleToggleNewJobs}
-                  className="data-[state=checked]:bg-green-500 scale-125" />
-
-              </div>
-            </div>
+      <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 rounded-3xl mx-4 mt-4 p-8 relative overflow-hidden">
+        {/* Decoração */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
+        <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-4 right-8 text-4xl animate-pulse">⚡</div>
+        <div className="absolute bottom-4 left-8 text-3xl animate-pulse" style={{ animationDelay: '0.5s' }}>⚡</div>
+        
+        <div className="relative z-10">
+          <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-3xl mb-4">
+            💼
+          </div>
+          <h1 className="text-4xl md:text-5xl font-black text-white mb-2" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.2)' }}>
+            OPORTUNIDADES
+          </h1>
+          <p className="text-white/90">Encontre a vaga perfeita para você</p>
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur text-white rounded-full font-semibold mt-4">
+            🔥 523 vagas disponíveis
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-3 md:px-4 py-6 md:py-8">
-        {/* Search Bar */}
-        <div className="bg-white rounded-3xl p-6 shadow-xl mb-8 border-4 border-[#F9B500]">
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="relative">
-              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <Input
-                placeholder="Digite a cidade..."
-                value={searchCity}
-                onChange={(e) => setSearchCity(e.target.value)}
-                className="pl-12 h-14 text-lg border-2 border-gray-200 rounded-2xl focus:border-[#F9B500]" />
-
-            </div>
-            <div className="relative">
-              <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <Input
-                placeholder="Especialidade..."
-                value={searchSpecialty}
-                onChange={(e) => setSearchSpecialty(e.target.value)}
-                className="pl-12 h-14 text-lg border-2 border-gray-200 rounded-2xl focus:border-[#F9B500]" />
-
-            </div>
+      {/* Barra de Filtros */}
+      <div className="bg-white rounded-3xl shadow-xl mx-4 -mt-6 p-6 relative z-10 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+          {/* Campo de busca */}
+          <div className="md:col-span-2 relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl" />
+            <input
+              type="text"
+              placeholder="Buscar vagas, especialidades..."
+              value={searchSpecialty}
+              onChange={(e) => setSearchSpecialty(e.target.value)}
+              className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
+            />
           </div>
-          <Button className="w-full mt-4 h-14 gradient-yellow-pink text-white font-bold text-lg rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-105 border-0">
-            <Search className="w-6 h-6 mr-2" />
-            Buscar Oportunidades
-          </Button>
+
+          {/* Select Cidade */}
+          <div>
+            <input
+              type="text"
+              placeholder="Cidade"
+              value={searchCity}
+              onChange={(e) => setSearchCity(e.target.value)}
+              className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
+            />
+          </div>
+
+          {/* Botão Buscar */}
+          <button className="w-full py-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2">
+            🔍 Buscar
+          </button>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
-          <StatCard
-            icon={Sparkles}
-            title="SUPER JOBS"
-            count={superJobs.length}
-            description="100% compatíveis"
-            gradient="from-yellow-400 to-orange-500" />
-
-          <StatCard
-            icon={Star}
-            title="Jobs Semelhante"
-            count={jobsSemelhante.length}
-            description="75% compatíveis"
-            gradient="from-orange-400 to-pink-500" />
-
-          <StatCard
-            icon={TrendingUp}
-            title="Outras Vagas"
-            count={outrasVagas.length}
-            description="Disponíveis agora"
-            gradient="from-blue-400 to-purple-500" />
-
+        {/* Filtros rápidos */}
+        <div className="flex flex-wrap gap-2">
+          <button className="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-full text-sm font-bold">
+            Todas
+          </button>
+          <button className="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium hover:bg-yellow-100 hover:text-yellow-700 cursor-pointer transition-all">
+            Tempo Integral
+          </button>
+          <button className="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium hover:bg-yellow-100 hover:text-yellow-700 cursor-pointer transition-all">
+            Meio Período
+          </button>
+          <button className="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium hover:bg-yellow-100 hover:text-yellow-700 cursor-pointer transition-all">
+            Plantão
+          </button>
+          <button className="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium hover:bg-yellow-100 hover:text-yellow-700 cursor-pointer transition-all">
+            Freelancer
+          </button>
         </div>
+      </div>
 
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 h-auto p-2 bg-white rounded-2xl shadow-lg gap-2">
-            <TabsTrigger
-              value="super-jobs"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-400 data-[state=active]:to-orange-500 data-[state=active]:text-white font-bold text-sm md:text-lg py-3 md:py-4 rounded-xl flex items-center justify-center">
+      {/* Header da Lista */}
+      <div className="flex items-center justify-between px-4 py-6">
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl font-bold text-gray-900">Vagas Encontradas</h2>
+          <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-bold">
+            ({superJobs.length + jobsSemelhante.length + outrasVagas.length})
+          </span>
+        </div>
+        <div className="flex items-center gap-2 text-gray-600">
+          <span className="text-sm hidden md:inline">Ordenar:</span>
+          <select className="px-4 py-2 border border-gray-200 rounded-xl text-sm outline-none focus:border-yellow-400">
+            <option>Mais recentes</option>
+            <option>Maior salário</option>
+            <option>Mais perto</option>
+          </select>
+        </div>
+      </div>
 
-              <Sparkles className="w-5 h-5 mr-2" />
-              SUPER JOBS
-            </TabsTrigger>
-            <TabsTrigger
-              value="semelhante"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-400 data-[state=active]:to-pink-500 data-[state=active]:text-white font-bold text-sm md:text-lg py-3 md:py-4 rounded-xl flex items-center justify-center">
+      <div className="px-4">
 
-              <Star className="w-5 h-5 mr-2" />
-              Semelhante
-            </TabsTrigger>
-            <TabsTrigger
-              value="outras"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-400 data-[state=active]:to-purple-500 data-[state=active]:text-white font-bold text-sm md:text-lg py-3 md:py-4 rounded-xl flex items-center justify-center">
-
-              <TrendingUp className="w-5 h-5 mr-2" />
-              Outras
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="super-jobs" className="space-y-6">
-            <div className="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6 border-4 border-[#F9B500]">
-              <div className="flex items-center gap-3 mb-2">
-                <Sparkles className="w-8 h-8 text-yellow-600" />
-                <h2 className="text-2xl font-black text-gray-900">
-                  SUPER JOBS - Matches Perfeitos! 🌟
-                </h2>
+        {/* Lista de Vagas */}
+        <div className="space-y-4 pb-8">
+          {/* SUPER JOBS */}
+          {superJobs.length > 0 && (
+            <div className="space-y-4">
+              <div className="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-4 flex items-center gap-3">
+                <Sparkles className="w-6 h-6 text-yellow-600" />
+                <h2 className="text-xl font-black text-gray-900">SUPER JOBS - Matches Perfeitos! 🌟</h2>
               </div>
-              <p className="text-gray-700 font-semibold">
-                Estas vagas são 100% compatíveis com seu perfil!
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {superJobs.map((professional) =>
-              <ProfessionalCard
-                key={professional.id}
-                professional={professional}
-                type="DENTISTA"
-                onClick={(p) => console.log("Ver detalhes:", p)} />
-
-              )}
-            </div>
-
-            {superJobs.length === 0 &&
-            <EmptyState
-              icon={Sparkles}
-              title="Nenhum SUPER JOB no momento"
-              description="Ative o modo NEW JOBS para começar a receber oportunidades!" />
-
-            }
-          </TabsContent>
-
-          <TabsContent value="semelhante" className="space-y-6">
-            <div className="bg-gradient-to-r from-orange-100 to-pink-100 rounded-2xl p-6 border-4 border-[#E94560]">
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Star className="w-8 h-8 text-orange-600" />
-                    <h2 className="text-2xl font-black text-gray-900">
-                      Jobs Semelhante ⭐
-                    </h2>
-                  </div>
-                  <p className="text-gray-700 font-semibold">
-                    Vagas com 75% de compatibilidade
-                  </p>
-                </div>
-                
-                {/* Botão WhatsApp */}
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleWhatsAppContact}
-                  className="w-full sm:w-auto flex items-center justify-center sm:justify-start gap-3 bg-gradient-to-r from-green-400 to-green-600 text-white px-6 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all font-bold">
-
-                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                    <MessageCircle className="w-6 h-6 text-green-600" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-sm font-semibold">Dúvidas sobre estas vagas?</p>
-                    <p className="text-xs opacity-90">Fale conosco no WhatsApp</p>
-                  </div>
-                </motion.button>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {superJobs.map((professional) => (
+                  <JobCard key={professional.id} professional={professional} isSuperJob />
+                ))}
               </div>
             </div>
+          )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {jobsSemelhante.map((professional) =>
-              <ProfessionalCard
-                key={professional.id}
-                professional={professional}
-                type="DENTISTA"
-                onClick={(p) => console.log("Ver detalhes:", p)} />
-
-              )}
-            </div>
-
-            {jobsSemelhante.length === 0 &&
-            <EmptyState
-              icon={Star}
-              title="Nenhuma vaga semelhante no momento"
-              description="Continue atualizando seu perfil para receber mais oportunidades!" />
-
-            }
-          </TabsContent>
-
-          <TabsContent value="outras" className="space-y-6">
-            <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-6 border-4 border-[#4A90E2]">
-              <div className="flex items-center gap-3 mb-2">
-                <TrendingUp className="w-8 h-8 text-blue-600" />
-                <h2 className="text-2xl font-black text-gray-900">
-                  Outras Oportunidades
-                </h2>
+          {/* Jobs Semelhante */}
+          {jobsSemelhante.length > 0 && (
+            <div className="space-y-4">
+              <div className="bg-gradient-to-r from-orange-100 to-pink-100 rounded-2xl p-4 flex items-center gap-3">
+                <Star className="w-6 h-6 text-orange-600" />
+                <h2 className="text-xl font-black text-gray-900">Jobs Semelhante ⭐</h2>
               </div>
-              <p className="text-gray-700 font-semibold">
-                Explore mais vagas disponíveis
-              </p>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {jobsSemelhante.map((professional) => (
+                  <JobCard key={professional.id} professional={professional} />
+                ))}
+              </div>
             </div>
+          )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {outrasVagas.map((professional) =>
-              <ProfessionalCard
-                key={professional.id}
-                professional={professional}
-                type="DENTISTA"
-                onClick={(p) => console.log("Ver detalhes:", p)} />
-
-              )}
+          {/* Outras Vagas */}
+          {outrasVagas.length > 0 && (
+            <div className="space-y-4">
+              <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-4 flex items-center gap-3">
+                <TrendingUp className="w-6 h-6 text-blue-600" />
+                <h2 className="text-xl font-black text-gray-900">Outras Oportunidades</h2>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {outrasVagas.map((professional) => (
+                  <JobCard key={professional.id} professional={professional} />
+                ))}
+              </div>
             </div>
+          )}
 
-            {outrasVagas.length === 0 &&
-            <EmptyState
-              icon={TrendingUp}
-              title="Nenhuma outra vaga no momento"
-              description="Novas oportunidades aparecem todos os dias. Volte em breve!" />
+          {/* Estado Vazio */}
+          {superJobs.length === 0 && jobsSemelhante.length === 0 && outrasVagas.length === 0 && (
+            <div className="bg-white rounded-3xl shadow-xl p-12 text-center">
+              <div className="text-8xl mb-6 opacity-50">🔍</div>
+              <h3 className="text-2xl font-bold text-gray-400 mb-2">Nenhuma vaga encontrada</h3>
+              <p className="text-gray-400 mb-6">Tente ajustar os filtros de busca</p>
+              <button
+                onClick={() => {
+                  setSearchCity("");
+                  setSearchSpecialty("");
+                }}
+                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-2xl hover:scale-105 transition-all">
+                Limpar Filtros
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
 
-            }
-          </TabsContent>
-        </Tabs>
+      {/* Botão Flutuante - Criar Alerta */}
+      <div className="fixed bottom-6 right-6 z-50 group">
+        <div className="absolute bottom-full right-0 mb-2 px-4 py-2 bg-gray-900 text-white text-sm rounded-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all">
+          Criar alerta de vagas
+        </div>
+        <button className="w-14 h-14 bg-gradient-to-r from-pink-500 to-red-500 text-white rounded-full shadow-xl flex items-center justify-center text-2xl hover:scale-110 transition-all">
+          🔔
+        </button>
       </div>
     </div>);
 
@@ -348,12 +277,89 @@ function StatCard({ icon: Icon, title, count, description, gradient }) {
 
 }
 
-function EmptyState({ icon: Icon, title, description }) {
-  return (
-    <div className="bg-white rounded-3xl p-12 text-center shadow-xl border-4 border-gray-100">
-      <Icon className="w-20 h-20 mx-auto mb-6 text-gray-300" />
-      <h3 className="text-2xl font-bold text-gray-900 mb-3">{title}</h3>
-      <p className="text-gray-600 font-semibold">{description}</p>
-    </div>);
+function JobCard({ professional, isSuperJob }) {
+  const handleWhatsApp = () => {
+    const message = encodeURIComponent(`Olá! Tenho interesse na vaga ${professional.especialidade_principal}`);
+    window.open(`https://wa.me/55${professional.whatsapp}?text=${message}`, "_blank");
+  };
 
+  return (
+    <div className={`bg-white rounded-3xl shadow-xl p-6 hover:shadow-2xl hover:scale-[1.01] transition-all cursor-pointer border-2 ${
+      isSuperJob ? "border-yellow-400" : "border-transparent hover:border-yellow-400"
+    }`}>
+      {/* Layout */}
+      <div className="flex flex-col md:flex-row md:items-start gap-4">
+        {/* Logo */}
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-100 to-orange-100 flex items-center justify-center text-2xl flex-shrink-0">
+          {professional.nome_completo?.[0]?.toUpperCase() || "🏥"}
+        </div>
+
+        {/* Conteúdo Principal */}
+        <div className="flex-1">
+          {/* Header do card */}
+          <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
+            <div className="flex flex-wrap gap-2">
+              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
+                CONTRATA-SE
+              </span>
+              <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-bold">
+                {professional.especialidade_principal}
+              </span>
+              {isSuperJob && (
+                <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold animate-pulse">
+                  URGENTE
+                </span>
+              )}
+            </div>
+            <p className="text-xl font-black text-green-600">R$ 800/dia</p>
+          </div>
+
+          {/* Título */}
+          <h3 className="text-xl font-bold text-gray-900 mb-1 hover:text-yellow-600 transition-all">
+            {professional.especialidade_principal} P/ {professional.cidades_atendimento?.[0]?.split(' - ')[0] || 'Várias cidades'}
+          </h3>
+          <p className="text-gray-500 mb-4">Clínica Exemplo</p>
+
+          {/* Info Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 text-sm">
+            <div className="flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-gray-400" />
+              <span className="text-gray-900 font-medium">{professional.cidades_atendimento?.[0] || 'N/A'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-gray-400">📅</span>
+              <span className="text-gray-900 font-medium">
+                {professional.dias_semana_disponiveis?.[0] || 'Seg'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-gray-400">⏰</span>
+              <span className="text-gray-900 font-medium">08:00-18:00</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-gray-400">📆</span>
+              <span className="text-gray-900 font-medium">Há 2h</span>
+            </div>
+          </div>
+
+          {/* Ações */}
+          <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-gray-100">
+            <button
+              onClick={handleWhatsApp}
+              className="flex items-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl transition-all">
+              💬 WhatsApp
+            </button>
+            <div className="flex items-center gap-3">
+              <button className="flex items-center gap-2 px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:border-yellow-400 hover:text-yellow-600 transition-all">
+                Ver Detalhes →
+              </button>
+              <button className="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center text-gray-400 hover:border-red-300 hover:text-red-500 transition-all">
+                ❤️
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
