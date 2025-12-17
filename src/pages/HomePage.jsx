@@ -62,8 +62,8 @@ export default function HomePage() {
         <div className="absolute bottom-10 right-10 w-32 h-32 bg-pink-500 rounded-full blur-3xl opacity-20"></div>
         <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-blue-400 rounded-full blur-2xl opacity-25"></div>
 
-        <div className="container mx-auto px-4 py-16 md:py-24 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="container mx-auto px-3 md:px-4 py-12 md:py-20 lg:py-24 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
             {/* Left Content */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}
@@ -244,7 +244,7 @@ export default function HomePage() {
             </span>
           </motion.h2>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {features.map((feature, index) =>
             <motion.div
               key={index}
@@ -277,7 +277,7 @@ export default function HomePage() {
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
         </div>
 
-        <div className="container mx-auto px-4 relative z-10 text-center">
+        <div className="container mx-auto px-3 md:px-4 relative z-10 text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}

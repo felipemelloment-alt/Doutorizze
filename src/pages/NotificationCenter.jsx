@@ -269,7 +269,7 @@ export default function NotificationCenter() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-100 via-orange-50 to-pink-100 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-100 via-orange-50 to-pink-100 relative overflow-x-hidden">
       {/* Elementos decorativos de fundo */}
       <motion.div
         animate={{ rotate: [0, 10, 0], y: [0, -20, 0] }}
@@ -287,8 +287,8 @@ export default function NotificationCenter() {
       </motion.div>
 
       {/* Hero Header */}
-      <div className="relative gradient-yellow-pink py-12 md:py-16 shadow-2xl">
-        <div className="container mx-auto px-4">
+      <div className="relative gradient-yellow-pink py-8 md:py-12 lg:py-16 shadow-2xl">
+        <div className="container mx-auto px-3 md:px-4">
           <motion.div 
             initial={{ opacity: 0, y: -50 }}
             animate={{ opacity: 1, y: 0 }}
@@ -304,7 +304,7 @@ export default function NotificationCenter() {
               </motion.div>
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-black text-[#F9B500] text-shadow-lg mb-3 tracking-tight">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-[#F9B500] text-shadow-lg mb-3 tracking-tight">
               NOTIFICAÇÕES
             </h1>
             
@@ -346,7 +346,7 @@ export default function NotificationCenter() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8 md:py-12 max-w-5xl relative z-10">{/* Tabs */}
+      <div className="container mx-auto px-3 md:px-4 py-6 md:py-8 lg:py-12 max-w-5xl relative z-10">{/* Tabs */}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8 md:mb-10">
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto p-3 bg-white rounded-3xl shadow-2xl border-4 border-[#F9B500] gap-2">
