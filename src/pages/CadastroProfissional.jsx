@@ -109,8 +109,8 @@ export default function CadastroProfissional() {
       return;
     }
     
-    if (formData.cidades_atendimento.length >= 5) {
-      toast.error("Máximo de 5 cidades");
+    if (formData.cidades_atendimento.length >= 3) {
+      toast.error("Máximo de 3 cidades");
       return;
     }
 
@@ -404,44 +404,29 @@ export default function CadastroProfissional() {
               </div>
             </div>
 
-            {/* Grid de Campos */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Nome Completo *</label>
-                <input
-                  type="text"
-                  value={formData.nome_completo}
-                  onChange={(e) => handleInputChange("nome_completo", e.target.value)}
-                  placeholder="João Silva"
-                  maxLength={120}
-                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
-                />
-                <p className="text-xs text-gray-500 mt-1">{formData.nome_completo.length}/120 caracteres</p>
-              </div>
+            {/* Seção Dados Pessoais */}
+            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl p-4 mb-6 border-2 border-yellow-100">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <div className="w-10 h-10 rounded-xl bg-yellow-400 flex items-center justify-center text-xl">📋</div>
+                Dados Pessoais
+              </h3>
+            </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
-                  placeholder="joao@exemplo.com"
-                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
-                />
-              </div>
+            {/* Nome Completo */}
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Nome Completo *</label>
+              <input
+                type="text"
+                value={formData.nome_completo}
+                onChange={(e) => handleInputChange("nome_completo", e.target.value)}
+                placeholder="Seu nome completo"
+                maxLength={120}
+                className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
+              />
+            </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">WhatsApp *</label>
-                <input
-                  type="text"
-                  value={formData.whatsapp}
-                  onChange={(e) => handleInputChange("whatsapp", aplicarMascaraWhatsApp(e.target.value))}
-                  placeholder="(62) 99999-9999"
-                  maxLength={15}
-                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
-                />
-              </div>
-
+            {/* Grid CPF e Data */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">CPF *</label>
                 <input
@@ -465,6 +450,38 @@ export default function CadastroProfissional() {
                   className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                 />
               </div>
+            </div>
+
+            {/* WhatsApp */}
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Telefone/WhatsApp *</label>
+              <div className="relative">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-green-500 text-xl">💬</div>
+                <input
+                  type="text"
+                  value={formData.whatsapp}
+                  onChange={(e) => handleInputChange("whatsapp", aplicarMascaraWhatsApp(e.target.value))}
+                  placeholder="(00) 00000-0000"
+                  maxLength={15}
+                  className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Grid de Campos Originais */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
+                  placeholder="seu@email.com"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
+                />
+              </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Gênero (opcional)</label>
@@ -479,17 +496,34 @@ export default function CadastroProfissional() {
                   <option value="OUTRO">Outro</option>
                 </select>
               </div>
+            </div>
 
-              <div className="md:col-span-2">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Instagram (opcional)</label>
+            {/* Seção Redes Sociais */}
+            <div className="mt-8 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-4 mb-4 border-2 border-purple-100">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                  <div className="w-10 h-10 rounded-xl bg-purple-500 flex items-center justify-center text-xl">📱</div>
+                  Redes Sociais
+                </h3>
+                <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full">Opcional</span>
+              </div>
+            </div>
+
+            {/* Instagram */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Instagram</label>
+              <div className="relative">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-pink-500 text-xl">📷</div>
+                <span className="absolute left-12 top-1/2 -translate-y-1/2 text-gray-400 font-semibold">@</span>
                 <input
                   type="text"
                   value={formData.instagram}
-                  onChange={(e) => handleInputChange("instagram", e.target.value)}
-                  placeholder="@seuperfil"
-                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
+                  onChange={(e) => handleInputChange("instagram", e.target.value.replace(/[^a-zA-Z0-9._]/g, ''))}
+                  placeholder="seuperfil"
+                  className="w-full pl-16 pr-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                 />
               </div>
+              <p className="text-gray-400 text-sm mt-2">Seu perfil pode aparecer para clínicas interessadas</p>
             </div>
           </div>
         );
@@ -497,10 +531,18 @@ export default function CadastroProfissional() {
       case 2:
         return (
           <div className="space-y-6">
+            {/* Seção Dados Profissionais */}
+            <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-4 mb-6 border-2 border-orange-100">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <div className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center text-xl">🩺</div>
+                Dados Profissionais
+              </h3>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Número do {getRegistroLabel(formData.tipo_profissional === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA")} *
+                  Número {getRegistroLabel(formData.tipo_profissional === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA")} *
                 </label>
                 <input
                   type="text"
@@ -528,7 +570,7 @@ export default function CadastroProfissional() {
 
             {/* Especialidade Principal */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Especialidade Principal *</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Especialização Principal * (OBRIGATÓRIO)</label>
               <select
                 value={formData.especialidade_principal}
                 onChange={(e) => handleInputChange("especialidade_principal", e.target.value)}
@@ -541,9 +583,35 @@ export default function CadastroProfissional() {
               </select>
             </div>
 
-            {/* Outras Especialidades */}
+            {/* Especializações Adicionais */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">Outras Especialidades (opcional)</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Especializações Adicionais (Opcional - Múltipla Seleção)
+              </label>
+              <p className="text-xs text-gray-500 mb-3">Selecione todas as especializações que você possui</p>
+              
+              {/* Chips selecionados */}
+              {formData.outras_especialidades.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-4 p-3 bg-yellow-50 rounded-xl border border-yellow-200">
+                  {formData.outras_especialidades.map((esp) => (
+                    <span
+                      key={esp}
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium"
+                    >
+                      {esp}
+                      <button
+                        type="button"
+                        onClick={() => toggleOutraEspecialidade(esp)}
+                        className="text-yellow-600 hover:text-yellow-900 font-bold text-lg leading-none"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Grid de checkboxes */}
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-64 overflow-y-auto border-2 border-gray-200 rounded-xl p-4">
                 {especialidades
                   .filter(esp => esp !== formData.especialidade_principal)
@@ -564,33 +632,21 @@ export default function CadastroProfissional() {
               </div>
             </div>
 
-            {/* Tempo de Formado e Especialista */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Anos de Formado *</label>
-                <input
-                  type="number"
-                  value={formData.tempo_formado_anos}
-                  onChange={(e) => handleInputChange("tempo_formado_anos", e.target.value)}
-                  placeholder="5"
-                  min="0"
-                  max="99"
-                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Anos de Especialidade (opcional)</label>
-                <input
-                  type="number"
-                  value={formData.tempo_especialidade_anos}
-                  onChange={(e) => handleInputChange("tempo_especialidade_anos", e.target.value)}
-                  placeholder="3"
-                  min="0"
-                  max="99"
-                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
-                />
-              </div>
+            {/* Anos de Experiência */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Anos de Experiência *</label>
+              <select
+                value={formData.tempo_formado_anos}
+                onChange={(e) => handleInputChange("tempo_formado_anos", e.target.value)}
+                className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 appearance-none bg-white cursor-pointer transition-all outline-none"
+              >
+                <option value="">Selecione</option>
+                <option value="0">Menos de 1 ano</option>
+                <option value="1">1-3 anos</option>
+                <option value="3">3-5 anos</option>
+                <option value="5">5-10 anos</option>
+                <option value="10">Mais de 10 anos</option>
+              </select>
             </div>
 
             {/* Instituição de Formação */}
@@ -610,9 +666,18 @@ export default function CadastroProfissional() {
       case 3:
         return (
           <div className="space-y-6">
+            {/* Seção Localização e Disponibilidade */}
+            <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-2xl p-4 mb-6 border-2 border-green-100">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <div className="w-10 h-10 rounded-xl bg-green-500 flex items-center justify-center text-xl">📍</div>
+                Localização e Disponibilidade
+              </h3>
+            </div>
+
             {/* Cidades de Atendimento */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">Cidades que Você Atende * (máx. 5)</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Cidades onde você pode atender *</label>
+              <p className="text-xs text-gray-500 mb-3">Selecione até 3 cidades</p>
               
               {/* Input para adicionar cidade */}
               <div className="grid grid-cols-12 gap-3 mb-4">
@@ -623,14 +688,16 @@ export default function CadastroProfissional() {
                     onChange={(e) => handleInputChange("cidade_input", e.target.value)}
                     placeholder="Ex: Goiânia"
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), adicionarCidade())}
-                    className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
+                    disabled={formData.cidades_atendimento.length >= 3}
+                    className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
                 </div>
                 <div className="col-span-3">
                   <select
                     value={formData.uf_input}
                     onChange={(e) => handleInputChange("uf_input", e.target.value)}
-                    className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 appearance-none bg-white cursor-pointer transition-all outline-none"
+                    disabled={formData.cidades_atendimento.length >= 3}
+                    className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 appearance-none bg-white cursor-pointer transition-all outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                   >
                     <option value="">UF</option>
                     {["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"].map(uf => (
@@ -642,12 +709,19 @@ export default function CadastroProfissional() {
                   <button
                     type="button"
                     onClick={adicionarCidade}
-                    className="w-full h-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-xl hover:shadow-lg transition-all"
+                    disabled={formData.cidades_atendimento.length >= 3}
+                    className="w-full h-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     +
                   </button>
                 </div>
               </div>
+              
+              {formData.cidades_atendimento.length >= 3 && (
+                <p className="text-xs text-orange-600 mb-3 font-medium">
+                  ⚠️ Limite máximo de 3 cidades atingido
+                </p>
+              )}
 
               {/* Lista de cidades adicionadas */}
               {formData.cidades_atendimento.length > 0 && (
@@ -708,32 +782,37 @@ export default function CadastroProfissional() {
               )}
             </div>
 
-            {/* Turno e Carga Horária */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Turno Preferido *</label>
-                <select
-                  value={formData.turno_preferido}
-                  onChange={(e) => handleInputChange("turno_preferido", e.target.value)}
-                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 appearance-none bg-white cursor-pointer transition-all outline-none"
-                >
-                  <option value="">Selecione</option>
-                  <option value="MANHA">Manhã</option>
-                  <option value="TARDE">Tarde</option>
-                  <option value="NOITE">Noite</option>
-                  <option value="INTEGRAL">Integral (qualquer turno)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Carga Horária Desejada (opcional)</label>
-                <input
-                  type="text"
-                  value={formData.carga_horaria_desejada}
-                  onChange={(e) => handleInputChange("carga_horaria_desejada", e.target.value)}
-                  placeholder="Ex: 20h semanais, 4h por dia"
-                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
-                />
+            {/* Período (checkboxes) */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">Período *</label>
+              <div className="space-y-3">
+                {[
+                  { value: "MANHA", label: "☀️ Manhã (08h-12h)" },
+                  { value: "TARDE", label: "🌤️ Tarde (13h-18h)" },
+                  { value: "NOITE", label: "🌙 Noite (18h-22h)" },
+                  { value: "A_COMBINAR", label: "🕐 A Combinar" }
+                ].map((periodo) => (
+                  <div
+                    key={periodo.value}
+                    className={`border-2 rounded-2xl p-4 cursor-pointer transition-all ${
+                      formData.turno_preferido === periodo.value
+                        ? "border-yellow-400 bg-yellow-50"
+                        : "border-gray-200 hover:border-yellow-300"
+                    }`}
+                    onClick={() => handleInputChange("turno_preferido", periodo.value)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                        formData.turno_preferido === periodo.value ? "border-yellow-400 bg-yellow-400" : "border-gray-300"
+                      }`}>
+                        {formData.turno_preferido === periodo.value && (
+                          <CheckCircle2 className="w-3 h-3 text-white" />
+                        )}
+                      </div>
+                      <span className="font-medium text-gray-900">{periodo.label}</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -849,10 +928,16 @@ export default function CadastroProfissional() {
               </div>
               
               <div className="space-y-4">
-                {/* Foto de Perfil */}
+                {/* Sua Foto Profissional */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Foto de Perfil (recomendado)</label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:border-yellow-400 hover:bg-yellow-50/50 transition-all cursor-pointer group">
+                  <div className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-2xl p-4 mb-4 border-2 border-pink-100">
+                    <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                      <div className="w-10 h-10 rounded-xl bg-pink-500 flex items-center justify-center text-xl">📸</div>
+                      Sua Foto Profissional
+                    </h3>
+                  </div>
+
+                  <div className="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:border-yellow-400 transition-all cursor-pointer">
                     <input
                       type="file"
                       id="foto_perfil"
@@ -861,17 +946,48 @@ export default function CadastroProfissional() {
                       className="hidden"
                     />
                     <label htmlFor="foto_perfil" className="cursor-pointer">
-                      <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 group-hover:bg-yellow-100 flex items-center justify-center transition-all">
-                        <Camera className="w-8 h-8 text-gray-400 group-hover:text-yellow-500" />
+                      {/* Preview quadrado */}
+                      <div className={`w-40 h-40 mx-auto mb-4 rounded-2xl bg-gray-100 overflow-hidden ${
+                        formData.foto_perfil ? "ring-4 ring-yellow-400" : ""
+                      }`}>
+                        {formData.foto_perfil ? (
+                          <img src={formData.foto_perfil} alt="Preview" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-6xl">
+                            📷
+                          </div>
+                        )}
                       </div>
-                      <p className="text-gray-700 font-semibold">Clique para enviar</p>
-                      <p className="text-gray-400 text-sm mt-1">JPG ou PNG, máx 5MB</p>
+                      <p className="text-gray-700 font-semibold mb-2">Foto no estilo Instagram</p>
+                      <p className="text-gray-400 text-sm mb-2">Formato quadrado (1:1), mínimo 500x500px</p>
+                      <p className="text-gray-500 text-xs">💡 Use uma foto profissional de rosto</p>
+                      
+                      {formData.foto_perfil && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            document.getElementById('foto_perfil').click();
+                          }}
+                          className="mt-4 px-6 py-2 bg-yellow-400 text-gray-900 font-bold rounded-xl hover:bg-yellow-500 transition-all">
+                          Trocar Foto
+                        </button>
+                      )}
+                      {!formData.foto_perfil && (
+                        <div className="flex gap-2 justify-center mt-4">
+                          <button
+                            type="button"
+                            className="px-4 py-2 bg-yellow-400 text-gray-900 font-bold rounded-xl hover:bg-yellow-500 transition-all">
+                            📷 Escolher Foto
+                          </button>
+                          <button
+                            type="button"
+                            className="px-4 py-2 bg-blue-400 text-white font-bold rounded-xl hover:bg-blue-500 transition-all md:hidden">
+                            📱 Tirar Foto
+                          </button>
+                        </div>
+                      )}
                     </label>
-                    {formData.foto_perfil && (
-                      <p className="text-green-600 text-sm mt-2 flex items-center justify-center gap-1">
-                        <CheckCircle2 className="w-4 h-4" /> Arquivo enviado!
-                      </p>
-                    )}
                   </div>
                 </div>
 
