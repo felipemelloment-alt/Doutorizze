@@ -21,76 +21,37 @@ import {
 
 export default function MarketplaceDetail() {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const [user, setUser] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const urlParams = new URLSearchParams(window.location.search);
   const itemId = urlParams.get("id");
 
-  useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const currentUser = await base44.auth.me();
-        setUser(currentUser);
-      } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
-      }
-    };
-    loadUser();
-  }, []);
-
   const { data: item, isLoading, error } = useQuery({
     queryKey: ["marketplaceItem", itemId],
     queryFn: async () => {
-      if (!itemId) return null;
+      if (!itemId) throw new Error("ID não fornecido");
       
       const items = await base44.entities.MarketplaceItem.filter({ id: itemId });
       
-      if (items.length > 0) {
-        return items[0];
-      }
-      return null;
+      if (items.length === 0) throw new Error("Item não encontrado");
+      
+      return items[0];
     },
     enabled: !!itemId,
-    staleTime: 1000 * 60 * 5,
+    retry: 1,
   });
 
-  // Incrementar visualizações apenas uma vez
+  // Incrementar visualizações
   useEffect(() => {
     if (item?.id) {
       base44.entities.MarketplaceItem.update(item.id, {
         visualizacoes: (item.visualizacoes || 0) + 1,
-      }).catch(err => console.error("Erro ao incrementar views:", err));
+      }).catch(() => {});
     }
   }, [item?.id]);
 
-  const handleWhatsAppContact = () => {
-    if (!item?.telefone_contato || !item?.titulo_item) return;
-    const message = encodeURIComponent(
-      `Olá! Tenho interesse no item: ${item.titulo_item} - R$ ${formatPrice(
-        item.preco
-      )}`
-    );
-    window.open(`https://wa.me/55${item.telefone_contato}?text=${message}`, "_blank");
-  };
-
-  const handleShare = () => {
-    if (!item) return;
-    const url = window.location.href;
-    if (navigator.share) {
-      navigator.share({
-        title: item.titulo_item,
-        text: `Confira este item no Marketplace: ${item.titulo_item}`,
-        url: url,
-      });
-    } else {
-      navigator.clipboard.writeText(url);
-      alert("Link copiado para a área de transferência!");
-    }
-  };
-
   const formatPrice = (price) => {
+    if (!price) return "R$ 0";
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
       currency: "BRL",
@@ -98,281 +59,283 @@ export default function MarketplaceDetail() {
     }).format(price);
   };
 
-  if (!itemId) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 p-6 flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <p className="text-gray-600 font-semibold">Item não encontrado</p>
-          <Button onClick={() => navigate(createPageUrl("Marketplace"))} className="mt-4">
-            Voltar ao Marketplace
-          </Button>
-        </div>
-      </div>
+  const handleWhatsAppContact = () => {
+    if (!item?.telefone_contato) return;
+    const message = encodeURIComponent(
+      `Olá! Tenho interesse no item: ${item.titulo_item || 'equipamento'} - ${formatPrice(item.preco)}`
     );
-  }
+    window.open(`https://wa.me/55${item.telefone_contato}?text=${message}`, "_blank");
+  };
 
+  const handleShare = () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      navigator.share({
+        title: item?.titulo_item || "Equipamento",
+        text: `Confira este item no Marketplace`,
+        url: url,
+      }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(url);
+      alert("Link copiado!");
+    }
+  };
+
+  const nextImage = () => {
+    const images = item?.fotos || [];
+    if (images.length > 0) {
+      setSelectedImageIndex((prev) => (prev + 1) % images.length);
+    }
+  };
+
+  const prevImage = () => {
+    const images = item?.fotos || [];
+    if (images.length > 0) {
+      setSelectedImageIndex((prev) => (prev - 1 + images.length) % images.length);
+    }
+  };
+
+  // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 p-6 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-yellow-400 mx-auto mb-4"></div>
-          <p className="text-gray-600 font-semibold">Carregando item...</p>
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 p-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="animate-pulse space-y-6">
+            <div className="h-10 w-32 bg-gray-200 rounded-xl"></div>
+            <div className="h-96 bg-gray-200 rounded-3xl"></div>
+            <div className="h-32 bg-gray-200 rounded-3xl"></div>
+            <div className="h-64 bg-gray-200 rounded-3xl"></div>
+          </div>
         </div>
       </div>
     );
   }
 
-  if (error || !item) {
+  // Not found state
+  if (!itemId || error || !item) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 p-6 flex items-center justify-center">
         <div className="text-center">
-          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <p className="text-gray-600 font-semibold mb-2">Erro ao carregar item</p>
-          <p className="text-gray-500 text-sm mb-4">{error?.message || "Item não encontrado"}</p>
-          <Button onClick={() => navigate(createPageUrl("Marketplace"))} className="gradient-yellow-pink text-white border-0">
+          <div className="text-8xl mb-6">😕</div>
+          <h2 className="text-3xl font-black text-gray-900 mb-2">Equipamento não encontrado</h2>
+          <p className="text-gray-600 mb-6">Este anúncio pode ter sido removido ou não existe.</p>
+          <button
+            onClick={() => navigate(createPageUrl("Marketplace"))}
+            className="px-8 py-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-2xl hover:scale-105 transition-all">
             Voltar ao Marketplace
-          </Button>
+          </button>
         </div>
       </div>
     );
   }
 
-  const images = item.fotos && item.fotos.length > 0 ? item.fotos : [];
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50">
-      {/* Header */}
-      <div className="gradient-yellow-pink py-6 shadow-xl">
-        <div className="container mx-auto px-4">
-          <Button
-            variant="ghost"
-            onClick={() => navigate(createPageUrl("Marketplace"))}
-            className="text-white hover:bg-white/20 mb-4"
-          >
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Voltar ao Marketplace
-          </Button>
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 p-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="animate-pulse space-y-6">
+            <div className="h-10 w-32 bg-gray-200 rounded-xl"></div>
+            <div className="h-96 bg-gray-200 rounded-3xl"></div>
+            <div className="h-32 bg-gray-200 rounded-3xl"></div>
+            <div className="h-64 bg-gray-200 rounded-3xl"></div>
+          </div>
         </div>
       </div>
+    );
+  }
 
-      <div className="container mx-auto px-3 md:px-4 py-6 md:py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-          {/* Left Column - Images */}
-          <div className="space-y-4">
-            {/* Main Image */}
-            <Card className="border-4 border-[#F9B500] overflow-hidden shadow-xl">
-              <CardContent className="p-0">
-                <div className="relative w-full h-96 bg-gray-100">
-                  {images.length > 0 ? (
-                    <img
-                      src={images[selectedImageIndex]}
-                      alt={item.titulo_item}
-                      className="w-full h-full object-contain"
+  // Not found state
+  if (!itemId || error || !item) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 p-6 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-8xl mb-6">😕</div>
+          <h2 className="text-3xl font-black text-gray-900 mb-2">Equipamento não encontrado</h2>
+          <p className="text-gray-600 mb-6">Este anúncio pode ter sido removido ou não existe.</p>
+          <button
+            onClick={() => navigate(createPageUrl("Marketplace"))}
+            className="px-8 py-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-2xl hover:scale-105 transition-all">
+            Voltar ao Marketplace
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const images = item?.fotos || [];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 pb-32">
+      {/* Botão Voltar */}
+      <button
+        onClick={() => navigate(createPageUrl("Marketplace"))}
+        className="flex items-center gap-2 text-gray-600 hover:text-yellow-500 font-medium p-4">
+        <ArrowLeft className="w-5 h-5" />
+        Voltar ao Marketplace
+      </button>
+
+      <div className="max-w-6xl mx-auto">
+        {/* Galeria de Imagens */}
+        <div className="mx-4 mb-6">
+          <div className="relative rounded-3xl overflow-hidden bg-gray-100 h-72 md:h-96">
+            {images.length > 0 ? (
+              <>
+                <img
+                  src={images[selectedImageIndex]}
+                  alt={item.titulo_item}
+                  className="w-full h-full object-cover"
+                />
+                
+                {/* Setas de navegação */}
+                {images.length > 1 && (
+                  <>
+                    <button
+                      onClick={prevImage}
+                      className="absolute top-1/2 -translate-y-1/2 left-4 w-12 h-12 bg-white/80 backdrop-blur rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-all">
+                      <ChevronLeft className="w-6 h-6 text-gray-900" />
+                    </button>
+                    <button
+                      onClick={nextImage}
+                      className="absolute top-1/2 -translate-y-1/2 right-4 w-12 h-12 bg-white/80 backdrop-blur rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-all">
+                      <ChevronRight className="w-6 h-6 text-gray-900" />
+                    </button>
+                  </>
+                )}
+
+                {/* Indicadores */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                  {images.map((_, idx) => (
+                    <div
+                      key={idx}
+                      className={`w-3 h-3 rounded-full ${
+                        selectedImageIndex === idx ? "bg-yellow-400" : "bg-white/60"
+                      }`}
                     />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-9xl">
-                        {item.tipo_mundo === "ODONTOLOGIA" ? "🦷" : "⚕️"}
-                      </span>
-                    </div>
-                  )}
+                  ))}
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Thumbnail Images */}
-            {images.length > 1 && (
-              <div className="flex gap-3">
-                {images.map((img, idx) => (
-                  <motion.button
-                    key={idx}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setSelectedImageIndex(idx)}
-                    className={`flex-1 h-24 rounded-xl overflow-hidden border-4 ${
-                      selectedImageIndex === idx
-                        ? "border-[#F9B500]"
-                        : "border-gray-200"
-                    }`}
-                  >
-                    <img
-                      src={img}
-                      alt={`Foto ${idx + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </motion.button>
-                ))}
+              </>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-9xl">
+                {item.tipo_mundo === "ODONTOLOGIA" ? "🦷" : "⚕️"}
               </div>
             )}
           </div>
 
-          {/* Right Column - Details */}
-          <div className="space-y-6">
-            {/* Title and Price */}
-            <div>
-              <div className="flex gap-3 mb-4">
-                <Badge className="bg-purple-100 text-purple-700 border-2 border-purple-300 font-bold text-base px-4 py-2">
-                  {item.tipo_mundo === "ODONTOLOGIA" ? "🦷 Odontologia" : "⚕️ Medicina"}
-                </Badge>
-                {item.condicao && (
-                  <Badge className="bg-green-100 text-green-700 border-2 border-green-300 font-bold text-base px-4 py-2">
-                    {item.condicao === "NOVO" && "Novo"}
-                    {item.condicao === "SEMINOVO" && "Seminovo"}
-                    {item.condicao === "USADO" && "Usado"}
-                  </Badge>
-                )}
+          {/* Miniaturas */}
+          {images.length > 1 && (
+            <div className="flex gap-2 mt-3 overflow-x-auto">
+              {images.map((img, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setSelectedImageIndex(idx)}
+                  className={`w-20 h-20 rounded-xl overflow-hidden cursor-pointer border-2 ${
+                    selectedImageIndex === idx ? "border-yellow-400" : "border-transparent hover:border-yellow-400"
+                  } transition-all flex-shrink-0`}>
+                  <img src={img} alt={`Thumb ${idx + 1}`} className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Informações Principais */}
+        <div className="px-4 mb-6">
+          {/* Badges */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            <span className="px-4 py-1.5 bg-pink-100 text-pink-700 rounded-full font-semibold text-sm">
+              {item.tipo_mundo === "ODONTOLOGIA" ? "🦷 Odontologia" : "⚕️ Medicina"}
+            </span>
+            {item.condicao && (
+              <span className="px-4 py-1.5 bg-green-100 text-green-700 rounded-full font-semibold text-sm">
+                {item.condicao === "NOVO" ? "✨ Novo" : item.condicao === "SEMINOVO" ? "⭐ Seminovo" : "🔧 Usado"}
+              </span>
+            )}
+            <span className="px-4 py-1.5 bg-blue-100 text-blue-700 rounded-full font-semibold text-sm">
+              ✅ Disponível
+            </span>
+          </div>
+
+          {/* Título */}
+          <h1 className="text-3xl font-black text-gray-900 mb-4">{item.titulo_item}</h1>
+
+          {/* Card de Preço */}
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border-2 border-green-100 mb-4">
+            <p className="text-4xl font-black text-green-600 mb-4">{formatPrice(item.preco)}</p>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-gray-700">
+                <MapPin className="w-4 h-4" />
+                {item.localizacao}
               </div>
-
-              <h1 className="text-4xl font-black text-gray-900 mb-4">
-                {item.titulo_item}
-              </h1>
-
-              <div className="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-3xl p-6 border-4 border-[#F9B500] shadow-xl">
-                <p className="text-sm text-gray-600 font-semibold mb-2">Preço</p>
-                <p className="text-5xl font-black text-[#F9B500]">
-                  {formatPrice(item.preco)}
-                </p>
+              {item.marca && (
+                <div className="flex items-center gap-2 text-gray-700">
+                  <Tag className="w-4 h-4" />
+                  {item.marca} {item.ano_fabricacao && `• ${item.ano_fabricacao}`}
+                </div>
+              )}
+              <div className="flex items-center gap-2 text-gray-700">
+                <Eye className="w-4 h-4" />
+                {item.visualizacoes || 0} visualizações
               </div>
             </div>
+          </div>
+        </div>
 
-            {/* Description */}
-            <Card className="shadow-xl border-2 border-gray-100 hover:border-[#F9B500] transition-all">
-              <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Descrição</h3>
-                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                  {item.descricao || "Sem descrição disponível."}
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Details */}
-            <Card className="shadow-xl border-2 border-gray-100 hover:border-[#F9B500] transition-all">
-              <CardContent className="p-6 space-y-4">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Detalhes</h3>
-
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-orange-100 rounded-xl">
-                    <MapPin className="w-5 h-5 text-orange-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 font-semibold">Localização</p>
-                    <p className="text-lg font-bold text-gray-900">{item.localizacao}</p>
-                  </div>
-                </div>
-
-                {item.marca && (
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 bg-blue-100 rounded-xl">
-                      <Tag className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500 font-semibold">Marca</p>
-                      <p className="text-lg font-bold text-gray-900">{item.marca}</p>
-                    </div>
-                  </div>
-                )}
-
-                {item.ano_fabricacao && (
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 bg-green-100 rounded-xl">
-                      <Calendar className="w-5 h-5 text-green-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500 font-semibold">Ano</p>
-                      <p className="text-lg font-bold text-gray-900">
-                        {item.ano_fabricacao}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-purple-100 rounded-xl">
-                    <Eye className="w-5 h-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 font-semibold">Visualizações</p>
-                    <p className="text-lg font-bold text-gray-900">
-                      {item.visualizacoes || 0}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Anunciante */}
-            <Card className="shadow-xl border-2 border-gray-100">
-              <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Anunciante</h3>
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full gradient-yellow-pink flex items-center justify-center text-white text-2xl font-bold">
-                    {item.anunciante_nome?.[0]?.toUpperCase()}
-                  </div>
-                  <div>
-                    <p className="font-bold text-lg text-gray-900">
-                      {item.anunciante_nome}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      {item.anunciante_tipo === "DENTISTA" && "Dentista"}
-                      {item.anunciante_tipo === "MEDICO" && "Médico"}
-                      {item.anunciante_tipo === "CLINICA" && "Clínica"}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Action Buttons */}
-            <div className="space-y-3">
-              <Button
-                size="lg"
-                onClick={handleWhatsAppContact}
-                className="w-full h-16 gradient-yellow-pink text-white font-bold text-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-105 border-0"
-              >
-                <MessageCircle className="w-6 h-6 mr-3" />
-                TENHO INTERESSE
-                <span className="ml-2 text-xl">💬</span>
-              </Button>
-
-              <div className="grid grid-cols-2 gap-3">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={handleShare}
-                  className="h-14 rounded-2xl border-2 border-gray-200 hover:border-[#F9B500] font-bold"
-                >
-                  <Share2 className="w-5 h-5 mr-2" />
-                  Compartilhar
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="h-14 rounded-2xl border-2 border-gray-200 hover:border-[#F9B500] font-bold"
-                >
-                  <Heart className="w-5 h-5 mr-2" />
-                  Favoritar
-                </Button>
-              </div>
+        {/* Seção Descrição */}
+        <div className="bg-white rounded-3xl shadow-xl mx-4 mb-4 overflow-hidden">
+          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 px-6 py-4 border-b border-yellow-100 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-yellow-400 flex items-center justify-center text-white text-xl">
+              📋
             </div>
+            <h2 className="font-bold text-gray-900 text-lg">Descrição</h2>
+          </div>
+          <div className="p-6 text-gray-700 leading-relaxed whitespace-pre-wrap">
+            {item.descricao || "Sem descrição disponível."}
+          </div>
+        </div>
 
-            {/* Safety Warning */}
-            <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-4">
-              <div className="flex gap-3">
-                <AlertCircle className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" />
-                <div>
-                  <h4 className="font-bold text-blue-900 mb-1">
-                    Dicas de segurança
-                  </h4>
-                  <ul className="text-sm text-blue-700 space-y-1">
-                    <li>• Combine encontros em locais públicos</li>
-                    <li>• Verifique o equipamento antes de comprar</li>
-                    <li>• Prefira pagamentos seguros</li>
-                    <li>• Peça nota fiscal ou documento do produto</li>
-                  </ul>
-                </div>
-              </div>
+        {/* Seção Anunciante */}
+        <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-3xl p-6 mx-4 mb-6">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-2xl text-white font-bold">
+              {item.anunciante_nome?.[0]?.toUpperCase() || "?"}
             </div>
+            <div className="flex-1">
+              <p className="font-bold text-gray-900 text-lg">{item.anunciante_nome || "Anunciante"}</p>
+              <p className="text-gray-600 text-sm mb-1">
+                {item.anunciante_tipo === "DENTISTA" && "Dentista"}
+                {item.anunciante_tipo === "MEDICO" && "Médico"}
+                {item.anunciante_tipo === "CLINICA" && "Clínica"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Botões de Ação Fixos */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-2xl z-50">
+        <div className="max-w-6xl mx-auto">
+          {/* WhatsApp principal */}
+          <button
+            onClick={handleWhatsAppContact}
+            className="w-full py-4 bg-green-500 hover:bg-green-600 text-white font-bold rounded-2xl flex items-center justify-center gap-3 shadow-lg mb-3 transition-all">
+            💬 Chamar no WhatsApp
+          </button>
+
+          {/* Grid 2 botões */}
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => alert("Funcionalidade em breve!")}
+              className="py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl flex items-center justify-center gap-2 hover:border-red-300 hover:text-red-500 transition-all">
+              <Heart className="w-5 h-5" />
+              Favoritar
+            </button>
+            <button
+              onClick={handleShare}
+              className="py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl flex items-center justify-center gap-2 hover:border-blue-300 hover:text-blue-500 transition-all">
+              <Share2 className="w-5 h-5" />
+              Compartilhar
+            </button>
           </div>
         </div>
       </div>
