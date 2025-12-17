@@ -7,7 +7,7 @@ export default function CadastroSucesso() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-8">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-4 md:p-8">
       <Card className="max-w-lg w-full border-2 border-green-200 shadow-lg">
         <CardContent className="p-8 text-center">
           <div className="w-20 h-20 mx-auto mb-6 bg-green-100 rounded-full flex items-center justify-center">

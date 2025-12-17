@@ -161,8 +161,8 @@ export default function TestJob() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-8">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8">
+      <div className="max-w-6xl mx-auto space-y-6 md:space-y-8">
         
         {/* SEÇÃO 1 - Criar Vaga */}
         <Card className="border-2 border-blue-200 shadow-lg">
@@ -213,7 +213,7 @@ export default function TestJob() {
                 <p className="text-gray-500 text-lg">Nenhuma vaga cadastrada ainda</p>
               </div>
             ) : (
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                 {vagas.map((vaga) => {
                   const unit = unitsMap[vaga.unit_id];
                   return (

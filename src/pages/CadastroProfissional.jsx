@@ -999,7 +999,7 @@ export default function CadastroProfissional() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         <Card className="border-2 border-blue-200 shadow-lg">
           <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-t-lg">

@@ -8,11 +8,11 @@ export default function EscolherTipoCadastro() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4 md:p-8">
       <div className="max-w-4xl w-full">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">
+        <div className="text-center mb-8 md:mb-12">
+          <h1 className="text-2xl md:text-4xl font-bold text-gray-800 mb-4">
             Bem-vindo ao Doutorizze
           </h1>
           <p className="text-xl text-gray-600">
@@ -21,7 +21,7 @@ export default function EscolherTipoCadastro() {
         </div>
 
         {/* Cards de Escolha */}
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           {/* Card Profissional */}
           <Card
             className="border-2 border-blue-200 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer"
