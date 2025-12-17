@@ -97,6 +97,10 @@ export default function CadastroClinica() {
   };
 
   const handleInputChange = (campo, valor) => {
+    // Normalizar nomes e razão social: remover espaços duplicados e trim inicial
+    if (campo === "razao_social" || campo === "nome_fantasia" || campo === "nome_responsavel") {
+      valor = valor.trimStart().replace(/\s{2,}/g, ' ');
+    }
     setFormData(prev => ({ ...prev, [campo]: valor }));
   };
 
@@ -149,12 +153,12 @@ export default function CadastroClinica() {
           toast.error("Selecione o tipo de clínica");
           return false;
         }
-        if (!formData.razao_social) {
-          toast.error("Preencha a razão social");
+        if (!formData.razao_social.trim() || formData.razao_social.trim().length < 3) {
+          toast.error("Razão social deve ter no mínimo 3 caracteres");
           return false;
         }
-        if (!formData.nome_fantasia) {
-          toast.error("Preencha o nome fantasia");
+        if (!formData.nome_fantasia.trim() || formData.nome_fantasia.trim().length < 3) {
+          toast.error("Nome fantasia deve ter no mínimo 3 caracteres");
           return false;
         }
         if (!formData.cnpj || formData.cnpj.replace(/\D/g, "").length !== 14) {
@@ -172,8 +176,8 @@ export default function CadastroClinica() {
         return true;
 
       case 2:
-        if (!formData.nome_responsavel) {
-          toast.error("Preencha o nome do responsável");
+        if (!formData.nome_responsavel.trim() || formData.nome_responsavel.trim().length < 3) {
+          toast.error("Nome do responsável deve ter no mínimo 3 caracteres");
           return false;
         }
         if (!formData.cpf_responsavel || formData.cpf_responsavel.replace(/\D/g, "").length !== 11) {
@@ -261,7 +265,7 @@ export default function CadastroClinica() {
       // Criar CompanyOwner
       const dadosOwner = {
         user_id: user.id,
-        nome_completo: formData.nome_responsavel,
+        nome_completo: formData.nome_responsavel.trim(),
         cpf: formData.cpf_responsavel.replace(/\D/g, ""),
         whatsapp: formData.whatsapp.replace(/\D/g, ""),
         email: formData.email,
@@ -274,8 +278,8 @@ export default function CadastroClinica() {
       // Criar CompanyUnit
       const dadosUnit = {
         owner_id: owner.id,
-        razao_social: formData.razao_social,
-        nome_fantasia: formData.nome_fantasia,
+        razao_social: formData.razao_social.trim(),
+        nome_fantasia: formData.nome_fantasia.trim(),
         cnpj: formData.cnpj.replace(/\D/g, ""),
         tipo_empresa: "CLINICA",
         tipo_mundo: formData.tipo_mundo,
@@ -377,8 +381,10 @@ export default function CadastroClinica() {
                   value={formData.razao_social}
                   onChange={(e) => handleInputChange("razao_social", e.target.value)}
                   placeholder="Clínica Odontológica Silva Ltda"
+                  maxLength={120}
                   className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
                 />
+                <p className="text-xs text-gray-500 mt-1">{formData.razao_social.length}/120 caracteres</p>
               </div>
 
               <div className="md:col-span-2">
@@ -388,8 +394,10 @@ export default function CadastroClinica() {
                   value={formData.nome_fantasia}
                   onChange={(e) => handleInputChange("nome_fantasia", e.target.value)}
                   placeholder="Clínica Silva"
+                  maxLength={120}
                   className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
                 />
+                <p className="text-xs text-gray-500 mt-1">{formData.nome_fantasia.length}/120 caracteres</p>
               </div>
 
               <div>
@@ -459,8 +467,10 @@ export default function CadastroClinica() {
                   value={formData.nome_responsavel}
                   onChange={(e) => handleInputChange("nome_responsavel", e.target.value)}
                   placeholder="Dr. João Silva"
+                  maxLength={120}
                   className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
                 />
+                <p className="text-xs text-gray-500 mt-1">{formData.nome_responsavel.length}/120 caracteres</p>
               </div>
 
               <div>

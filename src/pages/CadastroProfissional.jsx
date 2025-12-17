@@ -96,6 +96,10 @@ export default function CadastroProfissional() {
   };
 
   const handleInputChange = (campo, valor) => {
+    // Normalizar nomes: remover espaços duplicados e trim inicial
+    if (campo === "nome_completo") {
+      valor = valor.trimStart().replace(/\s{2,}/g, ' ');
+    }
     setFormData(prev => ({ ...prev, [campo]: valor }));
   };
 
@@ -167,8 +171,8 @@ export default function CadastroProfissional() {
           toast.error("Selecione o tipo de profissional");
           return false;
         }
-        if (!formData.nome_completo) {
-          toast.error("Preencha o nome completo");
+        if (!formData.nome_completo.trim() || formData.nome_completo.trim().length < 3) {
+          toast.error("Nome completo deve ter no mínimo 3 caracteres");
           return false;
         }
         if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
@@ -302,7 +306,7 @@ export default function CadastroProfissional() {
 
       const dadosProfissional = {
         user_id: user.id,
-        nome_completo: formData.nome_completo,
+        nome_completo: formData.nome_completo.trim(),
         cpf: formData.cpf.replace(/\D/g, ""),
         data_nascimento: dataNascimento,
         whatsapp: formData.whatsapp.replace(/\D/g, ""),
@@ -409,8 +413,10 @@ export default function CadastroProfissional() {
                   value={formData.nome_completo}
                   onChange={(e) => handleInputChange("nome_completo", e.target.value)}
                   placeholder="João Silva"
+                  maxLength={120}
                   className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                 />
+                <p className="text-xs text-gray-500 mt-1">{formData.nome_completo.length}/120 caracteres</p>
               </div>
 
               <div>
