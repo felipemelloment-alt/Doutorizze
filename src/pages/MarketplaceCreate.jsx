@@ -18,7 +18,7 @@ import {
 "@/components/ui/select";
 import RadarInterestsModal from "../components/marketplace/RadarInterestsModal";
 import { toast } from "sonner";
-import { ArrowLeft, Upload, X, Check, Users, Radar, Zap } from "lucide-react";
+import { ArrowLeft, Upload, X, Check, Users, Radar, Zap, Camera, ShoppingBag, MapPin, Phone } from "lucide-react";
 
 export default function MarketplaceCreate() {
   const navigate = useNavigate();
@@ -176,147 +176,159 @@ export default function MarketplaceCreate() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 py-6">
       {/* Header */}
-      <div className="gradient-yellow-pink py-8 md:py-12 shadow-xl">
-        <div className="container mx-auto px-4">
-          <Button
-            variant="ghost"
-            onClick={() => navigate(createPageUrl("Marketplace"))}
-            className="text-white hover:bg-white/20 mb-6 font-bold">
+      <div className="max-w-4xl mx-auto">
+        <button
+          onClick={() => navigate(createPageUrl("Marketplace"))}
+          className="flex items-center gap-2 text-gray-600 hover:text-yellow-500 font-medium mb-6 px-4">
+          <ArrowLeft className="w-5 h-5" />
+          Voltar
+        </button>
 
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Voltar ao Marketplace
-          </Button>
-          <div className="flex items-center gap-4 mb-4">
-            <div className="p-4 bg-white rounded-2xl shadow-xl">
-              <Upload className="w-10 h-10 text-pink-600" />
+        {/* Card Header */}
+        <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 rounded-3xl p-8 mx-4 mb-6 relative overflow-hidden">
+          {/* Decoração */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
+          <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/20 rounded-full blur-3xl"></div>
+          <div className="absolute top-4 right-8 text-4xl animate-pulse">⚡</div>
+          <div className="absolute bottom-4 left-8 text-3xl animate-pulse" style={{ animationDelay: '0.5s' }}>⚡</div>
+          
+          <div className="relative z-10">
+            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-3xl mb-4">
+              📢
             </div>
-            <div>
-              <h1 className="text-4xl md:text-6xl font-black text-[#F9B500] text-shadow-lg whitespace-nowrap">
-                CRIAR ANÚNCIO
-              </h1>
-              <p className="text-white text-base md:text-lg mt-2 font-bold">
-                Anuncie seu equipamento no marketplace 🚀
-              </p>
-            </div>
+            <h1 className="text-3xl font-black text-white mb-2" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.2)' }}>
+              Anunciar Equipamento
+            </h1>
+            <p className="text-white/80">Preencha os dados para publicar seu anúncio</p>
           </div>
         </div>
-      </div>
-
-      <div className="container mx-auto px-3 md:px-4 py-6 md:py-8 max-w-4xl">
         {/* Radar Alert */}
-        {matchingInterests.length > 0 &&
-        <Card className="mb-8 border-4 border-green-400 bg-gradient-to-r from-green-50 to-teal-50 shadow-2xl rounded-3xl overflow-hidden">
-            <CardContent className="p-6 md:p-8">
-              <div className="flex flex-col md:flex-row items-start gap-6">
-                <div className="p-4 bg-gradient-to-br from-green-400 to-teal-500 rounded-2xl shadow-xl flex-shrink-0">
-                  <Radar className="w-10 h-10 md:w-12 md:h-12 text-white" />
-                </div>
-                <div className="flex-1 w-full min-w-0">
-                  <h3 className="text-2xl md:text-3xl font-black text-gray-900 mb-3 break-words">
-                    🎯 {matchingInterests.length}{" "}
-                    {matchingInterests.length === 1 ? "pessoa está" : "pessoas estão"} procurando
-                    este produto!
-                  </h3>
-                  <p className="text-base md:text-lg text-gray-700 font-bold mb-6">
-                    Existem interessados no <span className="text-green-600">Radar de Produtos</span> que serão
-                    automaticamente notificados quando você publicar este anúncio.
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Button
-                    onClick={() => setRadarInterestsModalOpen(true)}
-                    className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-pink-500 text-white font-black text-base rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-105 border-0 px-6 py-4">
-
-                      <Users className="w-5 h-5 mr-2" />
-                      Ver Interessados
-                    </Button>
-                    <Badge className="px-6 py-3 bg-green-500 text-white text-base font-bold rounded-xl shadow-lg flex items-center justify-center">
-                      <Zap className="w-5 h-5 mr-2" />
-                      Notificação automática ao publicar
-                    </Badge>
-                  </div>
-                </div>
+        {matchingInterests.length > 0 && (
+          <div className="mx-4 mb-6 bg-gradient-to-r from-green-50 to-teal-50 border-4 border-green-300 rounded-3xl p-6 relative overflow-hidden">
+            <div className="flex flex-col md:flex-row items-start gap-6">
+              <div className="p-4 bg-gradient-to-br from-green-400 to-teal-500 rounded-2xl shadow-xl flex-shrink-0">
+                <Radar className="w-10 h-10 md:w-12 md:h-12 text-white" />
               </div>
-            </CardContent>
-          </Card>
-        }
+              <div className="flex-1">
+                <h3 className="text-2xl font-black text-gray-900 mb-3">
+                  🎯 {matchingInterests.length} {matchingInterests.length === 1 ? "pessoa está" : "pessoas estão"} procurando este produto!
+                </h3>
+                <p className="text-gray-700 font-semibold mb-4">
+                  Existem interessados no Radar de Produtos que serão notificados quando você publicar.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setRadarInterestsModalOpen(true)}
+                  className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  Ver Interessados
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
-          <Card className="shadow-2xl border-4 border-[#F9B500] rounded-3xl overflow-hidden">
-            <CardHeader className="p-6 md:p-8 bg-gradient-to-r from-yellow-50 to-orange-50 border-b-4 border-[#F9B500]">
-              <CardTitle className="text-2xl md:text-3xl font-black text-gray-900">📦 Informações do Equipamento</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6 p-6 md:p-8">
-              {/* Tipo */}
-              <div>
-                <Label className="text-base font-bold">Categoria *</Label>
-                <Select
-                  value={formData.tipo_mundo}
-                  onValueChange={(value) =>
-                  setFormData({ ...formData, tipo_mundo: value })
-                  }>
-
-                  <SelectTrigger className="h-14 rounded-xl border-2 text-lg mt-2">
-                    <SelectValue placeholder="Selecione a categoria" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ODONTOLOGIA">🦷 Odontologia</SelectItem>
-                    <SelectItem value="MEDICINA">⚕️ Medicina</SelectItem>
-                  </SelectContent>
-                </Select>
+          {/* Seção Fotos */}
+          <div className="bg-white rounded-3xl shadow-xl mx-4 mb-6 overflow-hidden">
+            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 px-6 py-4 border-b border-yellow-100 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-yellow-400 flex items-center justify-center text-white text-xl">
+                📸
               </div>
+              <h2 className="font-bold text-gray-900 text-lg">Fotos do Equipamento</h2>
+            </div>
+            <div className="p-6">
+              {/* Preview das fotos */}
+              {formData.fotos.length > 0 && (
+                <div className="grid grid-cols-4 gap-3 mb-4">
+                  {formData.fotos.map((url, index) => (
+                    <div key={index} className="aspect-square rounded-xl overflow-hidden relative group border-2 border-gray-200">
+                      <img src={url} alt={`Foto ${index + 1}`} className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(index)}
+                        className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
 
-              {/* Título */}
+              {/* Upload */}
+              {formData.fotos.length < 3 && (
+                <label className="block">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    disabled={uploading}
+                  />
+                  <div className="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:border-yellow-400 hover:bg-yellow-50/50 transition-all cursor-pointer">
+                    {uploading ? (
+                      <div className="space-y-3">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-yellow-400 mx-auto"></div>
+                        <p className="text-gray-600 font-semibold">Enviando fotos...</p>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="text-6xl text-gray-300 mb-4">📷</div>
+                        <p className="text-gray-500 font-medium">Clique ou arraste para adicionar fotos</p>
+                        <p className="text-gray-400 text-sm mt-2">Até 3 fotos • JPG ou PNG</p>
+                      </div>
+                    )}
+                  </div>
+                </label>
+              )}
+            </div>
+          </div>
+
+          {/* Seção Informações */}
+          <div className="bg-white rounded-3xl shadow-xl mx-4 mb-6 overflow-hidden">
+            <div className="bg-gradient-to-r from-pink-50 to-red-50 px-6 py-4 border-b border-pink-100 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-pink-400 to-red-400 flex items-center justify-center text-white text-xl">
+                📋
+              </div>
+              <h2 className="font-bold text-gray-900 text-lg">Informações do Equipamento</h2>
+            </div>
+            <div className="p-6 space-y-6">
+              {/* Título do anúncio */}
               <div>
-                <Label className="text-base font-bold">Título do Anúncio *</Label>
-                <Input
-                  placeholder="Ex: Cadeira Odontológica Gnatus"
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Título do Anúncio *</label>
+                <input
+                  type="text"
+                  placeholder="Ex: Cadeira Odontológica Gnatus G2"
                   value={formData.titulo_item}
-                  onChange={(e) =>
-                  setFormData({ ...formData, titulo_item: e.target.value })
-                  }
-                  className="h-14 text-lg rounded-xl border-2 mt-2" />
-
+                  onChange={(e) => setFormData({ ...formData, titulo_item: e.target.value })}
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all text-lg outline-none"
+                />
               </div>
 
-              {/* Descrição */}
-              <div>
-                <Label className="text-base font-bold">Descrição</Label>
-                <Textarea
-                  placeholder="Descreva o equipamento, estado de conservação, etc."
-                  value={formData.descricao}
-                  onChange={(e) =>
-                  setFormData({ ...formData, descricao: e.target.value })
-                  }
-                  className="min-h-32 text-lg rounded-xl border-2 mt-2" />
-
-              </div>
-
-              {/* Grid: Preço, Condição */}
-              <div className="grid md:grid-cols-2 gap-6">
+              {/* Grid 2 colunas */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                {/* Categoria */}
                 <div>
-                  <Label className="text-base font-bold">Preço (R$) *</Label>
-                  <Input
-                    type="number"
-                    placeholder="14000"
-                    value={formData.preco}
-                    onChange={(e) =>
-                    setFormData({ ...formData, preco: e.target.value })
-                    }
-                    className="h-14 text-lg rounded-xl border-2 mt-2" />
-
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Categoria *</label>
+                  <Select value={formData.tipo_mundo} onValueChange={(value) => setFormData({ ...formData, tipo_mundo: value })}>
+                    <SelectTrigger className="h-12 rounded-xl border-2">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ODONTOLOGIA">🦷 Odontologia</SelectItem>
+                      <SelectItem value="MEDICINA">⚕️ Medicina</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
+                {/* Estado */}
                 <div>
-                  <Label className="text-base font-bold">Condição</Label>
-                  <Select
-                    value={formData.condicao}
-                    onValueChange={(value) =>
-                    setFormData({ ...formData, condicao: value })
-                    }>
-
-                    <SelectTrigger className="h-14 rounded-xl border-2 text-lg mt-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Estado *</label>
+                  <Select value={formData.condicao} onValueChange={(value) => setFormData({ ...formData, condicao: value })}>
+                    <SelectTrigger className="h-12 rounded-xl border-2">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -326,164 +338,144 @@ export default function MarketplaceCreate() {
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
 
-              {/* Grid: Marca, Ano */}
-              <div className="grid md:grid-cols-2 gap-6">
+                {/* Marca */}
                 <div>
-                  <Label className="text-base font-bold">Marca</Label>
-                  <Input
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Marca</label>
+                  <input
+                    type="text"
                     placeholder="Ex: Gnatus"
                     value={formData.marca}
-                    onChange={(e) =>
-                    setFormData({ ...formData, marca: e.target.value })
-                    }
-                    className="h-14 text-lg rounded-xl border-2 mt-2" />
-
+                    onChange={(e) => setFormData({ ...formData, marca: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
+                  />
                 </div>
 
+                {/* Ano */}
                 <div>
-                  <Label className="text-base font-bold">Ano de Fabricação</Label>
-                  <Input
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Ano de Fabricação</label>
+                  <input
                     type="number"
                     placeholder="2020"
                     value={formData.ano_fabricacao}
-                    onChange={(e) =>
-                    setFormData({ ...formData, ano_fabricacao: e.target.value })
-                    }
-                    className="h-14 text-lg rounded-xl border-2 mt-2" />
-
+                    onChange={(e) => setFormData({ ...formData, ano_fabricacao: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
+                  />
                 </div>
               </div>
 
-              {/* Localização */}
-              <div>
-                <Label className="text-base font-bold">Localização *</Label>
-                <Input
-                  placeholder="Cidade - UF (Ex: Goiânia - GO)"
-                  value={formData.localizacao}
-                  onChange={(e) =>
-                  setFormData({ ...formData, localizacao: e.target.value })
-                  }
-                  className="h-14 text-lg rounded-xl border-2 mt-2" />
-
+              {/* Descrição */}
+              <div className="mt-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Descrição</label>
+                <textarea
+                  placeholder="Descreva o equipamento, estado de conservação, acessórios inclusos, etc."
+                  value={formData.descricao}
+                  onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 min-h-[150px] resize-none mt-4 outline-none"
+                ></textarea>
               </div>
+            </div>
+          </div>
 
-              {/* WhatsApp */}
+          {/* Seção Preço */}
+          <div className="bg-white rounded-3xl shadow-xl mx-4 mb-6 overflow-hidden">
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-green-100 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-400 to-emerald-500 flex items-center justify-center text-white text-xl">
+                💰
+              </div>
+              <h2 className="font-bold text-gray-900 text-lg">Preço e Condições</h2>
+            </div>
+            <div className="p-6 space-y-4">
+              {/* Preço */}
               <div>
-                <Label className="text-base font-bold">WhatsApp *</Label>
-                <Input
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Preço *</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">R$</span>
+                  <input
+                    type="number"
+                    placeholder="14000"
+                    value={formData.preco}
+                    onChange={(e) => setFormData({ ...formData, preco: e.target.value })}
+                    className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all text-lg outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Seção Localização */}
+          <div className="bg-white rounded-3xl shadow-xl mx-4 mb-6 overflow-hidden">
+            <div className="bg-gradient-to-r from-orange-50 to-red-50 px-6 py-4 border-b border-orange-100 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-orange-400 to-red-400 flex items-center justify-center text-white text-xl">
+                📍
+              </div>
+              <h2 className="font-bold text-gray-900 text-lg">Localização</h2>
+            </div>
+            <div className="p-6">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Cidade - UF *</label>
+                <input
+                  type="text"
+                  placeholder="Ex: Goiânia - GO"
+                  value={formData.localizacao}
+                  onChange={(e) => setFormData({ ...formData, localizacao: e.target.value })}
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all text-lg outline-none"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Seção Contato */}
+          <div className="bg-white rounded-3xl shadow-xl mx-4 mb-6 overflow-hidden">
+            <div className="bg-gradient-to-r from-green-50 to-teal-50 px-6 py-4 border-b border-green-100 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-green-500 flex items-center justify-center text-white text-xl">
+                📱
+              </div>
+              <h2 className="font-bold text-gray-900 text-lg">Contato</h2>
+            </div>
+            <div className="p-6">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">WhatsApp *</label>
+                <input
+                  type="text"
                   placeholder="62999998888 (apenas números)"
                   value={formData.telefone_contato}
-                  onChange={(e) =>
-                  setFormData({ ...formData, telefone_contato: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, telefone_contato: e.target.value })}
                   maxLength={11}
-                  className="h-14 text-lg rounded-xl border-2 mt-2" />
-
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all text-lg outline-none"
+                />
               </div>
+            </div>
+          </div>
 
-              {/* Fotos */}
-              <div>
-                <Label className="text-base font-bold">Fotos (máximo 3)</Label>
-                <div className="mt-2 space-y-4">
-                  {/* Preview das fotos */}
-                  {formData.fotos.length > 0 &&
-                  <div className="grid grid-cols-3 gap-4">
-                      {formData.fotos.map((url, index) =>
-                    <div
-                      key={index}
-                      className="relative aspect-square rounded-xl overflow-hidden border-4 border-gray-200 group">
-
-                          <img
-                        src={url}
-                        alt={`Foto ${index + 1}`}
-                        className="w-full h-full object-cover" />
-
-                          <button
-                        type="button"
-                        onClick={() => removePhoto(index)}
-                        className="absolute top-2 right-2 p-2 bg-red-500 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity">
-
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                    )}
-                    </div>
-                  }
-
-                  {/* Upload button */}
-                  {formData.fotos.length < 3 &&
-                  <label className="block">
-                      <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleFileUpload}
-                      className="hidden"
-                      disabled={uploading} />
-
-                      <div className="border-4 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-yellow-400 transition-colors">
-                        {uploading ?
-                      <div className="space-y-3">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-yellow-400 mx-auto"></div>
-                            <p className="text-gray-600 font-semibold">
-                              Enviando fotos...
-                            </p>
-                          </div> :
-
-                      <div className="space-y-3">
-                            <Upload className="w-12 h-12 mx-auto text-gray-400" />
-                            <p className="text-gray-600 font-semibold">
-                              Clique para adicionar fotos
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              {formData.fotos.length}/3 fotos
-                            </p>
-                          </div>
-                      }
-                      </div>
-                    </label>
-                  }
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Submit Button */}
-          <div className="mt-8 flex flex-col sm:flex-row gap-4">
-            <Button
+          {/* Botões de Ação */}
+          <div className="flex flex-col-reverse md:flex-row gap-4 px-4 py-6">
+            <button
               type="button"
-              variant="outline"
-              size="lg"
               onClick={() => navigate(createPageUrl("Marketplace"))}
-              className="w-full sm:flex-1 h-14 md:h-16 rounded-2xl border-4 border-gray-200 hover:border-[#F9B500] font-black text-base md:text-lg transition-all">
-
+              className="flex-1 py-4 border-2 border-gray-300 text-gray-700 font-semibold rounded-2xl hover:bg-gray-100 transition-all">
               Cancelar
-            </Button>
-            <Button
+            </button>
+            <button
               type="submit"
-              size="lg"
               disabled={createMutation.isPending}
-              className="w-full sm:flex-1 h-14 md:h-16 gradient-yellow-pink text-white font-black text-base md:text-lg rounded-2xl shadow-2xl hover:shadow-[0_20px_60px_rgba(249,181,0,0.4)] transition-all hover:scale-105 border-0">
-
-              {createMutation.isPending ?
-              <>
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-4 border-white mr-2"></div>
-                  <span className="font-black">Criando...</span>
-                </> :
-
-              <>
-                  <Check className="w-6 h-6 mr-2" />
-                  Publicar Anúncio
-                  {matchingInterests.length > 0 &&
-                <Badge className="ml-2 bg-white text-green-600 font-black px-3 py-1 rounded-full">
-                      +{matchingInterests.length} 🎯
-                    </Badge>
-                }
+              className="flex-1 py-4 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all flex items-center justify-center gap-2 disabled:opacity-50">
+              {createMutation.isPending ? (
+                <>
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-4 border-white"></div>
+                  Publicando...
                 </>
-              }
-            </Button>
+              ) : (
+                <>
+                  📢 Publicar Anúncio
+                  {matchingInterests.length > 0 && (
+                    <span className="ml-2 px-2 py-1 bg-white text-green-600 font-black rounded-full text-sm">
+                      +{matchingInterests.length} 🎯
+                    </span>
+                  )}
+                </>
+              )}
+            </button>
           </div>
         </form>
       </div>
