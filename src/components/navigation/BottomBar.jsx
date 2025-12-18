@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import {
-  House,
+  Newspaper,
   Briefcase,
   PlusCircle,
   ShoppingBag,
@@ -69,9 +69,9 @@ export default function BottomBar() {
   // Configuração de botões para PROFISSIONAL
   const botoesProfissional = [
     {
-      icon: House,
-      label: "Home",
-      page: "HomePage",
+      icon: Newspaper,
+      label: "Feed",
+      page: "Feed",
       isCenter: false
     },
     {
@@ -103,9 +103,9 @@ export default function BottomBar() {
   // Configuração de botões para CLINICA
   const botoesClinica = [
     {
-      icon: House,
-      label: "Home",
-      page: "HomePage",
+      icon: Newspaper,
+      label: "Feed",
+      page: "Feed",
       isCenter: false
     },
     {
