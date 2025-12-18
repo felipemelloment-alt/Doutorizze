@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { createPageUrl } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import ProfessionalCard from "../components/professionals/ProfessionalCard";
 import { motion } from "framer-motion";
+import { formatDistanceToNow } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import {
   Search,
   Zap,
@@ -19,7 +22,9 @@ import {
   MapPin,
   Briefcase,
   Phone,
-  MessageCircle } from
+  MessageCircle,
+  Clock,
+  DollarSign } from
 "lucide-react";
 
 export default function NewJobs() {
@@ -41,22 +46,47 @@ export default function NewJobs() {
     loadUser();
   }, []);
 
-  // Buscar profissionais aprovados
-  const { data: professionals = [], isLoading } = useQuery({
-    queryKey: ["professionals"],
+  // Buscar vagas abertas
+  const { data: jobs = [], isLoading } = useQuery({
+    queryKey: ["jobs"],
     queryFn: async () => {
-      const results = await base44.entities.Professional.filter({
-        status_cadastro: "APROVADO",
-        new_jobs_ativo: true
+      const results = await base44.entities.Job.filter({
+        status: "ABERTO"
       });
-      return results;
+      return results.sort((a, b) => new Date(b.published_at) - new Date(a.published_at));
     }
   });
 
-  // Simular matches (em produção, viria do backend)
-  const superJobs = professionals.filter((p, idx) => idx % 3 === 0);
-  const jobsSemelhante = professionals.filter((p, idx) => idx % 3 === 1);
-  const outrasVagas = professionals.filter((p, idx) => idx % 3 === 2);
+  // Buscar unidades das vagas
+  const { data: units = [] } = useQuery({
+    queryKey: ["units", jobs],
+    queryFn: async () => {
+      if (jobs.length === 0) return [];
+      const unitIds = [...new Set(jobs.map(j => j.unit_id))];
+      const unitPromises = unitIds.map(id =>
+        base44.entities.CompanyUnit.filter({ id }).then(res => res[0])
+      );
+      return (await Promise.all(unitPromises)).filter(Boolean);
+    },
+    enabled: jobs.length > 0
+  });
+
+  // Filtrar vagas por busca
+  const filteredJobs = jobs.filter(job => {
+    const matchesSpecialty = !searchSpecialty || 
+      job.titulo?.toLowerCase().includes(searchSpecialty.toLowerCase()) ||
+      job.especialidades_aceitas?.some(esp => esp.toLowerCase().includes(searchSpecialty.toLowerCase()));
+    
+    const matchesCity = !searchCity || 
+      job.cidade?.toLowerCase().includes(searchCity.toLowerCase());
+    
+    return matchesSpecialty && matchesCity;
+  });
+
+  // Categorizar vagas (simular matches - em produção viria do backend)
+  const superJobs = filteredJobs.filter((j, idx) => idx % 3 === 0);
+  const jobsSemelhante = filteredJobs.filter((j, idx) => idx % 3 === 1);
+  const outrasVagas = filteredJobs.filter((j, idx) => idx % 3 === 2);
 
   const handleToggleNewJobs = async () => {
     setNewJobsActive(!newJobsActive);
@@ -101,7 +131,7 @@ export default function NewJobs() {
           </h1>
           <p className="text-white/90">Encontre a vaga perfeita para você</p>
           <div className="bg-red-600 text-white mt-4 px-4 py-2 font-semibold rounded-full inline-flex items-center gap-2 backdrop-blur">
-            🔥 523 vagas disponíveis
+            🔥 {jobs.length} vagas disponíveis
           </div>
         </div>
       </div>
@@ -188,9 +218,10 @@ export default function NewJobs() {
                 <h2 className="text-xl font-black text-gray-900">SUPER JOBS - Matches Perfeitos! 🌟</h2>
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {superJobs.map((professional) =>
-              <JobCard key={professional.id} professional={professional} isSuperJob />
-              )}
+                {superJobs.map((job) => {
+                  const unit = units.find(u => u.id === job.unit_id);
+                  return <JobCard key={job.id} job={job} unit={unit} isSuperJob />;
+                })}
               </div>
             </div>
           }
@@ -203,9 +234,10 @@ export default function NewJobs() {
                 <h2 className="text-xl font-black text-gray-900">Jobs Semelhante ⭐</h2>
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {jobsSemelhante.map((professional) =>
-              <JobCard key={professional.id} professional={professional} />
-              )}
+                {jobsSemelhante.map((job) => {
+                  const unit = units.find(u => u.id === job.unit_id);
+                  return <JobCard key={job.id} job={job} unit={unit} />;
+                })}
               </div>
             </div>
           }
@@ -218,9 +250,10 @@ export default function NewJobs() {
                 <h2 className="text-xl font-black text-gray-900">Outras Oportunidades</h2>
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {outrasVagas.map((professional) =>
-              <JobCard key={professional.id} professional={professional} />
-              )}
+                {outrasVagas.map((job) => {
+                  const unit = units.find(u => u.id === job.unit_id);
+                  return <JobCard key={job.id} job={job} unit={unit} />;
+                })}
               </div>
             </div>
           }
@@ -277,21 +310,50 @@ function StatCard({ icon: Icon, title, count, description, gradient }) {
 
 }
 
-function JobCard({ professional, isSuperJob }) {
+function JobCard({ job, unit, isSuperJob }) {
+  const navigate = useNavigate();
+
   const handleWhatsApp = () => {
-    const message = encodeURIComponent(`Olá! Tenho interesse na vaga ${professional.especialidade_principal}`);
-    window.open(`https://wa.me/55${professional.whatsapp}?text=${message}`, "_blank");
+    if (unit?.whatsapp) {
+      const message = encodeURIComponent(`Olá! Tenho interesse na vaga: ${job.titulo}`);
+      window.open(`https://wa.me/55${unit.whatsapp}?text=${message}`, "_blank");
+    }
+  };
+
+  const handleVerDetalhes = () => {
+    navigate(createPageUrl("DetalheVaga") + "/" + job.id);
+  };
+
+  const tipoVagaLabels = {
+    PLANTAO: "Plantão",
+    FIXO: "Fixo",
+    SUBSTITUICAO: "Substituição",
+    TEMPORARIO: "Temporário"
+  };
+
+  const tipoRemuneracaoLabels = {
+    FIXO: "/mês",
+    DIARIA: "/dia",
+    PORCENTAGEM: "%",
+    A_COMBINAR: ""
+  };
+
+  const getTimeAgo = (date) => {
+    try {
+      return formatDistanceToNow(new Date(date), { addSuffix: true, locale: ptBR });
+    } catch {
+      return "Recente";
+    }
   };
 
   return (
     <div className={`bg-white rounded-3xl shadow-xl p-6 hover:shadow-2xl hover:scale-[1.01] transition-all cursor-pointer border-2 ${
     isSuperJob ? "border-yellow-400" : "border-transparent hover:border-yellow-400"}`
     }>
-      {/* Layout */}
       <div className="flex flex-col md:flex-row md:items-start gap-4">
         {/* Logo */}
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-100 to-orange-100 flex items-center justify-center text-2xl flex-shrink-0">
-          {professional.nome_completo?.[0]?.toUpperCase() || "🏥"}
+          {unit?.nome_fantasia?.[0]?.toUpperCase() || "🏥"}
         </div>
 
         {/* Conteúdo Principal */}
@@ -300,57 +362,75 @@ function JobCard({ professional, isSuperJob }) {
           <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
             <div className="flex flex-wrap gap-2">
               <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
-                CONTRATA-SE
+                {tipoVagaLabels[job.tipo_vaga] || job.tipo_vaga}
               </span>
-              <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-bold">
-                {professional.especialidade_principal}
-              </span>
+              {job.especialidades_aceitas?.[0] && (
+                <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-bold">
+                  {job.especialidades_aceitas[0]}
+                </span>
+              )}
               {isSuperJob &&
               <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold animate-pulse">
                   URGENTE
                 </span>
               }
             </div>
-            <p className="text-xl font-black text-green-600">R$ 800/dia</p>
+            {job.tipo_remuneracao === "A_COMBINAR" ? (
+              <p className="text-lg font-black text-blue-600">A Combinar</p>
+            ) : job.valor_proposto && (
+              <p className="text-xl font-black text-green-600">
+                R$ {job.valor_proposto.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                {tipoRemuneracaoLabels[job.tipo_remuneracao]}
+              </p>
+            )}
           </div>
 
           {/* Título */}
           <h3 className="text-xl font-bold text-gray-900 mb-1 hover:text-yellow-600 transition-all">
-            {professional.especialidade_principal} P/ {professional.cidades_atendimento?.[0]?.split(' - ')[0] || 'Várias cidades'}
+            {job.titulo}
           </h3>
-          <p className="text-gray-500 mb-4">Clínica Exemplo</p>
+          <p className="text-gray-500 mb-4">{unit?.nome_fantasia || "Clínica"}</p>
 
           {/* Info Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 text-sm">
             <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4 text-gray-400" />
-              <span className="text-gray-900 font-medium">{professional.cidades_atendimento?.[0] || 'N/A'}</span>
+              <span className="text-gray-900 font-medium">{job.cidade} - {job.uf}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-gray-400">📅</span>
-              <span className="text-gray-900 font-medium">
-                {professional.dias_semana_disponiveis?.[0] || 'Seg'}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-gray-400">⏰</span>
-              <span className="text-gray-900 font-medium">08:00-18:00</span>
-            </div>
+            {job.dias_semana?.length > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-gray-400">📅</span>
+                <span className="text-gray-900 font-medium">
+                  {job.dias_semana[0]}
+                  {job.dias_semana.length > 1 && `+${job.dias_semana.length - 1}`}
+                </span>
+              </div>
+            )}
+            {job.horario_inicio && job.horario_fim && (
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-gray-400" />
+                <span className="text-gray-900 font-medium">{job.horario_inicio}-{job.horario_fim}</span>
+              </div>
+            )}
             <div className="flex items-center gap-2">
               <span className="text-gray-400">📆</span>
-              <span className="text-gray-900 font-medium">Há 2h</span>
+              <span className="text-gray-900 font-medium">{getTimeAgo(job.published_at || job.created_date)}</span>
             </div>
           </div>
 
           {/* Ações */}
           <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-gray-100">
-            <button
-              onClick={handleWhatsApp}
-              className="flex items-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl transition-all">
-              💬 WhatsApp
-            </button>
+            {unit?.whatsapp && (
+              <button
+                onClick={handleWhatsApp}
+                className="flex items-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl transition-all">
+                💬 WhatsApp
+              </button>
+            )}
             <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:border-yellow-400 hover:text-yellow-600 transition-all">
+              <button 
+                onClick={handleVerDetalhes}
+                className="flex items-center gap-2 px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:border-yellow-400 hover:text-yellow-600 transition-all">
                 Ver Detalhes →
               </button>
               <button className="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center text-gray-400 hover:border-red-300 hover:text-red-500 transition-all">
