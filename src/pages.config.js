@@ -36,6 +36,7 @@ import EditarVaga from './pages/EditarVaga';
 import PerfilClinicaPublico from './pages/PerfilClinicaPublico';
 import AvaliarClinica from './pages/AvaliarClinica';
 import AvaliarProfissional from './pages/AvaliarProfissional';
+import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
@@ -82,4 +83,5 @@ export const PAGES = {
 export const pagesConfig = {
     mainPage: "CadastroSucesso",
     Pages: PAGES,
+    Layout: __Layout,
 };
