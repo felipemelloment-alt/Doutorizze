@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
@@ -15,7 +15,8 @@ import {
 } from "lucide-react";
 
 export default function AvaliarClinica() {
-  const { token } = useParams();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [enviando, setEnviando] = useState(false);
