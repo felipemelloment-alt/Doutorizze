@@ -209,11 +209,17 @@ export default function AdminAprovacoes() {
       await base44.entities[cadastro.entity].update(cadastro.id, updateData);
 
       // Enviar notificação
+      const destinatarioTipo = cadastro.tipo === "PROFISSIONAL" 
+        ? cadastro.tipo_profissional 
+        : cadastro.tipo === "CLINICA"
+        ? "CLINICA"
+        : cadastro.tipo === "FORNECEDOR"
+        ? "FORNECEDOR"
+        : "HOSPITAL";
+
       await base44.entities.Notification.create({
         destinatario_id: cadastro.user_id,
-        destinatario_tipo: cadastro.tipo === "PROFISSIONAL" 
-          ? cadastro.tipo_profissional 
-          : "CLINICA",
+        destinatario_tipo: destinatarioTipo,
         tipo: "STATUS_REPROVADO",
         titulo: "❌ Cadastro Reprovado",
         mensagem: `Seu cadastro foi reprovado. Motivo: ${motivo}`,
