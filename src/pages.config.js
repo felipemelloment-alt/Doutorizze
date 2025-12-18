@@ -58,6 +58,7 @@ import DashboardInstituicao from './pages/DashboardInstituicao';
 import CriarCurso from './pages/CriarCurso';
 import MeusCursos from './pages/MeusCursos';
 import Cursos from './pages/Cursos';
+import DetalheCurso from './pages/DetalheCurso';
 import __Layout from './Layout.jsx';
 
 
@@ -122,6 +123,7 @@ export const PAGES = {
     "CriarCurso": CriarCurso,
     "MeusCursos": MeusCursos,
     "Cursos": Cursos,
+    "DetalheCurso": DetalheCurso,
 }
 
 export const pagesConfig = {
