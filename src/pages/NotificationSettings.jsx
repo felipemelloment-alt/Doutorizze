@@ -172,6 +172,7 @@ export default function NotificationSettings() {
         ...prev[categoria],
         [campo]: valor
       }
+       <Route path="/" element={<HomePage />} />
     }));
   };
 
