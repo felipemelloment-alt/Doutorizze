@@ -77,56 +77,22 @@ export default function EscolherTipoCadastro() {
             onClick={() => navigate("/CadastroProfissional")}
             className="bg-white rounded-3xl p-6 shadow-xl border-2 border-transparent hover:border-orange-400 transition-all duration-300 cursor-pointer group relative"
           >
-            {/* Ícone Central */}
-            <motion.div
-              whileHover={{ scale: 1.1, rotate: 5 }}
-              className="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-yellow-400 via-orange-500 to-yellow-500 flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300"
-            >
-              <UserRound className="w-12 h-12 text-white" strokeWidth={2.5} />
-            </motion.div>
-
-            {/* Título */}
-            <h3 className="text-2xl font-black text-gray-900 text-center mb-2">
-              Sou Profissional
-            </h3>
-            <p className="text-gray-500 text-center mb-6">
-              Dentista, Médico ou Especialista
-            </p>
-
-            {/* Lista de Benefícios */}
-            <div className="space-y-3 mb-8">
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                </div>
-                <span className="text-gray-700 font-medium">Encontre vagas na sua região</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                </div>
-                <span className="text-gray-700 font-medium">Receba propostas de clínicas</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                </div>
-                <span className="text-gray-700 font-medium">Perfil profissional completo</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                </div>
-                <span className="text-gray-700 font-medium">Match inteligente com vagas</span>
-              </div>
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-xl">
+              <UserRound className="w-8 h-8 text-white" strokeWidth={2.5} />
             </div>
 
-            {/* Botão */}
+            <h3 className="text-xl font-black text-gray-900 text-center mb-2">
+              Sou Profissional
+            </h3>
+            <p className="text-gray-600 text-center mb-4 text-sm">
+              Busco vagas e oportunidades
+            </p>
+
             <motion.button
               whileTap={{ scale: 0.98 }}
-              className="w-full py-4 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold text-lg rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+              className="w-full py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all"
             >
-              Cadastrar como Profissional →
+              Cadastrar →
             </motion.button>
           </motion.div>
 
