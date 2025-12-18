@@ -12,12 +12,15 @@ import {
   CheckCircle2
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { useIBGECidades } from "@/components/hooks/useIBGECidades";
+import CityAutocomplete from "@/components/forms/CityAutocomplete";
 
 export default function CriarVaga() {
   const navigate = useNavigate();
   const [etapaAtual, setEtapaAtual] = useState(1);
   const [loading, setLoading] = useState(false);
   const [unit, setUnit] = useState(null);
+  const { cidades, loading: loadingCidades } = useIBGECidades(formData.uf);
 
   // Estado do formulário
   const [formData, setFormData] = useState({
@@ -517,21 +520,13 @@ export default function CriarVaga() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Cidade *</label>
-                <input
-                  type="text"
-                  value={formData.cidade}
-                  onChange={(e) => handleInputChange("cidade", e.target.value)}
-                  placeholder="Ex: Goiânia"
-                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
-                />
-              </div>
-
-              <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">UF *</label>
                 <select
                   value={formData.uf}
-                  onChange={(e) => handleInputChange("uf", e.target.value)}
+                  onChange={(e) => {
+                    handleInputChange("uf", e.target.value);
+                    handleInputChange("cidade", "");
+                  }}
                   className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-pink-400 focus:ring-4 focus:ring-pink-100 appearance-none bg-white cursor-pointer transition-all outline-none"
                 >
                   <option value="">Selecione</option>
@@ -539,6 +534,18 @@ export default function CriarVaga() {
                     <option key={uf} value={uf}>{uf}</option>
                   ))}
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Cidade *</label>
+                <CityAutocomplete
+                  value={formData.cidade}
+                  onChange={(cidade) => handleInputChange("cidade", cidade)}
+                  cidades={cidades}
+                  loading={loadingCidades}
+                  disabled={!formData.uf}
+                  placeholder={!formData.uf ? "Selecione UF primeiro" : "Selecione a cidade"}
+                />
               </div>
             </div>
 

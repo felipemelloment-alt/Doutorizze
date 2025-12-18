@@ -15,11 +15,14 @@ import {
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { getEspecialidades, getRegistroLabel } from "@/components/constants/especialidades";
+import { useIBGECidades } from "@/components/hooks/useIBGECidades";
+import CityAutocomplete from "@/components/forms/CityAutocomplete";
 
 export default function CadastroProfissional() {
   const navigate = useNavigate();
   const [etapaAtual, setEtapaAtual] = useState(1);
   const [loading, setLoading] = useState(false);
+  const { cidades, loading: loadingCidades } = useIBGECidades(formData.uf_input);
 
   // Estado do formulário
   const [formData, setFormData] = useState({
@@ -679,21 +682,13 @@ export default function CadastroProfissional() {
               
               {/* Input para adicionar cidade */}
               <div className="grid grid-cols-12 gap-3 mb-4">
-                <div className="col-span-7">
-                  <input
-                    type="text"
-                    value={formData.cidade_input}
-                    onChange={(e) => handleInputChange("cidade_input", e.target.value)}
-                    placeholder="Ex: Goiânia"
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), adicionarCidade())}
-                    disabled={formData.cidades_atendimento.length >= 6}
-                    className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
-                  />
-                </div>
                 <div className="col-span-3">
                   <select
                     value={formData.uf_input}
-                    onChange={(e) => handleInputChange("uf_input", e.target.value)}
+                    onChange={(e) => {
+                      handleInputChange("uf_input", e.target.value);
+                      handleInputChange("cidade_input", "");
+                    }}
                     disabled={formData.cidades_atendimento.length >= 6}
                     className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 appearance-none bg-white cursor-pointer transition-all outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                   >
@@ -702,6 +697,16 @@ export default function CadastroProfissional() {
                       <option key={uf} value={uf}>{uf}</option>
                     ))}
                   </select>
+                </div>
+                <div className="col-span-7">
+                  <CityAutocomplete
+                    value={formData.cidade_input}
+                    onChange={(cidade) => handleInputChange("cidade_input", cidade)}
+                    cidades={cidades}
+                    loading={loadingCidades}
+                    disabled={!formData.uf_input || formData.cidades_atendimento.length >= 6}
+                    placeholder={!formData.uf_input ? "Selecione UF primeiro" : "Selecione a cidade"}
+                  />
                 </div>
                 <div className="col-span-2">
                   <button
