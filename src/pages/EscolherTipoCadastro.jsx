@@ -75,7 +75,7 @@ export default function EscolherTipoCadastro() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             onClick={() => navigate("/CadastroProfissional")}
-            className="bg-white rounded-3xl p-8 shadow-2xl border-2 border-transparent hover:border-yellow-400 hover:shadow-yellow-200/50 transition-all duration-300 cursor-pointer group"
+            className="bg-white rounded-3xl p-6 shadow-xl border-2 border-transparent hover:border-orange-400 transition-all duration-300 cursor-pointer group relative"
           >
             {/* Ícone Central */}
             <motion.div
