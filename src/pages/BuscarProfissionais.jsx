@@ -6,10 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Search, X, Star, Users, MapPin, Briefcase, Clock, DollarSign, Calendar, Zap, CheckCircle, MessageCircle, Award } from "lucide-react";
+import { Search, X, Star, Users, MapPin, Briefcase, Clock, DollarSign, Calendar, Zap, CheckCircle, MessageCircle, Award, Filter, ChevronDown, Loader2, Target } from "lucide-react";
 import { useUserRole } from "@/components/hooks/useUserRole";
 import { getEspecialidades, getProfissionalLabel } from "@/components/constants/especialidades";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Lista de estados brasileiros
 const estados = [
@@ -25,7 +25,22 @@ export default function BuscarProfissionais() {
   const [buscando, setBuscando] = useState(false);
   const [buscaRealizada, setBuscaRealizada] = useState(false);
   const [profissionais, setProfissionais] = useState([]);
-  const { isClinic, isAdmin, userWorld, loading: loadingRole } = useUserRole();
+  const [showFiltrosAvancados, setShowFiltrosAvancados] = useState(false);
+  const [ordenacao, setOrdenacao] = useState("RELEVANTE");
+  const { isClinic, isAdmin, userWorld, loading: loadingRole, currentCompanyUnit } = useUserRole();
+  
+  // Filtros avançados
+  const [filtros, setFiltros] = useState({
+    disponivelAgora: false,
+    diasSemana: [],
+    inicioDisponibilidade: "",
+    tempoMinimoFormado: 0,
+    tempoMinimoEspecialidade: 0,
+    aceitaFreelance: false,
+    formaRemuneracao: [],
+    minimoEstrelas: 0,
+    apenasComAvaliacoes: false
+  });
   
   const especialidades = getEspecialidades(userWorld);
   const profissionalLabel = getProfissionalLabel(userWorld);
@@ -54,13 +69,42 @@ export default function BuscarProfissionais() {
 
   const podesBuscar = especialidade && uf && cidade.trim();
 
+  const calcularMatchScore = (prof) => {
+    if (!currentCompanyUnit) return 0;
+    
+    let score = 0;
+    
+    // Match de cidade (1 ponto)
+    if (prof.cidades_atendimento?.some(c => 
+      c.toLowerCase().includes(cidade.toLowerCase())
+    )) {
+      score++;
+    }
+    
+    // Match de especialidade (1 ponto)
+    if (prof.especialidade_principal === especialidade) {
+      score++;
+    }
+    
+    // Experiência mínima (1 ponto)
+    if (prof.tempo_formado_anos >= filtros.tempoMinimoFormado) {
+      score++;
+    }
+    
+    // Disponibilidade imediata (1 ponto)
+    if (filtros.disponivelAgora && prof.disponibilidade_inicio === "IMEDIATO") {
+      score++;
+    }
+    
+    return score;
+  };
+
   const buscarProfissionais = async () => {
     setBuscando(true);
     try {
-      // Determine which tipo_profissional to search for
       const tipoProfissional = userWorld === "ODONTOLOGIA" ? "DENTISTA" : "MEDICO";
 
-      // Buscar profissionais aprovados e disponíveis com a especialidade
+      // Buscar profissionais aprovados e disponíveis
       const resultados = await base44.entities.Professional.filter({
         status_cadastro: "APROVADO",
         status_disponibilidade: "DISPONIVEL",
@@ -69,7 +113,7 @@ export default function BuscarProfissionais() {
       });
 
       // Filtrar por cidade
-      const filtrados = resultados.filter(p =>
+      let filtrados = resultados.filter(p =>
         p.cidades_atendimento &&
         p.cidades_atendimento.some(c =>
           c.toLowerCase().includes(cidade.toLowerCase()) &&
@@ -77,8 +121,68 @@ export default function BuscarProfissionais() {
         )
       );
 
-      // Ordenar por avaliação
-      filtrados.sort((a, b) => b.media_avaliacoes - a.media_avaliacoes);
+      // Aplicar filtros avançados
+      if (filtros.disponivelAgora) {
+        filtrados = filtrados.filter(p => p.status_disponibilidade === "DISPONIVEL");
+      }
+
+      if (filtros.diasSemana.length > 0) {
+        filtrados = filtrados.filter(p => 
+          filtros.diasSemana.some(dia => p.dias_semana_disponiveis?.includes(dia))
+        );
+      }
+
+      if (filtros.inicioDisponibilidade) {
+        filtrados = filtrados.filter(p => p.disponibilidade_inicio === filtros.inicioDisponibilidade);
+      }
+
+      if (filtros.tempoMinimoFormado > 0) {
+        filtrados = filtrados.filter(p => p.tempo_formado_anos >= filtros.tempoMinimoFormado);
+      }
+
+      if (filtros.tempoMinimoEspecialidade > 0) {
+        filtrados = filtrados.filter(p => (p.tempo_especialidade_anos || 0) >= filtros.tempoMinimoEspecialidade);
+      }
+
+      if (filtros.aceitaFreelance) {
+        filtrados = filtrados.filter(p => p.aceita_freelance);
+      }
+
+      if (filtros.formaRemuneracao.length > 0) {
+        filtrados = filtrados.filter(p => 
+          filtros.formaRemuneracao.some(forma => p.forma_remuneracao?.includes(forma))
+        );
+      }
+
+      if (filtros.minimoEstrelas > 0) {
+        filtrados = filtrados.filter(p => (p.media_avaliacoes || 0) >= filtros.minimoEstrelas);
+      }
+
+      if (filtros.apenasComAvaliacoes) {
+        filtrados = filtrados.filter(p => p.total_avaliacoes > 0);
+      }
+
+      // Calcular match score para cada profissional
+      filtrados = filtrados.map(p => ({
+        ...p,
+        matchScore: calcularMatchScore(p)
+      }));
+
+      // Ordenar
+      switch (ordenacao) {
+        case "RELEVANTE":
+          filtrados.sort((a, b) => b.matchScore - a.matchScore);
+          break;
+        case "AVALIACAO":
+          filtrados.sort((a, b) => b.media_avaliacoes - a.media_avaliacoes);
+          break;
+        case "EXPERIENCIA":
+          filtrados.sort((a, b) => b.tempo_formado_anos - a.tempo_formado_anos);
+          break;
+        case "RECENTE":
+          filtrados.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+          break;
+      }
 
       setProfissionais(filtrados);
       setBuscaRealizada(true);
@@ -101,7 +205,38 @@ export default function BuscarProfissionais() {
     setCidade("");
     setProfissionais([]);
     setBuscaRealizada(false);
+    setFiltros({
+      disponivelAgora: false,
+      diasSemana: [],
+      inicioDisponibilidade: "",
+      tempoMinimoFormado: 0,
+      tempoMinimoEspecialidade: 0,
+      aceitaFreelance: false,
+      formaRemuneracao: [],
+      minimoEstrelas: 0,
+      apenasComAvaliacoes: false
+    });
   };
+
+  const handleDiaToggle = (dia) => {
+    setFiltros(prev => ({
+      ...prev,
+      diasSemana: prev.diasSemana.includes(dia)
+        ? prev.diasSemana.filter(d => d !== dia)
+        : [...prev.diasSemana, dia]
+    }));
+  };
+
+  const handleFormaRemuneracaoToggle = (forma) => {
+    setFiltros(prev => ({
+      ...prev,
+      formaRemuneracao: prev.formaRemuneracao.includes(forma)
+        ? prev.formaRemuneracao.filter(f => f !== forma)
+        : [...prev.formaRemuneracao, forma]
+    }));
+  };
+
+  const diasSemana = ["SEG", "TER", "QUA", "QUI", "SEX", "SAB", "DOM"];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 overflow-x-hidden">
@@ -223,6 +358,192 @@ export default function BuscarProfissionais() {
                 </div>
               </div>
 
+              {/* Botão Filtros Avançados */}
+              <Button
+                onClick={() => setShowFiltrosAvancados(!showFiltrosAvancados)}
+                variant="outline"
+                className="w-full h-14 border-2 border-gray-300 hover:border-yellow-400 text-gray-700 font-bold rounded-2xl mb-4">
+                <Filter className="w-5 h-5 mr-2" />
+                Filtros Avançados
+                <ChevronDown className={`w-5 h-5 ml-2 transition-transform ${showFiltrosAvancados ? "rotate-180" : ""}`} />
+              </Button>
+
+              {/* Filtros Avançados */}
+              <AnimatePresence>
+                {showFiltrosAvancados && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="border-2 border-gray-200 rounded-2xl p-6 mb-6 space-y-6">
+                    
+                    {/* Disponibilidade */}
+                    <div>
+                      <h3 className="font-black text-gray-900 mb-3 flex items-center gap-2">
+                        <Clock className="w-5 h-5 text-yellow-500" />
+                        Disponibilidade
+                      </h3>
+                      
+                      <div className="flex items-center gap-3 mb-4">
+                        <input
+                          type="checkbox"
+                          checked={filtros.disponivelAgora}
+                          onChange={(e) => setFiltros({...filtros, disponivelAgora: e.target.checked})}
+                          className="w-5 h-5 rounded border-2 border-gray-300 text-yellow-500 focus:ring-yellow-500"
+                        />
+                        <label className="font-semibold text-gray-700">Disponível Agora</label>
+                      </div>
+
+                      <div className="mb-4">
+                        <label className="block font-semibold text-gray-700 mb-2">Dias da Semana:</label>
+                        <div className="flex flex-wrap gap-2">
+                          {diasSemana.map(dia => (
+                            <button
+                              key={dia}
+                              onClick={() => handleDiaToggle(dia)}
+                              className={`px-4 py-2 font-bold rounded-xl transition-all ${
+                                filtros.diasSemana.includes(dia)
+                                  ? "bg-yellow-400 text-white"
+                                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                              }`}>
+                              {dia}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block font-semibold text-gray-700 mb-2">Início:</label>
+                        <Select value={filtros.inicioDisponibilidade} onValueChange={(v) => setFiltros({...filtros, inicioDisponibilidade: v})}>
+                          <SelectTrigger className="h-12 rounded-xl border-2">
+                            <SelectValue placeholder="Qualquer" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value={null}>Qualquer</SelectItem>
+                            <SelectItem value="IMEDIATO">Imediato</SelectItem>
+                            <SelectItem value="15_DIAS">15 dias</SelectItem>
+                            <SelectItem value="30_DIAS">30 dias</SelectItem>
+                            <SelectItem value="60_DIAS">60 dias</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {/* Experiência */}
+                    <div>
+                      <h3 className="font-black text-gray-900 mb-3 flex items-center gap-2">
+                        <Award className="w-5 h-5 text-yellow-500" />
+                        Experiência
+                      </h3>
+                      
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block font-semibold text-gray-700 mb-2">
+                            Tempo Mínimo Formado: {filtros.tempoMinimoFormado} anos
+                          </label>
+                          <input
+                            type="range"
+                            min="0"
+                            max="30"
+                            value={filtros.tempoMinimoFormado}
+                            onChange={(e) => setFiltros({...filtros, tempoMinimoFormado: parseInt(e.target.value)})}
+                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block font-semibold text-gray-700 mb-2">
+                            Tempo na Especialidade: {filtros.tempoMinimoEspecialidade} anos
+                          </label>
+                          <input
+                            type="range"
+                            min="0"
+                            max="30"
+                            value={filtros.tempoMinimoEspecialidade}
+                            onChange={(e) => setFiltros({...filtros, tempoMinimoEspecialidade: parseInt(e.target.value)})}
+                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Preferências */}
+                    <div>
+                      <h3 className="font-black text-gray-900 mb-3 flex items-center gap-2">
+                        <DollarSign className="w-5 h-5 text-yellow-500" />
+                        Preferências
+                      </h3>
+                      
+                      <div className="flex items-center gap-3 mb-4">
+                        <input
+                          type="checkbox"
+                          checked={filtros.aceitaFreelance}
+                          onChange={(e) => setFiltros({...filtros, aceitaFreelance: e.target.checked})}
+                          className="w-5 h-5 rounded border-2 border-gray-300 text-yellow-500 focus:ring-yellow-500"
+                        />
+                        <label className="font-semibold text-gray-700">Aceita Freelance</label>
+                      </div>
+
+                      <div>
+                        <label className="block font-semibold text-gray-700 mb-2">Forma de Remuneração:</label>
+                        <div className="flex flex-wrap gap-2">
+                          {["DIARIA", "PORCENTAGEM", "FIXO", "A_COMBINAR"].map(forma => (
+                            <button
+                              key={forma}
+                              onClick={() => handleFormaRemuneracaoToggle(forma)}
+                              className={`px-4 py-2 font-bold rounded-xl transition-all ${
+                                filtros.formaRemuneracao.includes(forma)
+                                  ? "bg-green-500 text-white"
+                                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                              }`}>
+                              {forma === "DIARIA" ? "Diária" : forma === "PORCENTAGEM" ? "%" : forma === "FIXO" ? "Fixo" : "A Combinar"}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Avaliação */}
+                    <div>
+                      <h3 className="font-black text-gray-900 mb-3 flex items-center gap-2">
+                        <Star className="w-5 h-5 text-yellow-500" />
+                        Avaliação
+                      </h3>
+                      
+                      <div className="flex items-center gap-3 mb-4">
+                        <input
+                          type="checkbox"
+                          checked={filtros.apenasComAvaliacoes}
+                          onChange={(e) => setFiltros({...filtros, apenasComAvaliacoes: e.target.checked})}
+                          className="w-5 h-5 rounded border-2 border-gray-300 text-yellow-500 focus:ring-yellow-500"
+                        />
+                        <label className="font-semibold text-gray-700">Apenas com Avaliações</label>
+                      </div>
+
+                      <div>
+                        <label className="block font-semibold text-gray-700 mb-2">
+                          Mínimo de Estrelas: {filtros.minimoEstrelas > 0 ? filtros.minimoEstrelas : "Qualquer"}
+                        </label>
+                        <div className="flex gap-2">
+                          {[0, 1, 2, 3, 4, 5].map(stars => (
+                            <button
+                              key={stars}
+                              onClick={() => setFiltros({...filtros, minimoEstrelas: stars})}
+                              className={`flex-1 px-3 py-2 font-bold rounded-xl transition-all ${
+                                filtros.minimoEstrelas === stars
+                                  ? "bg-yellow-400 text-white"
+                                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                              }`}>
+                              {stars === 0 ? "Todos" : `${stars}★`}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               <Button
                 onClick={buscarProfissionais}
                 disabled={!podesBuscar || buscando}
@@ -230,7 +551,7 @@ export default function BuscarProfissionais() {
                 className="w-full h-16 gradient-yellow-pink text-white font-black text-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-105 border-0">
                 {buscando ? (
                   <>
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-4 border-white mr-2"></div>
+                    <Loader2 className="w-6 h-6 mr-2 animate-spin" />
                     Buscando...
                   </>
                 ) : (
@@ -337,6 +658,22 @@ export default function BuscarProfissionais() {
                       </Button>
                     </div>
                   </div>
+                  
+                  {/* Ordenação */}
+                  <div className="flex items-center gap-2">
+                    <label className="font-semibold text-gray-700">Ordenar:</label>
+                    <Select value={ordenacao} onValueChange={setOrdenacao}>
+                      <SelectTrigger className="w-48 h-10 border-2 rounded-xl">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="RELEVANTE">Mais Relevantes</SelectItem>
+                        <SelectItem value="AVALIACAO">Mais Bem Avaliados</SelectItem>
+                        <SelectItem value="EXPERIENCIA">Mais Experientes</SelectItem>
+                        <SelectItem value="RECENTE">Mais Recentes</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="p-6 md:p-8">
@@ -352,6 +689,23 @@ export default function BuscarProfissionais() {
                     
                     {/* HEADER */}
                     <div className="mb-4">
+                      {/* Match Score e Super Match Badge */}
+                      {prof.matchScore > 0 && (
+                        <div className="flex items-center gap-2 mb-2">
+                          {prof.matchScore === 4 ? (
+                            <Badge className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-black text-xs px-3 py-1 rounded-full shadow-lg animate-pulse">
+                              <Zap className="w-3 h-3 mr-1" />
+                              SUPER MATCH
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-gradient-to-r from-blue-400 to-blue-600 text-white font-bold text-xs px-3 py-1 rounded-full">
+                              <Target className="w-3 h-3 mr-1" />
+                              {prof.matchScore}/4 Match
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+
                       {/* Nome */}
                       <h3 className="text-xl font-black text-gray-900 mb-2 line-clamp-1">
                         {prof.nome_completo}
