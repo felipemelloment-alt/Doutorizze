@@ -45,6 +45,7 @@ import DashboardFornecedor from './pages/DashboardFornecedor';
 import CriarPromocao from './pages/CriarPromocao';
 import MinhasPromocoes from './pages/MinhasPromocoes';
 import CadastroHospital from './pages/CadastroHospital';
+import DashboardHospital from './pages/DashboardHospital';
 import __Layout from './Layout.jsx';
 
 
@@ -96,6 +97,7 @@ export const PAGES = {
     "CriarPromocao": CriarPromocao,
     "MinhasPromocoes": MinhasPromocoes,
     "CadastroHospital": CadastroHospital,
+    "DashboardHospital": DashboardHospital,
 }
 
 export const pagesConfig = {
