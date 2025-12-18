@@ -35,6 +35,7 @@ import Contratar from './pages/Contratar';
 import EditarVaga from './pages/EditarVaga';
 import PerfilClinicaPublico from './pages/PerfilClinicaPublico';
 import AvaliarClinica from './pages/AvaliarClinica';
+import AvaliarProfissional from './pages/AvaliarProfissional';
 
 
 export const PAGES = {
@@ -75,6 +76,7 @@ export const PAGES = {
     "EditarVaga": EditarVaga,
     "PerfilClinicaPublico": PerfilClinicaPublico,
     "AvaliarClinica": AvaliarClinica,
+    "AvaliarProfissional": AvaliarProfissional,
 }
 
 export const pagesConfig = {
