@@ -130,10 +130,10 @@ export default function MeuPerfil() {
   const candidaturasEnviadas = matches.filter(m => m.status_candidatura === "CANDIDATOU").length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 relative overflow-hidden">
       {/* ELEMENTOS DECORATIVOS */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-blue-300 rounded-full blur-3xl opacity-30"></div>
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-orange-300 rounded-full blur-3xl opacity-20"></div>
+      <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-300 rounded-full blur-3xl opacity-30"></div>
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-pink-300 rounded-full blur-3xl opacity-20"></div>
       
       {/* HEADER COM FOTO */}
       <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 pt-8 pb-24 px-4 relative">

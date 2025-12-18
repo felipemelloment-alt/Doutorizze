@@ -293,9 +293,9 @@ export default function EditarPerfil() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-6">
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 flex items-center justify-center p-6">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-orange-500 mx-auto mb-4"></div>
           <p className="text-gray-600 font-semibold">Carregando...</p>
         </div>
       </div>
@@ -478,7 +478,7 @@ export default function EditarPerfil() {
                     value={formData.instagram}
                     onChange={(e) => handleInputChange("instagram", e.target.value.replace(/[^a-zA-Z0-9._]/g, ''))}
                     placeholder="seuperfil"
-                    className="w-full pl-10 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                    className="w-full pl-10 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                   />
                 </div>
               </div>
@@ -521,7 +521,7 @@ export default function EditarPerfil() {
                   <select
                     value={formData.uf_conselho}
                     onChange={(e) => handleInputChange("uf_conselho", e.target.value)}
-                    className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:ring-4 focus:ring-blue-100 appearance-none bg-white cursor-pointer transition-all outline-none"
+                    className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 appearance-none bg-white cursor-pointer transition-all outline-none"
                   >
                     <option value="">Selecione</option>
                     {["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"].map(uf => (
@@ -664,8 +664,8 @@ export default function EditarPerfil() {
                       key={forma.value}
                       className={`border-2 rounded-xl p-4 cursor-pointer transition-all ${
                         formData.forma_remuneracao.includes(forma.value)
-                          ? "border-blue-400 bg-blue-50"
-                          : "border-gray-200 hover:border-blue-300"
+                          ? "border-yellow-400 bg-yellow-50"
+                          : "border-gray-200 hover:border-yellow-300"
                       }`}
                       onClick={() => toggleFormaRemuneracao(forma.value)}
                     >
@@ -702,7 +702,7 @@ export default function EditarPerfil() {
                       handleInputChange("cidade_input", "");
                     }}
                     disabled={formData.cidades_atendimento.length >= 6}
-                    className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 appearance-none bg-white cursor-pointer transition-all outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 appearance-none bg-white cursor-pointer transition-all outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                   >
                     <option value="">UF</option>
                     {["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"].map(uf => (
@@ -782,7 +782,7 @@ export default function EditarPerfil() {
                   value={formData.observacoes}
                   onChange={(e) => handleInputChange("observacoes", e.target.value)}
                   placeholder="Fale sobre sua experiência, preferências de trabalho, horários que prefere, tipo de clínica que procura, diferenciais..."
-                  className="w-full min-h-[200px] px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all outline-none resize-none"
+                  className="w-full min-h-[200px] px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none resize-none"
                   maxLength={500}
                 />
                 <p className="text-xs text-gray-500 mt-1 text-right">
@@ -804,7 +804,7 @@ export default function EditarPerfil() {
               {/* Selfie com Documento */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Foto com Documento</label>
-                <div className="border-2 border-dashed border-gray-300 rounded-2xl p-6 text-center hover:border-blue-400 transition-all cursor-pointer">
+                <div className="border-2 border-dashed border-gray-300 rounded-2xl p-6 text-center hover:border-yellow-400 transition-all cursor-pointer">
                   <input
                     type="file"
                     id="selfie_documento"
@@ -846,7 +846,7 @@ export default function EditarPerfil() {
               {/* Carteira Profissional */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Carteira Profissional (CRO/CRM)</label>
-                <div className="border-2 border-dashed border-gray-300 rounded-2xl p-6 text-center hover:border-blue-400 transition-all cursor-pointer">
+                <div className="border-2 border-dashed border-gray-300 rounded-2xl p-6 text-center hover:border-yellow-400 transition-all cursor-pointer">
                   <input
                     type="file"
                     id="carteirinha_conselho"
@@ -895,7 +895,7 @@ export default function EditarPerfil() {
           <div className="max-w-4xl mx-auto flex gap-4">
             <button
               onClick={() => navigate(createPageUrl("MeuPerfil"))}
-              className="flex-1 py-4 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition-all"
+              className="flex-1 py-4 border-2 border-gray-300 text-gray-700 font-semibold rounded-2xl hover:border-yellow-400 hover:text-yellow-600 transition-all"
             >
               Cancelar
             </button>
