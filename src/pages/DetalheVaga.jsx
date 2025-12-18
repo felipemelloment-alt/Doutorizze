@@ -224,13 +224,12 @@ export default function DetalheVaga() {
                   </span>
                 </div>
                 </div>
-                {/* TODO: Adicionar botão "Ver Clínica" quando página PerfilClinicaPublico estiver pronta */}
-                {/* <button
+                <button
                 onClick={() => navigate(createPageUrl("PerfilClinicaPublico") + "/" + unit.id)}
                 className="px-4 py-2 border-2 border-gray-300 text-gray-700 font-semibold rounded-2xl hover:border-yellow-400 hover:text-yellow-600 transition-all whitespace-nowrap"
                 >
                 Ver Clínica
-                </button> */}
+                </button>
             </div>
           </motion.div>
         )}
