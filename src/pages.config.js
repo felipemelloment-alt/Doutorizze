@@ -51,6 +51,8 @@ import Ajuda from './pages/Ajuda';
 import AdminRelatorios from './pages/AdminRelatorios';
 import MinhasAvaliacoes from './pages/MinhasAvaliacoes';
 import Onboarding from './pages/Onboarding';
+import TermosUso from './pages/TermosUso';
+import PoliticaPrivacidade from './pages/PoliticaPrivacidade';
 import __Layout from './Layout.jsx';
 
 
@@ -108,6 +110,8 @@ export const PAGES = {
     "AdminRelatorios": AdminRelatorios,
     "MinhasAvaliacoes": MinhasAvaliacoes,
     "Onboarding": Onboarding,
+    "TermosUso": TermosUso,
+    "PoliticaPrivacidade": PoliticaPrivacidade,
 }
 
 export const pagesConfig = {
