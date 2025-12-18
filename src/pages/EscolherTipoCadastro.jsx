@@ -100,60 +100,88 @@ export default function EscolherTipoCadastro() {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
             onClick={() => navigate("/CadastroClinica")}
-            className="bg-white rounded-3xl p-8 shadow-2xl border-2 border-transparent hover:border-pink-400 hover:shadow-pink-200/50 transition-all duration-300 cursor-pointer group"
+            className="bg-white rounded-3xl p-6 shadow-xl border-2 border-transparent hover:border-orange-400 transition-all duration-300 cursor-pointer group relative"
           >
-            {/* Ícone Central */}
-            <motion.div
-              whileHover={{ scale: 1.1, rotate: 5 }}
-              className="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-pink-400 via-red-500 to-pink-500 flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300"
-            >
-              <Building2 className="w-12 h-12 text-white" strokeWidth={2.5} />
-            </motion.div>
-
-            {/* Título */}
-            <h3 className="text-2xl font-black text-gray-900 text-center mb-2">
-              Sou Clínica
-            </h3>
-            <p className="text-gray-500 text-center mb-6">
-              Clínica, Consultório ou Hospital
-            </p>
-
-            {/* Lista de Benefícios */}
-            <div className="space-y-3 mb-8">
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                </div>
-                <span className="text-gray-700 font-medium">Encontre profissionais qualificados</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                </div>
-                <span className="text-gray-700 font-medium">Publique vagas ilimitadas</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                </div>
-                <span className="text-gray-700 font-medium">Gerencie candidaturas</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                </div>
-                <span className="text-gray-700 font-medium">Contrate com segurança</span>
-              </div>
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-pink-400 to-red-500 flex items-center justify-center shadow-xl">
+              <Building2 className="w-8 h-8 text-white" strokeWidth={2.5} />
             </div>
 
-            {/* Botão */}
+            <h3 className="text-xl font-black text-gray-900 text-center mb-2">
+              Tenho uma Clínica/Consultório
+            </h3>
+            <p className="text-gray-600 text-center mb-4 text-sm">
+              Quero contratar profissionais
+            </p>
+
             <motion.button
               whileTap={{ scale: 0.98 }}
-              className="w-full py-4 bg-gradient-to-r from-pink-500 via-red-500 to-pink-500 text-white font-bold text-lg rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+              className="w-full py-3 bg-gradient-to-r from-pink-500 to-red-500 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all"
             >
-              Cadastrar como Clínica →
+              Cadastrar →
+            </motion.button>
+          </motion.div>
+
+          {/* Card Fornecedor */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            onClick={() => navigate("/CadastroFornecedor")}
+            className="bg-white rounded-3xl p-6 shadow-xl border-2 border-transparent hover:border-orange-400 transition-all duration-300 cursor-pointer group relative"
+          >
+            <span className="absolute top-2 right-2 px-3 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full">
+              NOVO
+            </span>
+
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center shadow-xl">
+              <Package className="w-8 h-8 text-white" strokeWidth={2.5} />
+            </div>
+
+            <h3 className="text-xl font-black text-gray-900 text-center mb-2">
+              Sou Fornecedor
+            </h3>
+            <p className="text-gray-600 text-center mb-4 text-sm">
+              Quero anunciar produtos e promoções
+            </p>
+
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              className="w-full py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all"
+            >
+              Cadastrar →
+            </motion.button>
+          </motion.div>
+
+          {/* Card Hospital */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            onClick={() => navigate("/CadastroHospital")}
+            className="bg-white rounded-3xl p-6 shadow-xl border-2 border-transparent hover:border-orange-400 transition-all duration-300 cursor-pointer group relative"
+          >
+            <span className="absolute top-2 right-2 px-3 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full">
+              NOVO
+            </span>
+
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-xl">
+              <Hospital className="w-8 h-8 text-white" strokeWidth={2.5} />
+            </div>
+
+            <h3 className="text-xl font-black text-gray-900 text-center mb-2">
+              Sou Hospital/Rede
+            </h3>
+            <p className="text-gray-600 text-center mb-4 text-sm">
+              Contratação em grande escala
+            </p>
+
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              className="w-full py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all"
+            >
+              Cadastrar →
             </motion.button>
           </motion.div>
         </div>
