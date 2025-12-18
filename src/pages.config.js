@@ -55,6 +55,7 @@ import TermosUso from './pages/TermosUso';
 import PoliticaPrivacidade from './pages/PoliticaPrivacidade';
 import CadastroInstituicao from './pages/CadastroInstituicao';
 import DashboardInstituicao from './pages/DashboardInstituicao';
+import CriarCurso from './pages/CriarCurso';
 import __Layout from './Layout.jsx';
 
 
@@ -116,6 +117,7 @@ export const PAGES = {
     "PoliticaPrivacidade": PoliticaPrivacidade,
     "CadastroInstituicao": CadastroInstituicao,
     "DashboardInstituicao": DashboardInstituicao,
+    "CriarCurso": CriarCurso,
 }
 
 export const pagesConfig = {
