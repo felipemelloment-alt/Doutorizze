@@ -117,6 +117,22 @@ export default function AdminAprovacoes() {
       nome: o.nome_completo,
       registro: `CPF ${o.cpf}`,
       localizacao: "Responsável",
+    })),
+    ...suppliers.map(s => ({
+      ...s,
+      tipo: "FORNECEDOR",
+      entity: "Supplier",
+      nome: s.nome_fantasia,
+      registro: `CNPJ ${s.cnpj}`,
+      localizacao: `${s.cidade} - ${s.uf}`,
+    })),
+    ...hospitals.map(h => ({
+      ...h,
+      tipo: "HOSPITAL",
+      entity: "Hospital",
+      nome: h.nome_fantasia,
+      registro: h.tipo_instituicao,
+      localizacao: `${h.cidade} - ${h.uf}`,
     }))
   ].sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
 
