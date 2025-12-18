@@ -50,6 +50,7 @@ import Configuracoes from './pages/Configuracoes';
 import Ajuda from './pages/Ajuda';
 import AdminRelatorios from './pages/AdminRelatorios';
 import MinhasAvaliacoes from './pages/MinhasAvaliacoes';
+import Onboarding from './pages/Onboarding';
 import __Layout from './Layout.jsx';
 
 
@@ -106,6 +107,7 @@ export const PAGES = {
     "Ajuda": Ajuda,
     "AdminRelatorios": AdminRelatorios,
     "MinhasAvaliacoes": MinhasAvaliacoes,
+    "Onboarding": Onboarding,
 }
 
 export const pagesConfig = {
