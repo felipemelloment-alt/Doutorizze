@@ -587,8 +587,17 @@ export default function AdminAprovacoes() {
 
               {/* Conteúdo */}
               <div className="p-6 space-y-4">
-                <div className="w-32 h-32 rounded-3xl mx-auto mb-6 bg-gray-200 flex items-center justify-center text-6xl">
-                  {detailsModal.tipo === "PROFISSIONAL" ? "👤" : "🏥"}
+                <div className="w-32 h-32 rounded-3xl mx-auto mb-6 bg-gray-200 flex items-center justify-center text-6xl overflow-hidden">
+                  {detailsModal.logo_url ? (
+                    <img src={detailsModal.logo_url} alt={detailsModal.nome} className="w-full h-full object-cover" />
+                  ) : (
+                    <>
+                      {detailsModal.tipo === "PROFISSIONAL" && "👤"}
+                      {detailsModal.tipo === "CLINICA" && "🏥"}
+                      {detailsModal.tipo === "FORNECEDOR" && <Package className="w-16 h-16 text-purple-500" />}
+                      {detailsModal.tipo === "HOSPITAL" && <Hospital className="w-16 h-16 text-blue-500" />}
+                    </>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
