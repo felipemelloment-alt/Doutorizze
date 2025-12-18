@@ -259,7 +259,7 @@ export default function CriarVaga() {
       await base44.entities.Job.create(dadosVaga);
       
       toast.success("✅ Vaga publicada com sucesso!");
-      navigate("/MinhasVagas");
+      navigate(createPageUrl("MinhasVagas"));
     } catch (error) {
       console.error("Erro ao publicar vaga:", error);
       toast.error("❌ Erro ao publicar vaga: " + error.message);

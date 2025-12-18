@@ -195,7 +195,7 @@ export default function PerfilClinica() {
 
             <div className="flex gap-3">
               <button
-                onClick={() => navigate(createPageUrl("EditarPerfilClinica"))}
+                onClick={() => navigate(createPageUrl("EditarClinica"))}
                 className="flex items-center gap-2 px-6 py-3 bg-white text-pink-600 font-bold rounded-2xl hover:bg-white/90 transition-all shadow-lg"
               >
                 <Edit className="w-4 h-4" />

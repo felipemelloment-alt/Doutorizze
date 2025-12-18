@@ -147,7 +147,7 @@ export default function DashboardProfissional() {
             </div>
 
             <button
-              onClick={() => navigate(createPageUrl("NotificationSettings"))}
+              onClick={() => navigate(createPageUrl("EditarPerfil"))}
               className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white font-bold rounded-xl hover:bg-blue-600 transition-all"
             >
               <Settings className="w-4 h-4" />

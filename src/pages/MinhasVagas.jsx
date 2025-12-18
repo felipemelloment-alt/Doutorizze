@@ -299,15 +299,7 @@ export default function MinhasVagas() {
                         Ver Candidatos
                       </button>
 
-                      {(job.status === "ABERTO" || job.status === "RASCUNHO") && (
-                        <button
-                          onClick={() => navigate(createPageUrl(`EditarVaga?id=${job.id}`))}
-                          className="p-2 border-2 border-gray-200 rounded-lg hover:border-pink-400 hover:bg-pink-50 transition-all"
-                          title="Editar"
-                        >
-                          <Edit className="w-5 h-5 text-gray-600" />
-                        </button>
-                      )}
+                      {/* Editar vaga - disponível em breve */}
 
                       {job.status !== "PREENCHIDO" && job.status !== "CANCELADO" && (
                         <button
