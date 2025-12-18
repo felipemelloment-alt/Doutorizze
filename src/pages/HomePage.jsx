@@ -9,9 +9,8 @@ import {
   CheckCircle,
   ArrowRight,
   MapPin,
-  Briefcase,
-  DollarSign } from
-"lucide-react";
+  DollarSign
+} from "lucide-react";
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -71,16 +70,12 @@ export default function HomePage() {
 
             {/* Badge de destaque */}
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-100 text-yellow-700 rounded-full font-semibold text-sm mb-6">
-              🔥 +500 vagas disponíveis
+              🔥 {jobs.length > 0 ? `${jobs.length} vagas disponíveis` : '+500 vagas disponíveis'}
             </div>
 
             {/* Título Principal */}
-            <h1 className="text-gray-900 mb-6 text-4xl font-black leading-tight md:text-6xl lg:text-7xl">OPORTUNIDADES
-NA SAÚDE
-
-
-
-
+            <h1 className="text-gray-900 mb-6 text-4xl font-black leading-tight md:text-6xl lg:text-7xl">
+              OPORTUNIDADES NA SAÚDE
             </h1>
 
             {/* Subtítulo */}
@@ -105,15 +100,15 @@ NA SAÚDE
             {/* Stats em linha */}
             <div className="flex flex-wrap gap-6">
               <div className="text-center">
-                <p className="text-3xl font-black text-gray-900">500+</p>
+                <p className="text-3xl font-black text-gray-900">{jobs.length || '500'}+</p>
                 <p className="text-sm text-gray-500">Vagas</p>
               </div>
               <div className="text-center">
-                <p className="text-3xl font-black text-gray-900">1.2k</p>
+                <p className="text-3xl font-black text-gray-900">{professionals.length || '1200'}</p>
                 <p className="text-sm text-gray-500">Profissionais</p>
               </div>
               <div className="text-center">
-                <p className="text-3xl font-black text-gray-900">300+</p>
+                <p className="text-3xl font-black text-gray-900">{clinics.length || '300'}+</p>
                 <p className="text-sm text-gray-500">Clínicas</p>
               </div>
             </div>
@@ -215,25 +210,46 @@ NA SAÚDE
             <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white text-xl">
               💼
             </div>
-            <p className="text-2xl md:text-3xl font-black text-gray-900">523</p>
+            <p className="text-2xl md:text-3xl font-black text-gray-900">{jobs.length || 523}</p>
             <p className="text-xs md:text-sm text-gray-500">Vagas Ativas</p>
           </div>
           <div className="text-center p-4">
             <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xl">
               👨‍⚕️
             </div>
-            <p className="text-2xl md:text-3xl font-black text-gray-900">1.247</p>
+            <p className="text-2xl md:text-3xl font-black text-gray-900">{professionals.length || 1247}</p>
             <p className="text-xs md:text-sm text-gray-500">Profissionais</p>
           </div>
           <div className="text-center p-4">
             <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-pink-400 to-red-500 flex items-center justify-center text-white text-xl">
               🏥
             </div>
-            <p className="text-2xl md:text-3xl font-black text-gray-900">312</p>
+            <p className="text-2xl md:text-3xl font-black text-gray-900">{clinics.length || 312}</p>
             <p className="text-xs md:text-sm text-gray-500">Clínicas</p>
           </div>
         </div>
       </div>
+
+      {/* Vagas em Destaque */}
+      {recentJobs.length > 0 && (
+        <section className="px-4 py-8 mb-8">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-6">Vagas em Destaque 🌟</h2>
+            <div className="grid md:grid-cols-3 gap-4 mb-6">
+              {recentJobs.map(job => {
+                const unit = units.find(u => u.id === job.unit_id);
+                return <JobCard key={job.id} job={job} unit={unit} />;
+              })}
+            </div>
+            <button
+              onClick={() => navigate(createPageUrl("NewJobs"))}
+              className="w-full py-4 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold text-lg rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all"
+            >
+              Ver Todas as Vagas →
+            </button>
+          </div>
+        </section>
+      )}
 
       {/* Seção Como Funciona */}
       <div className="px-4 py-16">
@@ -338,8 +354,8 @@ NA SAÚDE
           Começar Agora →
         </button>
       </div>
-    </div>);
-
+    </div>
+  );
 }
 
 function MiniProfessionalCard({ name, specialty, rating }) {
@@ -365,6 +381,76 @@ function MiniProfessionalCard({ name, specialty, rating }) {
           📞
         </button>
       </div>
-    </motion.div>);
+    </motion.div>
+  );
+}
 
+function JobCard({ job, unit }) {
+  const navigate = useNavigate();
+
+  const tipoVagaLabels = {
+    PLANTAO: "Plantão",
+    FIXO: "Fixo",
+    SUBSTITUICAO: "Substituição",
+    TEMPORARIO: "Temporário"
+  };
+
+  const tipoRemuneracaoLabels = {
+    FIXO: "/mês",
+    DIARIA: "/dia",
+    PORCENTAGEM: "%",
+    A_COMBINAR: ""
+  };
+
+  return (
+    <motion.div
+      whileHover={{ scale: 1.02 }}
+      onClick={() => navigate(createPageUrl("DetalheVaga") + "/" + job.id)}
+      className="bg-white rounded-2xl p-5 shadow-lg hover:shadow-xl border-2 border-gray-100 hover:border-yellow-400 transition-all cursor-pointer">
+      <div className="flex items-start gap-3 mb-3">
+        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-100 to-orange-100 flex items-center justify-center text-xl flex-shrink-0">
+          {unit?.nome_fantasia?.[0]?.toUpperCase() || "🏥"}
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-bold text-gray-900 truncate">{job.titulo}</h3>
+          <p className="text-sm text-gray-500 truncate">{unit?.nome_fantasia || "Clínica"}</p>
+        </div>
+      </div>
+      
+      <div className="flex flex-wrap gap-2 mb-3">
+        <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
+          {tipoVagaLabels[job.tipo_vaga] || job.tipo_vaga}
+        </span>
+        {job.especialidades_aceitas?.[0] && (
+          <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-bold">
+            {job.especialidades_aceitas[0]}
+          </span>
+        )}
+      </div>
+
+      <div className="space-y-2 mb-4 text-sm">
+        <div className="flex items-center gap-2 text-gray-600">
+          <MapPin className="w-4 h-4" />
+          <span>{job.cidade} - {job.uf}</span>
+        </div>
+        {job.tipo_remuneracao === "A_COMBINAR" ? (
+          <div className="flex items-center gap-2 text-blue-600 font-bold">
+            <DollarSign className="w-4 h-4" />
+            <span>A Combinar</span>
+          </div>
+        ) : job.valor_proposto && (
+          <div className="flex items-center gap-2 text-green-600 font-bold">
+            <DollarSign className="w-4 h-4" />
+            <span>R$ {job.valor_proposto.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+              {tipoRemuneracaoLabels[job.tipo_remuneracao]}
+            </span>
+          </div>
+        )}
+      </div>
+
+      <button className="w-full py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-xl hover:shadow-lg transition-all">
+        Ver Detalhes
+      </button>
+    </motion.div>
+  );
 }
