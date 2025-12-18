@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import WhatsAppButton from "@/components/ui/WhatsAppButton";
+import WhatsAppSafeButton from "@/components/ui/WhatsAppSafeButton";
 
 const tipoLabels = {
   POS_GRADUACAO: "Pós-Graduação",
@@ -547,14 +547,14 @@ export default function DetalheCurso() {
               </div>
 
               {/* Botão Inscrever */}
-              <WhatsAppButton
+              <WhatsAppSafeButton
                 phone={instituicao?.whatsapp}
                 message={mensagemWhatsApp}
                 className="w-full py-4 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold rounded-2xl hover:shadow-lg transition-all flex items-center justify-center gap-2 mb-3"
               >
                 <MessageCircle className="w-5 h-5" />
                 Quero me Inscrever
-              </WhatsAppButton>
+              </WhatsAppSafeButton>
 
               {/* Botão Compartilhar */}
               <button
