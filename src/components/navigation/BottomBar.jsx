@@ -9,7 +9,11 @@ import {
   ShoppingBag,
   User,
   Search,
-  Building2
+  Building2,
+  Tag,
+  BarChart3,
+  Hospital,
+  Users
 } from "lucide-react";
 
 export default function BottomBar() {
@@ -33,6 +37,20 @@ export default function BottomBar() {
         const owners = await base44.entities.CompanyOwner.filter({ user_id: user.id });
         if (owners.length > 0) {
           setUserType("CLINICA");
+          return;
+        }
+
+        // Verificar se é fornecedor
+        const suppliers = await base44.entities.Supplier.filter({ user_id: user.id });
+        if (suppliers.length > 0) {
+          setUserType("FORNECEDOR");
+          return;
+        }
+
+        // Verificar se é hospital
+        const hospitals = await base44.entities.Hospital.filter({ user_id: user.id });
+        if (hospitals.length > 0) {
+          setUserType("HOSPITAL");
           return;
         }
       } catch (error) {
@@ -134,7 +152,82 @@ export default function BottomBar() {
     }
   ];
 
-  const botoes = userType === "PROFISSIONAL" ? botoesProfissional : botoesClinica;
+  // Configuração de botões para FORNECEDOR
+  const botoesFornecedor = [
+    {
+      icon: Newspaper,
+      label: "Home",
+      page: "HomePage",
+      isCenter: false
+    },
+    {
+      icon: Tag,
+      label: "Promocoes",
+      page: "MinhasPromocoes",
+      isCenter: false
+    },
+    {
+      icon: PlusCircle,
+      label: "Criar",
+      page: "CriarPromocao",
+      isCenter: true
+    },
+    {
+      icon: BarChart3,
+      label: "Metricas",
+      page: "DashboardFornecedor",
+      isCenter: false
+    },
+    {
+      icon: Building2,
+      label: "Perfil",
+      page: "PerfilFornecedor",
+      isCenter: false
+    }
+  ];
+
+  // Configuração de botões para HOSPITAL
+  const botoesHospital = [
+    {
+      icon: Newspaper,
+      label: "Home",
+      page: "HomePage",
+      isCenter: false
+    },
+    {
+      icon: Users,
+      label: "Candidatos",
+      page: "CandidatosHospital",
+      isCenter: false
+    },
+    {
+      icon: PlusCircle,
+      label: "Vaga",
+      page: "CriarVaga",
+      isCenter: true
+    },
+    {
+      icon: Briefcase,
+      label: "Vagas",
+      page: "MinhasVagas",
+      isCenter: false
+    },
+    {
+      icon: Hospital,
+      label: "Perfil",
+      page: "DashboardHospital",
+      isCenter: false
+    }
+  ];
+
+  const botoesMap = {
+    PROFISSIONAL: botoesProfissional,
+    CLINICA: botoesClinica,
+    FORNECEDOR: botoesFornecedor,
+    HOSPITAL: botoesHospital
+  };
+
+  const botoes = botoesMap[userType] || [];
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-2xl pb-safe">
