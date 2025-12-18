@@ -20,7 +20,8 @@ import {
   Award,
   CheckCircle2,
   Send,
-  X
+  X,
+  Flag
 } from "lucide-react";
 
 export default function DetalheVaga() {
@@ -168,13 +169,23 @@ export default function DetalheVaga() {
       {/* HEADER */}
       <div className="bg-white border-b-2 border-gray-100 p-6 relative z-10">
         <div className="max-w-4xl mx-auto">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-gray-600 hover:text-orange-600 font-medium mb-4 transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5" />
-            Voltar
-          </button>
+          <div className="flex items-center justify-between mb-4">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-2 text-gray-600 hover:text-orange-600 font-medium transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5" />
+              Voltar
+            </button>
+            <button
+              onClick={() => navigate(createPageUrl("Denunciar") + "?tipo=VAGA&id=" + id)}
+              className="flex items-center gap-2 text-gray-400 hover:text-red-500 font-medium transition-colors group"
+              title="Denunciar"
+            >
+              <Flag className="w-5 h-5" />
+              <span className="text-sm">Denunciar</span>
+            </button>
+          </div>
 
           <div className="flex flex-wrap items-start gap-3">
             <div className="flex-1 min-w-0">

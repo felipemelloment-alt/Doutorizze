@@ -21,7 +21,8 @@ import {
   FileText,
   X,
   Send,
-  Zap
+  Zap,
+  Flag
 } from "lucide-react";
 
 export default function VerProfissional() {
@@ -209,13 +210,23 @@ export default function VerProfissional() {
       {/* HEADER */}
       <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 pt-8 pb-24 px-4 relative">
         <div className="max-w-4xl mx-auto">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-white/80 hover:text-white font-medium mb-6 transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5" />
-            Voltar
-          </button>
+          <div className="flex items-center justify-between mb-6">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-2 text-white/80 hover:text-white font-medium transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5" />
+              Voltar
+            </button>
+            <button
+              onClick={() => navigate(createPageUrl("Denunciar") + "?tipo=PROFISSIONAL&id=" + id)}
+              className="flex items-center gap-2 text-white/70 hover:text-white font-medium transition-colors"
+              title="Denunciar"
+            >
+              <Flag className="w-5 h-5" />
+              <span className="text-sm">Denunciar</span>
+            </button>
+          </div>
           
           <div className="flex flex-col items-center text-center">
             {/* Foto */}

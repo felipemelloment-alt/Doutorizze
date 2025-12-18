@@ -18,7 +18,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
-  DollarSign
+  DollarSign,
+  Flag
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -140,13 +141,23 @@ export default function PerfilClinicaPublico() {
       
       {/* BOTÃO VOLTAR */}
       <div className="max-w-4xl mx-auto px-4 pt-6">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-600 hover:text-orange-600 font-medium py-2 transition-colors"
-        >
-          <ChevronLeft className="w-5 h-5" />
-          Voltar
-        </button>
+        <div className="flex items-center justify-between py-2">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-gray-600 hover:text-orange-600 font-medium transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            Voltar
+          </button>
+          <button
+            onClick={() => navigate(createPageUrl("Denunciar") + "?tipo=CLINICA&id=" + id)}
+            className="flex items-center gap-2 text-gray-400 hover:text-red-500 font-medium transition-colors"
+            title="Denunciar"
+          >
+            <Flag className="w-5 h-5" />
+            <span className="text-sm">Denunciar</span>
+          </button>
+        </div>
       </div>
 
       {/* HEADER COM FOTO */}

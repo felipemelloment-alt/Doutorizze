@@ -11,7 +11,8 @@ import {
   Heart,
   Share2,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Flag
 } from "lucide-react";
 
 export default function MarketplaceDetail() {
@@ -129,12 +130,22 @@ export default function MarketplaceDetail() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 pb-32">
       {/* Botão Voltar */}
-      <button
-        onClick={() => navigate(createPageUrl("Marketplace"))}
-        className="flex items-center gap-2 text-gray-600 hover:text-yellow-500 font-medium p-4">
-        <ArrowLeft className="w-5 h-5" />
-        Voltar ao Marketplace
-      </button>
+      <div className="flex items-center justify-between p-4">
+        <button
+          onClick={() => navigate(createPageUrl("Marketplace"))}
+          className="flex items-center gap-2 text-gray-600 hover:text-yellow-500 font-medium">
+          <ArrowLeft className="w-5 h-5" />
+          Voltar ao Marketplace
+        </button>
+        <button
+          onClick={() => navigate(createPageUrl("Denunciar") + "?tipo=MARKETPLACE&id=" + itemId)}
+          className="flex items-center gap-2 text-gray-400 hover:text-red-500 font-medium transition-colors"
+          title="Denunciar"
+        >
+          <Flag className="w-5 h-5" />
+          <span className="text-sm">Denunciar</span>
+        </button>
+      </div>
 
       <div className="max-w-6xl mx-auto">
         {/* Galeria de Imagens */}
