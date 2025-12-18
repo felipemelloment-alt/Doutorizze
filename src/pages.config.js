@@ -23,6 +23,7 @@ import SimulacaoCredito from './pages/SimulacaoCredito';
 import DashboardProfissional from './pages/DashboardProfissional';
 import DashboardClinica from './pages/DashboardClinica';
 import CriarVaga from './pages/CriarVaga';
+import MinhasVagas from './pages/MinhasVagas';
 
 
 export const PAGES = {
@@ -51,6 +52,7 @@ export const PAGES = {
     "DashboardProfissional": DashboardProfissional,
     "DashboardClinica": DashboardClinica,
     "CriarVaga": CriarVaga,
+    "MinhasVagas": MinhasVagas,
 }
 
 export const pagesConfig = {
