@@ -385,6 +385,8 @@ export default function AdminAprovacoes() {
           <option value="TODOS">Todos os Tipos</option>
           <option value="PROFISSIONAL">Profissionais</option>
           <option value="CLINICA">Clínicas</option>
+          <option value="FORNECEDOR">Fornecedores</option>
+          <option value="HOSPITAL">Hospitais</option>
         </select>
 
         <select
