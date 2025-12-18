@@ -12,7 +12,6 @@ import {
   Phone,
   Mail,
   Instagram,
-  Share2,
   CheckCircle2,
   Briefcase,
   Users,
@@ -23,6 +22,7 @@ import {
   FileText
 } from "lucide-react";
 import { toast } from "sonner";
+import ShareButton from "@/components/shared/ShareButton";
 
 export default function PerfilClinica() {
   const navigate = useNavigate();
@@ -127,19 +127,6 @@ export default function PerfilClinica() {
     unit.foto_consultorio_url
   ].filter(Boolean);
 
-  const handleCompartilhar = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: `Perfil de ${unit.nome_fantasia}`,
-        text: `${unit.tipo_empresa} - ${unit.cidade}/${unit.uf}`,
-        url: window.location.href
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      toast.success("Link copiado para a área de transferência!");
-    }
-  };
-
   const tipoLabels = {
     CLINICA: "Clínica",
     CONSULTORIO: "Consultório",
@@ -201,13 +188,12 @@ export default function PerfilClinica() {
                 <Edit className="w-4 h-4" />
                 Editar Perfil
               </button>
-              <button
-                onClick={handleCompartilhar}
-                className="flex items-center gap-2 px-6 py-3 bg-white/20 backdrop-blur text-white font-bold rounded-2xl hover:bg-white/30 transition-all"
-              >
-                <Share2 className="w-4 h-4" />
-                Compartilhar
-              </button>
+              <ShareButton
+                title={`Perfil de ${unit.nome_fantasia}`}
+                text={`${unit.tipo_empresa} - ${unit.cidade}/${unit.uf}`}
+                url={window.location.href}
+                className="bg-white/20 backdrop-blur text-white hover:bg-white/30"
+              />
             </div>
           </div>
         </div>

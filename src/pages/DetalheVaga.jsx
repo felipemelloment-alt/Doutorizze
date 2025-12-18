@@ -23,6 +23,7 @@ import {
   X,
   Flag
 } from "lucide-react";
+import ShareButton from "@/components/shared/ShareButton";
 
 export default function DetalheVaga() {
   const navigate = useNavigate();
@@ -177,14 +178,22 @@ export default function DetalheVaga() {
               <ChevronLeft className="w-5 h-5" />
               Voltar
             </button>
-            <button
-              onClick={() => navigate(createPageUrl("Denunciar") + "?tipo=VAGA&id=" + id)}
-              className="flex items-center gap-2 text-gray-400 hover:text-red-500 font-medium transition-colors group"
-              title="Denunciar"
-            >
-              <Flag className="w-5 h-5" />
-              <span className="text-sm">Denunciar</span>
-            </button>
+            <div className="flex gap-2">
+              <ShareButton
+                title={vaga.titulo}
+                text={`${vaga.tipo_vaga} - ${vaga.cidade}/${vaga.uf}`}
+                url={window.location.href}
+                className="px-3 py-2 text-sm"
+              />
+              <button
+                onClick={() => navigate(createPageUrl("Denunciar") + "?tipo=VAGA&id=" + id)}
+                className="flex items-center gap-2 text-gray-400 hover:text-red-500 font-medium transition-colors group"
+                title="Denunciar"
+              >
+                <Flag className="w-5 h-5" />
+                <span className="text-sm">Denunciar</span>
+              </button>
+            </div>
           </div>
 
           <div className="flex flex-wrap items-start gap-3">
