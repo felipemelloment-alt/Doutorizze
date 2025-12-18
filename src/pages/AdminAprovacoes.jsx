@@ -629,6 +629,50 @@ export default function AdminAprovacoes() {
                       <p className="font-bold text-gray-900 text-sm">{detailsModal.email}</p>
                     </div>
                   )}
+                  {detailsModal.tipo === "FORNECEDOR" && detailsModal.tipo_produtos && (
+                    <div className="col-span-2">
+                      <p className="text-sm text-gray-500 mb-1">Produtos</p>
+                      <div className="flex flex-wrap gap-2">
+                        {detailsModal.tipo_produtos.map((produto, i) => (
+                          <span key={i} className="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded">
+                            {produto}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {detailsModal.tipo === "HOSPITAL" && detailsModal.porte && (
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">Porte</p>
+                      <p className="font-bold text-gray-900">{detailsModal.porte}</p>
+                    </div>
+                  )}
+                  {detailsModal.documento_url && (
+                    <div className="col-span-2">
+                      <a
+                        href={detailsModal.documento_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-4 py-2 border-2 border-blue-300 text-blue-700 font-semibold rounded-xl hover:bg-blue-50 transition-all"
+                      >
+                        <FileText className="w-4 h-4" />
+                        Ver Documento
+                      </a>
+                    </div>
+                  )}
+                  {detailsModal.contrato_social_url && (
+                    <div className="col-span-2">
+                      <a
+                        href={detailsModal.contrato_social_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-4 py-2 border-2 border-blue-300 text-blue-700 font-semibold rounded-xl hover:bg-blue-50 transition-all"
+                      >
+                        <FileText className="w-4 h-4" />
+                        Ver Contrato Social
+                      </a>
+                    </div>
+                  )}
                 </div>
 
                 {detailsModal.motivo_reprovacao && (
