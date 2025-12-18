@@ -78,6 +78,28 @@ export default function AdminAprovacoes() {
     },
   });
 
+  // Buscar fornecedores
+  const { data: suppliers = [] } = useQuery({
+    queryKey: ["suppliers", filterStatus],
+    queryFn: async () => {
+      const result = await base44.entities.Supplier.filter(
+        filterStatus === "TODOS" ? {} : { status_cadastro: filterStatus }
+      );
+      return result || [];
+    },
+  });
+
+  // Buscar hospitais
+  const { data: hospitals = [] } = useQuery({
+    queryKey: ["hospitals", filterStatus],
+    queryFn: async () => {
+      const result = await base44.entities.Hospital.filter(
+        filterStatus === "TODOS" ? {} : { status_cadastro: filterStatus }
+      );
+      return result || [];
+    },
+  });
+
   // Combinar e processar dados
   const allCadastros = [
     ...professionals.map(p => ({
