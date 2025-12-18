@@ -422,7 +422,16 @@ export default function AdminAprovacoes() {
                 <div className="flex flex-col md:flex-row md:items-center gap-4">
                   {/* Avatar */}
                   <div className="w-16 h-16 rounded-2xl bg-gray-200 flex items-center justify-center text-2xl overflow-hidden flex-shrink-0">
-                    {cadastro.tipo === "PROFISSIONAL" ? "👤" : "🏥"}
+                    {cadastro.logo_url ? (
+                      <img src={cadastro.logo_url} alt={cadastro.nome} className="w-full h-full object-cover" />
+                    ) : (
+                      <>
+                        {cadastro.tipo === "PROFISSIONAL" && "👤"}
+                        {cadastro.tipo === "CLINICA" && "🏥"}
+                        {cadastro.tipo === "FORNECEDOR" && <Package className="w-8 h-8 text-purple-500" />}
+                        {cadastro.tipo === "HOSPITAL" && <Hospital className="w-8 h-8 text-blue-500" />}
+                      </>
+                    )}
                   </div>
 
                   {/* Informações */}
