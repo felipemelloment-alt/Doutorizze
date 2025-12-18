@@ -53,6 +53,7 @@ import MinhasAvaliacoes from './pages/MinhasAvaliacoes';
 import Onboarding from './pages/Onboarding';
 import TermosUso from './pages/TermosUso';
 import PoliticaPrivacidade from './pages/PoliticaPrivacidade';
+import CadastroInstituicao from './pages/CadastroInstituicao';
 import __Layout from './Layout.jsx';
 
 
@@ -112,6 +113,7 @@ export const PAGES = {
     "Onboarding": Onboarding,
     "TermosUso": TermosUso,
     "PoliticaPrivacidade": PoliticaPrivacidade,
+    "CadastroInstituicao": CadastroInstituicao,
 }
 
 export const pagesConfig = {
