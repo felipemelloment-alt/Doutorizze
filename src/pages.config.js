@@ -43,6 +43,7 @@ import AdminFeed from './pages/AdminFeed';
 import CadastroFornecedor from './pages/CadastroFornecedor';
 import DashboardFornecedor from './pages/DashboardFornecedor';
 import CriarPromocao from './pages/CriarPromocao';
+import MinhasPromocoes from './pages/MinhasPromocoes';
 import __Layout from './Layout.jsx';
 
 
@@ -92,6 +93,7 @@ export const PAGES = {
     "CadastroFornecedor": CadastroFornecedor,
     "DashboardFornecedor": DashboardFornecedor,
     "CriarPromocao": CriarPromocao,
+    "MinhasPromocoes": MinhasPromocoes,
 }
 
 export const pagesConfig = {
