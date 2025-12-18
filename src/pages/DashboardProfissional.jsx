@@ -396,12 +396,12 @@ export default function DashboardProfissional() {
           </button>
 
           <button
-            onClick={() => navigate(createPageUrl("NotificationSettings"))}
+            onClick={() => navigate(createPageUrl("MeuPerfil"))}
             className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-2xl p-6 hover:shadow-xl transition-all group"
           >
             <Settings className="w-10 h-10 mb-3 group-hover:scale-110 transition-transform" />
-            <h3 className="text-xl font-black mb-1">Configurações</h3>
-            <p className="text-green-100 text-sm">Preferências e notificações</p>
+            <h3 className="text-xl font-black mb-1">Meu Perfil</h3>
+            <p className="text-green-100 text-sm">Ver e editar seu perfil</p>
           </button>
         </motion.div>
       </div>
