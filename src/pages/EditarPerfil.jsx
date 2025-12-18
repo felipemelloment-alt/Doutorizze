@@ -303,9 +303,13 @@ export default function EditarPerfil() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white pb-24">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 pb-24 relative overflow-hidden">
+      {/* ELEMENTOS DECORATIVOS */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-300 rounded-full blur-3xl opacity-30"></div>
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-pink-300 rounded-full blur-3xl opacity-20"></div>
+      
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-6">
+      <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 p-6 relative">
         <div className="max-w-4xl mx-auto">
           <button
             onClick={() => navigate(createPageUrl("MeuPerfil"))}
@@ -316,7 +320,7 @@ export default function EditarPerfil() {
           </button>
           
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center text-blue-600 text-2xl font-bold shadow-lg">
+            <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center text-orange-600 text-2xl font-bold shadow-lg">
               {formData.nome_completo?.charAt(0).toUpperCase()}
             </div>
             <div>
@@ -328,7 +332,7 @@ export default function EditarPerfil() {
       </div>
 
       {/* Formulário */}
-      <div className="max-w-4xl mx-auto px-4 -mt-6">
+      <div className="max-w-4xl mx-auto px-4 -mt-6 relative z-10">
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid grid-cols-3 lg:grid-cols-6 w-full bg-gray-100 p-2 rounded-none">
@@ -369,7 +373,7 @@ export default function EditarPerfil() {
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-3">Foto de Perfil</label>
                 <div className="flex items-center gap-6">
-                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
                     {formData.nome_completo?.charAt(0).toUpperCase()}
                   </div>
                   <div>
@@ -381,7 +385,7 @@ export default function EditarPerfil() {
                     />
                     <label
                       htmlFor="foto_perfil"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition-all cursor-pointer"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold rounded-2xl hover:shadow-lg transition-all cursor-pointer"
                     >
                       <Camera className="w-4 h-4" />
                       Alterar Foto
@@ -399,7 +403,7 @@ export default function EditarPerfil() {
                   value={formData.nome_completo}
                   onChange={(e) => handleInputChange("nome_completo", e.target.value)}
                   placeholder="Seu nome completo"
-                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                 />
               </div>
 
@@ -412,7 +416,7 @@ export default function EditarPerfil() {
                     onChange={(e) => handleInputChange("data_nascimento", aplicarMascaraData(e.target.value))}
                     placeholder="DD/MM/AAAA"
                     maxLength={10}
-                    className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                    className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                   />
                 </div>
 
@@ -436,7 +440,7 @@ export default function EditarPerfil() {
                   onChange={(e) => handleInputChange("whatsapp", e.target.value.replace(/\D/g, ""))}
                   placeholder="(00) 00000-0000"
                   maxLength={15}
-                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                 />
               </div>
 
@@ -447,7 +451,7 @@ export default function EditarPerfil() {
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
                   placeholder="seu@email.com"
-                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                 />
               </div>
 
@@ -459,7 +463,7 @@ export default function EditarPerfil() {
                 <button
                   type="button"
                   onClick={() => handleInputChange("exibir_email", !formData.exibir_email)}
-                  className={`w-14 h-8 rounded-full transition-all ${formData.exibir_email ? "bg-blue-500" : "bg-gray-300"}`}
+                  className={`w-14 h-8 rounded-full transition-all ${formData.exibir_email ? "bg-gradient-to-r from-yellow-400 to-orange-500" : "bg-gray-300"}`}
                 >
                   <div className={`w-6 h-6 rounded-full bg-white shadow-lg transition-all ${formData.exibir_email ? "ml-7" : "ml-1"}`}></div>
                 </button>
@@ -508,7 +512,7 @@ export default function EditarPerfil() {
                     value={formData.registro_conselho}
                     onChange={(e) => handleInputChange("registro_conselho", e.target.value)}
                     placeholder="12345"
-                    className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                    className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                   />
                 </div>
 
@@ -550,7 +554,7 @@ export default function EditarPerfil() {
                     onChange={(e) => handleInputChange("tempo_formado_anos", e.target.value)}
                     min="0"
                     placeholder="Ex: 5"
-                    className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                    className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                   />
                 </div>
 
@@ -562,7 +566,7 @@ export default function EditarPerfil() {
                     onChange={(e) => handleInputChange("tempo_especialidade_anos", e.target.value)}
                     min="0"
                     placeholder="Ex: 3"
-                    className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                    className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                   />
                 </div>
               </div>
@@ -596,7 +600,7 @@ export default function EditarPerfil() {
                 <button
                   type="button"
                   onClick={() => handleInputChange("aceita_freelance", !formData.aceita_freelance)}
-                  className={`w-14 h-8 rounded-full transition-all ${formData.aceita_freelance ? "bg-blue-500" : "bg-gray-300"}`}
+                  className={`w-14 h-8 rounded-full transition-all ${formData.aceita_freelance ? "bg-gradient-to-r from-yellow-400 to-orange-500" : "bg-gray-300"}`}
                 >
                   <div className={`w-6 h-6 rounded-full bg-white shadow-lg transition-all ${formData.aceita_freelance ? "ml-7" : "ml-1"}`}></div>
                 </button>
@@ -621,8 +625,8 @@ export default function EditarPerfil() {
                       onClick={() => toggleDiaSemana(dia.value)}
                       className={`py-3 px-4 rounded-xl font-bold transition-all ${
                         formData.dias_semana_disponiveis.includes(dia.value)
-                          ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg"
-                          : "bg-white border-2 border-gray-200 text-gray-700 hover:border-blue-400"
+                          ? "bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white shadow-lg"
+                          : "bg-white border-2 border-gray-200 text-gray-700 hover:border-yellow-400"
                       }`}
                     >
                       {dia.label}
@@ -667,7 +671,7 @@ export default function EditarPerfil() {
                     >
                       <div className="flex items-center gap-3">
                         <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                          formData.forma_remuneracao.includes(forma.value) ? "border-blue-400 bg-blue-400" : "border-gray-300"
+                          formData.forma_remuneracao.includes(forma.value) ? "border-yellow-400 bg-yellow-400" : "border-gray-300"
                         }`}>
                           {formData.forma_remuneracao.includes(forma.value) && (
                             <CheckCircle2 className="w-3 h-3 text-white" />
@@ -721,7 +725,7 @@ export default function EditarPerfil() {
                     type="button"
                     onClick={adicionarCidade}
                     disabled={formData.cidades_atendimento.length >= 6}
-                    className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full h-full bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     +
                   </button>
@@ -742,14 +746,14 @@ export default function EditarPerfil() {
                     {formData.cidades_atendimento.map((cidade, index) => (
                       <div
                         key={index}
-                        className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full flex items-center gap-2 text-sm font-medium"
+                        className="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-full flex items-center gap-2 text-sm font-medium"
                       >
                         <MapPin className="w-4 h-4" />
                         <span>{cidade}</span>
                         <button
                           type="button"
                           onClick={() => removerCidade(cidade)}
-                          className="text-blue-600 hover:text-blue-900 font-bold text-lg leading-none"
+                          className="text-yellow-600 hover:text-yellow-900 font-bold text-lg leading-none"
                         >
                           ×
                         </button>
@@ -784,7 +788,7 @@ export default function EditarPerfil() {
                 <p className="text-xs text-gray-500 mt-1 text-right">
                   {formData.observacoes.length}/500 caracteres
                 </p>
-                <p className="text-xs text-blue-600 mt-2">
+                <p className="text-xs text-yellow-600 mt-2">
                   💡 Dica: Mencione sua experiência, tipo de ambiente que busca, valores e objetivos profissionais
                 </p>
               </div>
@@ -821,15 +825,15 @@ export default function EditarPerfil() {
                             e.preventDefault();
                             document.getElementById('selfie_documento').click();
                           }}
-                          className="mt-3 px-4 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition-all"
+                          className="mt-3 px-4 py-2 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold rounded-2xl hover:shadow-lg transition-all"
                         >
                           Trocar Foto
                         </button>
                       </div>
                     ) : (
                       <div>
-                        <div className="w-16 h-16 mx-auto mb-3 rounded-xl bg-blue-100 flex items-center justify-center">
-                          <Camera className="w-8 h-8 text-blue-500" />
+                        <div className="w-16 h-16 mx-auto mb-3 rounded-xl bg-yellow-100 flex items-center justify-center">
+                          <Camera className="w-8 h-8 text-yellow-500" />
                         </div>
                         <p className="text-gray-700 font-semibold">Clique para enviar</p>
                         <p className="text-gray-400 text-sm mt-1">JPG ou PNG</p>
@@ -865,15 +869,15 @@ export default function EditarPerfil() {
                             e.preventDefault();
                             document.getElementById('carteirinha_conselho').click();
                           }}
-                          className="mt-3 px-4 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition-all"
+                          className="mt-3 px-4 py-2 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold rounded-2xl hover:shadow-lg transition-all"
                         >
                           Trocar Documento
                         </button>
                       </div>
                     ) : (
                       <div>
-                        <div className="w-16 h-16 mx-auto mb-3 rounded-xl bg-purple-100 flex items-center justify-center">
-                          <Upload className="w-8 h-8 text-purple-500" />
+                        <div className="w-16 h-16 mx-auto mb-3 rounded-xl bg-yellow-100 flex items-center justify-center">
+                          <Upload className="w-8 h-8 text-yellow-500" />
                         </div>
                         <p className="text-gray-700 font-semibold">Clique para enviar</p>
                         <p className="text-gray-400 text-sm mt-1">PDF, JPG ou PNG</p>
@@ -898,7 +902,7 @@ export default function EditarPerfil() {
             <button
               onClick={handleSalvar}
               disabled={updateMutation.isPending}
-              className="flex-1 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              className="flex-1 py-4 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold rounded-2xl shadow-lg shadow-orange-200 hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {updateMutation.isPending ? "Salvando..." : "Salvar Alterações"}
               <Save className="w-5 h-5" />

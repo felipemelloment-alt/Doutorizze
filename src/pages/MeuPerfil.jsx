@@ -130,14 +130,18 @@ export default function MeuPerfil() {
   const candidaturasEnviadas = matches.filter(m => m.status_candidatura === "CANDIDATOU").length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 relative overflow-hidden">
+      {/* ELEMENTOS DECORATIVOS */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-300 rounded-full blur-3xl opacity-30"></div>
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-pink-300 rounded-full blur-3xl opacity-20"></div>
+      
       {/* HEADER COM FOTO */}
-      <div className="bg-gradient-to-b from-blue-500 to-blue-600 pt-8 pb-24 px-4">
+      <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 pt-8 pb-24 px-4 relative">
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-col items-center text-center">
             {/* Foto */}
             <div className="w-32 h-32 rounded-full bg-white p-2 shadow-2xl mb-4">
-              <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center text-white text-4xl font-bold">
+              <div className="w-full h-full rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white text-4xl font-bold">
                 {professional.nome_completo?.charAt(0).toUpperCase()}
               </div>
             </div>
@@ -159,14 +163,14 @@ export default function MeuPerfil() {
             <div className="flex gap-3">
               <button
                 onClick={() => navigate(createPageUrl("EditarPerfil"))}
-                className="flex items-center gap-2 px-6 py-3 bg-white text-blue-600 font-bold rounded-xl hover:bg-blue-50 transition-all shadow-lg"
+                className="flex items-center gap-2 px-6 py-3 bg-white text-orange-600 font-bold rounded-2xl hover:bg-white/90 transition-all shadow-lg"
               >
                 <Edit className="w-4 h-4" />
                 Editar Perfil
               </button>
               <button
                 onClick={handleCompartilhar}
-                className="flex items-center gap-2 px-6 py-3 bg-white/20 backdrop-blur text-white font-bold rounded-xl hover:bg-white/30 transition-all"
+                className="flex items-center gap-2 px-6 py-3 bg-white/20 backdrop-blur text-white font-bold rounded-2xl hover:bg-white/30 transition-all"
               >
                 <Share2 className="w-4 h-4" />
                 Compartilhar
@@ -177,16 +181,16 @@ export default function MeuPerfil() {
       </div>
 
       {/* CONTEÚDO PRINCIPAL */}
-      <div className="max-w-4xl mx-auto px-4 -mt-16 pb-12 space-y-6">
+      <div className="max-w-4xl mx-auto px-4 -mt-16 pb-12 space-y-6 relative z-10">
         {/* SEÇÃO AVALIAÇÕES */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl shadow-xl p-6"
+          className="bg-white rounded-3xl shadow-xl p-6"
         >
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center">
-              <Star className="w-6 h-6 text-yellow-500" />
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white shadow-lg">
+              <Star className="w-6 h-6" />
             </div>
             <div>
               <h2 className="text-xl font-black text-gray-900">Avaliações</h2>
@@ -233,11 +237,11 @@ export default function MeuPerfil() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white rounded-2xl shadow-xl p-6"
+          className="bg-white rounded-3xl shadow-xl p-6"
         >
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
-              <Award className="w-6 h-6 text-purple-500" />
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white shadow-lg">
+              <Award className="w-6 h-6" />
             </div>
             <div>
               <h2 className="text-xl font-black text-gray-900">Informações Profissionais</h2>
@@ -245,8 +249,8 @@ export default function MeuPerfil() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
-            <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
-              <Briefcase className="w-5 h-5 text-blue-500 mt-0.5" />
+            <div className="flex items-start gap-3 p-4 bg-yellow-50 rounded-xl border border-yellow-100">
+              <Briefcase className="w-5 h-5 text-orange-500 mt-0.5" />
               <div>
                 <p className="text-sm text-gray-600 mb-1">Registro Profissional</p>
                 <p className="font-bold text-gray-900">
@@ -255,8 +259,8 @@ export default function MeuPerfil() {
               </div>
             </div>
 
-            <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
-              <Clock className="w-5 h-5 text-green-500 mt-0.5" />
+            <div className="flex items-start gap-3 p-4 bg-yellow-50 rounded-xl border border-yellow-100">
+              <Clock className="w-5 h-5 text-orange-500 mt-0.5" />
               <div>
                 <p className="text-sm text-gray-600 mb-1">Tempo de Formado</p>
                 <p className="font-bold text-gray-900">{professional.tempo_formado_anos} anos</p>
@@ -264,8 +268,8 @@ export default function MeuPerfil() {
             </div>
 
             {professional.tempo_especialidade_anos > 0 && (
-              <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
-                <Star className="w-5 h-5 text-yellow-500 mt-0.5" />
+              <div className="flex items-start gap-3 p-4 bg-yellow-50 rounded-xl border border-yellow-100">
+                <Star className="w-5 h-5 text-orange-500 mt-0.5" />
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Tempo na Especialidade</p>
                   <p className="font-bold text-gray-900">{professional.tempo_especialidade_anos} anos</p>
@@ -273,8 +277,8 @@ export default function MeuPerfil() {
               </div>
             )}
 
-            <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
-              <CheckCircle2 className="w-5 h-5 text-purple-500 mt-0.5" />
+            <div className="flex items-start gap-3 p-4 bg-yellow-50 rounded-xl border border-yellow-100">
+              <CheckCircle2 className="w-5 h-5 text-orange-500 mt-0.5" />
               <div>
                 <p className="text-sm text-gray-600 mb-1">Aceita Freelance</p>
                 <p className="font-bold text-gray-900">{professional.aceita_freelance ? "Sim ✓" : "Não"}</p>
@@ -288,11 +292,11 @@ export default function MeuPerfil() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white rounded-2xl shadow-xl p-6"
+          className="bg-white rounded-3xl shadow-xl p-6"
         >
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
-              <Calendar className="w-6 h-6 text-green-500" />
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white shadow-lg">
+              <Calendar className="w-6 h-6" />
             </div>
             <div>
               <h2 className="text-xl font-black text-gray-900">Disponibilidade</h2>
@@ -306,7 +310,7 @@ export default function MeuPerfil() {
               {professional.dias_semana_disponiveis?.map((dia) => (
                 <span
                   key={dia}
-                  className="px-4 py-2 bg-blue-100 text-blue-700 font-bold rounded-full text-sm"
+                  className="px-4 py-2 bg-yellow-100 text-yellow-700 font-bold rounded-full text-sm"
                 >
                   {dia === "INTEGRAL" ? "Integral (Todos os dias)" : dia}
                 </span>
@@ -331,7 +335,7 @@ export default function MeuPerfil() {
                 {professional.forma_remuneracao.map((forma) => (
                   <span
                     key={forma}
-                    className="px-4 py-2 bg-purple-100 text-purple-700 font-bold rounded-full text-sm"
+                    className="px-4 py-2 bg-yellow-100 text-yellow-700 font-bold rounded-full text-sm"
                   >
                     {forma === "DIARIA" ? "Diária" : forma === "PORCENTAGEM" ? "Porcentagem" : forma === "FIXO" ? "Fixo" : "A Combinar"}
                   </span>
@@ -346,11 +350,11 @@ export default function MeuPerfil() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-white rounded-2xl shadow-xl p-6"
+          className="bg-white rounded-3xl shadow-xl p-6"
         >
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center">
-              <MapPin className="w-6 h-6 text-orange-500" />
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white shadow-lg">
+              <MapPin className="w-6 h-6" />
             </div>
             <div>
               <h2 className="text-xl font-black text-gray-900">Cidades de Atendimento</h2>
@@ -362,7 +366,7 @@ export default function MeuPerfil() {
             {professional.cidades_atendimento?.map((cidade, index) => (
               <span
                 key={index}
-                className="px-5 py-3 bg-gradient-to-r from-orange-100 to-red-100 text-orange-700 font-bold rounded-2xl text-sm flex items-center gap-2 shadow-sm"
+                className="px-5 py-3 bg-yellow-100 text-yellow-700 font-bold rounded-full text-sm flex items-center gap-2"
               >
                 <MapPin className="w-4 h-4" />
                 {cidade}
@@ -376,11 +380,11 @@ export default function MeuPerfil() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-white rounded-2xl shadow-xl p-6"
+          className="bg-white rounded-3xl shadow-xl p-6"
         >
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-pink-100 flex items-center justify-center">
-              <Phone className="w-6 h-6 text-pink-500" />
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white shadow-lg">
+              <Phone className="w-6 h-6" />
             </div>
             <div>
               <h2 className="text-xl font-black text-gray-900">Contato</h2>
@@ -403,7 +407,7 @@ export default function MeuPerfil() {
               </div>
               <button
                 onClick={() => window.open(`https://wa.me/55${professional.whatsapp}`, "_blank")}
-                className="px-4 py-2 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition-all"
+                className="px-4 py-2 bg-green-500 text-white font-bold rounded-2xl hover:bg-green-600 transition-all shadow-md"
               >
                 Abrir
               </button>
@@ -436,7 +440,7 @@ export default function MeuPerfil() {
                 </div>
                 <button
                   onClick={() => window.open(`https://instagram.com/${professional.instagram}`, "_blank")}
-                  className="px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold rounded-lg hover:shadow-lg transition-all"
+                  className="px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold rounded-2xl hover:shadow-lg transition-all"
                 >
                   Abrir
                 </button>
@@ -451,11 +455,11 @@ export default function MeuPerfil() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="bg-white rounded-2xl shadow-xl p-6"
+            className="bg-white rounded-3xl shadow-xl p-6"
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-cyan-100 flex items-center justify-center">
-                <FileText className="w-6 h-6 text-cyan-500" />
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white shadow-lg">
+                <FileText className="w-6 h-6" />
               </div>
               <div>
                 <h2 className="text-xl font-black text-gray-900">Sobre Mim</h2>
@@ -472,30 +476,30 @@ export default function MeuPerfil() {
           transition={{ delay: 0.6 }}
           className="grid md:grid-cols-3 gap-4"
         >
-          <div className="bg-white rounded-2xl shadow-lg p-6">
+          <div className="bg-white rounded-3xl shadow-lg p-6">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center">
-                <CheckCircle2 className="w-5 h-5 text-green-500" />
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white">
+                <CheckCircle2 className="w-5 h-5" />
               </div>
               <p className="text-sm text-gray-600">Contratações</p>
             </div>
             <p className="text-3xl font-black text-gray-900">{professional.total_contratacoes || 0}</p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-lg p-6">
+          <div className="bg-white rounded-3xl shadow-lg p-6">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
-                <Eye className="w-5 h-5 text-blue-500" />
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white">
+                <Eye className="w-5 h-5" />
               </div>
               <p className="text-sm text-gray-600">Visualizações</p>
             </div>
             <p className="text-3xl font-black text-gray-900">{professional.total_contratacoes || 0}</p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-lg p-6">
+          <div className="bg-white rounded-3xl shadow-lg p-6">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center">
-                <FileText className="w-5 h-5 text-purple-500" />
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white">
+                <FileText className="w-5 h-5" />
               </div>
               <p className="text-sm text-gray-600">Candidaturas</p>
             </div>
@@ -507,9 +511,10 @@ export default function MeuPerfil() {
       {/* BOTÃO FLUTUANTE EDITAR */}
       <button
         onClick={() => navigate(createPageUrl("EditarPerfil"))}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-all z-50"
+        className="fixed bottom-6 right-6 px-6 py-3 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold rounded-full shadow-lg shadow-orange-200 flex items-center justify-center gap-2 hover:scale-105 transition-all z-50"
       >
-        <Edit className="w-6 h-6" />
+        <Edit className="w-5 h-5" />
+        Editar Perfil
       </button>
     </div>
   );
