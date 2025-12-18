@@ -231,6 +231,8 @@ export default function AdminAprovacoes() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["professionals"] });
       queryClient.invalidateQueries({ queryKey: ["companyOwners"] });
+      queryClient.invalidateQueries({ queryKey: ["suppliers"] });
+      queryClient.invalidateQueries({ queryKey: ["hospitals"] });
       toast.success("❌ Cadastro reprovado.");
       setRejectionModal(null);
       setDetailsModal(null);
