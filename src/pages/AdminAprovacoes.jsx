@@ -427,7 +427,19 @@ export default function AdminAprovacoes() {
 
                   {/* Informações */}
                   <div className="flex-1">
-                    <h3 className="font-bold text-lg text-gray-900">{cadastro.nome}</h3>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-bold text-lg text-gray-900">{cadastro.nome}</h3>
+                      {cadastro.tipo === "FORNECEDOR" && (
+                        <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-bold rounded">
+                          Fornecedor
+                        </span>
+                      )}
+                      {cadastro.tipo === "HOSPITAL" && (
+                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-bold rounded">
+                          Hospital
+                        </span>
+                      )}
+                    </div>
                     <p className="text-gray-600 text-sm">{cadastro.registro}</p>
                     <div className="flex items-center gap-4 mt-1">
                       <p className="text-gray-500 text-sm flex items-center gap-1">
