@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Flag
 } from "lucide-react";
+import WhatsAppSafeButton from "@/components/ui/WhatsAppSafeButton";
 
 export default function MarketplaceDetail() {
   const navigate = useNavigate();
@@ -55,13 +56,7 @@ export default function MarketplaceDetail() {
     }).format(price);
   };
 
-  const handleWhatsAppContact = () => {
-    if (!item?.telefone_contato) return;
-    const message = encodeURIComponent(
-      `Olá! Tenho interesse no item: ${item.titulo_item || 'equipamento'} - ${formatPrice(item.preco)}`
-    );
-    window.open(`https://wa.me/55${item.telefone_contato}?text=${message}`, "_blank");
-  };
+
 
   const handleShare = () => {
     const url = window.location.href;
@@ -288,11 +283,13 @@ export default function MarketplaceDetail() {
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-2xl z-50">
         <div className="max-w-6xl mx-auto">
           {/* WhatsApp principal */}
-          <button
-            onClick={handleWhatsAppContact}
-            className="w-full py-4 bg-green-500 hover:bg-green-600 text-white font-bold rounded-2xl flex items-center justify-center gap-3 shadow-lg mb-3 transition-all">
+          <WhatsAppSafeButton
+            phone={item.telefone_contato}
+            message={`Olá! Tenho interesse no item: ${item.titulo_item || 'equipamento'} - ${formatPrice(item.preco)}`}
+            className="w-full py-4 bg-green-500 hover:bg-green-600 text-white font-bold rounded-2xl flex items-center justify-center gap-3 shadow-lg mb-3 transition-all"
+          >
             💬 Chamar no WhatsApp
-          </button>
+          </WhatsAppSafeButton>
 
           {/* Grid 2 botões */}
           <div className="grid grid-cols-2 gap-3">

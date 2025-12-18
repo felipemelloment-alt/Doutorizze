@@ -22,6 +22,7 @@ import {
   Flag
 } from "lucide-react";
 import { toast } from "sonner";
+import WhatsAppSafeButton from "@/components/ui/WhatsAppSafeButton";
 
 export default function PerfilClinicaPublico() {
   const navigate = useNavigate();
@@ -485,12 +486,12 @@ export default function PerfilClinicaPublico() {
                   </p>
                 </div>
               </div>
-              <button
-                onClick={() => window.open(`https://wa.me/55${unit.whatsapp}`, "_blank")}
+              <WhatsAppSafeButton
+                phone={unit.whatsapp}
+                message={`Olá! Vi o perfil de ${unit.nome_fantasia} na Doutorizze e gostaria de conversar.`}
+                buttonText="Abrir"
                 className="px-4 py-2 bg-green-500 text-white font-bold rounded-2xl hover:bg-green-600 transition-all shadow-md"
-              >
-                Abrir
-              </button>
+              />
             </div>
 
             {/* Telefone Fixo */}

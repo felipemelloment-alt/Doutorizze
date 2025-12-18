@@ -24,6 +24,7 @@ import {
   Zap,
   Flag
 } from "lucide-react";
+import WhatsAppSafeButton from "@/components/ui/WhatsAppSafeButton";
 
 export default function VerProfissional() {
   const navigate = useNavigate();
@@ -484,12 +485,12 @@ export default function VerProfissional() {
                   </p>
                 </div>
               </div>
-              <button
-                onClick={() => window.open(`https://wa.me/55${professional.whatsapp}`, "_blank")}
+              <WhatsAppSafeButton
+                phone={professional.whatsapp}
+                message={`Olá! Vi seu perfil na Doutorizze e gostaria de conversar.`}
+                buttonText="Abrir"
                 className="px-4 py-2 bg-green-500 text-white font-bold rounded-2xl hover:bg-green-600 transition-all shadow-md"
-              >
-                Abrir
-              </button>
+              />
             </div>
 
             {professional.exibir_email && (
@@ -552,13 +553,14 @@ export default function VerProfissional() {
           ) : (
             // Se veio da busca geral
             <div className="flex gap-3">
-              <button
-                onClick={() => window.open(`https://wa.me/55${professional.whatsapp}`, "_blank")}
+              <WhatsAppSafeButton
+                phone={professional.whatsapp}
+                message={`Olá! Vi seu perfil na Doutorizze e gostaria de conversar sobre uma oportunidade.`}
                 className="flex-1 py-4 bg-green-500 text-white font-bold rounded-2xl hover:bg-green-600 transition-all flex items-center justify-center gap-2"
               >
                 <Phone className="w-5 h-5" />
                 Entrar em Contato
-              </button>
+              </WhatsAppSafeButton>
               <button
                 onClick={() => setShowConvidarModal(true)}
                 className="flex-1 py-4 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold rounded-2xl shadow-lg shadow-orange-200 hover:shadow-xl hover:scale-105 transition-all flex items-center justify-center gap-2"

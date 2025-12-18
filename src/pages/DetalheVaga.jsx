@@ -24,6 +24,7 @@ import {
   Flag
 } from "lucide-react";
 import ShareButton from "@/components/shared/ShareButton";
+import WhatsAppSafeButton from "@/components/ui/WhatsAppSafeButton";
 
 export default function DetalheVaga() {
   const navigate = useNavigate();
@@ -400,13 +401,14 @@ export default function DetalheVaga() {
             </div>
 
             {unit?.whatsapp && (
-              <button
-                onClick={() => window.open(`https://wa.me/55${unit.whatsapp}?text=Olá! Vi a vaga "${vaga.titulo}" e gostaria de mais informações.`, "_blank")}
+              <WhatsAppSafeButton
+                phone={unit.whatsapp}
+                message={`Olá! Vi a vaga "${vaga.titulo}" e gostaria de mais informações.`}
                 className="w-full py-4 px-6 bg-green-500 text-white font-bold rounded-2xl shadow-lg hover:bg-green-600 hover:shadow-xl transition-all flex items-center justify-center gap-3"
               >
                 <Phone className="w-5 h-5" />
                 Entrar em Contato via WhatsApp
-              </button>
+              </WhatsAppSafeButton>
             )}
 
             {vaga.instagram_clinica && (
