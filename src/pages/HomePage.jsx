@@ -51,6 +51,13 @@ export default function HomePage() {
     enabled: jobs.length > 0
   });
 
+  const { data: feedPosts = [] } = useQuery({
+    queryKey: ["feedPosts"],
+    queryFn: async () => {
+      return await base44.entities.FeedPost.filter({ ativo: true });
+    }
+  });
+
   const recentJobs = jobs.slice(0, 3);
 
   return (
@@ -230,6 +237,27 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Seção Feed/Novidades */}
+      {feedPosts.length > 0 && (
+        <section className="px-4 py-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-black text-gray-900">Novidades</h2>
+            <button
+              onClick={() => navigate(createPageUrl("Feed"))}
+              className="text-orange-500 font-bold hover:text-orange-600 transition-colors"
+            >
+              Ver tudo →
+            </button>
+          </div>
+
+          <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
+            {feedPosts.slice(0, 5).map(post => (
+              <FeedCardMini key={post.id} post={post} navigate={navigate} />
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Vagas em Destaque */}
       {recentJobs.length > 0 && (
         <section className="px-4 py-8 mb-8">
@@ -355,6 +383,61 @@ export default function HomePage() {
         </button>
       </div>
     </div>
+  );
+}
+
+function FeedCardMini({ post, navigate }) {
+  const tipoColors = {
+    NOVIDADE: "bg-blue-100 text-blue-700",
+    NOTICIA_SAUDE: "bg-green-100 text-green-700",
+    NOTICIA_IA: "bg-purple-100 text-purple-700",
+    PARCEIRO: "bg-yellow-100 text-yellow-700",
+    PROMOCAO: "bg-red-100 text-red-700",
+    CURSO: "bg-indigo-100 text-indigo-700",
+    DESTAQUE_MARKETPLACE: "bg-pink-100 text-pink-700"
+  };
+
+  const tipoLabels = {
+    NOVIDADE: "Novidade",
+    NOTICIA_SAUDE: "Saúde",
+    NOTICIA_IA: "IA & Tech",
+    PARCEIRO: "Parceiro",
+    PROMOCAO: "Promoção",
+    CURSO: "Curso",
+    DESTAQUE_MARKETPLACE: "Destaque"
+  };
+
+  const getTimeAgo = (date) => {
+    const now = new Date();
+    const postDate = new Date(date);
+    const diffInHours = Math.floor((now - postDate) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return "Agora";
+    if (diffInHours < 24) return `${diffInHours}h atrás`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays}d atrás`;
+    return `${Math.floor(diffInDays / 7)}sem atrás`;
+  };
+
+  return (
+    <motion.div
+      whileHover={{ scale: 1.02 }}
+      onClick={() => navigate(createPageUrl("Feed"))}
+      className="w-72 flex-shrink-0 snap-start bg-white rounded-2xl shadow-lg hover:shadow-xl border-2 border-gray-100 hover:border-yellow-400 transition-all cursor-pointer overflow-hidden"
+    >
+      {post.imagem_url && (
+        <div className="h-32 overflow-hidden bg-gray-100">
+          <img src={post.imagem_url} alt={post.titulo} className="w-full h-full object-cover" />
+        </div>
+      )}
+      <div className="p-4">
+        <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 ${tipoColors[post.tipo_post]}`}>
+          {tipoLabels[post.tipo_post]}
+        </span>
+        <h3 className="font-bold text-sm text-gray-900 truncate mb-2">{post.titulo}</h3>
+        <p className="text-xs text-gray-400">{getTimeAgo(post.created_date)}</p>
+      </div>
+    </motion.div>
   );
 }
 
