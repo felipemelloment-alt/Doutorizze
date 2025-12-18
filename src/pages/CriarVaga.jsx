@@ -20,7 +20,6 @@ export default function CriarVaga() {
   const [etapaAtual, setEtapaAtual] = useState(1);
   const [loading, setLoading] = useState(false);
   const [unit, setUnit] = useState(null);
-  const { cidades, loading: loadingCidades } = useIBGECidades(formData.uf);
 
   // Estado do formulário
   const [formData, setFormData] = useState({
@@ -53,6 +52,9 @@ export default function CriarVaga() {
 
   const totalEtapas = 4;
   const progressoPercentual = (etapaAtual / totalEtapas) * 100;
+
+  // Hook para buscar cidades após formData ser declarado
+  const { cidades, loading: loadingCidades } = useIBGECidades(formData.uf);
 
   // Carregar unidade da clínica
   useEffect(() => {

@@ -22,7 +22,6 @@ export default function CadastroProfissional() {
   const navigate = useNavigate();
   const [etapaAtual, setEtapaAtual] = useState(1);
   const [loading, setLoading] = useState(false);
-  const { cidades, loading: loadingCidades } = useIBGECidades(formData.uf_input);
 
   // Estado do formulário
   const [formData, setFormData] = useState({
@@ -71,6 +70,9 @@ export default function CadastroProfissional() {
 
   const totalEtapas = 5;
   const progressoPercentual = (etapaAtual / totalEtapas) * 100;
+
+  // Hook para buscar cidades após formData ser declarado
+  const { cidades, loading: loadingCidades } = useIBGECidades(formData.uf_input);
 
   // Funções de máscara
   const aplicarMascaraCPF = (value) => {

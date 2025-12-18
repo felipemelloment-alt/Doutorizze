@@ -23,7 +23,6 @@ export default function CadastroClinica() {
   const [etapaAtual, setEtapaAtual] = useState(1);
   const [loading, setLoading] = useState(false);
   const [buscandoCep, setBuscandoCep] = useState(false);
-  const { cidades, loading: loadingCidades } = useIBGECidades(formData.uf);
 
   // Estado do formulário
   const [formData, setFormData] = useState({
@@ -69,6 +68,9 @@ export default function CadastroClinica() {
 
   const totalEtapas = 5;
   const progressoPercentual = (etapaAtual / totalEtapas) * 100;
+
+  // Hook para buscar cidades após formData ser declarado
+  const { cidades, loading: loadingCidades } = useIBGECidades(formData.uf);
 
   // Funções de máscara
   const aplicarMascaraCNPJ = (value) => {
