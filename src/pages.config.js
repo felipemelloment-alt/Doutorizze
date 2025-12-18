@@ -24,6 +24,7 @@ import DashboardProfissional from './pages/DashboardProfissional';
 import DashboardClinica from './pages/DashboardClinica';
 import CriarVaga from './pages/CriarVaga';
 import MinhasVagas from './pages/MinhasVagas';
+import MeuPerfil from './pages/MeuPerfil';
 
 
 export const PAGES = {
@@ -53,6 +54,7 @@ export const PAGES = {
     "DashboardClinica": DashboardClinica,
     "CriarVaga": CriarVaga,
     "MinhasVagas": MinhasVagas,
+    "MeuPerfil": MeuPerfil,
 }
 
 export const pagesConfig = {
