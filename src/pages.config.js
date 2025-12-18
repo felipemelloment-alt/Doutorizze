@@ -47,6 +47,7 @@ import MinhasPromocoes from './pages/MinhasPromocoes';
 import CadastroHospital from './pages/CadastroHospital';
 import DashboardHospital from './pages/DashboardHospital';
 import Configuracoes from './pages/Configuracoes';
+import Ajuda from './pages/Ajuda';
 import __Layout from './Layout.jsx';
 
 
@@ -100,6 +101,7 @@ export const PAGES = {
     "CadastroHospital": CadastroHospital,
     "DashboardHospital": DashboardHospital,
     "Configuracoes": Configuracoes,
+    "Ajuda": Ajuda,
 }
 
 export const pagesConfig = {
