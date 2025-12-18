@@ -57,6 +57,7 @@ import CadastroInstituicao from './pages/CadastroInstituicao';
 import DashboardInstituicao from './pages/DashboardInstituicao';
 import CriarCurso from './pages/CriarCurso';
 import MeusCursos from './pages/MeusCursos';
+import Cursos from './pages/Cursos';
 import __Layout from './Layout.jsx';
 
 
@@ -120,6 +121,7 @@ export const PAGES = {
     "DashboardInstituicao": DashboardInstituicao,
     "CriarCurso": CriarCurso,
     "MeusCursos": MeusCursos,
+    "Cursos": Cursos,
 }
 
 export const pagesConfig = {
