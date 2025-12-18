@@ -2,14 +2,57 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
 import {
   Star,
   CheckCircle,
-  ArrowRight } from
+  ArrowRight,
+  MapPin,
+  Briefcase,
+  DollarSign } from
 "lucide-react";
 
 export default function HomePage() {
   const navigate = useNavigate();
+
+  // Buscar dados reais do banco
+  const { data: jobs = [] } = useQuery({
+    queryKey: ["jobs-home"],
+    queryFn: async () => {
+      const result = await base44.entities.Job.filter({ status: "ABERTO" });
+      return result.sort((a, b) => new Date(b.published_at) - new Date(a.published_at));
+    }
+  });
+
+  const { data: professionals = [] } = useQuery({
+    queryKey: ["professionals-home"],
+    queryFn: async () => {
+      return await base44.entities.Professional.filter({ status_cadastro: "APROVADO" });
+    }
+  });
+
+  const { data: clinics = [] } = useQuery({
+    queryKey: ["clinics-home"],
+    queryFn: async () => {
+      return await base44.entities.CompanyUnit.filter({ status_cadastro: "APROVADO" });
+    }
+  });
+
+  const { data: units = [] } = useQuery({
+    queryKey: ["units-home", jobs],
+    queryFn: async () => {
+      if (jobs.length === 0) return [];
+      const unitIds = [...new Set(jobs.slice(0, 3).map(j => j.unit_id))];
+      const unitPromises = unitIds.map(id =>
+        base44.entities.CompanyUnit.filter({ id }).then(res => res[0])
+      );
+      return (await Promise.all(unitPromises)).filter(Boolean);
+    },
+    enabled: jobs.length > 0
+  });
+
+  const recentJobs = jobs.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50">
