@@ -37,6 +37,7 @@ import AvaliarClinica from './pages/AvaliarClinica';
 import AvaliarProfissional from './pages/AvaliarProfissional';
 import NotificationSettings from './pages/NotificationSettings';
 import Feed from './pages/Feed';
+import Denunciar from './pages/Denunciar';
 import __Layout from './Layout.jsx';
 
 
@@ -80,6 +81,7 @@ export const PAGES = {
     "AvaliarProfissional": AvaliarProfissional,
     "NotificationSettings": NotificationSettings,
     "Feed": Feed,
+    "Denunciar": Denunciar,
 }
 
 export const pagesConfig = {
