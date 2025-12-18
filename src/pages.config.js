@@ -36,6 +36,7 @@ import PerfilClinicaPublico from './pages/PerfilClinicaPublico';
 import AvaliarClinica from './pages/AvaliarClinica';
 import AvaliarProfissional from './pages/AvaliarProfissional';
 import NotificationSettings from './pages/NotificationSettings';
+import Feed from './pages/Feed';
 import __Layout from './Layout.jsx';
 
 
@@ -78,6 +79,7 @@ export const PAGES = {
     "AvaliarClinica": AvaliarClinica,
     "AvaliarProfissional": AvaliarProfissional,
     "NotificationSettings": NotificationSettings,
+    "Feed": Feed,
 }
 
 export const pagesConfig = {
