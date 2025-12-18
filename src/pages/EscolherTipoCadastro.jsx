@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Briefcase, UserRound, Building2, CheckCircle } from "lucide-react";
+import { Briefcase, UserRound, Building2, CheckCircle, Package, Hospital } from "lucide-react";
 
 export default function EscolherTipoCadastro() {
   const navigate = useNavigate();
