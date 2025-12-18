@@ -19,7 +19,8 @@ import {
   Building2,
   Award,
   CheckCircle2,
-  Send
+  Send,
+  X
 } from "lucide-react";
 
 export default function DetalheVaga() {
@@ -45,13 +46,15 @@ export default function DetalheVaga() {
   }, []);
 
   // Buscar vaga
-  const { data: vaga, isLoading } = useQuery({
+  const { data: vaga, isLoading, isError } = useQuery({
     queryKey: ["job", id],
     queryFn: async () => {
+      if (!id) return null;
       const result = await base44.entities.Job.filter({ id });
       return result[0] || null;
     },
-    enabled: !!id
+    enabled: !!id,
+    retry: 1
   });
 
   // Buscar unidade/clínica
@@ -101,12 +104,32 @@ export default function DetalheVaga() {
     }
   });
 
-  if (isLoading || !vaga) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 flex items-center justify-center p-6">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-orange-500 mx-auto mb-4"></div>
           <p className="text-gray-600 font-semibold">Carregando vaga...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || !vaga || !id) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 flex items-center justify-center p-6">
+        <div className="text-center">
+          <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+            <X className="w-8 h-8 text-red-500" />
+          </div>
+          <p className="text-gray-900 font-bold text-xl mb-2">Vaga não encontrada</p>
+          <p className="text-gray-600 mb-4">Esta vaga pode ter sido removida ou não existe.</p>
+          <button
+            onClick={() => navigate(createPageUrl("NewJobs"))}
+            className="px-6 py-3 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold rounded-2xl hover:shadow-lg transition-all"
+          >
+            Ver Vagas Disponíveis
+          </button>
         </div>
       </div>
     );
@@ -267,12 +290,14 @@ export default function DetalheVaga() {
           </div>
 
           <div className="space-y-4">
-            <div>
-              <p className="text-sm font-semibold text-gray-700 mb-2">Período:</p>
-              <span className="inline-block px-4 py-2 bg-blue-100 text-blue-700 font-bold rounded-full text-sm">
-                {selecaoDiasLabels[vaga.selecao_dias]}
-              </span>
-            </div>
+            {vaga.selecao_dias && (
+              <div>
+                <p className="text-sm font-semibold text-gray-700 mb-2">Período:</p>
+                <span className="inline-block px-4 py-2 bg-blue-100 text-blue-700 font-bold rounded-full text-sm">
+                  {selecaoDiasLabels[vaga.selecao_dias] || vaga.selecao_dias}
+                </span>
+              </div>
+            )}
 
             {vaga.dias_semana && vaga.dias_semana.length > 0 && (
               <div>
