@@ -1,4 +1,3 @@
-import NotificationSettings from './pages/NotificationSettings';
 import NotificationCenter from './pages/NotificationCenter';
 import HomePage from './pages/HomePage';
 import NewJobs from './pages/NewJobs';
@@ -36,11 +35,11 @@ import EditarVaga from './pages/EditarVaga';
 import PerfilClinicaPublico from './pages/PerfilClinicaPublico';
 import AvaliarClinica from './pages/AvaliarClinica';
 import AvaliarProfissional from './pages/AvaliarProfissional';
+import NotificationSettings from './pages/NotificationSettings';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "NotificationSettings": NotificationSettings,
     "NotificationCenter": NotificationCenter,
     "HomePage": HomePage,
     "NewJobs": NewJobs,
@@ -78,6 +77,7 @@ export const PAGES = {
     "PerfilClinicaPublico": PerfilClinicaPublico,
     "AvaliarClinica": AvaliarClinica,
     "AvaliarProfissional": AvaliarProfissional,
+    "NotificationSettings": NotificationSettings,
 }
 
 export const pagesConfig = {

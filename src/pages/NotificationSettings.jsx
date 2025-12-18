@@ -14,7 +14,6 @@ import {
   CheckCircle2
 } from "lucide-react";
 
-// Componente Toggle Customizado
 const Toggle = ({ enabled, onChange, label, description }) => {
   return (
     <div className="flex items-center justify-between p-4 border-b border-gray-100 last:border-0">
@@ -49,7 +48,6 @@ export default function NotificationSettings() {
   const [userType, setUserType] = useState(null);
   const [whatsappNumber, setWhatsappNumber] = useState("");
 
-  // Estado das preferências
   const [preferences, setPreferences] = useState({
     vagas_super_jobs: {
       ativo: true,
@@ -88,7 +86,6 @@ export default function NotificationSettings() {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
 
-        // Determinar tipo de usuário
         const professionals = await base44.entities.Professional.filter({ user_id: currentUser.id });
         if (professionals.length > 0) {
           setUserType(professionals[0].tipo_profissional === "DENTISTA" ? "DENTISTA" : "MEDICO");
@@ -107,7 +104,6 @@ export default function NotificationSettings() {
     loadUser();
   }, []);
 
-  // Carregar preferências do usuário
   const { data: existingPreferences, isLoading } = useQuery({
     queryKey: ["notificationPreferences", user?.id],
     queryFn: async () => {
@@ -120,7 +116,6 @@ export default function NotificationSettings() {
     enabled: !!user,
   });
 
-  // Atualizar estado quando carregar preferências
   useEffect(() => {
     if (existingPreferences) {
       setPreferences({
@@ -166,14 +161,14 @@ export default function NotificationSettings() {
   });
 
   const handleToggle = (categoria, campo, valor) => {
-    setPreferences(prev => ({
-      ...prev,
-      [categoria]: {
-        ...prev[categoria],
+    setPreferences(prev => {
+      const newPrefs = { ...prev };
+      newPrefs[categoria] = {
+        ...newPrefs[categoria],
         [campo]: valor
-      }
-       <Route path="/" element={<HomePage />} />
-    }));
+      };
+      return newPrefs;
+    });
   };
 
   const aplicarMascaraTelefone = (value) => {
@@ -197,7 +192,6 @@ export default function NotificationSettings() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
-      {/* Header */}
       <div className="px-4 pt-4 pb-6 max-w-2xl mx-auto">
         <button
           onClick={() => navigate(-1)}
@@ -218,9 +212,7 @@ export default function NotificationSettings() {
         </div>
       </div>
 
-      {/* Container */}
       <div className="max-w-2xl mx-auto px-4 pb-32">
-        {/* Seção Push Notifications */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -262,7 +254,6 @@ export default function NotificationSettings() {
           </div>
         </motion.div>
 
-        {/* Seção E-mail */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -298,7 +289,6 @@ export default function NotificationSettings() {
           </div>
         </motion.div>
 
-        {/* Seção WhatsApp */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -371,7 +361,6 @@ export default function NotificationSettings() {
           </div>
         </motion.div>
 
-        {/* Dicas de Privacidade */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -392,7 +381,6 @@ export default function NotificationSettings() {
         </motion.div>
       </div>
 
-      {/* Botão Salvar Fixo */}
       <motion.div
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
