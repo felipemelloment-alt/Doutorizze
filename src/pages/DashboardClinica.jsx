@@ -118,7 +118,7 @@ export default function DashboardClinica() {
 
   if (!primaryUnit) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 to-white flex items-center justify-center p-6">
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 flex items-center justify-center p-6">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-pink-500 mx-auto mb-4"></div>
           <p className="text-gray-600 font-semibold">Carregando dashboard...</p>
@@ -128,7 +128,7 @@ export default function DashboardClinica() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-white p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* HEADER */}
         <motion.div

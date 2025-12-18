@@ -225,7 +225,7 @@ export default function DetalheVaga() {
                 </div>
               </div>
               <button
-                onClick={() => navigate(createPageUrl("PerfilClinicaPublico") + "?id=" + unit.id)}
+                onClick={() => navigate(createPageUrl("PerfilClinica"))}
                 className="px-4 py-2 border-2 border-gray-300 text-gray-700 font-semibold rounded-2xl hover:border-yellow-400 hover:text-yellow-600 transition-all whitespace-nowrap"
               >
                 Ver Clínica

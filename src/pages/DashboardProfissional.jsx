@@ -109,7 +109,7 @@ export default function DashboardProfissional() {
 
   if (!professional) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-6">
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 flex items-center justify-center p-6">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500 mx-auto mb-4"></div>
           <p className="text-gray-600 font-semibold">Carregando dashboard...</p>
@@ -119,7 +119,7 @@ export default function DashboardProfissional() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* HEADER */}
         <motion.div
@@ -251,7 +251,7 @@ export default function DashboardProfissional() {
                   <div
                     key={match.id}
                     className="border-2 border-gray-200 rounded-xl p-5 hover:border-blue-400 hover:shadow-lg transition-all cursor-pointer group"
-                    onClick={() => navigate(createPageUrl(`JobDetail?id=${job.id}`))}
+                    onClick={() => navigate(createPageUrl("DetalheVaga") + "/" + job.id)}
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
@@ -341,7 +341,7 @@ export default function DashboardProfissional() {
                   return (
                     <div
                       key={match.id}
-                      onClick={() => navigate(createPageUrl(`JobDetail?id=${job.id}`))}
+                      onClick={() => navigate(createPageUrl("DetalheVaga") + "/" + job.id)}
                       className="min-w-[280px] border-2 border-gray-200 rounded-xl p-4 hover:border-blue-400 hover:shadow-lg transition-all cursor-pointer"
                     >
                       <span className="px-2 py-1 bg-blue-100 text-blue-700 font-bold rounded text-xs">
