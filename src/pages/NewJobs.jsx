@@ -29,6 +29,7 @@ import {
 
 export default function NewJobs() {
   const [user, setUser] = useState(null);
+  const [professional, setProfessional] = useState(null);
   const [newJobsActive, setNewJobsActive] = useState(false);
   const [searchCity, setSearchCity] = useState("");
   const [searchSpecialty, setSearchSpecialty] = useState("");
@@ -39,6 +40,10 @@ export default function NewJobs() {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
+        
+        // Buscar profissional logado
+        const profResult = await base44.entities.Professional.filter({ user_id: currentUser.id });
+        setProfessional(profResult[0] || null);
       } catch (error) {
         console.error("Erro ao carregar usuário:", error);
       }
@@ -71,6 +76,41 @@ export default function NewJobs() {
     enabled: jobs.length > 0
   });
 
+  // Função de cálculo de match
+  const calcularMatch = (job, prof) => {
+    if (!prof) return 0;
+    let score = 0;
+
+    // 1. Cidade
+    if (prof.cidades_atendimento?.some(c =>
+      c.toLowerCase().includes(job.cidade?.toLowerCase()) ||
+      job.cidade?.toLowerCase().includes(c.split(' - ')[0].toLowerCase())
+    )) {
+      score++;
+    }
+
+    // 2. Especialidade
+    if (job.especialidades_aceitas?.includes(prof.especialidade_principal)) {
+      score++;
+    }
+
+    // 3. Dias
+    const diasComuns = prof.dias_semana_disponiveis?.filter(d =>
+      job.dias_semana?.includes(d)
+    );
+    if (diasComuns?.length > 0 || job.selecao_dias === "SEMANA_TODA") {
+      score++;
+    }
+
+    // 4. Experiência
+    if (!job.exige_experiencia ||
+        (prof.tempo_formado_anos >= (job.tempo_experiencia_minimo || 0))) {
+      score++;
+    }
+
+    return score;
+  };
+
   // Filtrar vagas por busca
   const filteredJobs = jobs.filter(job => {
     const matchesSpecialty = !searchSpecialty || 
@@ -83,10 +123,19 @@ export default function NewJobs() {
     return matchesSpecialty && matchesCity;
   });
 
-  // Categorizar vagas (simular matches - em produção viria do backend)
-  const superJobs = filteredJobs.filter((j, idx) => idx % 3 === 0);
-  const jobsSemelhante = filteredJobs.filter((j, idx) => idx % 3 === 1);
-  const outrasVagas = filteredJobs.filter((j, idx) => idx % 3 === 2);
+  // Calcular match para cada vaga
+  const jobsComMatch = filteredJobs.map(job => ({
+    ...job,
+    matchScore: calcularMatch(job, professional)
+  }));
+
+  // Ordenar por score (maior primeiro)
+  jobsComMatch.sort((a, b) => b.matchScore - a.matchScore);
+
+  // Categorizar vagas por score
+  const superJobs = jobsComMatch.filter(j => j.matchScore === 4);
+  const jobsSemelhante = jobsComMatch.filter(j => j.matchScore === 3);
+  const outrasVagas = jobsComMatch.filter(j => j.matchScore >= 0 && j.matchScore <= 2);
 
   const handleToggleNewJobs = async () => {
     setNewJobsActive(!newJobsActive);
@@ -216,11 +265,14 @@ export default function NewJobs() {
               <div className="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-4 flex items-center gap-3">
                 <Sparkles className="w-6 h-6 text-yellow-600" />
                 <h2 className="text-xl font-black text-gray-900">SUPER JOBS - Matches Perfeitos! 🌟</h2>
+                <span className="ml-auto px-3 py-1 bg-yellow-500 text-white rounded-full text-sm font-bold">
+                  {superJobs.length}
+                </span>
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {superJobs.map((job) => {
                   const unit = units.find(u => u.id === job.unit_id);
-                  return <JobCard key={job.id} job={job} unit={unit} isSuperJob />;
+                  return <JobCard key={job.id} job={job} unit={unit} isSuperJob matchScore={job.matchScore} />;
                 })}
               </div>
             </div>
@@ -232,11 +284,14 @@ export default function NewJobs() {
               <div className="bg-gradient-to-r from-orange-100 to-pink-100 rounded-2xl p-4 flex items-center gap-3">
                 <Star className="w-6 h-6 text-orange-600" />
                 <h2 className="text-xl font-black text-gray-900">Jobs Semelhante ⭐</h2>
+                <span className="ml-auto px-3 py-1 bg-orange-500 text-white rounded-full text-sm font-bold">
+                  {jobsSemelhante.length}
+                </span>
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {jobsSemelhante.map((job) => {
                   const unit = units.find(u => u.id === job.unit_id);
-                  return <JobCard key={job.id} job={job} unit={unit} />;
+                  return <JobCard key={job.id} job={job} unit={unit} matchScore={job.matchScore} />;
                 })}
               </div>
             </div>
@@ -248,11 +303,14 @@ export default function NewJobs() {
               <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-4 flex items-center gap-3">
                 <TrendingUp className="w-6 h-6 text-blue-600" />
                 <h2 className="text-xl font-black text-gray-900">Outras Oportunidades</h2>
+                <span className="ml-auto px-3 py-1 bg-blue-500 text-white rounded-full text-sm font-bold">
+                  {outrasVagas.length}
+                </span>
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {outrasVagas.map((job) => {
                   const unit = units.find(u => u.id === job.unit_id);
-                  return <JobCard key={job.id} job={job} unit={unit} />;
+                  return <JobCard key={job.id} job={job} unit={unit} matchScore={job.matchScore} />;
                 })}
               </div>
             </div>
@@ -310,7 +368,7 @@ function StatCard({ icon: Icon, title, count, description, gradient }) {
 
 }
 
-function JobCard({ job, unit, isSuperJob }) {
+function JobCard({ job, unit, isSuperJob, matchScore }) {
   const navigate = useNavigate();
 
   const handleWhatsApp = () => {
@@ -323,6 +381,17 @@ function JobCard({ job, unit, isSuperJob }) {
   const handleVerDetalhes = () => {
     navigate(createPageUrl("DetalheVaga") + "/" + job.id);
   };
+
+  // Configuração de badges por score
+  const matchConfig = {
+    4: { badge: "⚡ MATCH PERFEITO", color: "bg-yellow-100 text-yellow-700 border-yellow-400", borderColor: "border-yellow-400" },
+    3: { badge: "⭐ BOA COMPATIBILIDADE", color: "bg-orange-100 text-orange-700 border-orange-400", borderColor: "border-orange-400" },
+    2: { badge: null, color: "", borderColor: "border-gray-200" },
+    1: { badge: null, color: "", borderColor: "border-gray-200" },
+    0: { badge: null, color: "", borderColor: "border-gray-200" }
+  };
+
+  const config = matchConfig[matchScore] || matchConfig[0];
 
   const tipoVagaLabels = {
     PLANTAO: "Plantão",
@@ -347,9 +416,7 @@ function JobCard({ job, unit, isSuperJob }) {
   };
 
   return (
-    <div className={`bg-white rounded-3xl shadow-xl p-6 hover:shadow-2xl hover:scale-[1.01] transition-all cursor-pointer border-2 ${
-    isSuperJob ? "border-yellow-400" : "border-transparent hover:border-yellow-400"}`
-    }>
+    <div className={`bg-white rounded-3xl shadow-xl p-6 hover:shadow-2xl hover:scale-[1.01] transition-all cursor-pointer border-2 ${config.borderColor} hover:border-yellow-400`}>
       <div className="flex flex-col md:flex-row md:items-start gap-4">
         {/* Logo */}
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-100 to-orange-100 flex items-center justify-center text-2xl flex-shrink-0">
@@ -369,11 +436,11 @@ function JobCard({ job, unit, isSuperJob }) {
                   {job.especialidades_aceitas[0]}
                 </span>
               )}
-              {isSuperJob &&
-              <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold animate-pulse">
-                  URGENTE
+              {config.badge && (
+                <span className={`px-3 py-1 ${config.color} rounded-full text-xs font-bold border-2 ${matchScore === 4 ? 'animate-pulse' : ''}`}>
+                  {config.badge}
                 </span>
-              }
+              )}
             </div>
             {job.tipo_remuneracao === "A_COMBINAR" ? (
               <p className="text-lg font-black text-blue-600">A Combinar</p>
