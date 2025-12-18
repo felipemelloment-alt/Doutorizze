@@ -26,6 +26,7 @@ import CriarVaga from './pages/CriarVaga';
 import MinhasVagas from './pages/MinhasVagas';
 import MeuPerfil from './pages/MeuPerfil';
 import EditarPerfil from './pages/EditarPerfil';
+import PerfilClinica from './pages/PerfilClinica';
 
 
 export const PAGES = {
@@ -57,6 +58,7 @@ export const PAGES = {
     "MinhasVagas": MinhasVagas,
     "MeuPerfil": MeuPerfil,
     "EditarPerfil": EditarPerfil,
+    "PerfilClinica": PerfilClinica,
 }
 
 export const pagesConfig = {
