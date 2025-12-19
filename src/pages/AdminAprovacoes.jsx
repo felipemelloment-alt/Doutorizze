@@ -20,7 +20,8 @@ import {
   ChevronRight,
   AlertTriangle,
   Package,
-  Hospital
+  Hospital,
+  MessageCircle
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -41,6 +42,13 @@ export default function AdminAprovacoes() {
     registro_invalido: false,
     foto_inadequada: false,
     outro: false
+  });
+  const [notificationModal, setNotificationModal] = useState(null);
+  const [notificationData, setNotificationData] = useState({
+    tipo: "CADASTRO",
+    mensagem: "",
+    enviarApp: true,
+    enviarWhatsApp: false
   });
   const itemsPerPage = 10;
 
@@ -271,6 +279,60 @@ export default function AdminAprovacoes() {
     rejeitarMutation.mutate({ cadastro: rejectionModal, motivo: motivoFinal });
   };
 
+  // Mutation para enviar notificação
+  const notificarMutation = useMutation({
+    mutationFn: async () => {
+      const usuario = notificationModal;
+      
+      const tipoMensagens = {
+        CADASTRO: "Pendência no Cadastro",
+        DOCUMENTO: "Documento Inválido",
+        ANUNCIO: "Problema no Anúncio",
+        VAGA: "Problema na Vaga",
+        PRODUTO: "Problema no Produto",
+        OUTRO: "Notificação"
+      };
+
+      const destinatarioTipo = usuario.tipo === "PROFISSIONAL" 
+        ? usuario.tipo_profissional 
+        : usuario.tipo === "CLINICA"
+        ? "CLINICA"
+        : usuario.tipo;
+
+      const canais = [];
+      if (notificationData.enviarApp) canais.push("PUSH");
+      if (notificationData.enviarWhatsApp) canais.push("WHATSAPP");
+
+      await base44.entities.Notification.create({
+        destinatario_id: usuario.user_id,
+        destinatario_tipo: destinatarioTipo,
+        tipo: "PERFIL_INCOMPLETO",
+        titulo: tipoMensagens[notificationData.tipo],
+        mensagem: notificationData.mensagem,
+        canais_enviados: canais
+      });
+
+      // Se WhatsApp marcado, abrir link
+      if (notificationData.enviarWhatsApp && usuario.whatsapp) {
+        const mensagemWpp = `🔔 *DOUTORIZZE - ${tipoMensagens[notificationData.tipo]}*\n\n${notificationData.mensagem}`;
+        window.open(`https://wa.me/55${usuario.whatsapp}?text=${encodeURIComponent(mensagemWpp)}`, "_blank");
+      }
+    },
+    onSuccess: () => {
+      toast.success("✅ Notificação enviada com sucesso!");
+      setNotificationModal(null);
+      setNotificationData({
+        tipo: "CADASTRO",
+        mensagem: "",
+        enviarApp: true,
+        enviarWhatsApp: false
+      });
+    },
+    onError: (error) => {
+      toast.error("❌ Erro ao enviar notificação: " + error.message);
+    }
+  });
+
   const getBorderColor = (status) => {
     if (status === "EM_ANALISE") return "border-yellow-400";
     if (status === "APROVADO") return "border-green-500";
@@ -492,6 +554,13 @@ export default function AdminAprovacoes() {
                       <Eye className="w-4 h-4" />
                       Ver
                     </button>
+                    <button
+                      onClick={() => setNotificationModal(cadastro)}
+                      className="px-3 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 flex items-center gap-2"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      Notificar
+                    </button>
                     {cadastro.status_cadastro === "EM_ANALISE" && (
                       <>
                         <button
@@ -706,6 +775,129 @@ export default function AdminAprovacoes() {
                   </button>
                 </div>
               )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal de Notificação */}
+      <AnimatePresence>
+        {notificationModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setNotificationModal(null)}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-3xl max-w-md w-full shadow-2xl"
+            >
+              {/* Header */}
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-black text-gray-900">Notificar Usuário</h3>
+                  <p className="text-sm text-gray-500 mt-1">Usuário: {notificationModal.nome}</p>
+                </div>
+                <button
+                  onClick={() => setNotificationModal(null)}
+                  className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Conteúdo */}
+              <div className="p-6 space-y-4">
+                {/* Tipo de Notificação */}
+                <div>
+                  <label className="block text-sm font-bold text-gray-900 mb-2">
+                    Tipo de Notificação
+                  </label>
+                  <select
+                    value={notificationData.tipo}
+                    onChange={(e) => setNotificationData({ ...notificationData, tipo: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-400 outline-none"
+                  >
+                    <option value="CADASTRO">Pendência no Cadastro</option>
+                    <option value="DOCUMENTO">Documento Inválido</option>
+                    <option value="ANUNCIO">Problema no Anúncio</option>
+                    <option value="VAGA">Problema na Vaga</option>
+                    <option value="PRODUTO">Problema no Produto</option>
+                    <option value="OUTRO">Outro</option>
+                  </select>
+                </div>
+
+                {/* Mensagem */}
+                <div>
+                  <label className="block text-sm font-bold text-gray-900 mb-2">
+                    Mensagem
+                  </label>
+                  <textarea
+                    value={notificationData.mensagem}
+                    onChange={(e) => setNotificationData({ ...notificationData, mensagem: e.target.value })}
+                    placeholder="Descreva o problema ou pendência..."
+                    rows={5}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-400 outline-none resize-none"
+                  />
+                </div>
+
+                {/* Opções de Envio */}
+                <div className="p-4 bg-blue-50 rounded-xl space-y-3">
+                  <p className="text-sm font-bold text-gray-900">Canais de Envio:</p>
+                  <div className="flex flex-col gap-2">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={notificationData.enviarApp}
+                        onChange={(e) => setNotificationData({ ...notificationData, enviarApp: e.target.checked })}
+                        className="w-5 h-5 rounded border-2 border-gray-300 text-blue-500 focus:ring-2 focus:ring-blue-500"
+                      />
+                      <span className="text-gray-700 font-medium">📱 Notificação no App</span>
+                    </label>
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={notificationData.enviarWhatsApp}
+                        onChange={(e) => setNotificationData({ ...notificationData, enviarWhatsApp: e.target.checked })}
+                        className="w-5 h-5 rounded border-2 border-gray-300 text-green-500 focus:ring-2 focus:ring-green-500"
+                      />
+                      <span className="text-gray-700 font-medium">💬 WhatsApp Doutorizze</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="p-6 border-t border-gray-100 flex gap-3">
+                <button
+                  onClick={() => setNotificationModal(null)}
+                  className="flex-1 py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => notificarMutation.mutate()}
+                  disabled={notificarMutation.isPending || !notificationData.mensagem}
+                  className="flex-1 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {notificarMutation.isPending ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      Enviando...
+                    </>
+                  ) : (
+                    <>
+                      <MessageCircle className="w-5 h-5" />
+                      Enviar Notificação
+                    </>
+                  )}
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}
