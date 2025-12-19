@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
   ChevronLeft,
@@ -21,7 +21,9 @@ import {
   CheckCircle2,
   Send,
   X,
-  Flag
+  Flag,
+  AlertTriangle,
+  Edit
 } from "lucide-react";
 import ShareButton from "@/components/shared/ShareButton";
 import WhatsAppSafeButton from "@/components/ui/WhatsAppSafeButton";
@@ -32,6 +34,10 @@ export default function DetalheVaga() {
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
   const [professional, setProfessional] = useState(null);
+  const [confirmModal, setConfirmModal] = useState(false);
+  const [dadosCorretos, setDadosCorretos] = useState(false);
+  const [candidaturasNoMes, setCandidaturasNoMes] = useState(0);
+  const [verificandoLimite, setVerificandoLimite] = useState(false);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -85,6 +91,27 @@ export default function DetalheVaga() {
     enabled: !!professional?.id && !!id
   });
 
+  // Verificar limite de candidaturas
+  const verificarLimiteCandidaturas = async () => {
+    if (!professional?.id || !vaga?.especialidades_aceitas) return 0;
+
+    const inicioMes = new Date();
+    inicioMes.setDate(1);
+    inicioMes.setHours(0, 0, 0, 0);
+
+    const candidaturas = await base44.entities.JobMatch.filter({
+      professional_id: professional.id,
+      status_candidatura: "CANDIDATOU"
+    });
+
+    const candidaturasMesEspecialidade = candidaturas.filter(c => {
+      const dataCandidatura = new Date(c.created_date);
+      return dataCandidatura >= inicioMes;
+    });
+
+    return candidaturasMesEspecialidade.length;
+  };
+
   // Mutation para candidatar
   const candidatarMutation = useMutation({
     mutationFn: async () => {
@@ -101,11 +128,31 @@ export default function DetalheVaga() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["jobMatch"] });
       toast.success("✅ Candidatura enviada com sucesso!");
+      setConfirmModal(false);
+      setDadosCorretos(false);
     },
     onError: (error) => {
-      toast.error("Erro ao enviar candidatura: " + error.message);
+      toast.error("❌ Erro ao enviar candidatura: " + error.message);
     }
   });
+
+  const handleCandidatar = async () => {
+    setVerificandoLimite(true);
+    const total = await verificarLimiteCandidaturas();
+    setCandidaturasNoMes(total);
+    setVerificandoLimite(false);
+    
+    if (total >= 3) {
+      toast.error("⚠️ Você atingiu o limite de 3 candidaturas este mês para esta especialidade.");
+      return;
+    }
+    
+    setConfirmModal(true);
+  };
+
+  const confirmarCandidatura = () => {
+    candidatarMutation.mutate();
+  };
 
   if (isLoading) {
     return (
@@ -156,10 +203,6 @@ export default function DetalheVaga() {
     ESPECIFICOS: "Dias específicos",
     SEMANA_TODA: "Semana toda (Seg-Sex)",
     MES_TODO: "Mês todo"
-  };
-
-  const handleCandidatar = () => {
-    candidatarMutation.mutate();
   };
 
   return (
@@ -483,13 +526,13 @@ export default function DetalheVaga() {
           ) : (
             <button
               onClick={handleCandidatar}
-              disabled={candidatarMutation.isPending}
+              disabled={verificandoLimite}
               className="w-full py-5 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold rounded-2xl shadow-lg shadow-orange-200 hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 flex items-center justify-center gap-3 text-lg"
             >
-              {candidatarMutation.isPending ? (
+              {verificandoLimite ? (
                 <>
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-                  Enviando candidatura...
+                  Verificando limite...
                 </>
               ) : (
                 <>
@@ -501,6 +544,147 @@ export default function DetalheVaga() {
           )}
         </div>
       </div>
+
+      {/* Modal de Confirmação */}
+      <AnimatePresence>
+        {confirmModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setConfirmModal(false)}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+            >
+              {/* Header */}
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                <h3 className="text-2xl font-black text-gray-900">Confirmar Candidatura</h3>
+                <button
+                  onClick={() => setConfirmModal(false)}
+                  className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Conteúdo */}
+              <div className="p-6 space-y-4">
+                {/* Aviso de Limite */}
+                <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4 flex items-start gap-3">
+                  <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-yellow-800 font-semibold">
+                      Você tem <span className="font-black">{3 - candidaturasNoMes}</span> candidatura{3 - candidaturasNoMes !== 1 ? 's' : ''} restante{3 - candidaturasNoMes !== 1 ? 's' : ''} este mês.
+                    </p>
+                    <p className="text-yellow-700 text-sm mt-1">
+                      Limite: 3 candidaturas por mês
+                    </p>
+                  </div>
+                </div>
+
+                {/* Verificação de Dados */}
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="font-bold text-gray-900">Verifique seus dados:</p>
+                    <button
+                      onClick={() => navigate(createPageUrl("EditarPerfil"))}
+                      className="flex items-center gap-1 text-blue-500 hover:text-blue-600 font-semibold text-sm"
+                    >
+                      <Edit className="w-4 h-4" />
+                      Editar
+                    </button>
+                  </div>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-start gap-2">
+                      <strong className="text-gray-900 min-w-[120px]">Nome:</strong>
+                      <span className="text-gray-700">{professional?.nome_completo}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <strong className="text-gray-900 min-w-[120px]">Especialidade:</strong>
+                      <span className="text-gray-700">{professional?.especialidade_principal}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <strong className="text-gray-900 min-w-[120px]">
+                        {professional?.tipo_profissional === "DENTISTA" ? "CRO:" : "CRM:"}
+                      </strong>
+                      <span className="text-gray-700">{professional?.registro_conselho} - {professional?.uf_conselho}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <strong className="text-gray-900 min-w-[120px]">Cidades:</strong>
+                      <span className="text-gray-700">{professional?.cidades_atendimento?.join(", ")}</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Dados da Vaga */}
+                <div className="border-2 border-gray-200 rounded-xl p-4">
+                  <p className="font-bold text-gray-900 mb-2">Vaga:</p>
+                  <p className="text-lg font-bold text-gray-900 mb-1">{vaga?.titulo}</p>
+                  <p className="text-sm text-gray-600 flex items-center gap-1">
+                    <MapPin className="w-4 h-4" />
+                    {vaga?.cidade} - {vaga?.uf}
+                  </p>
+                  {vaga?.valor_proposto && vaga?.tipo_remuneracao !== "A_COMBINAR" && (
+                    <p className="text-sm text-green-600 font-bold mt-2 flex items-center gap-1">
+                      <DollarSign className="w-4 h-4" />
+                      R$ {vaga?.valor_proposto?.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    </p>
+                  )}
+                </div>
+
+                {/* Confirmação */}
+                <label className="flex items-start gap-3 p-4 border-2 border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={dadosCorretos}
+                    onChange={(e) => setDadosCorretos(e.target.checked)}
+                    className="w-5 h-5 mt-0.5 rounded border-2 border-gray-300 text-orange-500 focus:ring-2 focus:ring-orange-400"
+                  />
+                  <span className="text-sm text-gray-700 font-medium">
+                    Confirmo que meus dados estão corretos e estou ciente das informações da vaga
+                  </span>
+                </label>
+              </div>
+
+              {/* Footer */}
+              <div className="p-6 border-t border-gray-100 flex gap-3">
+                <button
+                  onClick={() => {
+                    setConfirmModal(false);
+                    setDadosCorretos(false);
+                  }}
+                  className="flex-1 py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-2xl hover:bg-gray-50 transition-all"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmarCandidatura}
+                  disabled={!dadosCorretos || candidatarMutation.isPending}
+                  className="flex-1 py-3 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold rounded-2xl disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                >
+                  {candidatarMutation.isPending ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      Enviando...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5" />
+                      Confirmar Candidatura
+                    </>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
