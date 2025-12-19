@@ -38,6 +38,7 @@ import {
 export default function Marketplace() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [professional, setProfessional] = useState(null);
   const [activeTab, setActiveTab] = useState("ODONTOLOGIA");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCity, setSelectedCity] = useState("all");
@@ -54,6 +55,15 @@ export default function Marketplace() {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
+        
+        // Carregar profissional e definir área inicial
+        const profResult = await base44.entities.Professional.filter({ user_id: currentUser.id });
+        if (profResult[0]) {
+          setProfessional(profResult[0]);
+          // Definir tab baseado no tipo de profissional
+          const area = profResult[0].tipo_profissional === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA";
+          setActiveTab(area);
+        }
       } catch (error) {
         console.error("Erro ao carregar usuário:", error);
       }
@@ -85,6 +95,14 @@ export default function Marketplace() {
 
   // Filtrar items
   const filteredItems = items.filter((item) => {
+    // Filtro de área do profissional
+    if (professional) {
+      const areaUsuario = professional.tipo_profissional === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA";
+      if (item.tipo_mundo !== areaUsuario && item.tipo_mundo !== "AMBOS") {
+        return false;
+      }
+    }
+
     const matchSearch = item.titulo_item?.
     toLowerCase().
     includes(searchTerm.toLowerCase()) ||

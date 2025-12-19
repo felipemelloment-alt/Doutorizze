@@ -111,8 +111,13 @@ export default function NewJobs() {
     return score;
   };
 
-  // Filtrar vagas por busca
+  // Filtrar vagas por busca e área
   const filteredJobs = jobs.filter(job => {
+    // Filtro de área (DENTISTA só vê vagas de DENTISTA, MEDICO só vê vagas de MEDICO)
+    if (professional?.tipo_profissional && job.tipo_profissional !== professional.tipo_profissional) {
+      return false;
+    }
+
     const matchesSpecialty = !searchSpecialty || 
       job.titulo?.toLowerCase().includes(searchSpecialty.toLowerCase()) ||
       job.especialidades_aceitas?.some(esp => esp.toLowerCase().includes(searchSpecialty.toLowerCase()));

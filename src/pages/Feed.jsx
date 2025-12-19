@@ -43,10 +43,32 @@ const filtros = [
   { id: "PROMOCAO", label: "Promoções" }
 ];
 
+// Função auxiliar fora do componente
+const mapearTipoProfissional = (tipo) => {
+  if (tipo === "DENTISTA") return "ODONTOLOGIA";
+  if (tipo === "MEDICO") return "MEDICINA";
+  return tipo;
+};
+
 export default function Feed() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [filtroAtivo, setFiltroAtivo] = useState("TODOS");
+  const [professional, setProfessional] = useState(null);
+
+  // Carregar profissional
+  React.useEffect(() => {
+    const loadProfessional = async () => {
+      try {
+        const user = await base44.auth.me();
+        const profResult = await base44.entities.Professional.filter({ user_id: user.id });
+        setProfessional(profResult[0] || null);
+      } catch (error) {
+        console.error("Erro ao carregar profissional:", error);
+      }
+    };
+    loadProfessional();
+  }, []);
 
   // Buscar posts ativos
   const { data: posts = [], isLoading, refetch } = useQuery({
@@ -63,10 +85,27 @@ export default function Feed() {
     }
   });
 
-  // Filtrar posts
-  const postsFiltrados = filtroAtivo === "TODOS" 
-    ? posts 
-    : posts.filter(post => post.tipo_post === filtroAtivo);
+  // Filtrar posts por tipo e área do profissional
+  const postsFiltrados = posts.filter(post => {
+    // Filtro de tipo
+    const matchesTipo = filtroAtivo === "TODOS" || post.tipo_post === filtroAtivo;
+    
+    // Filtro de área do profissional
+    if (!professional) return matchesTipo; // Se não há profissional, mostra tudo
+    
+    const areaUsuario = mapearTipoProfissional(professional.tipo_profissional);
+    
+    // Posts do sistema (ADMIN, SISTEMA) são visíveis para todos
+    if (post.autor_tipo === "ADMIN" || post.autor_tipo === "SISTEMA") {
+      return matchesTipo;
+    }
+    
+    // Para posts de parceiros/fornecedores, verificar se há área específica
+    // Como FeedPost não tem campo de área, assumimos que todos os posts são visíveis
+    // (essa regra pode ser ajustada se FeedPost tiver campo de área no futuro)
+    
+    return matchesTipo;
+  });
 
   // Mutation para curtir
   const curtirMutation = useMutation({
