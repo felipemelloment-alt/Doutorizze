@@ -204,7 +204,9 @@ export default function AdminAprovacoes() {
         ? "CLINICA"
         : cadastro.tipo === "FORNECEDOR"
         ? "FORNECEDOR"
-        : "HOSPITAL";
+        : cadastro.tipo === "HOSPITAL"
+        ? "HOSPITAL"
+        : "INSTITUICAO";
 
       await base44.entities.Notification.create({
         destinatario_id: cadastro.user_id,
