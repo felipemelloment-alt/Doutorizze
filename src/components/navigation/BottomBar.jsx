@@ -13,7 +13,10 @@ import {
   Tag,
   BarChart3,
   Hospital,
-  Users
+  Users,
+  BookOpen,
+  GraduationCap,
+  House
 } from "lucide-react";
 
 export default function BottomBar() {
@@ -51,6 +54,13 @@ export default function BottomBar() {
         const hospitals = await base44.entities.Hospital.filter({ user_id: user.id });
         if (hospitals.length > 0) {
           setUserType("HOSPITAL");
+          return;
+        }
+
+        // Verificar se é instituição
+        const institutions = await base44.entities.EducationInstitution.filter({ user_id: user.id });
+        if (institutions.length > 0) {
+          setUserType("INSTITUICAO");
           return;
         }
       } catch (error) {
@@ -220,11 +230,46 @@ export default function BottomBar() {
     }
   ];
 
+  // Configuração de botões para INSTITUIÇÃO
+  const botoesInstituicao = [
+    {
+      icon: House,
+      label: "Home",
+      page: "HomePage",
+      isCenter: false
+    },
+    {
+      icon: BookOpen,
+      label: "Cursos",
+      page: "MeusCursos",
+      isCenter: false
+    },
+    {
+      icon: PlusCircle,
+      label: "Criar",
+      page: "CriarCurso",
+      isCenter: true
+    },
+    {
+      icon: BarChart3,
+      label: "Metricas",
+      page: "DashboardInstituicao",
+      isCenter: false
+    },
+    {
+      icon: GraduationCap,
+      label: "Perfil",
+      page: "PerfilInstituicao",
+      isCenter: false
+    }
+  ];
+
   const botoesMap = {
     PROFISSIONAL: botoesProfissional,
     CLINICA: botoesClinica,
     FORNECEDOR: botoesFornecedor,
-    HOSPITAL: botoesHospital
+    HOSPITAL: botoesHospital,
+    INSTITUICAO: botoesInstituicao
   };
 
   const botoes = botoesMap[userType] || [];
