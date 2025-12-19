@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -15,7 +15,8 @@ import {
   Clock,
   X,
   Search,
-  FileText
+  FileText,
+  AlertTriangle
 } from "lucide-react";
 
 export default function MinhasCandidaturas() {
@@ -23,6 +24,9 @@ export default function MinhasCandidaturas() {
   const queryClient = useQueryClient();
   const [filtroAtivo, setFiltroAtivo] = useState("TODAS");
   const [professional, setProfessional] = useState(null);
+  const [cancelModal, setCancelModal] = useState(null);
+  const [motivoSelecionado, setMotivoSelecionado] = useState("");
+  const [outroMotivo, setOutroMotivo] = useState("");
 
   useEffect(() => {
     const loadProfessional = async () => {
@@ -80,22 +84,50 @@ export default function MinhasCandidaturas() {
 
   // Mutation para cancelar candidatura
   const cancelarMutation = useMutation({
-    mutationFn: async (matchId) => {
+    mutationFn: async ({ matchId, motivo }) => {
+      await base44.entities.JobMatch.update(matchId, {
+        status_candidatura: "CANCELADO",
+        motivo_cancelamento: motivo
+      });
       return await base44.entities.JobMatch.delete(matchId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["myCandidaturas"] });
-      toast.success("Candidatura cancelada com sucesso!");
+      toast.success("✅ Candidatura cancelada com sucesso!");
+      setCancelModal(null);
+      setMotivoSelecionado("");
+      setOutroMotivo("");
     },
     onError: (error) => {
-      toast.error("Erro ao cancelar candidatura: " + error.message);
+      toast.error("❌ Erro ao cancelar candidatura: " + error.message);
     }
   });
 
-  const handleCancelar = (matchId) => {
-    if (confirm("Tem certeza que deseja cancelar esta candidatura?")) {
-      cancelarMutation.mutate(matchId);
-    }
+  const handleCancelar = (item) => {
+    setCancelModal(item);
+    setMotivoSelecionado("");
+    setOutroMotivo("");
+  };
+
+  const confirmarCancelamento = () => {
+    const motivoFinal = motivoSelecionado === "OUTROS" 
+      ? outroMotivo || "Outros" 
+      : motivosLabels[motivoSelecionado] || "Não especificado";
+    
+    cancelarMutation.mutate({ 
+      matchId: cancelModal.match.id, 
+      motivo: motivoFinal 
+    });
+  };
+
+  const motivosLabels = {
+    JA_ARRUMEI: "Já arrumei emprego",
+    ACHEI_JOBS: "Achei outro job na plataforma",
+    DESISTI: "Desisti do job",
+    DADOS_INCORRETOS: "Dados da vaga incorretos",
+    SEM_INTERESSE: "Não tenho mais interesse",
+    FUI_CONTRATADO: "Fui contratado por essa clínica",
+    OUTROS: "Outros"
   };
 
   // Preparar dados combinados
@@ -279,7 +311,7 @@ export default function MinhasCandidaturas() {
                       <div className="flex gap-2">
                         {item.match.status_candidatura === "CANDIDATOU" && (
                           <button
-                            onClick={() => handleCancelar(item.match.id)}
+                            onClick={() => handleCancelar(item)}
                             disabled={cancelarMutation.isPending}
                             className="px-4 py-2 text-red-500 font-semibold hover:bg-red-50 rounded-xl transition-all disabled:opacity-50 flex items-center gap-1"
                           >
@@ -303,6 +335,130 @@ export default function MinhasCandidaturas() {
           </div>
         )}
       </div>
+
+      {/* Modal de Cancelamento */}
+      <AnimatePresence>
+        {cancelModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setCancelModal(null)}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+            >
+              {/* Header */}
+              <div className="p-6 border-b border-gray-100">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-xl font-black text-gray-900">Cancelar Candidatura</h3>
+                  <button
+                    onClick={() => setCancelModal(null)}
+                    className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <p className="text-sm text-gray-600">
+                  <strong>Vaga:</strong> {cancelModal.job.titulo}
+                </p>
+              </div>
+
+              {/* Conteúdo */}
+              <div className="p-6 space-y-4">
+                <div className="flex items-start gap-3 p-4 bg-yellow-50 rounded-xl border border-yellow-100">
+                  <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-gray-700">
+                    Por favor, selecione o motivo do cancelamento:
+                  </p>
+                </div>
+
+                {/* Opções de Motivo */}
+                <div className="space-y-2">
+                  {[
+                    { value: "JA_ARRUMEI", label: "Já arrumei emprego" },
+                    { value: "ACHEI_JOBS", label: "Achei outro job na plataforma" },
+                    { value: "DESISTI", label: "Desisti do job" },
+                    { value: "DADOS_INCORRETOS", label: "Dados da vaga incorretos" },
+                    { value: "SEM_INTERESSE", label: "Não tenho mais interesse" },
+                    { value: "FUI_CONTRATADO", label: "Fui contratado por essa clínica" },
+                    { value: "OUTROS", label: "Outros" }
+                  ].map(motivo => (
+                    <label 
+                      key={motivo.value} 
+                      className={`flex items-center gap-3 p-3 border-2 rounded-xl hover:bg-gray-50 cursor-pointer transition-all ${
+                        motivoSelecionado === motivo.value ? "border-orange-500 bg-orange-50" : "border-gray-200"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="motivo"
+                        value={motivo.value}
+                        checked={motivoSelecionado === motivo.value}
+                        onChange={(e) => setMotivoSelecionado(e.target.value)}
+                        className="w-5 h-5 text-orange-500 focus:ring-2 focus:ring-orange-400"
+                      />
+                      <span className={`font-medium ${
+                        motivoSelecionado === motivo.value ? "text-orange-700" : "text-gray-700"
+                      }`}>
+                        {motivo.label}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+
+                {/* Campo Outros */}
+                {motivoSelecionado === "OUTROS" && (
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                      Descreva o motivo:
+                    </label>
+                    <textarea
+                      placeholder="Descreva o motivo do cancelamento..."
+                      className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-orange-400 outline-none resize-none"
+                      rows={4}
+                      value={outroMotivo}
+                      onChange={(e) => setOutroMotivo(e.target.value)}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="p-6 border-t border-gray-100 flex gap-3">
+                <button 
+                  onClick={() => setCancelModal(null)} 
+                  className="flex-1 py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-2xl hover:bg-gray-50 transition-all"
+                >
+                  Voltar
+                </button>
+                <button
+                  onClick={confirmarCancelamento}
+                  disabled={!motivoSelecionado || cancelarMutation.isPending || (motivoSelecionado === "OUTROS" && !outroMotivo.trim())}
+                  className="flex-1 py-3 bg-red-500 text-white font-bold rounded-2xl hover:bg-red-600 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                >
+                  {cancelarMutation.isPending ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      Cancelando...
+                    </>
+                  ) : (
+                    <>
+                      <X className="w-5 h-5" />
+                      Confirmar Cancelamento
+                    </>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
