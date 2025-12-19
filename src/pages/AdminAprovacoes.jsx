@@ -21,7 +21,8 @@ import {
   AlertTriangle,
   Package,
   Hospital,
-  MessageCircle
+  MessageCircle,
+  GraduationCap
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -108,6 +109,17 @@ export default function AdminAprovacoes() {
     },
   });
 
+  // Buscar instituições de ensino
+  const { data: institutions = [] } = useQuery({
+    queryKey: ["institutions", filterStatus],
+    queryFn: async () => {
+      const result = await base44.entities.EducationInstitution.filter(
+        filterStatus === "TODOS" ? {} : { status_cadastro: filterStatus }
+      );
+      return result || [];
+    },
+  });
+
   // Combinar e processar dados
   const allCadastros = [
     ...professionals.map(p => ({
@@ -141,6 +153,14 @@ export default function AdminAprovacoes() {
       nome: h.nome_fantasia,
       registro: h.tipo_instituicao,
       localizacao: `${h.cidade} - ${h.uf}`,
+    })),
+    ...institutions.map(i => ({
+      ...i,
+      tipo: "INSTITUICAO",
+      entity: "EducationInstitution",
+      nome: i.nome_fantasia,
+      registro: i.tipo_instituicao,
+      localizacao: `${i.cidade} - ${i.uf}`,
     }))
   ].sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
 
@@ -200,6 +220,7 @@ export default function AdminAprovacoes() {
       queryClient.invalidateQueries({ queryKey: ["companyOwners"] });
       queryClient.invalidateQueries({ queryKey: ["suppliers"] });
       queryClient.invalidateQueries({ queryKey: ["hospitals"] });
+      queryClient.invalidateQueries({ queryKey: ["institutions"] });
       toast.success("✅ Cadastro aprovado com sucesso!");
       setDetailsModal(null);
     },
@@ -241,6 +262,7 @@ export default function AdminAprovacoes() {
       queryClient.invalidateQueries({ queryKey: ["companyOwners"] });
       queryClient.invalidateQueries({ queryKey: ["suppliers"] });
       queryClient.invalidateQueries({ queryKey: ["hospitals"] });
+      queryClient.invalidateQueries({ queryKey: ["institutions"] });
       toast.success("❌ Cadastro reprovado.");
       setRejectionModal(null);
       setDetailsModal(null);
@@ -465,6 +487,7 @@ export default function AdminAprovacoes() {
           <option value="CLINICA">Clínicas</option>
           <option value="FORNECEDOR">Fornecedores</option>
           <option value="HOSPITAL">Hospitais</option>
+          <option value="INSTITUICAO">Instituições</option>
         </select>
 
         <select
@@ -508,6 +531,7 @@ export default function AdminAprovacoes() {
                         {cadastro.tipo === "CLINICA" && "🏥"}
                         {cadastro.tipo === "FORNECEDOR" && <Package className="w-8 h-8 text-purple-500" />}
                         {cadastro.tipo === "HOSPITAL" && <Hospital className="w-8 h-8 text-blue-500" />}
+                        {cadastro.tipo === "INSTITUICAO" && <GraduationCap className="w-8 h-8 text-indigo-500" />}
                       </>
                     )}
                   </div>
@@ -524,6 +548,11 @@ export default function AdminAprovacoes() {
                       {cadastro.tipo === "HOSPITAL" && (
                         <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-bold rounded">
                           Hospital
+                        </span>
+                      )}
+                      {cadastro.tipo === "INSTITUICAO" && (
+                        <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs font-bold rounded">
+                          Instituição
                         </span>
                       )}
                     </div>
@@ -665,6 +694,7 @@ export default function AdminAprovacoes() {
                       {detailsModal.tipo === "CLINICA" && "🏥"}
                       {detailsModal.tipo === "FORNECEDOR" && <Package className="w-16 h-16 text-purple-500" />}
                       {detailsModal.tipo === "HOSPITAL" && <Hospital className="w-16 h-16 text-blue-500" />}
+                      {detailsModal.tipo === "INSTITUICAO" && <GraduationCap className="w-16 h-16 text-indigo-500" />}
                     </>
                   )}
                 </div>
@@ -714,6 +744,30 @@ export default function AdminAprovacoes() {
                     <div>
                       <p className="text-sm text-gray-500 mb-1">Porte</p>
                       <p className="font-bold text-gray-900">{detailsModal.porte}</p>
+                    </div>
+                  )}
+                  {detailsModal.tipo === "INSTITUICAO" && detailsModal.areas && (
+                    <div className="col-span-2">
+                      <p className="text-sm text-gray-500 mb-1">Áreas</p>
+                      <div className="flex flex-wrap gap-2">
+                        {detailsModal.areas.map((area, i) => (
+                          <span key={i} className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded">
+                            {area}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {detailsModal.tipo === "INSTITUICAO" && detailsModal.modalidades && (
+                    <div className="col-span-2">
+                      <p className="text-sm text-gray-500 mb-1">Modalidades</p>
+                      <div className="flex flex-wrap gap-2">
+                        {detailsModal.modalidades.map((mod, i) => (
+                          <span key={i} className="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded">
+                            {mod}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   )}
                   {detailsModal.documento_url && (
