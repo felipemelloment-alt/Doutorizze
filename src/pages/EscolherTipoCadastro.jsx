@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Briefcase, UserRound, Building2, CheckCircle, Package, Hospital } from "lucide-react";
+import { Briefcase, UserRound, Building2, CheckCircle, Package, Hospital, GraduationCap } from "lucide-react";
 
 export default function EscolherTipoCadastro() {
   const navigate = useNavigate();
@@ -68,7 +68,7 @@ export default function EscolherTipoCadastro() {
         </div>
 
         {/* Grid de Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto px-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto px-4 mb-8">
           {/* Card Profissional */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -131,10 +131,6 @@ export default function EscolherTipoCadastro() {
             onClick={() => navigate("/CadastroFornecedor")}
             className="bg-white rounded-3xl p-6 shadow-xl border-2 border-transparent hover:border-orange-400 transition-all duration-300 cursor-pointer group relative"
           >
-            <span className="absolute top-2 right-2 px-3 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full">
-              NOVO
-            </span>
-
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center shadow-xl">
               <Package className="w-8 h-8 text-white" strokeWidth={2.5} />
             </div>
@@ -162,10 +158,6 @@ export default function EscolherTipoCadastro() {
             onClick={() => navigate("/CadastroHospital")}
             className="bg-white rounded-3xl p-6 shadow-xl border-2 border-transparent hover:border-orange-400 transition-all duration-300 cursor-pointer group relative"
           >
-            <span className="absolute top-2 right-2 px-3 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full">
-              NOVO
-            </span>
-
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-xl">
               <Hospital className="w-8 h-8 text-white" strokeWidth={2.5} />
             </div>
@@ -180,6 +172,37 @@ export default function EscolherTipoCadastro() {
             <motion.button
               whileTap={{ scale: 0.98 }}
               className="w-full py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all"
+            >
+              Cadastrar →
+            </motion.button>
+          </motion.div>
+
+          {/* Card Instituição de Ensino */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            onClick={() => navigate("/CadastroInstituicao")}
+            className="bg-white rounded-3xl p-6 shadow-xl border-2 border-transparent hover:border-orange-400 transition-all duration-300 cursor-pointer group relative"
+          >
+            <span className="absolute top-2 right-2 px-3 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full">
+              NOVO
+            </span>
+
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center shadow-xl">
+              <GraduationCap className="w-8 h-8 text-white" strokeWidth={2.5} />
+            </div>
+
+            <h3 className="text-xl font-black text-gray-900 text-center mb-2">
+              Instituição de Ensino
+            </h3>
+            <p className="text-gray-600 text-center mb-4 text-sm">
+              Publicar cursos e pós-graduações
+            </p>
+
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              className="w-full py-3 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all"
             >
               Cadastrar →
             </motion.button>
