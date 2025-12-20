@@ -94,6 +94,86 @@ export default function BottomBar() {
     navigate(createPageUrl(pageName));
   };
 
+  // Função para determinar config do botão central
+  const getBotaoCentralConfig = (pathname, userType) => {
+    // Feed → Configurações
+    if (pathname.includes("Feed")) {
+      return { 
+        icon: Settings, 
+        label: "Config", 
+        page: "Configuracoes",
+        color: "from-purple-400 to-indigo-500"
+      };
+    }
+    
+    // NewJobs → Criar Vaga (clínica) ou ver Vagas (profissional)
+    if (pathname.includes("NewJobs")) {
+      if (userType === "CLINICA" || userType === "HOSPITAL") {
+        return { 
+          icon: Plus, 
+          label: "Vaga", 
+          page: "CriarVaga",
+          color: "from-green-400 to-emerald-500"
+        };
+      }
+      return { 
+        icon: Briefcase, 
+        label: "Aplicar", 
+        page: "MinhasCandidaturas",
+        color: "from-blue-400 to-cyan-500"
+      };
+    }
+    
+    // Marketplace → Meus Anúncios
+    if (pathname.includes("Marketplace") && !pathname.includes("Create") && !pathname.includes("Detail") && !pathname.includes("MeusAnuncios")) {
+      return { 
+        icon: MessageCircle, 
+        label: "Meus", 
+        page: "MeusAnunciosMarketplace",
+        color: "from-orange-400 to-red-500"
+      };
+    }
+    
+    // Perfil → Editar
+    if (pathname.includes("MeuPerfil") || pathname.includes("PerfilClinica")) {
+      return { 
+        icon: Edit, 
+        label: "Editar", 
+        page: userType === "CLINICA" ? "EditarClinica" : "EditarPerfil",
+        color: "from-pink-400 to-rose-500"
+      };
+    }
+    
+    // MinhasVagas → Criar Vaga
+    if (pathname.includes("MinhasVagas")) {
+      return { 
+        icon: Plus, 
+        label: "Vaga", 
+        page: "CriarVaga",
+        color: "from-green-400 to-emerald-500"
+      };
+    }
+    
+    // BuscarProfissionais → Filtros
+    if (pathname.includes("BuscarProfissionais")) {
+      return { 
+        icon: Filter, 
+        label: "Filtros", 
+        page: null,
+        action: "openFilters",
+        color: "from-cyan-400 to-blue-500"
+      };
+    }
+    
+    // Default → Criar anúncio marketplace
+    return { 
+      icon: PlusCircle, 
+      label: "Criar", 
+      page: "MarketplaceCreate",
+      color: "from-yellow-400 via-orange-500 to-pink-500"
+    };
+  };
+
   // Configuração de botões para PROFISSIONAL
   const botoesProfissional = [
     {
