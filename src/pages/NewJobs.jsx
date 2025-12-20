@@ -341,7 +341,7 @@ export default function NewJobs() {
       </div>
 
       {/* Botão Flutuante - Criar Alerta */}
-      <div className="fixed bottom-6 right-6 z-50 group">
+      <div className="fixed bottom-24 right-6 z-50 group">
         <div className="absolute bottom-full right-0 mb-2 px-4 py-2 bg-gray-900 text-white text-sm rounded-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all">
           Criar alerta de vagas
         </div>
