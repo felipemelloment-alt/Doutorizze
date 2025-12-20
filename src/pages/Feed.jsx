@@ -178,25 +178,43 @@ export default function Feed() {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
 
+        console.log("🔍 USER ID:", currentUser.id);
+
         // Verificar tipo de usuário e localização
         const professionals = await base44.entities.Professional.filter({ user_id: currentUser.id });
+        console.log("👨‍⚕️ Professionals:", professionals);
+        
         if (professionals.length > 0) {
+          const prof = professionals[0];
+          console.log("✅ TIPO: PROFISSIONAL");
+          console.log("📍 UF Conselho:", prof.uf_conselho);
+          console.log("📍 Cidades Atendimento:", prof.cidades_atendimento);
+          
           setUserType("PROFISSIONAL");
           setUserLocation({
-            cidade: professionals[0].cidade,
-            uf: professionals[0].uf || professionals[0].estado
+            cidade: prof.cidades_atendimento?.[0]?.split(' - ')[0] || "Não informada",
+            uf: prof.uf_conselho || "Não informado"
           });
           return;
         }
 
         const owners = await base44.entities.CompanyOwner.filter({ user_id: currentUser.id });
+        console.log("🏢 Owners:", owners);
+        
         if (owners.length > 0) {
           setUserType("CLINICA");
           const units = await base44.entities.CompanyUnit.filter({ owner_id: owners[0].id });
+          console.log("🏥 Units:", units);
+          
           if (units.length > 0) {
+            const unit = units[0];
+            console.log("✅ TIPO: CLINICA");
+            console.log("📍 UF:", unit.uf);
+            console.log("📍 Cidade:", unit.cidade);
+            
             setUserLocation({
-              cidade: units[0].cidade,
-              uf: units[0].uf || units[0].estado
+              cidade: unit.cidade,
+              uf: unit.uf
             });
           }
           return;
@@ -205,21 +223,28 @@ export default function Feed() {
         const suppliers = await base44.entities.Supplier.filter({ user_id: currentUser.id });
         if (suppliers.length > 0) {
           setUserType("FORNECEDOR");
+          console.log("✅ TIPO: FORNECEDOR");
           return;
         }
 
         const hospitals = await base44.entities.Hospital.filter({ user_id: currentUser.id });
         if (hospitals.length > 0) {
           setUserType("HOSPITAL");
+          const hosp = hospitals[0];
+          console.log("✅ TIPO: HOSPITAL");
+          console.log("📍 UF:", hosp.uf);
+          
           setUserLocation({
-            cidade: hospitals[0].cidade,
-            uf: hospitals[0].uf || hospitals[0].estado
+            cidade: hosp.cidade,
+            uf: hosp.uf
           });
           return;
         }
 
+        console.log("⚠️ Nenhum tipo de usuário encontrado!");
+
       } catch (error) {
-        console.error("Erro ao carregar dados do usuário:", error);
+        console.error("❌ Erro ao carregar dados do usuário:", error);
       }
     };
     loadUserData();
@@ -229,11 +254,21 @@ export default function Feed() {
   const { data: profissionaisProximos = [] } = useQuery({
     queryKey: ["profissionaisProximos", userLocation.uf],
     queryFn: async () => {
-      if (userType !== "CLINICA" || !userLocation.uf) return [];
+      console.log("🔍 BUSCANDO PROFISSIONAIS...");
+      console.log("UserType:", userType);
+      console.log("UserLocation UF:", userLocation.uf);
+      
+      if (userType !== "CLINICA" || !userLocation.uf) {
+        console.log("⚠️ Query não executada - userType:", userType, "uf:", userLocation.uf);
+        return [];
+      }
       
       const profissionais = await base44.entities.Professional.filter({
         status_cadastro: "APROVADO"
       });
+
+      console.log("📋 Total profissionais aprovados:", profissionais.length);
+      console.log("📋 Profissionais:", profissionais);
 
       // Filtrar por estado e formatar - MÍNIMO 6 itens
       const filtered = profissionais
@@ -250,12 +285,15 @@ export default function Feed() {
           page: "VerProfissional"
         }));
 
+      console.log("✅ Profissionais filtrados por UF", userLocation.uf, ":", filtered.length);
+
       // Se tiver menos de 6, duplicar para ter mais no carrossel
       if (filtered.length > 0 && filtered.length < 6) {
         const duplicated = [...filtered];
         while (duplicated.length < 6) {
           duplicated.push(...filtered.map(item => ({ ...item, id: `${item.id}-dup-${duplicated.length}` })));
         }
+        console.log("🔄 Duplicados criados, total:", duplicated.slice(0, 12).length);
         return duplicated.slice(0, 12);
       }
 
@@ -268,11 +306,21 @@ export default function Feed() {
   const { data: clinicasProximas = [] } = useQuery({
     queryKey: ["clinicasProximas", userLocation.uf],
     queryFn: async () => {
-      if (userType !== "PROFISSIONAL" || !userLocation.uf) return [];
+      console.log("🔍 BUSCANDO CLÍNICAS...");
+      console.log("UserType:", userType);
+      console.log("UserLocation UF:", userLocation.uf);
+      
+      if (userType !== "PROFISSIONAL" || !userLocation.uf) {
+        console.log("⚠️ Query não executada - userType:", userType, "uf:", userLocation.uf);
+        return [];
+      }
       
       const units = await base44.entities.CompanyUnit.filter({
         status_cadastro: "APROVADO"
       });
+
+      console.log("📋 Total clínicas aprovadas:", units.length);
+      console.log("📋 Clínicas:", units);
 
       // Filtrar por estado e formatar
       const filtered = units
@@ -289,12 +337,15 @@ export default function Feed() {
           page: "PerfilClinicaPublico"
         }));
 
+      console.log("✅ Clínicas filtradas por UF", userLocation.uf, ":", filtered.length);
+
       // Se tiver menos de 6, duplicar para ter mais no carrossel
       if (filtered.length > 0 && filtered.length < 6) {
         const duplicated = [...filtered];
         while (duplicated.length < 6) {
           duplicated.push(...filtered.map(item => ({ ...item, id: `${item.id}-dup-${duplicated.length}` })));
         }
+        console.log("🔄 Duplicados criados, total:", duplicated.slice(0, 12).length);
         return duplicated.slice(0, 12);
       }
 
