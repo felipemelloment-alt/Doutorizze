@@ -16,11 +16,26 @@ import {
   CheckCircle2,
   MessageCircle
 } from "lucide-react";
+import { toast } from "sonner";
 import WhatsAppSafeButton from "@/components/ui/WhatsAppSafeButton";
 
 export default function MarketplaceDetail() {
   const navigate = useNavigate();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [user, setUser] = useState(null);
+  const [creatingChat, setCreatingChat] = useState(false);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const currentUser = await base44.auth.me();
+        setUser(currentUser);
+      } catch (error) {
+        console.error("Erro ao carregar usuário:", error);
+      }
+    };
+    loadUser();
+  }, []);
 
   const urlParams = new URLSearchParams(window.location.search);
   const itemId = urlParams.get("id");
@@ -86,6 +101,63 @@ export default function MarketplaceDetail() {
     if (images.length > 0) {
       setSelectedImageIndex((prev) => (prev - 1 + images.length) % images.length);
     }
+  };
+
+  const iniciarChat = async () => {
+    if (!user) {
+      toast.error("Você precisa estar logado");
+      return;
+    }
+
+    if (user.id === item.anunciante_id) {
+      toast.error("Você não pode conversar com seu próprio anúncio");
+      return;
+    }
+
+    setCreatingChat(true);
+    try {
+      // Buscar thread existente ativa
+      const existingThreads = await base44.entities.ChatThread.filter({
+        marketplace_item_id: item.id,
+        buyer_user_id: user.id,
+        seller_user_id: item.anunciante_id,
+        status: "ATIVO"
+      });
+
+      let thread = null;
+
+      // Verificar se tem thread não expirada
+      const now = new Date();
+      const activeThread = existingThreads.find(t => new Date(t.expires_at) > now);
+
+      if (activeThread) {
+        thread = activeThread;
+      } else {
+        // Criar nova thread
+        const expiresAt = new Date();
+        expiresAt.setHours(expiresAt.getHours() + 48);
+
+        thread = await base44.entities.ChatThread.create({
+          marketplace_item_id: item.id,
+          buyer_user_id: user.id,
+          buyer_name: user.full_name,
+          seller_user_id: item.anunciante_id,
+          seller_name: item.anunciante_nome,
+          item_title: item.titulo_item,
+          item_price: item.preco,
+          item_photo: item.foto_frontal || item.fotos?.[0],
+          expires_at: expiresAt.toISOString(),
+          status: "ATIVO",
+          unread_buyer: 0,
+          unread_seller: 0
+        });
+      }
+
+      navigate(createPageUrl(`ChatThread?id=${thread.id}`));
+    } catch (error) {
+      toast.error("Erro ao iniciar chat: " + error.message);
+    }
+    setCreatingChat(false);
   };
 
   // Loading state
@@ -291,27 +363,39 @@ export default function MarketplaceDetail() {
       {/* Botões de Ação Fixos */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-2xl z-50">
         <div className="max-w-6xl mx-auto">
-          {/* Botão de Contato Principal */}
-          {item.whatsapp_visivel && item.whatsapp_verificado ? (
-            <div>
+          {/* Botões de Contato */}
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            {item.whatsapp_visivel && item.whatsapp_verificado && (
               <WhatsAppSafeButton
                 phone={item.telefone_contato}
                 message={`Olá! Tenho interesse no item: ${item.titulo_item || 'equipamento'} - ${formatPrice(item.preco)}`}
-                className="w-full py-4 bg-green-500 hover:bg-green-600 text-white font-bold rounded-2xl flex items-center justify-center gap-3 shadow-lg mb-3 transition-all"
+                className="py-4 bg-green-500 hover:bg-green-600 text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-all"
               >
                 <CheckCircle2 className="w-5 h-5" />
-                WhatsApp Verificado
+                WhatsApp
               </WhatsAppSafeButton>
-            </div>
-          ) : (
+            )}
+            
             <button
-              onClick={() => toast.info("💬 Chat interno em breve! Por enquanto, reporte interesse.")}
-              className="w-full py-4 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-2xl flex items-center justify-center gap-3 shadow-lg mb-3 transition-all"
+              onClick={iniciarChat}
+              disabled={creatingChat}
+              className={`py-4 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-all disabled:opacity-50 ${
+                item.whatsapp_visivel && item.whatsapp_verificado ? "" : "col-span-2"
+              }`}
             >
-              <MessageCircle className="w-5 h-5" />
-              Contato via Chat do App
+              {creatingChat ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  Abrindo...
+                </>
+              ) : (
+                <>
+                  <MessageCircle className="w-5 h-5" />
+                  Chat do App
+                </>
+              )}
             </button>
-          )}
+          </div>
 
           {/* Grid 2 botões */}
           <div className="grid grid-cols-2 gap-3">

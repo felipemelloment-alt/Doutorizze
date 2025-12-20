@@ -63,6 +63,8 @@ import MeusAnunciosMarketplace from './pages/MeusAnunciosMarketplace';
 import FeedConfig from './pages/FeedConfig';
 import OnboardingVertical from './pages/OnboardingVertical';
 import OnboardingTipoConta from './pages/OnboardingTipoConta';
+import ChatThread from './pages/ChatThread';
+import Chats from './pages/Chats';
 import __Layout from './Layout.jsx';
 
 
@@ -132,6 +134,8 @@ export const PAGES = {
     "FeedConfig": FeedConfig,
     "OnboardingVertical": OnboardingVertical,
     "OnboardingTipoConta": OnboardingTipoConta,
+    "ChatThread": ChatThread,
+    "Chats": Chats,
 }
 
 export const pagesConfig = {
