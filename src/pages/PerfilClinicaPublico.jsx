@@ -26,7 +26,10 @@ import WhatsAppSafeButton from "@/components/ui/WhatsAppSafeButton";
 
 export default function PerfilClinicaPublico() {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id: paramId } = useParams();
+  const searchParams = new URLSearchParams(window.location.search);
+  const queryId = searchParams.get('id');
+  const id = paramId || queryId;
 
   // Buscar unidade da clínica
   const { data: unit, isLoading } = useQuery({
