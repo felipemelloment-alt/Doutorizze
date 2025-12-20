@@ -104,11 +104,11 @@ export default function BottomBar() {
     const path = pathname.toLowerCase();
     
     // Feed → Configurações
-    if (path.includes("feed")) {
+    if (path.includes("feed") && !path.includes("feedconfig")) {
       return { 
         icon: Settings, 
         label: "Config", 
-        page: "Configuracoes",
+        page: "FeedConfig",
         color: "from-purple-400 to-indigo-500"
       };
     }
