@@ -435,23 +435,81 @@ export default function MeuPerfil() {
           </div>
         </motion.div>
 
-        {/* OBSERVAÇÕES */}
-        {professional.observacoes && (
+        {/* EXPERIÊNCIAS PROFISSIONAIS */}
+        {(professional.experiencias_profissionais?.length > 0 || professional.cursos_aperfeicoamento?.length > 0) && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
             className="bg-white rounded-3xl shadow-xl p-6"
           >
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white shadow-lg">
-                <FileText className="w-6 h-6" />
+                <Briefcase className="w-6 h-6" />
               </div>
               <div>
-                <h2 className="text-xl font-black text-gray-900">Sobre Mim</h2>
+                <h2 className="text-xl font-black text-gray-900">Experiências Profissionais</h2>
               </div>
             </div>
-            <p className="text-gray-700 leading-relaxed">{professional.observacoes}</p>
+
+            {/* Experiências de Trabalho */}
+            {professional.experiencias_profissionais?.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-base font-bold text-gray-900 mb-4">Experiências de Trabalho</h3>
+                <div className="space-y-4">
+                  {professional.experiencias_profissionais.map((exp, index) => (
+                    <div key={index} className="border-l-4 border-yellow-400 pl-5 py-3 bg-yellow-50 rounded-r-xl">
+                      <h4 className="font-bold text-gray-900 text-lg mb-1">{exp.empresa_clinica}</h4>
+                      {exp.cargo && (
+                        <p className="text-sm text-gray-600 mb-2">{exp.cargo}</p>
+                      )}
+                      <div className="flex items-center gap-3 text-sm text-gray-600">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-4 h-4" />
+                          {exp.periodo_inicio} - {exp.periodo_fim || "Atual"}
+                        </span>
+                        {exp.anos_trabalhados > 0 && (
+                          <span className="px-3 py-1 bg-yellow-200 text-yellow-800 font-bold rounded-full text-xs">
+                            {exp.anos_trabalhados} {exp.anos_trabalhados === 1 ? "ano" : "anos"}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Cursos de Aperfeiçoamento */}
+            {professional.cursos_aperfeicoamento?.length > 0 && (
+              <div>
+                <h3 className="text-base font-bold text-gray-900 mb-4">Cursos de Aperfeiçoamento</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {professional.cursos_aperfeicoamento.map((curso, index) => (
+                    <div key={index} className="border-2 border-blue-200 bg-blue-50 rounded-xl p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white flex-shrink-0">
+                          <Award className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-gray-900 mb-1 line-clamp-2">{curso.nome_curso}</h4>
+                          <p className="text-sm text-gray-600 mb-1">{curso.instituicao}</p>
+                          <div className="flex items-center gap-2 text-xs text-gray-500">
+                            <span>📅 {curso.ano_conclusao}</span>
+                            {curso.carga_horaria > 0 && (
+                              <>
+                                <span>•</span>
+                                <span>⏱️ {curso.carga_horaria}h</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </motion.div>
         )}
 

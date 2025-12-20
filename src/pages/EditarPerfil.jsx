@@ -51,7 +51,8 @@ export default function EditarPerfil() {
     cidades_atendimento: [],
     cidade_input: "",
     uf_input: "",
-    observacoes: "",
+    experiencias_profissionais: [],
+    cursos_aperfeicoamento: [],
     selfie_documento_url: "",
     carteirinha_conselho_url: ""
   });
@@ -103,6 +104,8 @@ export default function EditarPerfil() {
         cidade_input: "",
         uf_input: "",
         observacoes: professional.observacoes || "",
+        experiencias_profissionais: professional.experiencias_profissionais || [],
+        cursos_aperfeicoamento: professional.cursos_aperfeicoamento || [],
         selfie_documento_url: professional.selfie_documento_url || "",
         carteirinha_conselho_url: professional.carteirinha_conselho_url || ""
       });
@@ -282,6 +285,8 @@ export default function EditarPerfil() {
       forma_remuneracao: formData.forma_remuneracao,
       cidades_atendimento: formData.cidades_atendimento,
       observacoes: formData.observacoes,
+      experiencias_profissionais: formData.experiencias_profissionais,
+      cursos_aperfeicoamento: formData.cursos_aperfeicoamento,
       selfie_documento_url: formData.selfie_documento_url,
       carteirinha_conselho_url: formData.carteirinha_conselho_url
     };
@@ -769,28 +774,258 @@ export default function EditarPerfil() {
               )}
             </TabsContent>
 
-            {/* SEÇÃO 5 - SOBRE VOCÊ */}
+            {/* SEÇÃO 5 - EXPERIÊNCIAS PROFISSIONAIS */}
             <TabsContent value="sobre" className="p-6 md:p-8 space-y-6">
               <div className="mb-6">
-                <h2 className="text-2xl font-black text-gray-900 mb-1">Sobre Você</h2>
-                <p className="text-gray-600">Conte mais sobre sua experiência e diferenciais</p>
+                <h2 className="text-2xl font-black text-gray-900 mb-1">Experiências Profissionais</h2>
+                <p className="text-gray-600">Mostre onde você já trabalhou e seus cursos</p>
               </div>
 
+              {/* Experiências de Trabalho */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Observações *</label>
-                <textarea
-                  value={formData.observacoes}
-                  onChange={(e) => handleInputChange("observacoes", e.target.value)}
-                  placeholder="Fale sobre sua experiência, preferências de trabalho, horários que prefere, tipo de clínica que procura, diferenciais..."
-                  className="w-full min-h-[200px] px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none resize-none"
-                  maxLength={500}
-                />
-                <p className="text-xs text-gray-500 mt-1 text-right">
-                  {formData.observacoes.length}/500 caracteres
-                </p>
-                <p className="text-xs text-yellow-600 mt-2">
-                  💡 Dica: Mencione sua experiência, tipo de ambiente que busca, valores e objetivos profissionais
-                </p>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold text-gray-900">Experiências de Trabalho</h3>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData(prev => ({
+                        ...prev,
+                        experiencias_profissionais: [
+                          ...prev.experiencias_profissionais,
+                          { empresa_clinica: "", cargo: "", periodo_inicio: "", periodo_fim: "", anos_trabalhados: 0 }
+                        ]
+                      }));
+                    }}
+                    className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-xl hover:shadow-lg transition-all text-sm"
+                  >
+                    + Adicionar Experiência
+                  </button>
+                </div>
+
+                {formData.experiencias_profissionais.length === 0 ? (
+                  <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-2xl">
+                    <Briefcase className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                    <p className="text-gray-400">Nenhuma experiência adicionada</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {formData.experiencias_profissionais.map((exp, index) => (
+                      <div key={index} className="border-2 border-gray-200 rounded-2xl p-5 space-y-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-bold text-gray-900">Experiência {index + 1}</h4>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setFormData(prev => ({
+                                ...prev,
+                                experiencias_profissionais: prev.experiencias_profissionais.filter((_, i) => i !== index)
+                              }));
+                            }}
+                            className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-all"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Empresa/Clínica</label>
+                          <input
+                            type="text"
+                            value={exp.empresa_clinica}
+                            onChange={(e) => {
+                              const newExp = [...formData.experiencias_profissionais];
+                              newExp[index].empresa_clinica = e.target.value;
+                              setFormData(prev => ({ ...prev, experiencias_profissionais: newExp }));
+                            }}
+                            placeholder="Ex: Clínica Dental São Paulo"
+                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Cargo</label>
+                          <input
+                            type="text"
+                            value={exp.cargo}
+                            onChange={(e) => {
+                              const newExp = [...formData.experiencias_profissionais];
+                              newExp[index].cargo = e.target.value;
+                              setFormData(prev => ({ ...prev, experiencias_profissionais: newExp }));
+                            }}
+                            placeholder="Ex: Dentista Clínico Geral"
+                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-3">
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Início</label>
+                            <input
+                              type="text"
+                              value={exp.periodo_inicio}
+                              onChange={(e) => {
+                                const newExp = [...formData.experiencias_profissionais];
+                                newExp[index].periodo_inicio = e.target.value.replace(/\D/g, "").replace(/(\d{2})(\d)/, "$1/$2").slice(0, 7);
+                                setFormData(prev => ({ ...prev, experiencias_profissionais: newExp }));
+                              }}
+                              placeholder="MM/AAAA"
+                              maxLength={7}
+                              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Fim</label>
+                            <input
+                              type="text"
+                              value={exp.periodo_fim}
+                              onChange={(e) => {
+                                const newExp = [...formData.experiencias_profissionais];
+                                newExp[index].periodo_fim = e.target.value.replace(/\D/g, "").replace(/(\d{2})(\d)/, "$1/$2").slice(0, 7);
+                                setFormData(prev => ({ ...prev, experiencias_profissionais: newExp }));
+                              }}
+                              placeholder="MM/AAAA ou Atual"
+                              maxLength={7}
+                              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Anos</label>
+                            <input
+                              type="number"
+                              value={exp.anos_trabalhados}
+                              onChange={(e) => {
+                                const newExp = [...formData.experiencias_profissionais];
+                                newExp[index].anos_trabalhados = parseFloat(e.target.value) || 0;
+                                setFormData(prev => ({ ...prev, experiencias_profissionais: newExp }));
+                              }}
+                              min="0"
+                              step="0.5"
+                              placeholder="Ex: 2.5"
+                              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Cursos de Aperfeiçoamento */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold text-gray-900">Cursos de Aperfeiçoamento</h3>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData(prev => ({
+                        ...prev,
+                        cursos_aperfeicoamento: [
+                          ...prev.cursos_aperfeicoamento,
+                          { nome_curso: "", instituicao: "", ano_conclusao: "", carga_horaria: 0 }
+                        ]
+                      }));
+                    }}
+                    className="px-4 py-2 bg-gradient-to-r from-blue-400 to-purple-500 text-white font-bold rounded-xl hover:shadow-lg transition-all text-sm"
+                  >
+                    + Adicionar Curso
+                  </button>
+                </div>
+
+                {formData.cursos_aperfeicoamento.length === 0 ? (
+                  <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-2xl">
+                    <Award className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                    <p className="text-gray-400">Nenhum curso adicionado</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {formData.cursos_aperfeicoamento.map((curso, index) => (
+                      <div key={index} className="border-2 border-gray-200 rounded-2xl p-5 space-y-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-bold text-gray-900">Curso {index + 1}</h4>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setFormData(prev => ({
+                                ...prev,
+                                cursos_aperfeicoamento: prev.cursos_aperfeicoamento.filter((_, i) => i !== index)
+                              }));
+                            }}
+                            className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-all"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Nome do Curso</label>
+                          <input
+                            type="text"
+                            value={curso.nome_curso}
+                            onChange={(e) => {
+                              const newCursos = [...formData.cursos_aperfeicoamento];
+                              newCursos[index].nome_curso = e.target.value;
+                              setFormData(prev => ({ ...prev, cursos_aperfeicoamento: newCursos }));
+                            }}
+                            placeholder="Ex: Implantodontia Avançada"
+                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Instituição</label>
+                          <input
+                            type="text"
+                            value={curso.instituicao}
+                            onChange={(e) => {
+                              const newCursos = [...formData.cursos_aperfeicoamento];
+                              newCursos[index].instituicao = e.target.value;
+                              setFormData(prev => ({ ...prev, cursos_aperfeicoamento: newCursos }));
+                            }}
+                            placeholder="Ex: ABO - Associação Brasileira de Odontologia"
+                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Ano de Conclusão</label>
+                            <input
+                              type="text"
+                              value={curso.ano_conclusao}
+                              onChange={(e) => {
+                                const newCursos = [...formData.cursos_aperfeicoamento];
+                                newCursos[index].ano_conclusao = e.target.value.replace(/\D/g, "").slice(0, 4);
+                                setFormData(prev => ({ ...prev, cursos_aperfeicoamento: newCursos }));
+                              }}
+                              placeholder="AAAA"
+                              maxLength={4}
+                              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Carga Horária (h)</label>
+                            <input
+                              type="number"
+                              value={curso.carga_horaria}
+                              onChange={(e) => {
+                                const newCursos = [...formData.cursos_aperfeicoamento];
+                                newCursos[index].carga_horaria = parseInt(e.target.value) || 0;
+                                setFormData(prev => ({ ...prev, cursos_aperfeicoamento: newCursos }));
+                              }}
+                              min="0"
+                              placeholder="Ex: 120"
+                              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </TabsContent>
 
