@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
+import { useUserArea } from "@/components/hooks/useUserArea";
 import { motion } from "framer-motion";
 import {
   GraduationCap,
@@ -54,11 +55,10 @@ const ordenacaoOpcoes = [
 
 export default function Cursos() {
   const navigate = useNavigate();
+  const { userArea } = useUserArea();
   const [user, setUser] = useState(null);
-  const [profissional, setProfissional] = useState(null);
 
   const [filtros, setFiltros] = useState({
-    area: "",
     tipo: "TODOS",
     modalidade: "TODOS",
     cidade: "",
@@ -74,15 +74,6 @@ export default function Cursos() {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
-
-        // Buscar profissional
-        const profResults = await base44.entities.Professional.filter({ user_id: currentUser.id });
-        if (profResults[0]) {
-          setProfissional(profResults[0]);
-          // Pré-selecionar área baseada no tipo do profissional
-          const area = profResults[0].tipo_profissional === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA";
-          setFiltros(prev => ({ ...prev, area }));
-        }
       } catch (error) {
         console.error("Erro ao carregar usuário:", error);
       }
@@ -112,8 +103,8 @@ export default function Cursos() {
 
   // Aplicar filtros
   const cursosFiltrados = cursos.filter((curso) => {
-    // IMPORTANTE: Filtro por área baseado no profissional
-    if (filtros.area && curso.area !== filtros.area) return false;
+    // IMPORTANTE: Filtro por área do usuário
+    if (userArea && curso.area !== userArea) return false;
 
     const tipoMatch = filtros.tipo === "TODOS" || curso.tipo === filtros.tipo;
     const modalidadeMatch = filtros.modalidade === "TODOS" || curso.modalidade === filtros.modalidade;
@@ -181,8 +172,8 @@ export default function Cursos() {
             <div>
               <h1 className="text-3xl font-black text-gray-900">Cursos Disponíveis</h1>
               <p className="text-gray-600">
-                {filtros.area === "ODONTOLOGIA" && "Cursos de Odontologia"}
-                {filtros.area === "MEDICINA" && "Cursos de Medicina"}
+                {userArea === "ODONTOLOGIA" && "🦷 Cursos de Odontologia"}
+                {userArea === "MEDICINA" && "⚕️ Cursos de Medicina"}
               </p>
             </div>
           </div>

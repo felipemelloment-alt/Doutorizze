@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { useUserArea } from "@/components/hooks/useUserArea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +29,7 @@ import {
 "lucide-react";
 
 export default function NewJobs() {
+  const { userArea } = useUserArea();
   const [user, setUser] = useState(null);
   const [professional, setProfessional] = useState(null);
   const [newJobsActive, setNewJobsActive] = useState(false);
@@ -113,8 +115,9 @@ export default function NewJobs() {
 
   // Filtrar vagas por busca e área
   const filteredJobs = jobs.filter(job => {
-    // Filtro de área (DENTISTA só vê vagas de DENTISTA, MEDICO só vê vagas de MEDICO)
-    if (professional?.tipo_profissional && job.tipo_profissional !== professional.tipo_profissional) {
+    // Filtro de área (ODONTOLOGIA só vê DENTISTA, MEDICINA só vê MEDICO)
+    const tipoProfissionalEsperado = userArea === "ODONTOLOGIA" ? "DENTISTA" : "MEDICO";
+    if (job.tipo_profissional !== tipoProfissionalEsperado) {
       return false;
     }
 
