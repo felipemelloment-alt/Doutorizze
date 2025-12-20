@@ -101,8 +101,10 @@ export default function BottomBar() {
 
   // Função para determinar config do botão central
   const getBotaoCentralConfig = (pathname, userType) => {
+    const path = pathname.toLowerCase();
+    
     // Feed → Configurações
-    if (pathname.includes("Feed")) {
+    if (path.includes("feed")) {
       return { 
         icon: Settings, 
         label: "Config", 
@@ -112,7 +114,7 @@ export default function BottomBar() {
     }
     
     // NewJobs → Criar Vaga (clínica) ou ver Vagas (profissional)
-    if (pathname.includes("NewJobs")) {
+    if (path.includes("newjobs")) {
       if (userType === "CLINICA" || userType === "HOSPITAL") {
         return { 
           icon: Plus, 
@@ -130,7 +132,7 @@ export default function BottomBar() {
     }
     
     // Marketplace → Meus Anúncios
-    if (pathname.includes("/Marketplace") && !pathname.includes("Create") && !pathname.includes("Detail") && !pathname.includes("MeusAnuncios")) {
+    if (path.includes("marketplace") && !path.includes("create") && !path.includes("detail") && !path.includes("meusanuncios")) {
       return { 
         icon: MessageCircle, 
         label: "Meus", 
@@ -140,7 +142,7 @@ export default function BottomBar() {
     }
     
     // Perfil → Editar
-    if (pathname.includes("MeuPerfil") || pathname.includes("PerfilClinica")) {
+    if (path.includes("meuperfil") || path.includes("perfilclinica")) {
       return { 
         icon: Edit, 
         label: "Editar", 
@@ -150,7 +152,7 @@ export default function BottomBar() {
     }
     
     // MinhasVagas → Criar Vaga
-    if (pathname.includes("MinhasVagas")) {
+    if (path.includes("minhasvagas")) {
       return { 
         icon: Plus, 
         label: "Vaga", 
@@ -160,7 +162,7 @@ export default function BottomBar() {
     }
     
     // BuscarProfissionais → Filtros
-    if (pathname.includes("BuscarProfissionais")) {
+    if (path.includes("buscarprofissionais")) {
       return { 
         icon: Filter, 
         label: "Filtros", 
