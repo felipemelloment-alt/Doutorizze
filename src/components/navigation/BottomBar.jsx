@@ -415,13 +415,20 @@ export default function BottomBar() {
               onClick={() => handleNavigate(botao.page)}
               className="flex flex-col items-center justify-center flex-1 h-full relative transition-all hover:scale-105"
             >
+              {/* Fundo circular quando ativo */}
+              {active && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-full bg-orange-500 opacity-100 shadow-lg"></div>
+                </div>
+              )}
+
               {/* Indicador de ativo */}
               {active && (
                 <div className="absolute top-0 w-1.5 h-1.5 rounded-full bg-orange-500"></div>
               )}
 
-              <Icon className={`w-6 h-6 mb-1 ${active ? "text-orange-500" : "text-gray-400"}`} />
-              <span className={`text-xs ${active ? "text-orange-500 font-bold" : "text-gray-400"}`}>
+              <Icon className={`w-6 h-6 mb-1 relative z-10 ${active ? "text-white" : "text-gray-400"}`} />
+              <span className={`text-xs relative z-10 ${active ? "text-orange-500 font-bold" : "text-gray-400"}`}>
                 {botao.label}
               </span>
             </button>
