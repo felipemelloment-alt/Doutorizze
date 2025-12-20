@@ -16,7 +16,12 @@ import {
   Users,
   BookOpen,
   GraduationCap,
-  House
+  House,
+  Settings,
+  Edit,
+  MessageCircle,
+  Filter,
+  Plus
 } from "lucide-react";
 
 export default function BottomBar() {
@@ -354,6 +359,11 @@ export default function BottomBar() {
 
   const botoes = botoesMap[userType] || [];
 
+  // Config do botão central dinâmico
+  const pathname = location.pathname;
+  const botaoCentralConfig = getBotaoCentralConfig(pathname, userType);
+  const CentralIcon = botaoCentralConfig.icon;
+
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-2xl pb-safe">
       <div className="h-16 flex items-center justify-around max-w-screen-xl mx-auto px-2">
@@ -361,18 +371,24 @@ export default function BottomBar() {
           const Icon = botao.icon;
           const active = isActive(botao.page);
 
-          // Botão Central (maior e com gradiente)
+          // Botão Central Dinâmico (maior e com gradiente)
           if (botao.isCenter) {
             return (
               <button
                 key={index}
-                onClick={() => handleNavigate(botao.page)}
+                onClick={() => {
+                  if (botaoCentralConfig.action === "openFilters") {
+                    window.dispatchEvent(new CustomEvent('openFilters'));
+                  } else if (botaoCentralConfig.page) {
+                    handleNavigate(botaoCentralConfig.page);
+                  }
+                }}
                 className="flex flex-col items-center justify-center -mt-4 transition-all hover:scale-110"
               >
-                <div className="w-14 h-14 rounded-full bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 flex items-center justify-center shadow-lg">
-                  <Icon className="w-7 h-7 text-white" />
+                <div className={`w-14 h-14 rounded-full bg-gradient-to-r ${botaoCentralConfig.color} flex items-center justify-center shadow-lg`}>
+                  <CentralIcon className="w-7 h-7 text-white" />
                 </div>
-                <span className="text-xs text-gray-500 font-medium mt-1">{botao.label}</span>
+                <span className="text-xs text-gray-500 font-medium mt-1">{botaoCentralConfig.label}</span>
               </button>
             );
           }
