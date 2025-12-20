@@ -349,10 +349,16 @@ export default function MarketplaceDetail() {
                 {item.anunciante_tipo === "CLINICA" && "Clínica"}
                 {item.anunciante_tipo === "FORNECEDOR" && "Fornecedor"}
               </p>
-              {item.whatsapp_verificado && (
+              {item.whatsapp_visivel && item.whatsapp_verificado && (
                 <div className="flex items-center gap-1 text-green-600 text-sm font-semibold">
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>WhatsApp Verificado</span>
+                  <span>WhatsApp Verificado ✅</span>
+                </div>
+              )}
+              {!item.whatsapp_visivel && (
+                <div className="flex items-center gap-1 text-blue-600 text-sm font-semibold">
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Contato via Chat do App</span>
                 </div>
               )}
             </div>

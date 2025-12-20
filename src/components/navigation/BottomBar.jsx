@@ -297,7 +297,7 @@ export default function BottomBar() {
     { icon: Newspaper, label: "Feed", page: "Feed", isCenter: false },
     { icon: Briefcase, label: "Vagas", page: "NewJobs", isCenter: false },
     { icon: null, label: null, page: null, isCenter: true },
-    { icon: ShoppingBag, label: "Market", page: "Marketplace", isCenter: false },
+    { icon: MessageCircle, label: "Chats", page: "Chats", isCenter: false },
     { icon: User, label: "Perfil", page: "MeuPerfil", isCenter: false }
   ];
 
@@ -306,7 +306,7 @@ export default function BottomBar() {
     { icon: Newspaper, label: "Feed", page: "Feed", isCenter: false },
     { icon: Search, label: "Buscar", page: "BuscarProfissionais", isCenter: false },
     { icon: null, label: null, page: null, isCenter: true },
-    { icon: Briefcase, label: "Vagas", page: "MinhasVagas", isCenter: false },
+    { icon: MessageCircle, label: "Chats", page: "Chats", isCenter: false },
     { icon: Building2, label: "Perfil", page: "PerfilClinica", isCenter: false }
   ];
 
@@ -315,7 +315,7 @@ export default function BottomBar() {
     { icon: House, label: "Home", page: "Feed", isCenter: false },
     { icon: Tag, label: "Promoções", page: "MinhasPromocoes", isCenter: false },
     { icon: null, label: null, page: null, isCenter: true },
-    { icon: BarChart3, label: "Métricas", page: "DashboardFornecedor", isCenter: false },
+    { icon: MessageCircle, label: "Chats", page: "Chats", isCenter: false },
     { icon: Building2, label: "Perfil", page: "PerfilFornecedor", isCenter: false }
   ];
 
