@@ -127,9 +127,9 @@ export default function Marketplace() {
       case "price-desc":
         return (b.preco || 0) - (a.preco || 0);
       case "relevant":
-        // Usar score de ranking final
-        const rankingA = (a.score_qualidade || 0) * 0.6 + (a.score_confiabilidade || 50) * 0.4 + ((a.visualizacoes || 0) / 10);
-        const rankingB = (b.score_qualidade || 0) * 0.6 + (b.score_confiabilidade || 50) * 0.4 + ((b.visualizacoes || 0) / 10);
+        // Usar score de ranking do motor de score
+        const rankingA = a.score_ranking || 0;
+        const rankingB = b.score_ranking || 0;
         return rankingB - rankingA;
       default:
         return 0;
@@ -422,8 +422,15 @@ export default function Marketplace() {
                       <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-semibold">
                         {item.tipo_mundo === "ODONTOLOGIA" ? "🦷 Odonto" : "⚕️ Medicina"}
                       </span>
-                      {item.score_qualidade >= 70 && (
-                        <ScoreBadge score={item.score_qualidade} tipo="qualidade" size="sm" />
+                      {item.score_ranking >= 70 && (
+                        <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
+                          ⭐ {item.score_ranking}
+                        </span>
+                      )}
+                      {item.pode_destacar && (
+                        <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-bold">
+                          ✨ Destaque
+                        </span>
                       )}
                     </div>
 

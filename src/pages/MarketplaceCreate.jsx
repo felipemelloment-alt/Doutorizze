@@ -113,25 +113,27 @@ export default function MarketplaceCreate() {
   // Mutation para criar
   const createItemMutation = useMutation({
     mutationFn: async (itemData) => {
-      const { calcularScoreQualidade, calcularScoreConfiabilidade, verificarRegrasAutomaticas, aplicarRegrasBloqueio } = await import("@/components/marketplace/MarketplaceScoreCalculator");
+      const { calcularScoresCompletos } = await import("@/components/marketplace/scoreEngine");
       
-      const scoreQualidade = calcularScoreQualidade(itemData);
-      const scoreConfiabilidade = calcularScoreConfiabilidade(itemData, {
-        dias_cadastrado: 0,
-        vendas_concluidas: 0,
-        avaliacoes_positivas: 0
+      // Calcular scores completos
+      const scores = calcularScoresCompletos(itemData, {
+        identidade_verificada: false,
+        media_avaliacoes: 0,
+        taxa_resposta_rapida: false,
+        total_vendas: 0,
+        dias_cadastrado: 0
       });
-
-      const alertas = verificarRegrasAutomaticas(itemData);
-      const bloqueio = aplicarRegrasBloqueio({ ...itemData, score_qualidade: scoreQualidade, score_confiabilidade: scoreConfiabilidade }, alertas);
 
       const dadosCompletos = {
         ...itemData,
-        score_qualidade: scoreQualidade,
-        score_confiabilidade: scoreConfiabilidade,
-        bloqueado_auto: bloqueio.deve_bloquear,
-        motivo_bloqueio: bloqueio.motivo || null,
-        status: bloqueio.deve_bloquear ? "SUSPENSO" : "ATIVO"
+        score_anuncio: scores.score_anuncio,
+        score_produto: scores.score_produto,
+        score_vendedor: scores.score_vendedor,
+        score_ranking: scores.score_ranking,
+        pode_destacar: scores.pode_destacar,
+        bloqueado_auto: !scores.pode_exibir,
+        motivo_bloqueio: scores.motivos_restricao.join("; ") || null,
+        status: !scores.pode_exibir ? "SUSPENSO" : "ATIVO"
       };
 
       return await base44.entities.MarketplaceItem.create(dadosCompletos);
