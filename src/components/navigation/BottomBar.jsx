@@ -391,16 +391,11 @@ export default function BottomBar() {
                 {/* Fundo circular quando ativo */}
                 {centralActive && (
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full bg-purple-500 opacity-100"></div>
+                    <div className="w-14 h-14 rounded-full bg-purple-500 shadow-xl"></div>
                   </div>
                 )}
 
-                {/* Indicador de ativo */}
-                {centralActive && (
-                  <div className="absolute top-0 w-1.5 h-1.5 rounded-full bg-purple-500"></div>
-                )}
-
-                <CentralIcon className={`w-6 h-6 mb-1 relative z-10 ${centralActive ? "text-white" : "text-purple-500"}`} />
+                <CentralIcon className={`w-6 h-6 mb-1 relative z-10 ${centralActive ? "text-white" : "text-gray-400"}`} />
                 <span className={`text-xs relative z-10 ${centralActive ? "text-purple-500 font-bold" : "text-gray-400"}`}>
                   {botaoCentralConfig.label}
                 </span>
@@ -418,13 +413,8 @@ export default function BottomBar() {
               {/* Fundo circular quando ativo */}
               {active && (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-12 h-12 rounded-full bg-orange-500 opacity-100 shadow-lg"></div>
+                  <div className="w-14 h-14 rounded-full bg-orange-500 shadow-xl"></div>
                 </div>
-              )}
-
-              {/* Indicador de ativo */}
-              {active && (
-                <div className="absolute top-0 w-1.5 h-1.5 rounded-full bg-orange-500"></div>
               )}
 
               <Icon className={`w-6 h-6 mb-1 relative z-10 ${active ? "text-white" : "text-gray-400"}`} />
