@@ -269,15 +269,19 @@ export default function RadarActivationModal({ open, onOpenChange, initialCatego
             </div>
           </div>
 
-          {/* Categoria - AUTOMATICA */}
+          {/* Área - travada pela área do usuário */}
           <div>
-            <Label className="text-base font-bold">Categoria</Label>
-            <div className="flex items-center gap-3 mt-2">
-              <span className="px-4 py-3 bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-700 font-bold rounded-xl border-2 border-orange-200">
-                {userArea === "ODONTOLOGIA" ? "🦷 Odontologia" : "⚕️ Medicina"}
-              </span>
-              <span className="text-sm text-gray-500">Sua área de atuação</span>
+            <Label className="text-base font-bold">Área (definida pelo seu cadastro) *</Label>
+            <div className={`mt-2 p-4 rounded-xl font-bold ${
+              userArea === "ODONTOLOGIA"
+                ? "bg-yellow-100 text-yellow-700 border-2 border-yellow-300"
+                : "bg-blue-100 text-blue-700 border-2 border-blue-300"
+            }`}>
+              {userArea === "ODONTOLOGIA" ? "🦷 Odontologia" : "⚕️ Medicina"}
             </div>
+            <p className="text-xs text-gray-500 mt-1">
+              O radar buscará produtos apenas na sua área profissional
+            </p>
           </div>
 
           {/* Palavras-chave */}
