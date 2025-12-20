@@ -187,11 +187,16 @@ export default function CadastroSucesso() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="text-gray-600 leading-relaxed mb-8 space-y-2"
+          className="text-gray-600 leading-relaxed mb-8 space-y-3"
         >
           <p className="text-base">
             Seu cadastro foi enviado e está em <strong className="text-gray-900">análise</strong>.
           </p>
+          <div className="p-4 bg-blue-50 rounded-xl border-2 border-blue-200">
+            <p className="text-sm text-blue-700 font-semibold">
+              ⏱️ Seu perfil estará ativo em alguns minutos!
+            </p>
+          </div>
           <p className="text-sm">
             Em breve você receberá uma confirmação por e-mail.
           </p>
@@ -204,29 +209,18 @@ export default function CadastroSucesso() {
           <div className="h-1 w-8 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full"></div>
         </div>
 
-        {/* Botões */}
+        {/* Botão */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
-          className="space-y-4"
         >
-          {/* Botão Principal */}
           <button
             onClick={() => navigate(createPageUrl("HomePage"))}
             className="w-full py-4 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold text-lg rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center justify-center gap-2"
           >
             <Home className="w-5 h-5" />
             Ir para o Início
-          </button>
-
-          {/* Botão Secundário */}
-          <button
-            onClick={() => navigate(createPageUrl("Perfil"))}
-            className="w-full py-4 border-2 border-green-400 text-green-600 font-semibold rounded-2xl hover:bg-green-50 transition-all flex items-center justify-center gap-2"
-          >
-            <User className="w-5 h-5" />
-            Ver meu Perfil
           </button>
         </motion.div>
 
