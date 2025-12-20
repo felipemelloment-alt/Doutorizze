@@ -61,6 +61,8 @@ import Cursos from './pages/Cursos';
 import DetalheCurso from './pages/DetalheCurso';
 import MeusAnunciosMarketplace from './pages/MeusAnunciosMarketplace';
 import FeedConfig from './pages/FeedConfig';
+import OnboardingVertical from './pages/OnboardingVertical';
+import OnboardingTipoConta from './pages/OnboardingTipoConta';
 import __Layout from './Layout.jsx';
 
 
@@ -128,6 +130,8 @@ export const PAGES = {
     "DetalheCurso": DetalheCurso,
     "MeusAnunciosMarketplace": MeusAnunciosMarketplace,
     "FeedConfig": FeedConfig,
+    "OnboardingVertical": OnboardingVertical,
+    "OnboardingTipoConta": OnboardingTipoConta,
 }
 
 export const pagesConfig = {

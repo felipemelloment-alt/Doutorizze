@@ -27,6 +27,8 @@ export default function Layout({ children, currentPageName }) {
   }, []);
 
   const paginasSemBottomBar = [
+    "OnboardingVertical",
+    "OnboardingTipoConta",
     "EscolherTipoCadastro",
     "CadastroProfissional",
     "CadastroClinica",

@@ -22,6 +22,32 @@ export default function CadastroProfissional() {
   const navigate = useNavigate();
   const [etapaAtual, setEtapaAtual] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const currentUser = await base44.auth.me();
+        setUser(currentUser);
+
+        // Redirecionar se não tem vertical
+        if (!currentUser.vertical) {
+          navigate(createPageUrl("OnboardingVertical"));
+          return;
+        }
+
+        // Auto-selecionar tipo_profissional baseado no vertical
+        if (currentUser.vertical === "ODONTOLOGIA" && !formData.tipo_profissional) {
+          setFormData(prev => ({ ...prev, tipo_profissional: "DENTISTA" }));
+        } else if (currentUser.vertical === "MEDICINA" && !formData.tipo_profissional) {
+          setFormData(prev => ({ ...prev, tipo_profissional: "MEDICO" }));
+        }
+      } catch (error) {
+        console.error("Erro ao verificar usuário:", error);
+      }
+    };
+    checkUser();
+  }, []);
 
   // Estado do formulário
   const [formData, setFormData] = useState({
@@ -340,6 +366,9 @@ export default function CadastroProfissional() {
 
       await base44.entities.Professional.create(dadosProfissional);
 
+      // Marcar onboarding como completo
+      await base44.auth.updateMe({ onboarding_completo: true });
+
       toast.success("✅ Cadastro realizado com sucesso! Aguarde a aprovação.");
       navigate("/CadastroSucesso");
     } catch (error) {
@@ -364,46 +393,19 @@ export default function CadastroProfissional() {
       case 1:
         return (
           <div className="space-y-6">
-            {/* Tipo de Profissional */}
+            {/* Tipo de Profissional - TRAVADO pelo vertical */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">Você é: *</label>
-              <div className="grid grid-cols-2 gap-4">
-                <div
-                  onClick={() => handleInputChange("tipo_profissional", "DENTISTA")}
-                  className={`border-2 rounded-2xl p-5 cursor-pointer transition-all ${
-                    formData.tipo_profissional === "DENTISTA"
-                      ? "border-yellow-400 bg-yellow-50"
-                      : "border-gray-200 hover:border-yellow-300"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                      formData.tipo_profissional === "DENTISTA" ? "border-yellow-400" : "border-gray-300"
-                    }`}>
-                      {formData.tipo_profissional === "DENTISTA" && (
-                        <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                      )}
-                    </div>
-                    <span className="font-bold text-gray-900">Dentista 🦷</span>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">Você é:</label>
+              <div className="p-5 bg-gradient-to-r from-yellow-100 to-orange-100 border-2 border-yellow-300 rounded-2xl">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-yellow-400 flex items-center justify-center text-2xl">
+                    {user?.vertical === "ODONTOLOGIA" ? "🦷" : "🩺"}
                   </div>
-                </div>
-                <div
-                  onClick={() => handleInputChange("tipo_profissional", "MEDICO")}
-                  className={`border-2 rounded-2xl p-5 cursor-pointer transition-all ${
-                    formData.tipo_profissional === "MEDICO"
-                      ? "border-yellow-400 bg-yellow-50"
-                      : "border-gray-200 hover:border-yellow-300"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                      formData.tipo_profissional === "MEDICO" ? "border-yellow-400" : "border-gray-300"
-                    }`}>
-                      {formData.tipo_profissional === "MEDICO" && (
-                        <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                      )}
-                    </div>
-                    <span className="font-bold text-gray-900">Médico 🩺</span>
+                  <div>
+                    <p className="font-black text-gray-900 text-xl">
+                      {user?.vertical === "ODONTOLOGIA" ? "Dentista" : "Médico"}
+                    </p>
+                    <p className="text-sm text-gray-600">Definido pela sua área de atuação</p>
                   </div>
                 </div>
               </div>
