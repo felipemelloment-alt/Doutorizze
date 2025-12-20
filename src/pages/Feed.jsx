@@ -309,12 +309,12 @@ export default function Feed() {
       console.log("🔍 BUSCANDO CLÍNICAS...");
       console.log("UserType:", userType);
       console.log("UserLocation UF:", userLocation.uf);
-      
+
       if (userType !== "PROFISSIONAL" || !userLocation.uf) {
         console.log("⚠️ Query não executada - userType:", userType, "uf:", userLocation.uf);
         return [];
       }
-      
+
       const units = await base44.entities.CompanyUnit.filter({
         status_cadastro: "APROVADO"
       });
@@ -322,20 +322,44 @@ export default function Feed() {
       console.log("📋 Total clínicas aprovadas:", units.length);
       console.log("📋 Clínicas:", units);
 
+      // Buscar vagas de cada clínica para saber que especialidade procuram
+      const allJobs = await base44.entities.Job.filter({
+        status: "ABERTO"
+      });
+
       // Filtrar por estado e formatar
       const filtered = units
         .filter(u => u.uf === userLocation.uf)
         .slice(0, 20)
-        .map(u => ({
-          id: u.id,
-          nome: u.nome_fantasia || u.nome,
-          foto: u.foto_fachada_url,
-          // ESPECIALIDADE QUE A CLÍNICA BUSCA - usa tipo_mundo (ODONTOLOGIA/MEDICINA)
-          especialidade: u.tipo_mundo === "ODONTOLOGIA" ? "DENTISTA" : u.tipo_mundo === "MEDICINA" ? "MÉDICO" : "PROFISSIONAL",
-          cidade: u.cidade,
-          uf: u.uf,
-          page: "PerfilClinicaPublico"
-        }));
+        .map(u => {
+          // Buscar vagas dessa clínica
+          const unitJobs = allJobs.filter(j => j.unit_id === u.id);
+
+          // Pegar especialidades das vagas abertas
+          let especialidade = "CONTRATANDO";
+          if (unitJobs.length > 0) {
+            // Pega a primeira especialidade da primeira vaga
+            if (unitJobs[0].especialidades_aceitas && unitJobs[0].especialidades_aceitas.length > 0) {
+              especialidade = unitJobs[0].especialidades_aceitas[0];
+            } else {
+              // Se não tem especialidade específica, usa o tipo de profissional
+              especialidade = unitJobs[0].tipo_profissional === "DENTISTA" ? "DENTISTA" : "MÉDICO";
+            }
+          } else {
+            // Se não tem vagas, usa o tipo_mundo
+            especialidade = u.tipo_mundo === "ODONTOLOGIA" ? "DENTISTA" : u.tipo_mundo === "MEDICINA" ? "MÉDICO" : "PROFISSIONAL";
+          }
+
+          return {
+            id: u.id,
+            nome: u.nome_fantasia || u.nome,
+            foto: u.foto_fachada_url,
+            especialidade: especialidade,
+            cidade: u.cidade,
+            uf: u.uf,
+            page: "PerfilClinicaPublico"
+          };
+        });
 
       console.log("✅ Clínicas filtradas por UF", userLocation.uf, ":", filtered.length);
 
