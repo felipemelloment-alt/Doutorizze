@@ -19,12 +19,48 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import CityAutocomplete from "@/components/forms/CityAutocomplete";
+import { useIBGECidades } from "@/components/hooks/useIBGECidades";
 import { toast } from "sonner";
 import { Radar, Zap, Search } from "lucide-react";
+
+const UFS = [
+  { sigla: "AC", nome: "Acre" },
+  { sigla: "AL", nome: "Alagoas" },
+  { sigla: "AP", nome: "Amapá" },
+  { sigla: "AM", nome: "Amazonas" },
+  { sigla: "BA", nome: "Bahia" },
+  { sigla: "CE", nome: "Ceará" },
+  { sigla: "DF", nome: "Distrito Federal" },
+  { sigla: "ES", nome: "Espírito Santo" },
+  { sigla: "GO", nome: "Goiás" },
+  { sigla: "MA", nome: "Maranhão" },
+  { sigla: "MT", nome: "Mato Grosso" },
+  { sigla: "MS", nome: "Mato Grosso do Sul" },
+  { sigla: "MG", nome: "Minas Gerais" },
+  { sigla: "PA", nome: "Pará" },
+  { sigla: "PB", nome: "Paraíba" },
+  { sigla: "PR", nome: "Paraná" },
+  { sigla: "PE", nome: "Pernambuco" },
+  { sigla: "PI", nome: "Piauí" },
+  { sigla: "RJ", nome: "Rio de Janeiro" },
+  { sigla: "RN", nome: "Rio Grande do Norte" },
+  { sigla: "RS", nome: "Rio Grande do Sul" },
+  { sigla: "RO", nome: "Rondônia" },
+  { sigla: "RR", nome: "Roraima" },
+  { sigla: "SC", nome: "Santa Catarina" },
+  { sigla: "SP", nome: "São Paulo" },
+  { sigla: "SE", nome: "Sergipe" },
+  { sigla: "TO", nome: "Tocantins" }
+];
 
 export default function RadarActivationModal({ open, onOpenChange, initialCategory, initialSearch }) {
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
+  const [userArea, setUserArea] = useState(null);
+  const [uf, setUf] = useState("");
+  const [cidade, setCidade] = useState("");
+  const { cidades, loading: cidadesLoading } = useIBGECidades(uf);
 
   const [formData, setFormData] = useState({
     tipo_mundo: initialCategory || "",
@@ -37,15 +73,35 @@ export default function RadarActivationModal({ open, onOpenChange, initialCatego
   });
 
   useEffect(() => {
-    const loadUser = async () => {
+    const loadUserArea = async () => {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
+        
+        // Verificar se é profissional
+        const professionals = await base44.entities.Professional.filter({ user_id: currentUser.id });
+        if (professionals.length > 0) {
+          const tipo = professionals[0].tipo_profissional;
+          setUserArea(tipo === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA");
+          setFormData(prev => ({ ...prev, tipo_mundo: tipo === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA" }));
+          return;
+        }
+        
+        // Verificar se é clínica
+        const owners = await base44.entities.CompanyOwner.filter({ user_id: currentUser.id });
+        if (owners.length > 0) {
+          const units = await base44.entities.CompanyUnit.filter({ owner_id: owners[0].id });
+          if (units.length > 0) {
+            const tipo = units[0].tipo_mundo;
+            setUserArea(tipo);
+            setFormData(prev => ({ ...prev, tipo_mundo: tipo }));
+          }
+        }
       } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
+        console.error("Erro ao carregar área do usuário:", error);
       }
     };
-    loadUser();
+    loadUserArea();
   }, []);
 
   const createRadarMutation = useMutation({
@@ -110,6 +166,28 @@ export default function RadarActivationModal({ open, onOpenChange, initialCatego
     }
   };
 
+  const MAX_VALOR = 9999999.99;
+
+  const formatarMoeda = (valor) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(valor);
+  };
+
+  const handlePrecoChange = (e) => {
+    // Remove tudo exceto números
+    const apenasNumeros = e.target.value.replace(/\D/g, '');
+    const valorNumerico = parseFloat(apenasNumeros) / 100;
+    
+    if (valorNumerico > MAX_VALOR) {
+      toast.error("Valor máximo permitido: R$ 9.999.999,99");
+      return;
+    }
+    
+    setFormData({ ...formData, preco_maximo: apenasNumeros ? valorNumerico.toString() : '' });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -149,20 +227,29 @@ export default function RadarActivationModal({ open, onOpenChange, initialCatego
           {/* Categoria */}
           <div>
             <Label className="text-base font-bold">Categoria *</Label>
-            <Select
-              value={formData.tipo_mundo}
-              onValueChange={(value) =>
-                setFormData({ ...formData, tipo_mundo: value })
-              }
-            >
-              <SelectTrigger className="h-12 rounded-xl border-2 mt-2">
-                <SelectValue placeholder="Selecione" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ODONTOLOGIA">🦷 Odontologia</SelectItem>
-                <SelectItem value="MEDICINA">⚕️ Medicina</SelectItem>
-              </SelectContent>
-            </Select>
+            {userArea ? (
+              <div className="flex items-center gap-3 mt-2">
+                <span className="px-4 py-3 bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-700 font-bold rounded-xl border-2 border-orange-200">
+                  {userArea === "ODONTOLOGIA" ? "🦷 Odontologia" : "⚕️ Medicina"}
+                </span>
+                <span className="text-sm text-gray-500">Sua área de atuação</span>
+              </div>
+            ) : (
+              <Select
+                value={formData.tipo_mundo}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, tipo_mundo: value })
+                }
+              >
+                <SelectTrigger className="h-12 rounded-xl border-2 mt-2">
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ODONTOLOGIA">🦷 Odontologia</SelectItem>
+                  <SelectItem value="MEDICINA">⚕️ Medicina</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           {/* Nome do Produto */}
@@ -178,30 +265,64 @@ export default function RadarActivationModal({ open, onOpenChange, initialCatego
             />
           </div>
 
-          {/* Grid: Preço Máximo e Localização */}
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <Label className="text-base font-bold">Preço máximo (R$)</Label>
+          {/* Preço Máximo */}
+          <div>
+            <Label className="text-base font-bold">Preço máximo (R$)</Label>
+            <div className="relative mt-2">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">R$</span>
               <Input
-                type="number"
-                placeholder="20000"
-                value={formData.preco_maximo}
-                onChange={(e) =>
-                  setFormData({ ...formData, preco_maximo: e.target.value })
-                }
-                className="h-12 text-lg rounded-xl border-2 mt-2"
+                type="text"
+                inputMode="numeric"
+                placeholder="0,00"
+                value={formData.preco_maximo ? formatarMoeda(parseFloat(formData.preco_maximo)).replace('R$', '').trim() : ''}
+                onChange={handlePrecoChange}
+                className="h-12 text-lg rounded-xl border-2 pl-12"
               />
             </div>
+            <p className="text-xs text-gray-500 mt-1">Valor máximo: R$ 9.999.999,99</p>
+          </div>
+
+          {/* Localização */}
+          <div className="space-y-4">
+            {/* Estado (UF) */}
+            <div>
+              <Label className="text-base font-bold">Estado</Label>
+              <Select 
+                value={uf} 
+                onValueChange={(value) => {
+                  setUf(value);
+                  setCidade(""); // Limpar cidade ao mudar estado
+                }}
+              >
+                <SelectTrigger className="h-12 rounded-xl border-2 mt-2">
+                  <SelectValue placeholder="Selecione o estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  {UFS.map((estado) => (
+                    <SelectItem key={estado.sigla} value={estado.sigla}>
+                      {estado.sigla} - {estado.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Cidade */}
             <div>
               <Label className="text-base font-bold">Cidade preferida</Label>
-              <Input
-                placeholder="Goiânia - GO"
-                value={formData.localizacao_preferida}
-                onChange={(e) =>
-                  setFormData({ ...formData, localizacao_preferida: e.target.value })
-                }
-                className="h-12 text-lg rounded-xl border-2 mt-2"
-              />
+              <div className="mt-2">
+                <CityAutocomplete
+                  value={cidade}
+                  onChange={(value) => {
+                    setCidade(value);
+                    setFormData({ ...formData, localizacao_preferida: `${value} - ${uf}` });
+                  }}
+                  cidades={cidades}
+                  loading={cidadesLoading}
+                  disabled={!uf}
+                  placeholder={uf ? "Digite para buscar a cidade" : "Selecione o estado primeiro"}
+                />
+              </div>
             </div>
           </div>
 
