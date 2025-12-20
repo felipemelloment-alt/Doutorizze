@@ -39,7 +39,7 @@ import {
 
 export default function Marketplace() {
   const navigate = useNavigate();
-  const { userArea, loading: loadingUserArea } = useUserArea();
+  const { userArea, isAdmin, loading: loadingUserArea } = useUserArea();
   const [user, setUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCity, setSelectedCity] = useState("all");
@@ -63,21 +63,24 @@ export default function Marketplace() {
     loadUser();
   }, []);
   const { data: items = [], isLoading, isError } = useQuery({
-  queryKey: ["marketplaceItems", userArea],
-  queryFn: async () => {
-    try {
-      const where = { status: "ATIVO", tipo_mundo: userArea };
-      const result = await base44.entities.MarketplaceItem.filter(where);
-      return result || [];
-    } catch (err) {
-      console.error("Error fetching marketplace items:", err);
-      return [];
-    }
-  },
-  enabled: !!userArea,
-  retry: 1,
-  staleTime: 1000 * 60 * 5,
-});
+    queryKey: ["marketplaceItems", userArea, isAdmin],
+    queryFn: async () => {
+      try {
+        // Admin vê tudo, outros usuários veem apenas sua área
+        const where = isAdmin 
+          ? { status: "ATIVO" }
+          : { status: "ATIVO", tipo_mundo: userArea };
+        const result = await base44.entities.MarketplaceItem.filter(where);
+        return result || [];
+      } catch (err) {
+        console.error("Error fetching marketplace items:", err);
+        return [];
+      }
+    },
+    enabled: !!userArea,
+    retry: 1,
+    staleTime: 1000 * 60 * 5,
+  });
 
 
   // Filtrar items
@@ -207,8 +210,19 @@ export default function Marketplace() {
 
         {/* Badge de Área do Usuário */}
         <div className="mb-6 flex justify-center">
-          <div className="px-6 py-3 bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-700 font-bold rounded-2xl border-2 border-orange-200 shadow-lg">
-            {userArea === "ODONTOLOGIA" ? "🦷 Odontologia" : "⚕️ Medicina"}
+          <div className={`px-6 py-3 font-bold rounded-2xl border-2 shadow-lg ${
+            isAdmin 
+              ? "bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 border-purple-300"
+              : userArea === "ODONTOLOGIA"
+                ? "bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-700 border-orange-200"
+                : "bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 border-blue-200"
+          }`}>
+            {isAdmin 
+              ? "👑 Modo Admin - Todas as Áreas" 
+              : userArea === "ODONTOLOGIA" 
+                ? "🦷 Odontologia" 
+                : "⚕️ Medicina"
+            }
           </div>
         </div>
 

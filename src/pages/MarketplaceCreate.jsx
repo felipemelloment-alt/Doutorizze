@@ -70,7 +70,7 @@ export default function MarketplaceCreate() {
 
         let tipoDetectado = currentUser.tipo_conta;
         let telefone = "";
-        let areaForcada = currentUser.vertical;
+        let areaForcada = currentUser.vertical; // SEMPRE partir do vertical do user
 
         // Buscar dados específicos
         if (currentUser.tipo_conta === "PROFISSIONAL") {
@@ -78,20 +78,23 @@ export default function MarketplaceCreate() {
           if (profs.length > 0) {
             telefone = profs[0].whatsapp;
           }
+          // Profissional NUNCA escolhe tipo_mundo, vem do vertical
         } else if (currentUser.tipo_conta === "CLINICA") {
           const owners = await base44.entities.CompanyOwner.filter({ user_id: currentUser.id });
           if (owners.length > 0) {
             const units = await base44.entities.CompanyUnit.filter({ owner_id: owners[0].id });
             if (units.length > 0) {
               telefone = units[0].whatsapp;
-              areaForcada = units[0].tipo_mundo;
+              areaForcada = units[0].tipo_mundo; // Clínica pode ter tipo_mundo específico
             }
           }
+          // Se não encontrou unidade, usa vertical do user
         } else if (currentUser.tipo_conta === "FORNECEDOR") {
           const suppliers = await base44.entities.Supplier.filter({ user_id: currentUser.id });
           if (suppliers.length > 0) {
             telefone = suppliers[0].whatsapp;
-            areaForcada = suppliers[0].area_atuacao || currentUser.vertical;
+            // Fornecedor: se area_atuacao = "AMBOS", pode escolher; senão, travado
+            areaForcada = suppliers[0].area_atuacao === "AMBOS" ? currentUser.vertical : suppliers[0].area_atuacao;
           }
         }
 
@@ -335,29 +338,21 @@ export default function MarketplaceCreate() {
 
             {/* Área - Travada ou Selecionável */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Área</label>
-              {userType === "FORNECEDOR" ? (
-                <select
-                  value={formData.tipo_mundo}
-                  onChange={(e) => {
-                    handleInputChange("tipo_mundo", e.target.value);
-                    handleInputChange("categoria", "");
-                    handleInputChange("subcategoria", "");
-                  }}
-                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 appearance-none bg-white cursor-pointer transition-all outline-none"
-                >
-                  <option value="ODONTOLOGIA">🦷 Odontologia</option>
-                  <option value="MEDICINA">🩺 Medicina</option>
-                </select>
-              ) : (
-                <div className={`p-4 rounded-xl font-bold ${
-                  formData.tipo_mundo === "ODONTOLOGIA"
-                    ? "bg-yellow-100 text-yellow-700"
-                    : "bg-blue-100 text-blue-700"
-                }`}>
-                  {formData.tipo_mundo === "ODONTOLOGIA" ? "🦷 Odontologia" : "🩺 Medicina"}
-                </div>
-              )}
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Área {userType === "PROFISSIONAL" || userType === "CLINICA" ? "(travada pelo seu cadastro)" : ""}
+              </label>
+              <div className={`p-4 rounded-xl font-bold ${
+                formData.tipo_mundo === "ODONTOLOGIA"
+                  ? "bg-yellow-100 text-yellow-700"
+                  : "bg-blue-100 text-blue-700"
+              }`}>
+                {formData.tipo_mundo === "ODONTOLOGIA" ? "🦷 Odontologia" : "🩺 Medicina"}
+              </div>
+              {userType === "PROFISSIONAL" || userType === "CLINICA" ? (
+                <p className="text-xs text-gray-500 mt-1">
+                  Seu anúncio será visível apenas na sua área profissional
+                </p>
+              ) : null}
             </div>
 
             {/* Categoria */}

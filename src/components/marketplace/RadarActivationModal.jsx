@@ -64,7 +64,7 @@ export default function RadarActivationModal({ open, onOpenChange, initialCatego
   const { cidades, loading: cidadesLoading } = useIBGECidades(uf);
 
   const [formData, setFormData] = useState({
-    tipo_mundo: initialCategory || "",
+    tipo_mundo: initialCategory || userArea || "",
     categoria: "",
     subcategoria: "",
     keywords: initialSearch ? [initialSearch] : [],
@@ -78,6 +78,13 @@ export default function RadarActivationModal({ open, onOpenChange, initialCatego
     notificar_whatsapp: true,
     observacoes: "",
   });
+
+  // Atualizar tipo_mundo quando userArea mudar
+  useEffect(() => {
+    if (userArea && !formData.tipo_mundo) {
+      setFormData(prev => ({ ...prev, tipo_mundo: userArea }));
+    }
+  }, [userArea]);
 
   const [keywordInput, setKeywordInput] = useState("");
 
