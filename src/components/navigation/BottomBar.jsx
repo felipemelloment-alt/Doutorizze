@@ -107,18 +107,24 @@ export default function BottomBar() {
   const getBotaoCentralConfig = (pathname, userType) => {
     const path = pathname.toLowerCase();
     
-    if (path.includes("feed") && !path.includes("config")) {
+    // ============================================
+    // FEED e CONFIGURAÇÕES
+    // ============================================
+    if (path.includes("feed") || path.includes("configuracoes") || path.includes("configura")) {
       return { 
         icon: Settings, 
         label: "Config", 
-        page: "FeedConfig",
+        page: "Configuracoes",
         iconColor: "text-purple-500",
         activeColor: "text-purple-500",
         bgColor: "bg-purple-500"
       };
     }
     
-    if (path.includes("newjobs")) {
+    // ============================================
+    // VAGAS (NewJobs + páginas relacionadas)
+    // ============================================
+    if (path.includes("newjobs") || path.includes("criarvaga") || path.includes("editarvaga")) {
       if (userType === "CLINICA" || userType === "HOSPITAL") {
         return { 
           icon: Plus, 
@@ -139,50 +145,19 @@ export default function BottomBar() {
       };
     }
     
-    if (path.includes("marketplace") && !path.includes("create") && !path.includes("detail") && !path.includes("meusanuncios")) {
+    // MinhasCandidaturas (profissional)
+    if (path.includes("minhascandidaturas")) {
       return { 
-        icon: MessageCircle, 
-        label: "Meus", 
-        page: "MeusAnunciosMarketplace",
-        iconColor: "text-orange-500",
-        activeColor: "text-orange-500",
-        bgColor: "bg-orange-500"
+        icon: Briefcase, 
+        label: "Aplicar", 
+        page: "MinhasCandidaturas",
+        iconColor: "text-blue-500",
+        activeColor: "text-blue-500",
+        bgColor: "bg-blue-500"
       };
     }
     
-    if (path.includes("meusanunciosmarketplace")) {
-      return { 
-        icon: Plus, 
-        label: "Anunciar", 
-        page: "MarketplaceCreate",
-        iconColor: "text-yellow-500",
-        activeColor: "text-yellow-500",
-        bgColor: "bg-yellow-500"
-      };
-    }
-    
-    if (path.includes("meuperfil")) {
-      return { 
-        icon: Edit, 
-        label: "Editar", 
-        page: "EditarPerfil",
-        iconColor: "text-pink-500",
-        activeColor: "text-pink-500",
-        bgColor: "bg-pink-500"
-      };
-    }
-    
-    if (path.includes("perfilclinica")) {
-      return { 
-        icon: Edit, 
-        label: "Editar", 
-        page: "EditarClinica",
-        iconColor: "text-pink-500",
-        activeColor: "text-pink-500",
-        bgColor: "bg-pink-500"
-      };
-    }
-    
+    // MinhasVagas (clínica)
     if (path.includes("minhasvagas")) {
       return { 
         icon: Plus, 
@@ -194,6 +169,62 @@ export default function BottomBar() {
       };
     }
     
+    // ============================================
+    // MARKETPLACE
+    // ============================================
+    if (path.includes("marketplace") && !path.includes("create") && !path.includes("detail") && !path.includes("meusanuncios")) {
+      return { 
+        icon: MessageCircle, 
+        label: "Meus", 
+        page: "MeusAnunciosMarketplace",
+        iconColor: "text-orange-500",
+        activeColor: "text-orange-500",
+        bgColor: "bg-orange-500"
+      };
+    }
+    
+    // MeusAnunciosMarketplace OU MarketplaceCreate
+    if (path.includes("meusanunciosmarketplace") || path.includes("marketplacecreate") || (path.includes("marketplace") && path.includes("create"))) {
+      return { 
+        icon: Plus, 
+        label: "Anunciar", 
+        page: "MarketplaceCreate",
+        iconColor: "text-yellow-500",
+        activeColor: "text-yellow-500",
+        bgColor: "bg-yellow-500"
+      };
+    }
+    
+    // ============================================
+    // PERFIL
+    // ============================================
+    // MeuPerfil OU EditarPerfil (profissional)
+    if (path.includes("meuperfil") || path.includes("editarperfil")) {
+      return { 
+        icon: Edit, 
+        label: "Editar", 
+        page: "EditarPerfil",
+        iconColor: "text-pink-500",
+        activeColor: "text-pink-500",
+        bgColor: "bg-pink-500"
+      };
+    }
+    
+    // PerfilClinica OU EditarClinica (clínica)
+    if (path.includes("perfilclinica") || path.includes("editarclinica")) {
+      return { 
+        icon: Edit, 
+        label: "Editar", 
+        page: "EditarClinica",
+        iconColor: "text-pink-500",
+        activeColor: "text-pink-500",
+        bgColor: "bg-pink-500"
+      };
+    }
+    
+    // ============================================
+    // BUSCAR PROFISSIONAIS
+    // ============================================
     if (path.includes("buscarprofissionais")) {
       return { 
         icon: Filter, 
@@ -206,7 +237,10 @@ export default function BottomBar() {
       };
     }
     
-    if (path.includes("minhaspromocoes")) {
+    // ============================================
+    // FORNECEDOR
+    // ============================================
+    if (path.includes("minhaspromocoes") || path.includes("criarpromocao") || path.includes("dashboardfornecedor") || path.includes("perfilfornecedor")) {
       return { 
         icon: Plus, 
         label: "Promo", 
@@ -217,7 +251,10 @@ export default function BottomBar() {
       };
     }
     
-    if (path.includes("meuscursos")) {
+    // ============================================
+    // INSTITUIÇÃO
+    // ============================================
+    if (path.includes("meuscursos") || path.includes("criarcurso") || path.includes("dashboardinstituicao") || path.includes("perfilinstituicao")) {
       return { 
         icon: Plus, 
         label: "Curso", 
@@ -228,6 +265,23 @@ export default function BottomBar() {
       };
     }
     
+    // ============================================
+    // HOSPITAL
+    // ============================================
+    if (path.includes("dashboardhospital") || path.includes("candidatoshospital")) {
+      return { 
+        icon: Plus, 
+        label: "Vaga", 
+        page: "CriarVaga",
+        iconColor: "text-green-500",
+        activeColor: "text-green-500",
+        bgColor: "bg-green-500"
+      };
+    }
+    
+    // ============================================
+    // DEFAULT
+    // ============================================
     return { 
       icon: PlusCircle, 
       label: "Criar", 
