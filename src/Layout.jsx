@@ -43,6 +43,19 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <>
+      <style>{`
+        body, html, #root {
+          overflow-x: hidden !important;
+        }
+        body::-webkit-scrollbar {
+          display: none;
+        }
+        * {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
+      
       <AnimatePresence>
         {loading && <SplashScreen />}
       </AnimatePresence>
