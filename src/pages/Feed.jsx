@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
@@ -24,50 +24,39 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-// Componente do Banner Stories com Auto-scroll
+// Componente do Banner Stories com Auto-scroll INFINITO
 function StoriesBanner({ items, userType, onItemClick }) {
   const scrollRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false);
-  const [scrollPosition, setScrollPosition] = useState(0);
 
-  // Auto-scroll effect
+  // Auto-scroll INFINITO
   useEffect(() => {
     if (!scrollRef.current || isPaused || items.length === 0) return;
 
     const container = scrollRef.current;
-    const scrollWidth = container.scrollWidth;
-    const clientWidth = container.clientWidth;
-    const maxScroll = scrollWidth - clientWidth;
+    
+    const animate = () => {
+      if (!container || isPaused) return;
+      
+      // Incrementa scroll
+      container.scrollLeft += 0.5; // Velocidade bem lenta
+      
+      // Quando chega no final, volta ao início suavemente
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      if (container.scrollLeft >= maxScroll) {
+        container.scrollLeft = 0;
+      }
+    };
 
-    const interval = setInterval(() => {
-      setScrollPosition((prev) => {
-        const newPos = prev + 1;
-        if (newPos >= maxScroll) {
-          return 0;
-        }
-        return newPos;
-      });
-    }, 30);
+    const interval = setInterval(animate, 20); // 20ms para movimento super suave
 
     return () => clearInterval(interval);
   }, [isPaused, items.length]);
 
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollLeft = scrollPosition;
-    }
-  }, [scrollPosition]);
-
-  const handleTouchStart = () => {
-    setIsPaused(true);
-  };
-
-  const handleTouchEnd = () => {
-    setTimeout(() => setIsPaused(false), 3000);
-  };
-
-  const handleScroll = (e) => {
-    setScrollPosition(e.target.scrollLeft);
+  // Pausar quando usuário interage
+  const handleInteractionStart = () => setIsPaused(true);
+  const handleInteractionEnd = () => {
+    setTimeout(() => setIsPaused(false), 3000); // Retoma após 3s
   };
 
   if (items.length === 0) return null;
@@ -78,38 +67,51 @@ function StoriesBanner({ items, userType, onItemClick }) {
 
   return (
     <div className="bg-white py-4 mb-4 shadow-sm">
+      {/* Título */}
       <div className="px-4 mb-3">
         <h2 className="text-center font-black text-lg text-red-600 tracking-wide">
           {titulo}
         </h2>
       </div>
 
+      {/* Carrossel SEM BARRA DE SCROLL */}
       <div
         ref={scrollRef}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-        onMouseDown={handleTouchStart}
-        onMouseUp={handleTouchEnd}
-        onMouseLeave={handleTouchEnd}
-        onScroll={handleScroll}
-        className="flex gap-4 px-4 overflow-x-auto scrollbar-hide"
-        style={{ scrollBehavior: 'auto' }}
+        onTouchStart={handleInteractionStart}
+        onTouchEnd={handleInteractionEnd}
+        onMouseDown={handleInteractionStart}
+        onMouseUp={handleInteractionEnd}
+        onMouseLeave={handleInteractionEnd}
+        className="flex gap-6 px-4 overflow-x-auto"
+        style={{ 
+          scrollBehavior: 'auto',
+          msOverflowStyle: 'none',  /* IE e Edge */
+          scrollbarWidth: 'none'    /* Firefox */
+        }}
       >
+        {/* CSS para esconder scrollbar no Chrome/Safari */}
+        <style>{`
+          div::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
+
         {items.map((item, index) => (
-          <motion.button
+          <button
             key={item.id || index}
             onClick={() => onItemClick(item)}
-            whileTap={{ scale: 0.95 }}
-            className="flex-shrink-0 flex flex-col items-center min-w-[100px]"
+            className="flex-shrink-0 flex flex-col items-center min-w-[90px] transition-transform active:scale-95"
           >
+            {/* Localização */}
             <div className="flex items-center gap-1 mb-1">
               <MapPin className="w-3 h-3 text-red-500" />
-              <span className="text-xs text-gray-600 font-medium truncate max-w-[90px]">
+              <span className="text-[10px] text-gray-600 font-medium truncate max-w-[80px]">
                 {item.cidade} - {item.uf}
               </span>
             </div>
 
-            <div className="relative">
+            {/* Foto circular com borda gradiente */}
+            <div className="relative mb-1">
               <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500">
                 <div className="w-full h-full rounded-full overflow-hidden bg-white p-[2px]">
                   {item.foto ? (
@@ -129,26 +131,30 @@ function StoriesBanner({ items, userType, onItemClick }) {
               </div>
             </div>
 
-            <span className="text-xs font-bold text-gray-900 mt-1 truncate max-w-[100px] text-center">
+            {/* Nome */}
+            <span className="text-[11px] font-bold text-gray-900 truncate max-w-[90px] text-center leading-tight">
               {item.nome}
             </span>
 
-            <span className="text-[10px] text-green-600 font-semibold truncate max-w-[100px] uppercase">
+            {/* ESPECIALIDADE em verde (não "CLINICA") */}
+            <span className="text-[10px] text-green-600 font-bold truncate max-w-[90px] uppercase">
               {item.especialidade}
             </span>
 
+            {/* Tipo de trabalho (só para profissionais) */}
             {item.tipo_trabalho && (
-              <span className="mt-1 px-2 py-0.5 bg-yellow-100 text-yellow-700 text-[10px] font-bold rounded-full">
+              <span className="mt-1 px-2 py-0.5 bg-yellow-100 text-yellow-700 text-[9px] font-bold rounded-full">
                 {item.tipo_trabalho}
               </span>
             )}
-          </motion.button>
+          </button>
         ))}
       </div>
     </div>
   );
 }
 
+// Tipos de post do feed
 const tipoPostConfig = {
   NOVIDADE: { icon: Sparkles, color: "text-purple-500", bgColor: "bg-purple-50", label: "Novidade" },
   NOTICIA_SAUDE: { icon: Heart, color: "text-red-500", bgColor: "bg-red-50", label: "Saúde" },
@@ -161,34 +167,24 @@ const tipoPostConfig = {
 
 export default function Feed() {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
   const [userType, setUserType] = useState(null);
   const [userLocation, setUserLocation] = useState({ cidade: null, uf: null });
-  const [feedPreferences, setFeedPreferences] = useState(null);
 
-  // Carregar dados do usuário e preferências
+  // Carregar dados do usuário
   useEffect(() => {
     const loadUserData = async () => {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
 
-        // Carregar preferências do feed
-        const prefs = await base44.entities.NotificationPreference.filter({ 
-          created_by: currentUser.email 
-        });
-        if (prefs.length > 0) {
-          setFeedPreferences(prefs[0]);
-        }
-
         // Verificar tipo de usuário e localização
         const professionals = await base44.entities.Professional.filter({ user_id: currentUser.id });
         if (professionals.length > 0) {
           setUserType("PROFISSIONAL");
           setUserLocation({
-            cidade: professionals[0].cidades_atendimento?.[0]?.split(' - ')[0] || professionals[0].cidade,
-            uf: professionals[0].uf_conselho || professionals[0].uf
+            cidade: professionals[0].cidade,
+            uf: professionals[0].uf || professionals[0].estado
           });
           return;
         }
@@ -200,7 +196,7 @@ export default function Feed() {
           if (units.length > 0) {
             setUserLocation({
               cidade: units[0].cidade,
-              uf: units[0].uf
+              uf: units[0].uf || units[0].estado
             });
           }
           return;
@@ -217,7 +213,7 @@ export default function Feed() {
           setUserType("HOSPITAL");
           setUserLocation({
             cidade: hospitals[0].cidade,
-            uf: hospitals[0].uf
+            uf: hospitals[0].uf || hospitals[0].estado
           });
           return;
         }
@@ -229,7 +225,7 @@ export default function Feed() {
     loadUserData();
   }, []);
 
-  // Buscar profissionais próximos (para clínicas)
+  // Buscar profissionais próximos (para clínicas verem)
   const { data: profissionaisProximos = [] } = useQuery({
     queryKey: ["profissionaisProximos", userLocation.uf],
     queryFn: async () => {
@@ -239,24 +235,36 @@ export default function Feed() {
         status_cadastro: "APROVADO"
       });
 
-      return profissionais
+      // Filtrar por estado e formatar - MÍNIMO 6 itens
+      const filtered = profissionais
         .filter(p => p.uf_conselho === userLocation.uf)
         .slice(0, 20)
         .map(p => ({
           id: p.id,
-          nome: p.nome_completo,
+          nome: p.nome_completo || p.nome,
           foto: p.selfie_documento_url,
-          especialidade: p.especialidade_principal,
+          especialidade: p.especialidade_principal || p.especialidade || "DENTISTA",
           cidade: p.cidades_atendimento?.[0]?.split(' - ')[0] || "N/A",
           uf: p.uf_conselho,
           tipo_trabalho: p.aceita_freelance ? "FREELANCE" : "FIXO",
           page: "VerProfissional"
         }));
+
+      // Se tiver menos de 6, duplicar para ter mais no carrossel
+      if (filtered.length > 0 && filtered.length < 6) {
+        const duplicated = [...filtered];
+        while (duplicated.length < 6) {
+          duplicated.push(...filtered.map(item => ({ ...item, id: `${item.id}-dup-${duplicated.length}` })));
+        }
+        return duplicated.slice(0, 12);
+      }
+
+      return filtered;
     },
     enabled: userType === "CLINICA" && !!userLocation.uf
   });
 
-  // Buscar clínicas próximas (para profissionais)
+  // Buscar clínicas próximas (para profissionais verem)
   const { data: clinicasProximas = [] } = useQuery({
     queryKey: ["clinicasProximas", userLocation.uf],
     queryFn: async () => {
@@ -266,24 +274,37 @@ export default function Feed() {
         status_cadastro: "APROVADO"
       });
 
-      return units
+      // Filtrar por estado e formatar
+      const filtered = units
         .filter(u => u.uf === userLocation.uf)
         .slice(0, 20)
         .map(u => ({
           id: u.id,
-          nome: u.nome_fantasia,
+          nome: u.nome_fantasia || u.nome,
           foto: u.foto_fachada_url,
-          especialidade: u.tipo_empresa,
+          // ESPECIALIDADE QUE A CLÍNICA BUSCA (não apenas "CLINICA")
+          especialidade: u.tipo_empresa || "ODONTOLOGIA",
           cidade: u.cidade,
           uf: u.uf,
           page: "PerfilClinicaPublico"
         }));
+
+      // Se tiver menos de 6, duplicar para ter mais no carrossel
+      if (filtered.length > 0 && filtered.length < 6) {
+        const duplicated = [...filtered];
+        while (duplicated.length < 6) {
+          duplicated.push(...filtered.map(item => ({ ...item, id: `${item.id}-dup-${duplicated.length}` })));
+        }
+        return duplicated.slice(0, 12);
+      }
+
+      return filtered;
     },
     enabled: userType === "PROFISSIONAL" && !!userLocation.uf
   });
 
   // Buscar posts do feed
-  const { data: allPosts = [], isLoading, refetch } = useQuery({
+  const { data: posts = [], isLoading } = useQuery({
     queryKey: ["feedPosts"],
     queryFn: async () => {
       const feedPosts = await base44.entities.FeedPost.filter({ ativo: true });
@@ -295,42 +316,19 @@ export default function Feed() {
     }
   });
 
-  // Filtrar posts baseado nas preferências do FeedConfig
-  const posts = React.useMemo(() => {
-    if (!feedPreferences || !allPosts.length) return allPosts;
-
-    const tiposAtivos = feedPreferences.tipos_conteudo_ativos || [];
-    const apenasMeuEstado = feedPreferences.apenas_meu_estado || false;
-
-    return allPosts.filter(post => {
-      const tipoMap = {
-        'NOVIDADE': 'novidades',
-        'NOTICIA_SAUDE': 'noticias',
-        'NOTICIA_IA': 'noticias',
-        'PARCEIRO': 'novidades',
-        'PROMOCAO': 'promocoes',
-        'CURSO': 'cursos',
-        'DESTAQUE_MARKETPLACE': 'marketplace'
-      };
-
-      const tipoPreferencia = tipoMap[post.tipo_post];
-      
-      if (tiposAtivos.length === 0) return true;
-      
-      const tipoAtivo = tiposAtivos.includes(tipoPreferencia);
-      
-      if (apenasMeuEstado && userLocation.uf) {
-        const postUf = post.localizacao?.split(' - ')[1] || post.uf;
-        const regiaoMatch = postUf === userLocation.uf;
-        return tipoAtivo && regiaoMatch;
-      }
-
-      return tipoAtivo;
-    });
-  }, [allPosts, feedPreferences, userLocation.uf]);
-
   // Handler para clique no item do banner
   const handleBannerItemClick = (item) => {
+    // Ignorar cliques em itens duplicados
+    if (String(item.id).includes('-dup-')) {
+      const realId = String(item.id).split('-dup-')[0];
+      if (item.page === "VerProfissional") {
+        navigate(createPageUrl("VerProfissional") + `?id=${realId}`);
+      } else if (item.page === "PerfilClinicaPublico") {
+        navigate(createPageUrl("PerfilClinicaPublico") + `?id=${realId}`);
+      }
+      return;
+    }
+
     if (item.page === "VerProfissional") {
       navigate(createPageUrl("VerProfissional") + `?id=${item.id}`);
     } else if (item.page === "PerfilClinicaPublico") {
@@ -338,36 +336,19 @@ export default function Feed() {
     }
   };
 
+  // Determinar itens do banner baseado no tipo de usuário
   const bannerItems = userType === "CLINICA" ? profissionaisProximos : clinicasProximas;
 
-  const curtirMutation = useMutation({
-    mutationFn: async (postId) => {
-      const post = allPosts.find(p => p.id === postId);
-      return await base44.entities.FeedPost.update(postId, {
-        curtidas: (post.curtidas || 0) + 1
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["feedPosts"] });
-      toast.success("❤️ Curtido!");
-    }
-  });
-
-  const incrementarVisualizacoesMutation = useMutation({
-    mutationFn: async (postId) => {
-      const post = allPosts.find(p => p.id === postId);
-      return await base44.entities.FeedPost.update(postId, {
-        visualizacoes: (post.visualizacoes || 0) + 1
-      });
-    }
-  });
+  const handleLike = async (postId) => {
+    toast.success("Curtido!");
+  };
 
   const handleShare = async (post) => {
     if (navigator.share) {
       try {
         await navigator.share({
           title: post.titulo,
-          text: post.descricao,
+          text: post.resumo,
           url: window.location.href
         });
       } catch (error) {
@@ -378,35 +359,6 @@ export default function Feed() {
       toast.success("Link copiado!");
     }
   };
-
-  const handleAbrirLink = (post) => {
-    incrementarVisualizacoesMutation.mutate(post.id);
-    
-    if (post.link_interno) {
-      navigate(createPageUrl(post.link_interno));
-    } else if (post.link_externo) {
-      window.open(post.link_externo, "_blank");
-    }
-  };
-
-  const getTimeAgo = (date) => {
-    try {
-      return formatDistanceToNow(new Date(date), { addSuffix: true, locale: ptBR });
-    } catch {
-      return "Recente";
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-orange-500 mx-auto mb-4"></div>
-          <p className="text-gray-600 font-semibold">Carregando feed...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
@@ -426,7 +378,7 @@ export default function Feed() {
         </div>
       </div>
 
-      {/* Banner Stories */}
+      {/* Banner Stories - AUTO-SCROLL INFINITO */}
       <div className="-mt-4">
         <StoriesBanner
           items={bannerItems}
@@ -437,7 +389,16 @@ export default function Feed() {
 
       {/* Lista de Posts */}
       <div className="px-4 space-y-4">
-        {posts.length === 0 ? (
+        {isLoading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-2xl p-4 animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            ))}
+          </div>
+        ) : posts.length === 0 ? (
           <div className="bg-white rounded-3xl p-8 text-center shadow-lg">
             <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Newspaper className="w-10 h-10 text-gray-400" />
@@ -483,7 +444,7 @@ export default function Feed() {
                       {config.label}
                     </span>
                     <span className="text-xs text-gray-400">
-                      {getTimeAgo(post.created_date)}
+                      {formatDistanceToNow(new Date(post.created_date), { addSuffix: true, locale: ptBR })}
                     </span>
                   </div>
 
@@ -498,7 +459,7 @@ export default function Feed() {
                   <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                     <div className="flex items-center gap-4">
                       <button
-                        onClick={() => curtirMutation.mutate(post.id)}
+                        onClick={() => handleLike(post.id)}
                         className="flex items-center gap-1 text-gray-500 hover:text-red-500 transition-colors"
                       >
                         <Heart className="w-5 h-5" />
@@ -519,14 +480,16 @@ export default function Feed() {
                         <Share2 className="w-5 h-5 text-gray-500" />
                       </button>
 
-                      {(post.link_externo || post.link_interno) && (
-                        <button
-                          onClick={() => handleAbrirLink(post)}
+                      {post.link_externo && (
+                        <a
+                          href={post.link_externo}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-sm font-bold rounded-full hover:shadow-lg transition-all"
                         >
                           Ver mais
                           <ExternalLink className="w-4 h-4" />
-                        </button>
+                        </a>
                       )}
                     </div>
                   </div>
@@ -536,18 +499,6 @@ export default function Feed() {
           })
         )}
       </div>
-
-      {/* Pull to Refresh */}
-      {posts.length > 0 && (
-        <div className="fixed bottom-24 right-6 z-50">
-          <button
-            onClick={() => refetch()}
-            className="w-14 h-14 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition-all"
-          >
-            <span className="text-2xl">🔄</span>
-          </button>
-        </div>
-      )}
     </div>
   );
 }
