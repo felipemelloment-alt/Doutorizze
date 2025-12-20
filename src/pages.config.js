@@ -59,6 +59,7 @@ import CriarCurso from './pages/CriarCurso';
 import MeusCursos from './pages/MeusCursos';
 import Cursos from './pages/Cursos';
 import DetalheCurso from './pages/DetalheCurso';
+import MeusAnunciosMarketplace from './pages/MeusAnunciosMarketplace';
 import __Layout from './Layout.jsx';
 
 
@@ -124,6 +125,7 @@ export const PAGES = {
     "MeusCursos": MeusCursos,
     "Cursos": Cursos,
     "DetalheCurso": DetalheCurso,
+    "MeusAnunciosMarketplace": MeusAnunciosMarketplace,
 }
 
 export const pagesConfig = {
