@@ -23,6 +23,30 @@ export default function CadastroClinica() {
   const [etapaAtual, setEtapaAtual] = useState(1);
   const [loading, setLoading] = useState(false);
   const [buscandoCep, setBuscandoCep] = useState(false);
+  const [user, setUser] = useState(null);
+
+  React.useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const currentUser = await base44.auth.me();
+        setUser(currentUser);
+
+        // Redirecionar se não tem vertical
+        if (!currentUser.vertical) {
+          navigate("/OnboardingVertical");
+          return;
+        }
+
+        // Auto-preencher tipo_mundo baseado no vertical
+        if (currentUser.vertical && !formData.tipo_mundo) {
+          setFormData(prev => ({ ...prev, tipo_mundo: currentUser.vertical }));
+        }
+      } catch (error) {
+        console.error("Erro ao verificar usuário:", error);
+      }
+    };
+    checkUser();
+  }, []);
 
   // Estado do formulário
   const [formData, setFormData] = useState({
@@ -352,6 +376,9 @@ export default function CadastroClinica() {
 
       await base44.entities.CompanyUnit.create(dadosUnit);
 
+      // Marcar onboarding como completo
+      await base44.auth.updateMe({ onboarding_completo: true });
+
       toast.success("✅ Cadastro realizado com sucesso! Aguarde a aprovação.");
       navigate("/CadastroSucesso");
     } catch (error) {
@@ -376,46 +403,19 @@ export default function CadastroClinica() {
       case 1:
         return (
           <div className="space-y-6">
-            {/* Tipo de Clínica */}
+            {/* Tipo de Clínica - TRAVADO pelo vertical */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">Tipo de Clínica: *</label>
-              <div className="grid grid-cols-2 gap-4">
-                <div
-                  onClick={() => handleInputChange("tipo_mundo", "ODONTOLOGIA")}
-                  className={`border-2 rounded-2xl p-5 cursor-pointer transition-all ${
-                    formData.tipo_mundo === "ODONTOLOGIA"
-                      ? "border-pink-400 bg-pink-50"
-                      : "border-gray-200 hover:border-pink-300"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                      formData.tipo_mundo === "ODONTOLOGIA" ? "border-pink-400" : "border-gray-300"
-                    }`}>
-                      {formData.tipo_mundo === "ODONTOLOGIA" && (
-                        <div className="w-3 h-3 rounded-full bg-pink-400"></div>
-                      )}
-                    </div>
-                    <span className="font-bold text-gray-900">Odontologia 🦷</span>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">Tipo de Clínica:</label>
+              <div className="p-5 bg-gradient-to-r from-pink-100 to-red-100 border-2 border-pink-300 rounded-2xl">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-pink-500 flex items-center justify-center text-2xl">
+                    {user?.vertical === "ODONTOLOGIA" ? "🦷" : "🩺"}
                   </div>
-                </div>
-                <div
-                  onClick={() => handleInputChange("tipo_mundo", "MEDICINA")}
-                  className={`border-2 rounded-2xl p-5 cursor-pointer transition-all ${
-                    formData.tipo_mundo === "MEDICINA"
-                      ? "border-pink-400 bg-pink-50"
-                      : "border-gray-200 hover:border-pink-300"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                      formData.tipo_mundo === "MEDICINA" ? "border-pink-400" : "border-gray-300"
-                    }`}>
-                      {formData.tipo_mundo === "MEDICINA" && (
-                        <div className="w-3 h-3 rounded-full bg-pink-400"></div>
-                      )}
-                    </div>
-                    <span className="font-bold text-gray-900">Medicina 🩺</span>
+                  <div>
+                    <p className="font-black text-gray-900 text-xl">
+                      {user?.vertical === "ODONTOLOGIA" ? "Clínica Odontológica" : "Clínica Médica"}
+                    </p>
+                    <p className="text-sm text-gray-600">Definido pela sua área de atuação</p>
                   </div>
                 </div>
               </div>
