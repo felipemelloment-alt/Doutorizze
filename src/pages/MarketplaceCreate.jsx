@@ -1,614 +1,876 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue } from
-"@/components/ui/select";
-import CityAutocomplete from "@/components/forms/CityAutocomplete";
-import { useIBGECidades } from "@/components/hooks/useIBGECidades";
-import RadarInterestsModal from "../components/marketplace/RadarInterestsModal";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { ArrowLeft, Upload, X, Check, Users, Radar, Zap, Camera, ShoppingBag, MapPin, Phone } from "lucide-react";
+import {
+  ChevronLeft,
+  Upload,
+  X,
+  CheckCircle2,
+  ArrowRight,
+  Camera,
+  Video,
+  Phone,
+  AlertCircle
+} from "lucide-react";
+import { getCatalogo, getCamposDinamicos } from "@/components/marketplace/catalogoMarketplace";
 
-const UFS = [
-  { sigla: "AC", nome: "Acre" },
-  { sigla: "AL", nome: "Alagoas" },
-  { sigla: "AP", nome: "Amapá" },
-  { sigla: "AM", nome: "Amazonas" },
-  { sigla: "BA", nome: "Bahia" },
-  { sigla: "CE", nome: "Ceará" },
-  { sigla: "DF", nome: "Distrito Federal" },
-  { sigla: "ES", nome: "Espírito Santo" },
-  { sigla: "GO", nome: "Goiás" },
-  { sigla: "MA", nome: "Maranhão" },
-  { sigla: "MT", nome: "Mato Grosso" },
-  { sigla: "MS", nome: "Mato Grosso do Sul" },
-  { sigla: "MG", nome: "Minas Gerais" },
-  { sigla: "PA", nome: "Pará" },
-  { sigla: "PB", nome: "Paraíba" },
-  { sigla: "PR", nome: "Paraná" },
-  { sigla: "PE", nome: "Pernambuco" },
-  { sigla: "PI", nome: "Piauí" },
-  { sigla: "RJ", nome: "Rio de Janeiro" },
-  { sigla: "RN", nome: "Rio Grande do Norte" },
-  { sigla: "RS", nome: "Rio Grande do Sul" },
-  { sigla: "RO", nome: "Rondônia" },
-  { sigla: "RR", nome: "Roraima" },
-  { sigla: "SC", nome: "Santa Catarina" },
-  { sigla: "SP", nome: "São Paulo" },
-  { sigla: "SE", nome: "Sergipe" },
-  { sigla: "TO", nome: "Tocantins" }
-];
+const UFS = ["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"];
 
 export default function MarketplaceCreate() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [etapaAtual, setEtapaAtual] = useState(1);
   const [user, setUser] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [radarInterestsModalOpen, setRadarInterestsModalOpen] = useState(false);
-  const [matchingInterests, setMatchingInterests] = useState([]);
-  const [userArea, setUserArea] = useState(null);
-  const [uf, setUf] = useState("");
-  const [cidade, setCidade] = useState("");
-  const { cidades, loading: cidadesLoading } = useIBGECidades(uf);
+  const [userType, setUserType] = useState(null);
+  const [userWhatsApp, setUserWhatsApp] = useState("");
 
   const [formData, setFormData] = useState({
     tipo_mundo: "",
+    categoria: "",
+    subcategoria: "",
     titulo_item: "",
     descricao: "",
-    preco: "",
-    localizacao: "",
-    telefone_contato: "",
+    marca: "",
     condicao: "",
     ano_fabricacao: "",
-    marca: "",
-    fotos: []
+    especificacoes: {},
+    preco: "",
+    localizacao: "",
+    cidade: "",
+    uf: "",
+    telefone_contato: "",
+    whatsapp_visivel: false,
+    whatsapp_verificado: false,
+    foto_frontal: "",
+    foto_lateral: "",
+    foto_placa: "",
+    fotos: [],
+    video_url: "",
+    flag_sem_foto_placa: false
   });
 
+  const totalEtapas = 5;
+
+  // Detectar usuário e tipo
   useEffect(() => {
-    const loadUserArea = async () => {
+    const detectUser = async () => {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
-        
-        // Verificar se é profissional
-        const professionals = await base44.entities.Professional.filter({ user_id: currentUser.id });
-        if (professionals.length > 0) {
-          const tipo = professionals[0].tipo_profissional;
-          setUserArea(tipo === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA");
-          setFormData(prev => ({ ...prev, tipo_mundo: tipo === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA" }));
+
+        // Redirecionar se não completou onboarding
+        if (!currentUser.vertical || !currentUser.tipo_conta) {
+          navigate(createPageUrl("OnboardingVertical"));
           return;
         }
-        
-        // Verificar se é clínica
-        const owners = await base44.entities.CompanyOwner.filter({ user_id: currentUser.id });
-        if (owners.length > 0) {
-          const units = await base44.entities.CompanyUnit.filter({ owner_id: owners[0].id });
-          if (units.length > 0) {
-            const tipo = units[0].tipo_mundo;
-            setUserArea(tipo);
-            setFormData(prev => ({ ...prev, tipo_mundo: tipo }));
+
+        let tipoDetectado = currentUser.tipo_conta;
+        let telefone = "";
+        let areaForcada = currentUser.vertical;
+
+        // Buscar dados específicos
+        if (currentUser.tipo_conta === "PROFISSIONAL") {
+          const profs = await base44.entities.Professional.filter({ user_id: currentUser.id });
+          if (profs.length > 0) {
+            telefone = profs[0].whatsapp;
+          }
+        } else if (currentUser.tipo_conta === "CLINICA") {
+          const owners = await base44.entities.CompanyOwner.filter({ user_id: currentUser.id });
+          if (owners.length > 0) {
+            const units = await base44.entities.CompanyUnit.filter({ owner_id: owners[0].id });
+            if (units.length > 0) {
+              telefone = units[0].whatsapp;
+              areaForcada = units[0].tipo_mundo;
+            }
+          }
+        } else if (currentUser.tipo_conta === "FORNECEDOR") {
+          const suppliers = await base44.entities.Supplier.filter({ user_id: currentUser.id });
+          if (suppliers.length > 0) {
+            telefone = suppliers[0].whatsapp;
+            areaForcada = suppliers[0].area_atuacao || currentUser.vertical;
           }
         }
+
+        setUserType(tipoDetectado);
+        setUserWhatsApp(telefone);
+        setFormData(prev => ({
+          ...prev,
+          tipo_mundo: areaForcada,
+          telefone_contato: telefone,
+          whatsapp_verificado: !!telefone
+        }));
       } catch (error) {
-        console.error("Erro ao carregar área do usuário:", error);
+        console.error("Erro ao detectar usuário:", error);
       }
     };
-    loadUserArea();
+    detectUser();
   }, []);
 
-  // Buscar radares ativos
-  const { data: allRadars = [] } = useQuery({
-    queryKey: ["productRadars"],
-    queryFn: async () => {
-      return await base44.entities.ProductRadar.filter({ ativo: true });
-    }
-  });
-
-  // Verificar matches quando o título ou categoria mudar
-  useEffect(() => {
-    if (formData.titulo_item && formData.tipo_mundo) {
-      const matches = allRadars.filter((radar) => {
-        const matchCategory = radar.tipo_mundo === formData.tipo_mundo;
-        const matchProduct =
-        radar.nome_produto?.toLowerCase().includes(formData.titulo_item.toLowerCase()) ||
-        formData.titulo_item.toLowerCase().includes(radar.nome_produto?.toLowerCase());
-        return matchCategory && matchProduct;
+  // Mutation para criar
+  const createItemMutation = useMutation({
+    mutationFn: async (itemData) => {
+      const { calcularScoreQualidade, calcularScoreConfiabilidade, verificarRegrasAutomaticas, aplicarRegrasBloqueio } = await import("@/components/marketplace/MarketplaceScoreCalculator");
+      
+      const scoreQualidade = calcularScoreQualidade(itemData);
+      const scoreConfiabilidade = calcularScoreConfiabilidade(itemData, {
+        dias_cadastrado: 0,
+        vendas_concluidas: 0,
+        avaliacoes_positivas: 0
       });
-      setMatchingInterests(matches);
-    } else {
-      setMatchingInterests([]);
-    }
-  }, [formData.titulo_item, formData.tipo_mundo, allRadars]);
 
-  const createMutation = useMutation({
-    mutationFn: async (data) => {
-      return await base44.entities.MarketplaceItem.create(data);
+      const alertas = verificarRegrasAutomaticas(itemData);
+      const bloqueio = aplicarRegrasBloqueio({ ...itemData, score_qualidade: scoreQualidade, score_confiabilidade: scoreConfiabilidade }, alertas);
+
+      const dadosCompletos = {
+        ...itemData,
+        score_qualidade: scoreQualidade,
+        score_confiabilidade: scoreConfiabilidade,
+        bloqueado_auto: bloqueio.deve_bloquear,
+        motivo_bloqueio: bloqueio.motivo || null,
+        status: bloqueio.deve_bloquear ? "SUSPENSO" : "ATIVO"
+      };
+
+      return await base44.entities.MarketplaceItem.create(dadosCompletos);
     },
-    onSuccess: async () => {
-      // Notificar interessados do radar
-      if (matchingInterests.length > 0) {
-        try {
-          for (const interest of matchingInterests) {
-            await base44.entities.Notification.create({
-              destinatario_id: interest.interessado_id,
-              destinatario_tipo: interest.interessado_tipo,
-              tipo: "NOVO_ITEM_MARKETPLACE",
-              titulo: `🎯 Produto do seu Radar disponível!`,
-              mensagem: `O produto "${formData.titulo_item}" que você estava procurando foi anunciado! Preço: R$ ${formData.preco}`,
-              dados_contexto: {
-                radar_id: interest.id
-              },
-              canais_enviados: ["PUSH", "EMAIL"],
-              enviada_com_sucesso: true
-            });
+    onSuccess: async (novoItem) => {
+      queryClient.invalidateQueries({ queryKey: ["marketplaceItems"] });
 
-            // Incrementar contador de notificações
-            await base44.entities.ProductRadar.update(interest.id, {
-              notificacoes_recebidas: (interest.notificacoes_recebidas || 0) + 1
-            });
-          }
-          toast.success(`✅ ${matchingInterests.length} interessados foram notificados!`);
-        } catch (error) {
-          console.error("Erro ao notificar interessados:", error);
-        }
+      try {
+        await base44.functions.invoke('notifyRadarMatches', { marketplace_item_id: novoItem.id });
+      } catch (error) {
+        console.log("Erro ao notificar radares:", error);
       }
 
-      queryClient.invalidateQueries(["marketplaceItems"]);
-      toast.success("Anúncio criado com sucesso!");
+      toast.success("✅ Anúncio publicado com sucesso!");
       navigate(createPageUrl("Marketplace"));
     },
     onError: (error) => {
-      toast.error("Erro ao criar anúncio. Tente novamente.");
-      console.error(error);
+      toast.error("Erro ao criar anúncio: " + error.message);
     }
   });
 
-  const handleFileUpload = async (e) => {
-    const files = Array.from(e.target.files);
-    if (formData.fotos.length + files.length > 3) {
-      toast.error("Máximo de 3 fotos permitido!");
+  const handleInputChange = (campo, valor) => {
+    setFormData(prev => ({ ...prev, [campo]: valor }));
+  };
+
+  const handleEspecificacaoChange = (campo, valor) => {
+    setFormData(prev => ({
+      ...prev,
+      especificacoes: { ...prev.especificacoes, [campo]: valor }
+    }));
+  };
+
+  const handleFileUpload = async (campo, file) => {
+    if (!file) return;
+
+    if (!["image/jpeg", "image/jpg", "image/png"].includes(file.type)) {
+      toast.error("Apenas imagens JPG/PNG");
       return;
     }
 
-    setUploading(true);
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Máximo 5MB");
+      return;
+    }
+
     try {
-      const uploadPromises = files.map(async (file) => {
-        const { file_url } = await base44.integrations.Core.UploadFile({ file });
-        return file_url;
-      });
-
-      const uploadedUrls = await Promise.all(uploadPromises);
-      setFormData({
-        ...formData,
-        fotos: [...formData.fotos, ...uploadedUrls]
-      });
-      toast.success("Fotos enviadas com sucesso!");
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      handleInputChange(campo, file_url);
+      
+      // Adicionar também ao array fotos
+      if (campo.startsWith("foto_")) {
+        setFormData(prev => ({
+          ...prev,
+          fotos: [...new Set([...prev.fotos, file_url])] // Evitar duplicatas
+        }));
+      }
+      
+      toast.success("Foto enviada!");
     } catch (error) {
-      toast.error("Erro ao enviar fotos. Tente novamente.");
-      console.error(error);
+      toast.error("Erro ao enviar: " + error.message);
     }
-    setUploading(false);
   };
 
-  const removePhoto = (index) => {
-    setFormData({
-      ...formData,
-      fotos: formData.fotos.filter((_, i) => i !== index)
-    });
+  const validarEtapa = (etapa) => {
+    switch (etapa) {
+      case 1:
+        if (!formData.categoria || !formData.subcategoria) {
+          toast.error("Selecione categoria e subcategoria");
+          return false;
+        }
+        return true;
+      case 2:
+        if (!formData.titulo_item.trim() || formData.titulo_item.length < 10) {
+          toast.error("Título deve ter no mínimo 10 caracteres");
+          return false;
+        }
+        if (!formData.descricao.trim() || formData.descricao.length < 30) {
+          toast.error("Descrição deve ter no mínimo 30 caracteres");
+          return false;
+        }
+        if (!formData.marca.trim()) {
+          toast.error("Preencha a marca");
+          return false;
+        }
+        if (!formData.condicao) {
+          toast.error("Selecione a condição");
+          return false;
+        }
+        
+        // Validar campos dinâmicos obrigatórios
+        const camposDinamicos = getCamposDinamicos(formData.tipo_mundo, formData.subcategoria);
+        for (const campo of camposDinamicos) {
+          if (campo.obrigatorio && !formData.especificacoes[campo.campo]) {
+            toast.error(`Campo obrigatório: ${campo.label}`);
+            return false;
+          }
+        }
+        return true;
+      case 3:
+        if (!formData.foto_frontal || !formData.foto_lateral) {
+          toast.error("Envie pelo menos as fotos frontal e lateral");
+          return false;
+        }
+        return true;
+      case 4:
+        if (!formData.preco || parseFloat(formData.preco) <= 0) {
+          toast.error("Preencha um preço válido");
+          return false;
+        }
+        if (!formData.cidade || !formData.uf) {
+          toast.error("Preencha a localização");
+          return false;
+        }
+        return true;
+      case 5:
+        if (!formData.telefone_contato) {
+          toast.error("Número de contato é obrigatório");
+          return false;
+        }
+        return true;
+      default:
+        return true;
+    }
   };
 
-  const MAX_VALOR = 9999999.99;
-
-  const formatarMoeda = (valor) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(valor);
+  const proximaEtapa = () => {
+    if (validarEtapa(etapaAtual)) {
+      setEtapaAtual(prev => Math.min(prev + 1, totalEtapas));
+    }
   };
 
-  const handlePrecoChange = (e) => {
-    // Remove tudo exceto números
-    const apenasNumeros = e.target.value.replace(/\D/g, '');
-    const valorNumerico = parseFloat(apenasNumeros) / 100;
+  const etapaAnterior = () => {
+    setEtapaAtual(prev => Math.max(prev - 1, 1));
+  };
+
+  const finalizarAnuncio = async () => {
+    if (!validarEtapa(5)) return;
+
+    const localizacao = `${formData.cidade} - ${formData.uf}`;
     
-    if (valorNumerico > MAX_VALOR) {
-      toast.error("Valor máximo permitido: R$ 9.999.999,99");
-      return;
-    }
-    
-    setFormData({ ...formData, preco: apenasNumeros ? valorNumerico.toString() : '' });
-  };
+    // Montar array de fotos
+    const todasFotos = [
+      formData.foto_frontal,
+      formData.foto_lateral,
+      formData.foto_placa
+    ].filter(Boolean);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!formData.tipo_mundo || !formData.titulo_item || !formData.preco || !formData.telefone_contato) {
-      toast.error("Preencha todos os campos obrigatórios!");
-      return;
-    }
-
-    if (!uf || !cidade) {
-      toast.error("Preencha a cidade e o estado!");
-      return;
-    }
-
-    createMutation.mutate({
-      ...formData,
-      preco: parseFloat(formData.preco),
+    const dadosAnuncio = {
+      tipo_mundo: formData.tipo_mundo,
+      categoria: formData.categoria,
+      subcategoria: formData.subcategoria,
+      titulo_item: formData.titulo_item.trim(),
+      descricao: formData.descricao.trim(),
+      marca: formData.marca.trim(),
+      condicao: formData.condicao,
       ano_fabricacao: formData.ano_fabricacao ? parseInt(formData.ano_fabricacao) : null,
-      anunciante_id: user?.id,
-      anunciante_tipo: "DENTISTA",
-      anunciante_nome: user?.full_name || "Anônimo",
-      status: "ATIVO",
-      visualizacoes: 0,
-      favoritos: 0
-    });
+      especificacoes: formData.especificacoes,
+      preco: parseFloat(formData.preco),
+      localizacao,
+      telefone_contato: formData.telefone_contato,
+      whatsapp_visivel: formData.whatsapp_visivel,
+      whatsapp_verificado: formData.whatsapp_verificado,
+      foto_frontal: formData.foto_frontal,
+      foto_lateral: formData.foto_lateral,
+      foto_placa: formData.foto_placa || null,
+      fotos: todasFotos,
+      video_url: formData.video_url || null,
+      flag_sem_foto_placa: !formData.foto_placa,
+      anunciante_id: user.id,
+      anunciante_tipo: userType,
+      anunciante_nome: user.full_name
+    };
+
+    createItemMutation.mutate(dadosAnuncio);
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 py-6">
-      {/* Header */}
-      <div className="max-w-4xl mx-auto">
-        <button
-          onClick={() => navigate(createPageUrl("Marketplace"))}
-          className="flex items-center gap-2 text-gray-600 hover:text-yellow-500 font-medium mb-6 px-4">
-          <ArrowLeft className="w-5 h-5" />
-          Voltar
-        </button>
+  const catalogo = getCatalogo(formData.tipo_mundo);
+  const camposDinamicos = getCamposDinamicos(formData.tipo_mundo, formData.subcategoria);
 
-        {/* Card Header */}
-        <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 rounded-3xl p-8 mx-4 mb-6 relative overflow-hidden">
-          {/* Decoração */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
-          <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/20 rounded-full blur-3xl"></div>
-          <div className="absolute top-4 right-8 text-4xl animate-pulse">⚡</div>
-          <div className="absolute bottom-4 left-8 text-3xl animate-pulse" style={{ animationDelay: '0.5s' }}>⚡</div>
-          
-          <div className="relative z-10">
-            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-3xl mb-4">
-              📢
-            </div>
-            <h1 className="text-3xl font-black text-white mb-2" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.2)' }}>
-              Anunciar Equipamento
-            </h1>
-            <p className="text-white/80">Preencha os dados para publicar seu anúncio</p>
-          </div>
-        </div>
-        {/* Radar Alert */}
-        {matchingInterests.length > 0 && (
-          <div className="mx-4 mb-6 bg-gradient-to-r from-green-50 to-teal-50 border-4 border-green-300 rounded-3xl p-6 relative overflow-hidden">
-            <div className="flex flex-col md:flex-row items-start gap-6">
-              <div className="p-4 bg-gradient-to-br from-green-400 to-teal-500 rounded-2xl shadow-xl flex-shrink-0">
-                <Radar className="w-10 h-10 md:w-12 md:h-12 text-white" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-2xl font-black text-gray-900 mb-3">
-                  🎯 {matchingInterests.length} {matchingInterests.length === 1 ? "pessoa está" : "pessoas estão"} procurando este produto!
-                </h3>
-                <p className="text-gray-700 font-semibold mb-4">
-                  Existem interessados no Radar de Produtos que serão notificados quando você publicar.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setRadarInterestsModalOpen(true)}
-                  className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center gap-2">
-                  <Users className="w-5 h-5" />
-                  Ver Interessados
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+  const renderEtapa = () => {
+    switch (etapaAtual) {
+      case 1:
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-black text-gray-900 mb-4">Categoria do Produto</h2>
 
-        <form onSubmit={handleSubmit}>
-          {/* Seção Fotos */}
-          <div className="bg-white rounded-3xl shadow-xl mx-4 mb-6 overflow-hidden">
-            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 px-6 py-4 border-b border-yellow-100 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-yellow-400 flex items-center justify-center text-white text-xl">
-                📸
-              </div>
-              <h2 className="font-bold text-gray-900 text-lg">Fotos do Equipamento</h2>
+            {/* Área - Travada ou Selecionável */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Área</label>
+              {userType === "FORNECEDOR" ? (
+                <select
+                  value={formData.tipo_mundo}
+                  onChange={(e) => {
+                    handleInputChange("tipo_mundo", e.target.value);
+                    handleInputChange("categoria", "");
+                    handleInputChange("subcategoria", "");
+                  }}
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 appearance-none bg-white cursor-pointer transition-all outline-none"
+                >
+                  <option value="ODONTOLOGIA">🦷 Odontologia</option>
+                  <option value="MEDICINA">🩺 Medicina</option>
+                </select>
+              ) : (
+                <div className={`p-4 rounded-xl font-bold ${
+                  formData.tipo_mundo === "ODONTOLOGIA"
+                    ? "bg-yellow-100 text-yellow-700"
+                    : "bg-blue-100 text-blue-700"
+                }`}>
+                  {formData.tipo_mundo === "ODONTOLOGIA" ? "🦷 Odontologia" : "🩺 Medicina"}
+                </div>
+              )}
             </div>
-            <div className="p-6">
-              {/* Preview das fotos */}
-              {formData.fotos.length > 0 && (
-                <div className="grid grid-cols-4 gap-3 mb-4">
-                  {formData.fotos.map((url, index) => (
-                    <div key={index} className="aspect-square rounded-xl overflow-hidden relative group border-2 border-gray-200">
-                      <img src={url} alt={`Foto ${index + 1}`} className="w-full h-full object-cover" />
+
+            {/* Categoria */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">Categoria *</label>
+              <div className="grid grid-cols-1 gap-3">
+                {catalogo.categorias.map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => {
+                      handleInputChange("categoria", cat.id);
+                      handleInputChange("subcategoria", "");
+                    }}
+                    className={`p-4 border-2 rounded-xl text-left transition-all ${
+                      formData.categoria === cat.id
+                        ? "border-yellow-400 bg-yellow-50"
+                        : "border-gray-200 hover:border-yellow-300"
+                    }`}
+                  >
+                    <span className="font-bold text-gray-900 text-lg">{cat.nome}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Subcategoria */}
+            {formData.categoria && (
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">Subcategoria *</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {catalogo.categorias
+                    .find(c => c.id === formData.categoria)
+                    ?.subcategorias.map((sub) => (
                       <button
+                        key={sub.id}
                         type="button"
-                        onClick={() => removePhoto(index)}
-                        className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <X className="w-4 h-4" />
+                        onClick={() => handleInputChange("subcategoria", sub.id)}
+                        className={`p-4 border-2 rounded-xl transition-all ${
+                          formData.subcategoria === sub.id
+                            ? "border-yellow-400 bg-yellow-50"
+                            : "border-gray-200 hover:border-yellow-300"
+                        }`}
+                      >
+                        <span className="font-semibold text-gray-900">{sub.nome}</span>
                       </button>
+                    ))}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+
+      case 2:
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-black text-gray-900 mb-4">Detalhes do Produto</h2>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Título do Anúncio *</label>
+              <input
+                type="text"
+                value={formData.titulo_item}
+                onChange={(e) => handleInputChange("titulo_item", e.target.value)}
+                placeholder="Ex: Autoclave Cristófoli 12 Litros - Revisada"
+                maxLength={100}
+                className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
+              />
+              <p className="text-xs text-gray-500 mt-1">{formData.titulo_item.length}/100</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Descrição Completa *</label>
+              <textarea
+                value={formData.descricao}
+                onChange={(e) => handleInputChange("descricao", e.target.value)}
+                placeholder="Descreva detalhadamente o produto, estado de conservação, motivo da venda, etc."
+                className="w-full min-h-[150px] px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none resize-none"
+                maxLength={1000}
+              />
+              <p className="text-xs text-gray-500 mt-1">{formData.descricao.length}/1000</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Marca *</label>
+                <input
+                  type="text"
+                  value={formData.marca}
+                  onChange={(e) => handleInputChange("marca", e.target.value)}
+                  placeholder="Ex: Cristófoli, Dabi Atlante"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Ano de Fabricação</label>
+                <input
+                  type="number"
+                  value={formData.ano_fabricacao}
+                  onChange={(e) => handleInputChange("ano_fabricacao", e.target.value)}
+                  placeholder="2020"
+                  min="1980"
+                  max={new Date().getFullYear()}
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Condição *</label>
+              <div className="grid grid-cols-3 gap-3">
+                {["NOVO", "SEMINOVO", "USADO"].map(cond => (
+                  <button
+                    key={cond}
+                    type="button"
+                    onClick={() => handleInputChange("condicao", cond)}
+                    className={`py-3 px-4 border-2 rounded-xl font-bold transition-all ${
+                      formData.condicao === cond
+                        ? "border-green-400 bg-green-50 text-green-700"
+                        : "border-gray-200 text-gray-700 hover:border-yellow-300"
+                    }`}
+                  >
+                    {cond === "NOVO" ? "Novo" : cond === "SEMINOVO" ? "Seminovo" : "Usado"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Campos Dinâmicos */}
+            {camposDinamicos.length > 0 && (
+              <div className="bg-blue-50 rounded-2xl p-6 border-2 border-blue-200">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">📋 Especificações Técnicas</h3>
+                <div className="space-y-4">
+                  {camposDinamicos.map((campo) => (
+                    <div key={campo.campo}>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        {campo.label} {campo.obrigatorio && "*"}
+                      </label>
+                      
+                      {campo.tipo === "text" && (
+                        <input
+                          type="text"
+                          value={formData.especificacoes[campo.campo] || ""}
+                          onChange={(e) => handleEspecificacaoChange(campo.campo, e.target.value)}
+                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                        />
+                      )}
+
+                      {campo.tipo === "number" && (
+                        <input
+                          type="number"
+                          value={formData.especificacoes[campo.campo] || ""}
+                          onChange={(e) => handleEspecificacaoChange(campo.campo, e.target.value)}
+                          min="0"
+                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                        />
+                      )}
+
+                      {campo.tipo === "select" && (
+                        <select
+                          value={formData.especificacoes[campo.campo] || ""}
+                          onChange={(e) => handleEspecificacaoChange(campo.campo, e.target.value)}
+                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:ring-4 focus:ring-blue-100 appearance-none bg-white cursor-pointer transition-all outline-none"
+                        >
+                          <option value="">Selecione</option>
+                          {campo.opcoes.map(opt => (
+                            <option key={opt} value={opt}>{opt}</option>
+                          ))}
+                        </select>
+                      )}
+
+                      {campo.tipo === "boolean" && (
+                        <div className="flex gap-3">
+                          <button
+                            type="button"
+                            onClick={() => handleEspecificacaoChange(campo.campo, true)}
+                            className={`flex-1 py-3 border-2 rounded-xl font-bold transition-all ${
+                              formData.especificacoes[campo.campo] === true
+                                ? "border-green-400 bg-green-50 text-green-700"
+                                : "border-gray-200 text-gray-700"
+                            }`}
+                          >
+                            Sim
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleEspecificacaoChange(campo.campo, false)}
+                            className={`flex-1 py-3 border-2 rounded-xl font-bold transition-all ${
+                              formData.especificacoes[campo.campo] === false
+                                ? "border-red-400 bg-red-50 text-red-700"
+                                : "border-gray-200 text-gray-700"
+                            }`}
+                          >
+                            Não
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
-              )}
-
-              {/* Upload */}
-              {formData.fotos.length < 3 && (
-                <label className="block">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    disabled={uploading}
-                  />
-                  <div className="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:border-yellow-400 hover:bg-yellow-50/50 transition-all cursor-pointer">
-                    {uploading ? (
-                      <div className="space-y-3">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-yellow-400 mx-auto"></div>
-                        <p className="text-gray-600 font-semibold">Enviando fotos...</p>
-                      </div>
-                    ) : (
-                      <div>
-                        <div className="text-6xl text-gray-300 mb-4">📷</div>
-                        <p className="text-gray-500 font-medium">Clique ou arraste para adicionar fotos</p>
-                        <p className="text-gray-400 text-sm mt-2">Até 3 fotos • JPG ou PNG</p>
-                      </div>
-                    )}
-                  </div>
-                </label>
-              )}
-            </div>
+              </div>
+            )}
           </div>
+        );
 
-          {/* Seção Informações */}
-          <div className="bg-white rounded-3xl shadow-xl mx-4 mb-6 overflow-hidden">
-            <div className="bg-gradient-to-r from-pink-50 to-red-50 px-6 py-4 border-b border-pink-100 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-pink-400 to-red-400 flex items-center justify-center text-white text-xl">
-                📋
+      case 3:
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-black text-gray-900 mb-4">Fotos do Produto</h2>
+            
+            <div className="bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-4 mb-4">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-yellow-800">
+                  <p className="font-bold mb-1">⚠️ Fotos Obrigatórias para Qualidade</p>
+                  <p>Anúncios com fotos completas têm 3x mais visualizações e vendem mais rápido!</p>
+                </div>
               </div>
-              <h2 className="font-bold text-gray-900 text-lg">Informações do Equipamento</h2>
             </div>
-            <div className="p-6 space-y-6">
-              {/* Título do anúncio */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Título do Anúncio *</label>
-                <input
-                  type="text"
-                  placeholder="Ex: Cadeira Odontológica Gnatus G2"
-                  value={formData.titulo_item}
-                  onChange={(e) => setFormData({ ...formData, titulo_item: e.target.value })}
-                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all text-lg outline-none"
-                />
-              </div>
 
-              {/* Grid 2 colunas */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                {/* Categoria */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Categoria *</label>
-                  {userArea ? (
-                    <div className="flex items-center gap-3">
-                      <span className="px-4 py-3 bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-700 font-bold rounded-xl border-2 border-orange-200">
-                        {userArea === "ODONTOLOGIA" ? "🦷 Odontologia" : "⚕️ Medicina"}
-                      </span>
-                      <span className="text-sm text-gray-500">Sua área de atuação</span>
+            {/* Foto Frontal */}
+            <div>
+              <label className="block text-sm font-semibold text-red-600 mb-2 flex items-center gap-1">
+                📸 Foto Frontal * <span className="text-xs text-gray-500">(obrigatória)</span>
+              </label>
+              <div className="border-2 border-dashed border-gray-300 rounded-2xl p-6 text-center hover:border-yellow-400 transition-all cursor-pointer">
+                <input
+                  type="file"
+                  id="foto_frontal"
+                  accept="image/jpeg,image/jpg,image/png"
+                  onChange={(e) => handleFileUpload("foto_frontal", e.target.files[0])}
+                  className="hidden"
+                />
+                <label htmlFor="foto_frontal" className="cursor-pointer">
+                  {formData.foto_frontal ? (
+                    <div>
+                      <img src={formData.foto_frontal} alt="Frontal" className="w-48 h-48 mx-auto rounded-xl object-cover mb-3" />
+                      <p className="text-green-600 font-semibold flex items-center justify-center gap-1">
+                        <CheckCircle2 className="w-4 h-4" /> Foto frontal enviada
+                      </p>
                     </div>
                   ) : (
-                    <Select value={formData.tipo_mundo} onValueChange={(value) => setFormData({ ...formData, tipo_mundo: value })}>
-                      <SelectTrigger className="h-12 rounded-xl border-2">
-                        <SelectValue placeholder="Selecione" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="ODONTOLOGIA">🦷 Odontologia</SelectItem>
-                        <SelectItem value="MEDICINA">⚕️ Medicina</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div>
+                      <Camera className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                      <p className="text-gray-700 font-semibold">Clique para enviar foto frontal</p>
+                      <p className="text-gray-400 text-sm">Mostre o produto de frente</p>
+                    </div>
                   )}
-                </div>
-
-                {/* Estado */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Estado *</label>
-                  <Select value={formData.condicao} onValueChange={(value) => setFormData({ ...formData, condicao: value })}>
-                    <SelectTrigger className="h-12 rounded-xl border-2">
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="NOVO">Novo</SelectItem>
-                      <SelectItem value="SEMINOVO">Seminovo</SelectItem>
-                      <SelectItem value="USADO">Usado</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Marca */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Marca</label>
-                  <input
-                    type="text"
-                    placeholder="Ex: Gnatus"
-                    value={formData.marca}
-                    onChange={(e) => setFormData({ ...formData, marca: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
-                  />
-                </div>
-
-                {/* Ano */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Ano de Fabricação</label>
-                  <input
-                    type="number"
-                    placeholder="2020"
-                    value={formData.ano_fabricacao}
-                    onChange={(e) => setFormData({ ...formData, ano_fabricacao: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
-                  />
-                </div>
+                </label>
               </div>
+            </div>
 
-              {/* Descrição */}
-              <div className="mt-4">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Descrição</label>
-                <textarea
-                  placeholder="Descreva o equipamento, estado de conservação, acessórios inclusos, etc."
-                  value={formData.descricao}
-                  onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 min-h-[150px] resize-none mt-4 outline-none"
-                ></textarea>
+            {/* Foto Lateral */}
+            <div>
+              <label className="block text-sm font-semibold text-red-600 mb-2 flex items-center gap-1">
+                📸 Foto Lateral * <span className="text-xs text-gray-500">(obrigatória)</span>
+              </label>
+              <div className="border-2 border-dashed border-gray-300 rounded-2xl p-6 text-center hover:border-yellow-400 transition-all cursor-pointer">
+                <input
+                  type="file"
+                  id="foto_lateral"
+                  accept="image/jpeg,image/jpg,image/png"
+                  onChange={(e) => handleFileUpload("foto_lateral", e.target.files[0])}
+                  className="hidden"
+                />
+                <label htmlFor="foto_lateral" className="cursor-pointer">
+                  {formData.foto_lateral ? (
+                    <div>
+                      <img src={formData.foto_lateral} alt="Lateral" className="w-48 h-48 mx-auto rounded-xl object-cover mb-3" />
+                      <p className="text-green-600 font-semibold flex items-center justify-center gap-1">
+                        <CheckCircle2 className="w-4 h-4" /> Foto lateral enviada
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      <Camera className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                      <p className="text-gray-700 font-semibold">Clique para enviar foto lateral</p>
+                      <p className="text-gray-400 text-sm">Mostre o produto de lado</p>
+                    </div>
+                  )}
+                </label>
               </div>
+            </div>
+
+            {/* Foto Placa/Etiqueta */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                🏷️ Foto da Placa/Etiqueta <span className="text-xs text-yellow-600">(recomendado)</span>
+              </label>
+              <div className="border-2 border-dashed border-yellow-300 rounded-2xl p-6 text-center hover:border-yellow-400 transition-all cursor-pointer bg-yellow-50/50">
+                <input
+                  type="file"
+                  id="foto_placa"
+                  accept="image/jpeg,image/jpg,image/png"
+                  onChange={(e) => handleFileUpload("foto_placa", e.target.files[0])}
+                  className="hidden"
+                />
+                <label htmlFor="foto_placa" className="cursor-pointer">
+                  {formData.foto_placa ? (
+                    <div>
+                      <img src={formData.foto_placa} alt="Placa" className="w-48 h-48 mx-auto rounded-xl object-cover mb-3" />
+                      <p className="text-green-600 font-semibold flex items-center justify-center gap-1">
+                        <CheckCircle2 className="w-4 h-4" /> Foto da placa enviada
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      <Camera className="w-12 h-12 mx-auto mb-3 text-yellow-500" />
+                      <p className="text-gray-700 font-semibold">Foto da placa de identificação</p>
+                      <p className="text-gray-500 text-sm">Aumenta a confiabilidade em 40%</p>
+                    </div>
+                  )}
+                </label>
+              </div>
+            </div>
+
+            {/* Vídeo Opcional */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">🎥 Link do Vídeo (opcional)</label>
+              <input
+                type="url"
+                value={formData.video_url}
+                onChange={(e) => handleInputChange("video_url", e.target.value)}
+                placeholder="https://youtube.com/..."
+                className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
+              />
+              <p className="text-xs text-gray-500 mt-1">YouTube, Vimeo ou similar</p>
             </div>
           </div>
+        );
 
-          {/* Seção Preço */}
-          <div className="bg-white rounded-3xl shadow-xl mx-4 mb-6 overflow-hidden">
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-green-100 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-400 to-emerald-500 flex items-center justify-center text-white text-xl">
-                💰
-              </div>
-              <h2 className="font-bold text-gray-900 text-lg">Preço e Condições</h2>
-            </div>
-            <div className="p-6 space-y-4">
-              {/* Preço */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Preço *</label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">R$</span>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    placeholder="0,00"
-                    value={formData.preco ? formatarMoeda(parseFloat(formData.preco)).replace('R$', '').trim() : ''}
-                    onChange={handlePrecoChange}
-                    className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all text-lg outline-none"
-                  />
-                </div>
-                <p className="text-xs text-gray-500 mt-1">Valor máximo: R$ 9.999.999,99</p>
-              </div>
-            </div>
-          </div>
+      case 4:
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-black text-gray-900 mb-4">Preço e Localização</h2>
 
-          {/* Seção Localização */}
-          <div className="bg-white rounded-3xl shadow-xl mx-4 mb-6 overflow-hidden">
-            <div className="bg-gradient-to-r from-orange-50 to-red-50 px-6 py-4 border-b border-orange-100 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-orange-400 to-red-400 flex items-center justify-center text-white text-xl">
-                📍
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Preço (R$) *</label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-lg">R$</span>
+                <input
+                  type="number"
+                  value={formData.preco}
+                  onChange={(e) => handleInputChange("preco", e.target.value)}
+                  placeholder="0,00"
+                  min="0"
+                  step="0.01"
+                  className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 text-xl font-bold focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
+                />
               </div>
-              <h2 className="font-bold text-gray-900 text-lg">Localização</h2>
             </div>
-            <div className="p-6 space-y-4">
-              {/* Estado (UF) */}
+
+            <div className="grid md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Estado *</label>
-                <Select 
-                  value={uf} 
-                  onValueChange={(value) => {
-                    setUf(value);
-                    setCidade(""); // Limpar cidade ao mudar estado
-                  }}
+                <select
+                  value={formData.uf}
+                  onChange={(e) => handleInputChange("uf", e.target.value)}
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 appearance-none bg-white cursor-pointer transition-all outline-none"
                 >
-                  <SelectTrigger className="h-14 rounded-xl border-2">
-                    <SelectValue placeholder="Selecione o estado" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {UFS.map((estado) => (
-                      <SelectItem key={estado.sigla} value={estado.sigla}>
-                        {estado.sigla} - {estado.nome}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <option value="">Selecione</option>
+                  {UFS.map(uf => (
+                    <option key={uf} value={uf}>{uf}</option>
+                  ))}
+                </select>
               </div>
 
-              {/* Cidade */}
-              <div>
+              <div className="md:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Cidade *</label>
-                <CityAutocomplete
-                  value={cidade}
-                  onChange={(value) => {
-                    setCidade(value);
-                    setFormData({ ...formData, localizacao: `${value} - ${uf}` });
-                  }}
-                  cidades={cidades}
-                  loading={cidadesLoading}
-                  disabled={!uf}
-                  placeholder={uf ? "Digite para buscar a cidade" : "Selecione o estado primeiro"}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Seção Contato */}
-          <div className="bg-white rounded-3xl shadow-xl mx-4 mb-6 overflow-hidden">
-            <div className="bg-gradient-to-r from-green-50 to-teal-50 px-6 py-4 border-b border-green-100 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-green-500 flex items-center justify-center text-white text-xl">
-                📱
-              </div>
-              <h2 className="font-bold text-gray-900 text-lg">Contato</h2>
-            </div>
-            <div className="p-6">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">WhatsApp *</label>
                 <input
                   type="text"
-                  placeholder="62999998888 (apenas números)"
-                  value={formData.telefone_contato}
-                  onChange={(e) => setFormData({ ...formData, telefone_contato: e.target.value })}
-                  maxLength={11}
-                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all text-lg outline-none"
+                  value={formData.cidade}
+                  onChange={(e) => handleInputChange("cidade", e.target.value)}
+                  placeholder="Ex: Goiânia"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                 />
               </div>
             </div>
           </div>
+        );
 
-          {/* Botões de Ação */}
-          <div className="flex flex-col-reverse md:flex-row gap-4 px-4 py-6">
-            <button
-              type="button"
-              onClick={() => navigate(createPageUrl("Marketplace"))}
-              className="flex-1 py-4 border-2 border-gray-300 text-gray-700 font-semibold rounded-2xl hover:bg-gray-100 transition-all">
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={createMutation.isPending}
-              className="flex-1 py-4 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all flex items-center justify-center gap-2 disabled:opacity-50">
-              {createMutation.isPending ? (
-                <>
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-4 border-white"></div>
-                  Publicando...
-                </>
-              ) : (
-                <>
-                  📢 Publicar Anúncio
-                  {matchingInterests.length > 0 && (
-                    <span className="ml-2 px-2 py-1 bg-white text-green-600 font-black rounded-full text-sm">
-                      +{matchingInterests.length} 🎯
-                    </span>
-                  )}
-                </>
+      case 5:
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-black text-gray-900 mb-4">Contato e Finalização</h2>
+
+            {/* WhatsApp Toggle */}
+            <div className="bg-green-50 border-2 border-green-200 rounded-2xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center">
+                    <Phone className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-gray-900">Exibir WhatsApp no anúncio?</p>
+                    <p className="text-sm text-gray-600">Compradores podem te chamar diretamente</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleInputChange("whatsapp_visivel", !formData.whatsapp_visivel)}
+                  className={`w-14 h-8 rounded-full transition-all ${formData.whatsapp_visivel ? "bg-green-500" : "bg-gray-300"}`}
+                >
+                  <div className={`w-6 h-6 rounded-full bg-white shadow-lg transition-all ${formData.whatsapp_visivel ? "ml-7" : "ml-1"}`}></div>
+                </button>
+              </div>
+
+              {formData.whatsapp_visivel && (
+                <div className="bg-white rounded-xl p-4 border border-green-300">
+                  <p className="text-sm text-gray-700 mb-2">
+                    <strong>WhatsApp verificado:</strong> ({userWhatsApp?.slice(0, 2)}) {userWhatsApp?.slice(2, 7)}-{userWhatsApp?.slice(7)}
+                  </p>
+                  <div className="flex items-center gap-2 text-xs text-green-700">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Número verificado no seu cadastro</span>
+                  </div>
+                </div>
               )}
-            </button>
+
+              {!formData.whatsapp_visivel && (
+                <div className="bg-blue-50 rounded-xl p-4 border border-blue-300">
+                  <p className="text-sm text-blue-700">
+                    💬 Compradores usarão o <strong>chat interno</strong> (expira em 48h)
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Resumo */}
+            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl p-6 border-2 border-yellow-200">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">📋 Resumo do Anúncio</h3>
+              <div className="bg-white rounded-xl p-5 space-y-2 text-sm">
+                <p><strong>Categoria:</strong> {formData.subcategoria}</p>
+                <p><strong>Título:</strong> {formData.titulo_item}</p>
+                <p><strong>Marca:</strong> {formData.marca}</p>
+                <p><strong>Condição:</strong> {formData.condicao}</p>
+                <p><strong>Preço:</strong> R$ {parseFloat(formData.preco || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                <p><strong>Localização:</strong> {formData.cidade} - {formData.uf}</p>
+                <p><strong>Fotos:</strong> {[formData.foto_frontal, formData.foto_lateral, formData.foto_placa].filter(Boolean).length} enviadas</p>
+                {formData.whatsapp_visivel && <p className="text-green-600">✓ WhatsApp visível</p>}
+              </div>
+            </div>
           </div>
-        </form>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-orange-500"></div>
+      </div>
+    );
+  }
+
+  const progressoPercentual = (etapaAtual / totalEtapas) * 100;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 pb-24">
+      <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 p-6 mb-6">
+        <button
+          onClick={() => navigate(createPageUrl("Marketplace"))}
+          className="flex items-center gap-2 text-white/80 hover:text-white font-medium mb-4 transition-colors"
+        >
+          <ChevronLeft className="w-5 h-5" />
+          Voltar
+        </button>
+        <h1 className="text-3xl font-black text-white">Criar Anúncio</h1>
+        <p className="text-white/80">Preencha os dados do produto</p>
       </div>
 
-      {/* Radar Interests Modal */}
-      <RadarInterestsModal
-        open={radarInterestsModalOpen}
-        onOpenChange={setRadarInterestsModalOpen}
-        interests={matchingInterests}
-        productName={formData.titulo_item} />
+      <div className="max-w-4xl mx-auto px-4">
+        {/* Progress */}
+        <div className="mb-8">
+          <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+            <motion.div
+              animate={{ width: `${progressoPercentual}%` }}
+              className="h-full bg-gradient-to-r from-yellow-400 to-orange-500"
+            />
+          </div>
+          <p className="text-sm text-gray-600 mt-2">Etapa {etapaAtual} de {totalEtapas}</p>
+        </div>
 
-    </div>);
+        {/* Formulário */}
+        <motion.div
+          key={etapaAtual}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-3xl shadow-2xl overflow-hidden"
+        >
+          <div className="p-6 md:p-8">
+            {renderEtapa()}
+          </div>
 
+          <div className="flex gap-4 p-6 bg-gray-50">
+            <button
+              onClick={etapaAnterior}
+              disabled={etapaAtual === 1}
+              className="flex-1 py-4 border-2 border-gray-300 text-gray-700 font-semibold rounded-2xl hover:bg-gray-100 transition-all disabled:opacity-50"
+            >
+              Voltar
+            </button>
+
+            {etapaAtual < totalEtapas ? (
+              <button
+                onClick={proximaEtapa}
+                className="flex-1 py-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+              >
+                Continuar
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            ) : (
+              <button
+                onClick={finalizarAnuncio}
+                disabled={createItemMutation.isPending}
+                className="flex-1 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {createItemMutation.isPending ? "Publicando..." : "Publicar Anúncio"}
+                <CheckCircle2 className="w-5 h-5" />
+              </button>
+            )}
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
 }
