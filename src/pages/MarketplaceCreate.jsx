@@ -175,6 +175,28 @@ export default function MarketplaceCreate() {
     });
   };
 
+  const MAX_VALOR = 9999999.99;
+
+  const formatarMoeda = (valor) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(valor);
+  };
+
+  const handlePrecoChange = (e) => {
+    // Remove tudo exceto números
+    const apenasNumeros = e.target.value.replace(/\D/g, '');
+    const valorNumerico = parseFloat(apenasNumeros) / 100;
+    
+    if (valorNumerico > MAX_VALOR) {
+      toast.error("Valor máximo permitido: R$ 9.999.999,99");
+      return;
+    }
+    
+    setFormData({ ...formData, preco: apenasNumeros ? valorNumerico.toString() : '' });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -422,13 +444,15 @@ export default function MarketplaceCreate() {
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">R$</span>
                   <input
-                    type="number"
-                    placeholder="14000"
-                    value={formData.preco}
-                    onChange={(e) => setFormData({ ...formData, preco: e.target.value })}
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="0,00"
+                    value={formData.preco ? formatarMoeda(parseFloat(formData.preco)).replace('R$', '').trim() : ''}
+                    onChange={handlePrecoChange}
                     className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all text-lg outline-none"
                   />
                 </div>
+                <p className="text-xs text-gray-500 mt-1">Valor máximo: R$ 9.999.999,99</p>
               </div>
             </div>
           </div>
