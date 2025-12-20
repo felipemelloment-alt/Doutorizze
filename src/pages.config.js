@@ -60,6 +60,7 @@ import MeusCursos from './pages/MeusCursos';
 import Cursos from './pages/Cursos';
 import DetalheCurso from './pages/DetalheCurso';
 import MeusAnunciosMarketplace from './pages/MeusAnunciosMarketplace';
+import FeedConfig from './pages/FeedConfig';
 import __Layout from './Layout.jsx';
 
 
@@ -126,6 +127,7 @@ export const PAGES = {
     "Cursos": Cursos,
     "DetalheCurso": DetalheCurso,
     "MeusAnunciosMarketplace": MeusAnunciosMarketplace,
+    "FeedConfig": FeedConfig,
 }
 
 export const pagesConfig = {
