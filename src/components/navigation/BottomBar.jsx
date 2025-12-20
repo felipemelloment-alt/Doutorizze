@@ -130,7 +130,7 @@ export default function BottomBar() {
     }
     
     // Marketplace → Meus Anúncios
-    if (pathname.includes("Marketplace") && !pathname.includes("Create") && !pathname.includes("Detail") && !pathname.includes("MeusAnuncios")) {
+    if (pathname.includes("/Marketplace") && !pathname.includes("Create") && !pathname.includes("Detail") && !pathname.includes("MeusAnuncios")) {
       return { 
         icon: MessageCircle, 
         label: "Meus", 
