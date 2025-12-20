@@ -365,6 +365,7 @@ export default function BottomBar() {
   const pathname = location.pathname;
   const botaoCentralConfig = getBotaoCentralConfig(pathname, userType);
   const CentralIcon = botaoCentralConfig.icon;
+  const centralActive = botaoCentralConfig.page ? isActive(botaoCentralConfig.page) : false;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-2xl pb-safe">
@@ -373,7 +374,7 @@ export default function BottomBar() {
           const Icon = botao.icon;
           const active = isActive(botao.page);
 
-          // Botão Central Dinâmico (maior e com gradiente)
+          // Botão Central com estilo igual aos outros
           if (botao.isCenter) {
             return (
               <button
@@ -385,12 +386,24 @@ export default function BottomBar() {
                     handleNavigate(botaoCentralConfig.page);
                   }
                 }}
-                className="flex flex-col items-center justify-center -mt-4 transition-all hover:scale-110"
+                className="flex flex-col items-center justify-center flex-1 h-full relative transition-all hover:scale-105"
               >
-                <div className={`w-14 h-14 rounded-full bg-gradient-to-r ${botaoCentralConfig.color} flex items-center justify-center shadow-lg`}>
-                  <CentralIcon className="w-7 h-7 text-white" />
-                </div>
-                <span className="text-xs text-gray-500 font-medium mt-1">{botaoCentralConfig.label}</span>
+                {/* Fundo circular quando ativo */}
+                {centralActive && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full bg-purple-500 opacity-100"></div>
+                  </div>
+                )}
+
+                {/* Indicador de ativo */}
+                {centralActive && (
+                  <div className="absolute top-0 w-1.5 h-1.5 rounded-full bg-purple-500"></div>
+                )}
+
+                <CentralIcon className={`w-6 h-6 mb-1 relative z-10 ${centralActive ? "text-white" : "text-purple-500"}`} />
+                <span className={`text-xs relative z-10 ${centralActive ? "text-purple-500 font-bold" : "text-gray-400"}`}>
+                  {botaoCentralConfig.label}
+                </span>
               </button>
             );
           }
@@ -417,4 +430,4 @@ export default function BottomBar() {
       </div>
     </div>
   );
-}
+  }
