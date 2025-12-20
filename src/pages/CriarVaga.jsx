@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { useUserArea } from "@/components/hooks/useUserArea";
 import { 
   ChevronLeft, 
   ArrowRight, 
@@ -17,6 +18,7 @@ import CityAutocomplete from "@/components/forms/CityAutocomplete";
 
 export default function CriarVaga() {
   const navigate = useNavigate();
+  const { userArea } = useUserArea();
   const [etapaAtual, setEtapaAtual] = useState(1);
   const [loading, setLoading] = useState(false);
   const [unit, setUnit] = useState(null);
@@ -27,7 +29,7 @@ export default function CriarVaga() {
     titulo: "",
     descricao: "",
     tipo_vaga: "",
-    tipo_profissional: "",
+    tipo_profissional: userArea === "ODONTOLOGIA" ? "DENTISTA" : "MEDICO",
 
     // ETAPA 2
     especialidades_aceitas: [],
@@ -319,20 +321,13 @@ export default function CriarVaga() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Tipo de Profissional *</label>
-                <select
-                  value={formData.tipo_profissional}
-                  onChange={(e) => {
-                    handleInputChange("tipo_profissional", e.target.value);
-                    // Limpar especialidades ao mudar tipo
-                    handleInputChange("especialidades_aceitas", []);
-                  }}
-                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-pink-400 focus:ring-4 focus:ring-pink-100 appearance-none bg-white cursor-pointer transition-all outline-none"
-                >
-                  <option value="">Selecione</option>
-                  <option value="DENTISTA">Dentista</option>
-                  <option value="MEDICO">Médico</option>
-                </select>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Tipo de Profissional</label>
+                <div className="flex items-center gap-2">
+                  <span className="px-4 py-3 bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-700 font-bold rounded-xl border-2 border-orange-200">
+                    {userArea === "ODONTOLOGIA" ? "🦷 Dentista" : "⚕️ Médico"}
+                  </span>
+                  <span className="text-sm text-gray-500">Definido pela sua clínica</span>
+                </div>
               </div>
             </div>
           </div>

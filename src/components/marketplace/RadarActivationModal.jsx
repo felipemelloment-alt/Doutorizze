@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useUserArea } from "@/components/hooks/useUserArea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -56,8 +57,8 @@ const UFS = [
 
 export default function RadarActivationModal({ open, onOpenChange, initialCategory, initialSearch }) {
   const queryClient = useQueryClient();
+  const { userArea } = useUserArea();
   const [user, setUser] = useState(null);
-  const [userArea, setUserArea] = useState(null);
   const [uf, setUf] = useState("");
   const [cidade, setCidade] = useState("");
   const { cidades, loading: cidadesLoading } = useIBGECidades(uf);
@@ -72,36 +73,23 @@ export default function RadarActivationModal({ open, onOpenChange, initialCatego
     observacoes: "",
   });
 
+  // Definir área automaticamente
   useEffect(() => {
-    const loadUserArea = async () => {
+    if (userArea) {
+      setFormData(prev => ({ ...prev, tipo_mundo: userArea }));
+    }
+  }, [userArea]);
+
+  useEffect(() => {
+    const loadUser = async () => {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
-        
-        // Verificar se é profissional
-        const professionals = await base44.entities.Professional.filter({ user_id: currentUser.id });
-        if (professionals.length > 0) {
-          const tipo = professionals[0].tipo_profissional;
-          setUserArea(tipo === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA");
-          setFormData(prev => ({ ...prev, tipo_mundo: tipo === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA" }));
-          return;
-        }
-        
-        // Verificar se é clínica
-        const owners = await base44.entities.CompanyOwner.filter({ user_id: currentUser.id });
-        if (owners.length > 0) {
-          const units = await base44.entities.CompanyUnit.filter({ owner_id: owners[0].id });
-          if (units.length > 0) {
-            const tipo = units[0].tipo_mundo;
-            setUserArea(tipo);
-            setFormData(prev => ({ ...prev, tipo_mundo: tipo }));
-          }
-        }
       } catch (error) {
-        console.error("Erro ao carregar área do usuário:", error);
+        console.error("Erro ao carregar usuário:", error);
       }
     };
-    loadUserArea();
+    loadUser();
   }, []);
 
   const createRadarMutation = useMutation({
@@ -224,32 +212,15 @@ export default function RadarActivationModal({ open, onOpenChange, initialCatego
             </div>
           </div>
 
-          {/* Categoria */}
+          {/* Categoria - AUTOMATICA */}
           <div>
-            <Label className="text-base font-bold">Categoria *</Label>
-            {userArea ? (
-              <div className="flex items-center gap-3 mt-2">
-                <span className="px-4 py-3 bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-700 font-bold rounded-xl border-2 border-orange-200">
-                  {userArea === "ODONTOLOGIA" ? "🦷 Odontologia" : "⚕️ Medicina"}
-                </span>
-                <span className="text-sm text-gray-500">Sua área de atuação</span>
-              </div>
-            ) : (
-              <Select
-                value={formData.tipo_mundo}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, tipo_mundo: value })
-                }
-              >
-                <SelectTrigger className="h-12 rounded-xl border-2 mt-2">
-                  <SelectValue placeholder="Selecione" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ODONTOLOGIA">🦷 Odontologia</SelectItem>
-                  <SelectItem value="MEDICINA">⚕️ Medicina</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
+            <Label className="text-base font-bold">Categoria</Label>
+            <div className="flex items-center gap-3 mt-2">
+              <span className="px-4 py-3 bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-700 font-bold rounded-xl border-2 border-orange-200">
+                {userArea === "ODONTOLOGIA" ? "🦷 Odontologia" : "⚕️ Medicina"}
+              </span>
+              <span className="text-sm text-gray-500">Sua área de atuação</span>
+            </div>
           </div>
 
           {/* Nome do Produto */}

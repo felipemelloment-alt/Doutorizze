@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
+import { useUserArea } from "@/components/hooks/useUserArea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -19,6 +20,7 @@ const estados = [
 ];
 
 export default function BuscarProfissionais() {
+  const { userArea } = useUserArea();
   const [especialidade, setEspecialidade] = useState("");
   const [uf, setUf] = useState("");
   const [cidade, setCidade] = useState("");
@@ -102,7 +104,7 @@ export default function BuscarProfissionais() {
   const buscarProfissionais = async () => {
     setBuscando(true);
     try {
-      const tipoProfissional = userWorld === "ODONTOLOGIA" ? "DENTISTA" : "MEDICO";
+      const tipoProfissional = userArea === "ODONTOLOGIA" ? "DENTISTA" : "MEDICO";
 
       // Buscar profissionais aprovados e disponíveis
       const resultados = await base44.entities.Professional.filter({

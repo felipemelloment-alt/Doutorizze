@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { useUserArea } from "@/components/hooks/useUserArea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -37,9 +38,8 @@ import {
 
 export default function Marketplace() {
   const navigate = useNavigate();
+  const { userArea, loading: loadingUserArea } = useUserArea();
   const [user, setUser] = useState(null);
-  const [professional, setProfessional] = useState(null);
-  const [activeTab, setActiveTab] = useState("ODONTOLOGIA");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCity, setSelectedCity] = useState("all");
   const [priceRange, setPriceRange] = useState("all");
@@ -55,15 +55,6 @@ export default function Marketplace() {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
-        
-        // Carregar profissional e definir área inicial
-        const profResult = await base44.entities.Professional.filter({ user_id: currentUser.id });
-        if (profResult[0]) {
-          setProfessional(profResult[0]);
-          // Definir tab baseado no tipo de profissional
-          const area = profResult[0].tipo_profissional === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA";
-          setActiveTab(area);
-        }
       } catch (error) {
         console.error("Erro ao carregar usuário:", error);
       }
@@ -71,15 +62,10 @@ export default function Marketplace() {
     loadUser();
   }, []);
   const { data: items = [], isLoading, isError } = useQuery({
-  queryKey: ["marketplaceItems", { activeTab }],
+  queryKey: ["marketplaceItems", userArea],
   queryFn: async () => {
     try {
-      const where = { status: "ATIVO" };
-
-      if (activeTab && activeTab !== "TODOS") {
-        where.tipo_mundo = activeTab;
-      }
-
+      const where = { status: "ATIVO", tipo_mundo: userArea };
       const result = await base44.entities.MarketplaceItem.filter(where);
       return result || [];
     } catch (err) {
@@ -87,7 +73,7 @@ export default function Marketplace() {
       return [];
     }
   },
-  enabled: !!activeTab,
+  enabled: !!userArea,
   retry: 1,
   staleTime: 1000 * 60 * 5,
 });
@@ -95,14 +81,6 @@ export default function Marketplace() {
 
   // Filtrar items
   const filteredItems = items.filter((item) => {
-    // Filtro de área do profissional
-    if (professional) {
-      const areaUsuario = professional.tipo_profissional === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA";
-      if (item.tipo_mundo !== areaUsuario && item.tipo_mundo !== "AMBOS") {
-        return false;
-      }
-    }
-
     const matchSearch = item.titulo_item?.
     toLowerCase().
     includes(searchTerm.toLowerCase()) ||
@@ -166,13 +144,13 @@ export default function Marketplace() {
   // Reset página ao mudar filtros
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, selectedCity, priceRange, condition, activeTab, sortBy]);
+  }, [searchTerm, selectedCity, priceRange, condition, sortBy]);
 
   const cities = [...new Set(items.map((item) => item.localizacao))].filter(
     Boolean
   );
 
-  if (isLoading) {
+  if (isLoading || loadingUserArea) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 p-6 flex items-center justify-center">
         <div className="text-center">
@@ -220,30 +198,17 @@ export default function Marketplace() {
             <h1 className="text-4xl md:text-5xl font-black text-white mb-2" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.2)' }}>
               MARKETPLACE
             </h1>
-            <p className="text-white/90 text-lg">Equipamentos odontológicos e médicos</p>
+            <p className="text-white/90 text-lg">
+              Equipamentos de {userArea === "ODONTOLOGIA" ? "Odontologia 🦷" : "Medicina ⚕️"}
+            </p>
           </div>
         </div>
 
-        {/* Tabs de Categoria */}
-        <div className="flex gap-3 mb-6">
-          <button
-            onClick={() => setActiveTab("ODONTOLOGIA")}
-            className={`flex-1 py-4 ${
-              activeTab === "ODONTOLOGIA"
-                ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-lg shadow-yellow-200/50"
-                : "bg-white border-2 border-gray-200 text-gray-600 hover:border-yellow-400"
-            } font-bold rounded-2xl flex items-center justify-center gap-2 transition-all`}>
-            🦷 Odontologia
-          </button>
-          <button
-            onClick={() => setActiveTab("MEDICINA")}
-            className={`flex-1 py-4 ${
-              activeTab === "MEDICINA"
-                ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-lg shadow-yellow-200/50"
-                : "bg-white border-2 border-gray-200 text-gray-600 hover:border-yellow-400"
-            } font-bold rounded-2xl flex items-center justify-center gap-2 transition-all`}>
-            ⚕️ Medicina
-          </button>
+        {/* Badge de Área do Usuário */}
+        <div className="mb-6 flex justify-center">
+          <div className="px-6 py-3 bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-700 font-bold rounded-2xl border-2 border-orange-200 shadow-lg">
+            {userArea === "ODONTOLOGIA" ? "🦷 Odontologia" : "⚕️ Medicina"}
+          </div>
         </div>
 
         {/* Busca + Botão Anunciar */}
@@ -571,7 +536,7 @@ export default function Marketplace() {
       <RadarActivationModal
         open={radarModalOpen}
         onOpenChange={setRadarModalOpen}
-        initialCategory={activeTab}
+        initialCategory={userArea}
         initialSearch={searchTerm}
       />
     </div>
