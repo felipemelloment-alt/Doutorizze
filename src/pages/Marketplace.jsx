@@ -17,6 +17,7 @@ import {
 "@/components/ui/select";
 import MarketplaceItemCard from "../components/marketplace/MarketplaceItemCard";
 import RadarActivationModal from "../components/marketplace/RadarActivationModal";
+import ScoreBadge from "../components/marketplace/ScoreBadge";
 import { motion } from "framer-motion";
 import {
   ShoppingBag,
@@ -114,7 +115,7 @@ export default function Marketplace() {
     return matchSearch && matchCity && matchPrice && matchCondition;
   });
 
-  // Ordenar items
+  // Ordenar items com ranking
   const sortedItems = [...filteredItems].sort((a, b) => {
     switch (sortBy) {
       case "recent":
@@ -126,10 +127,10 @@ export default function Marketplace() {
       case "price-desc":
         return (b.preco || 0) - (a.preco || 0);
       case "relevant":
-        // Relevância por views e recência
-        const scoreA = (a.visualizacoes || 0) + (Date.now() - new Date(a.created_date)) / 1000000;
-        const scoreB = (b.visualizacoes || 0) + (Date.now() - new Date(b.created_date)) / 1000000;
-        return scoreB - scoreA;
+        // Usar score de ranking final
+        const rankingA = (a.score_qualidade || 0) * 0.6 + (a.score_confiabilidade || 50) * 0.4 + ((a.visualizacoes || 0) / 10);
+        const rankingB = (b.score_qualidade || 0) * 0.6 + (b.score_confiabilidade || 50) * 0.4 + ((b.visualizacoes || 0) / 10);
+        return rankingB - rankingA;
       default:
         return 0;
     }
@@ -421,6 +422,9 @@ export default function Marketplace() {
                       <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-semibold">
                         {item.tipo_mundo === "ODONTOLOGIA" ? "🦷 Odonto" : "⚕️ Medicina"}
                       </span>
+                      {item.score_qualidade >= 70 && (
+                        <ScoreBadge score={item.score_qualidade} tipo="qualidade" size="sm" />
+                      )}
                     </div>
 
                     {/* Título */}
