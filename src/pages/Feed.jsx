@@ -24,24 +24,19 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-// Componente do Banner Stories com Auto-scroll INFINITO
+// Componente do Banner Stories com Auto-scroll INFINITO SEAMLESS
 function StoriesBanner({ items, userType, onItemClick }) {
   const scrollRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Duplicar itens para criar loop infinito sem cortes
-  const duplicatedItems = [...items, ...items, ...items];
+  // Duplicar itens apenas 2x para loop infinito
+  const duplicatedItems = [...items, ...items];
 
-  // Auto-scroll INFINITO
+  // Auto-scroll INFINITO SEAMLESS
   useEffect(() => {
     if (!scrollRef.current || isPaused || items.length === 0) return;
 
     const container = scrollRef.current;
-    
-    // Posicionar no meio do conteúdo duplicado
-    if (container.scrollLeft === 0) {
-      container.scrollLeft = container.scrollWidth / 3;
-    }
     
     const animate = () => {
       if (!container || isPaused) return;
@@ -49,10 +44,13 @@ function StoriesBanner({ items, userType, onItemClick }) {
       // Incrementa scroll
       container.scrollLeft += 0.5;
       
-      // Quando chega em 2/3 do scroll, volta para 1/3 (loop infinito sem corte visível)
-      const thirdWidth = container.scrollWidth / 3;
-      if (container.scrollLeft >= thirdWidth * 2) {
-        container.scrollLeft = thirdWidth;
+      // Calcular largura de um conjunto de itens
+      const singleSetWidth = container.scrollWidth / 2;
+      
+      // Quando passar do primeiro conjunto completo, volta instantaneamente para o início
+      // Como os itens são idênticos, a transição é imperceptível
+      if (container.scrollLeft >= singleSetWidth) {
+        container.scrollLeft = 0;
       }
     };
 
