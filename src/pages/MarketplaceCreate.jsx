@@ -141,13 +141,21 @@ export default function MarketplaceCreate() {
     onSuccess: async (novoItem) => {
       queryClient.invalidateQueries({ queryKey: ["marketplaceItems"] });
 
+      // Processar radares
       try {
-        await base44.functions.invoke('notifyRadarMatches', { marketplace_item_id: novoItem.id });
+        const { processarNotificacoesRadar } = await import("@/components/marketplace/radarMatcher");
+        const totalMatches = await processarNotificacoesRadar(novoItem, base44, user.id);
+        
+        if (totalMatches > 0) {
+          toast.success(`✅ Anúncio publicado! ${totalMatches} radar(es) notificado(s)!`);
+        } else {
+          toast.success("✅ Anúncio publicado com sucesso!");
+        }
       } catch (error) {
-        console.log("Erro ao notificar radares:", error);
+        console.error("Erro ao processar radares:", error);
+        toast.success("✅ Anúncio publicado com sucesso!");
       }
 
-      toast.success("✅ Anúncio publicado com sucesso!");
       navigate(createPageUrl("Marketplace"));
     },
     onError: (error) => {

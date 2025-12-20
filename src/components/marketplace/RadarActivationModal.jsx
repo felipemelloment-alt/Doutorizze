@@ -65,13 +65,21 @@ export default function RadarActivationModal({ open, onOpenChange, initialCatego
 
   const [formData, setFormData] = useState({
     tipo_mundo: initialCategory || "",
-    nome_produto: initialSearch || "",
-    preco_maximo: "",
-    localizacao_preferida: "",
-    condicao_preferida: [],
+    categoria: "",
+    subcategoria: "",
+    keywords: initialSearch ? [initialSearch] : [],
+    marca: "",
+    preco_min: "",
+    preco_max: "",
+    uf: "",
+    cidade: "",
+    condicao: [],
     telefone_contato: "",
+    notificar_whatsapp: true,
     observacoes: "",
   });
+
+  const [keywordInput, setKeywordInput] = useState("");
 
   // Definir área automaticamente
   useEffect(() => {
@@ -98,14 +106,21 @@ export default function RadarActivationModal({ open, onOpenChange, initialCatego
       const expirationDate = new Date();
       expirationDate.setDate(expirationDate.getDate() + 60);
 
+      // Detectar tipo do usuário
+      let tipoUsuario = "DENTISTA";
+      if (user?.tipo_conta === "CLINICA") tipoUsuario = "CLINICA";
+      else if (user?.tipo_conta === "FORNECEDOR") tipoUsuario = "FORNECEDOR";
+      else if (user?.vertical === "MEDICINA") tipoUsuario = "MEDICO";
+
       return await base44.entities.ProductRadar.create({
         ...data,
         data_expiracao: expirationDate.toISOString().split("T")[0],
         interessado_id: user?.id,
         interessado_nome: user?.full_name,
-        interessado_tipo: "DENTISTA", // Ajustar baseado no tipo real
+        interessado_tipo: tipoUsuario,
         ativo: true,
         notificacoes_recebidas: 0,
+        radar_notified_items: []
       });
     },
     onSuccess: () => {
@@ -114,13 +129,20 @@ export default function RadarActivationModal({ open, onOpenChange, initialCatego
       onOpenChange(false);
       setFormData({
         tipo_mundo: "",
-        nome_produto: "",
-        preco_maximo: "",
-        localizacao_preferida: "",
-        condicao_preferida: [],
+        categoria: "",
+        subcategoria: "",
+        keywords: [],
+        marca: "",
+        preco_min: "",
+        preco_max: "",
+        uf: "",
+        cidade: "",
+        condicao: [],
         telefone_contato: "",
+        notificar_whatsapp: true,
         observacoes: "",
       });
+      setKeywordInput("");
     },
     onError: (error) => {
       toast.error("Erro ao ativar radar. Tente novamente.");
@@ -131,25 +153,53 @@ export default function RadarActivationModal({ open, onOpenChange, initialCatego
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!formData.tipo_mundo || !formData.nome_produto || !formData.telefone_contato) {
+    if (!formData.tipo_mundo || !formData.telefone_contato) {
       toast.error("Preencha os campos obrigatórios!");
+      return;
+    }
+
+    if (formData.keywords.length === 0 && !formData.categoria) {
+      toast.error("Adicione palavras-chave ou selecione uma categoria!");
       return;
     }
 
     createRadarMutation.mutate(formData);
   };
 
+  const adicionarKeyword = () => {
+    const keyword = keywordInput.trim();
+    if (!keyword) return;
+    
+    if (formData.keywords.includes(keyword)) {
+      toast.error("Palavra-chave já adicionada");
+      return;
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      keywords: [...prev.keywords, keyword]
+    }));
+    setKeywordInput("");
+  };
+
+  const removerKeyword = (keyword) => {
+    setFormData(prev => ({
+      ...prev,
+      keywords: prev.keywords.filter(k => k !== keyword)
+    }));
+  };
+
   const toggleCondition = (condition) => {
-    const current = formData.condicao_preferida || [];
+    const current = formData.condicao || [];
     if (current.includes(condition)) {
       setFormData({
         ...formData,
-        condicao_preferida: current.filter((c) => c !== condition),
+        condicao: current.filter((c) => c !== condition),
       });
     } else {
       setFormData({
         ...formData,
-        condicao_preferida: [...current, condition],
+        condicao: [...current, condition],
       });
     }
   };
@@ -223,34 +273,85 @@ export default function RadarActivationModal({ open, onOpenChange, initialCatego
             </div>
           </div>
 
-          {/* Nome do Produto */}
+          {/* Palavras-chave */}
           <div>
-            <Label className="text-base font-bold">Produto que você procura *</Label>
+            <Label className="text-base font-bold">Palavras-chave *</Label>
+            <div className="mt-2 space-y-2">
+              {formData.keywords.length > 0 && (
+                <div className="flex flex-wrap gap-2 p-3 bg-green-50 rounded-xl">
+                  {formData.keywords.map((kw, idx) => (
+                    <span
+                      key={idx}
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-green-500 text-white rounded-full text-sm font-semibold"
+                    >
+                      {kw}
+                      <button
+                        type="button"
+                        onClick={() => removerKeyword(kw)}
+                        className="hover:bg-green-600 rounded-full px-1"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <Input
+                  value={keywordInput}
+                  onChange={(e) => setKeywordInput(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), adicionarKeyword())}
+                  placeholder="Ex: autoclave, cadeira, compressor"
+                  className="h-12 text-lg rounded-xl border-2"
+                />
+                <button
+                  type="button"
+                  onClick={adicionarKeyword}
+                  className="px-4 bg-green-500 text-white font-bold rounded-xl hover:bg-green-600 transition-all"
+                >
+                  +
+                </button>
+              </div>
+              <p className="text-xs text-gray-500">Pressione Enter ou clique + para adicionar</p>
+            </div>
+          </div>
+
+          {/* Marca */}
+          <div>
+            <Label className="text-base font-bold">Marca (opcional)</Label>
             <Input
-              placeholder="Ex: Cadeira Odontológica, Autoclave, etc."
-              value={formData.nome_produto}
-              onChange={(e) =>
-                setFormData({ ...formData, nome_produto: e.target.value })
-              }
+              placeholder="Ex: Cristófoli, Gnatus, Kavo"
+              value={formData.marca}
+              onChange={(e) => setFormData({ ...formData, marca: e.target.value })}
               className="h-12 text-lg rounded-xl border-2 mt-2"
             />
           </div>
 
-          {/* Preço Máximo */}
-          <div>
-            <Label className="text-base font-bold">Preço máximo (R$)</Label>
-            <div className="relative mt-2">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">R$</span>
+          {/* Faixa de Preço */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label className="text-base font-bold">Preço mínimo (R$)</Label>
               <Input
-                type="text"
-                inputMode="numeric"
-                placeholder="0,00"
-                value={formData.preco_maximo ? formatarMoeda(parseFloat(formData.preco_maximo)).replace('R$', '').trim() : ''}
-                onChange={handlePrecoChange}
-                className="h-12 text-lg rounded-xl border-2 pl-12"
+                type="number"
+                placeholder="0"
+                value={formData.preco_min}
+                onChange={(e) => setFormData({ ...formData, preco_min: e.target.value })}
+                min="0"
+                className="h-12 text-lg rounded-xl border-2 mt-2"
               />
             </div>
-            <p className="text-xs text-gray-500 mt-1">Valor máximo: R$ 9.999.999,99</p>
+            <div>
+              <Label className="text-base font-bold">Preço máximo (R$)</Label>
+              <Input
+                type="number"
+                placeholder="0"
+                value={formData.preco_max}
+                onChange={(e) => setFormData({ ...formData, preco_max: e.target.value })}
+                min="0"
+                className="h-12 text-lg rounded-xl border-2 mt-2"
+              />
+            </div>
           </div>
 
           {/* Localização */}
@@ -300,7 +401,7 @@ export default function RadarActivationModal({ open, onOpenChange, initialCatego
           {/* Condições */}
           <div>
             <Label className="text-base font-bold mb-3 block">
-              Condições que você aceita
+              Condições que você aceita (opcional)
             </Label>
             <div className="flex gap-3">
               {["NOVO", "SEMINOVO", "USADO"].map((condition) => (
@@ -309,7 +410,7 @@ export default function RadarActivationModal({ open, onOpenChange, initialCatego
                   type="button"
                   onClick={() => toggleCondition(condition)}
                   className={`flex-1 py-3 rounded-xl border-2 font-bold transition-all ${
-                    (formData.condicao_preferida || []).includes(condition)
+                    (formData.condicao || []).includes(condition)
                       ? "bg-green-500 border-green-500 text-white"
                       : "bg-white border-gray-300 text-gray-700 hover:border-green-300"
                   }`}
@@ -320,22 +421,36 @@ export default function RadarActivationModal({ open, onOpenChange, initialCatego
                 </button>
               ))}
             </div>
+            <p className="text-xs text-gray-500 mt-1">Se não selecionar, aceita qualquer condição</p>
           </div>
 
-          {/* WhatsApp */}
+          {/* WhatsApp + Notificação */}
           <div>
             <Label className="text-base font-bold">WhatsApp *</Label>
             <Input
               placeholder="62999998888 (apenas números)"
               value={formData.telefone_contato}
               onChange={(e) =>
-                setFormData({ ...formData, telefone_contato: e.target.value })
+                setFormData({ ...formData, telefone_contato: e.target.value.replace(/\D/g, "") })
               }
               maxLength={11}
               className="h-12 text-lg rounded-xl border-2 mt-2"
             />
-            <p className="text-sm text-gray-600 mt-1">
-              Vendedores poderão te chamar quando tiverem o produto
+
+            <div className="mt-3 flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="notificar_whatsapp"
+                checked={formData.notificar_whatsapp}
+                onChange={(e) => setFormData({ ...formData, notificar_whatsapp: e.target.checked })}
+                className="w-4 h-4 accent-green-500"
+              />
+              <label htmlFor="notificar_whatsapp" className="text-sm text-gray-700 cursor-pointer">
+                📱 Receber notificação via WhatsApp quando detectar produto
+              </label>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Vendedores também podem te chamar quando tiverem o produto
             </p>
           </div>
 
