@@ -29,26 +29,34 @@ function StoriesBanner({ items, userType, onItemClick }) {
   const scrollRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false);
 
+  // Duplicar itens para criar loop infinito sem cortes
+  const duplicatedItems = [...items, ...items, ...items];
+
   // Auto-scroll INFINITO
   useEffect(() => {
     if (!scrollRef.current || isPaused || items.length === 0) return;
 
     const container = scrollRef.current;
     
+    // Posicionar no meio do conteúdo duplicado
+    if (container.scrollLeft === 0) {
+      container.scrollLeft = container.scrollWidth / 3;
+    }
+    
     const animate = () => {
       if (!container || isPaused) return;
       
       // Incrementa scroll
-      container.scrollLeft += 0.5; // Velocidade bem lenta
+      container.scrollLeft += 0.5;
       
-      // Quando chega no final, volta ao início suavemente
-      const maxScroll = container.scrollWidth - container.clientWidth;
-      if (container.scrollLeft >= maxScroll) {
-        container.scrollLeft = 0;
+      // Quando chega em 2/3 do scroll, volta para 1/3 (loop infinito sem corte visível)
+      const thirdWidth = container.scrollWidth / 3;
+      if (container.scrollLeft >= thirdWidth * 2) {
+        container.scrollLeft = thirdWidth;
       }
     };
 
-    const interval = setInterval(animate, 20); // 20ms para movimento super suave
+    const interval = setInterval(animate, 20);
 
     return () => clearInterval(interval);
   }, [isPaused, items.length]);
@@ -96,9 +104,9 @@ function StoriesBanner({ items, userType, onItemClick }) {
           }
         `}</style>
 
-        {items.map((item, index) => (
+        {duplicatedItems.map((item, index) => (
           <button
-            key={item.id || index}
+            key={`${item.id}-${index}`}
             onClick={() => onItemClick(item)}
             className="flex-shrink-0 flex flex-col items-center min-w-[90px] transition-transform active:scale-95"
           >
