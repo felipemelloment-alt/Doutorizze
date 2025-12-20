@@ -22,7 +22,6 @@ import {
 export default function MinhasCandidaturas() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [filtroAtivo, setFiltroAtivo] = useState("TODAS");
   const [professional, setProfessional] = useState(null);
   const [cancelModal, setCancelModal] = useState(null);
   const [motivoSelecionado, setMotivoSelecionado] = useState("");
@@ -130,22 +129,13 @@ export default function MinhasCandidaturas() {
     OUTROS: "Outros"
   };
 
-  // Preparar dados combinados
+  // Preparar dados combinados e ordenar por data
   const candidaturasCompletas = matches.map(match => {
     const job = jobs.find(j => j.id === match.job_id);
     const unit = job ? units.find(u => u.id === job.unit_id) : null;
     return { match, job, unit };
-  }).filter(item => item.job && item.unit);
-
-  // Filtrar candidaturas
-  const candidaturasFiltradas = candidaturasCompletas.filter(item => {
-    if (filtroAtivo === "TODAS") return true;
-    if (filtroAtivo === "PENDENTES") return item.match.status_candidatura === "CANDIDATOU";
-    if (filtroAtivo === "VISUALIZADAS") return item.match.status_candidatura === "VISUALIZADO";
-    if (filtroAtivo === "ACEITAS") return item.match.status_candidatura === "CONTATADO";
-    if (filtroAtivo === "RECUSADAS") return item.match.status_candidatura === "REJEITADO";
-    return true;
-  });
+  }).filter(item => item.job && item.unit)
+    .sort((a, b) => new Date(b.match.created_date) - new Date(a.match.created_date));
 
   const tipoVagaConfig = {
     PLANTAO: { label: "Plantão", color: "bg-blue-100 text-blue-700" },
@@ -155,19 +145,27 @@ export default function MinhasCandidaturas() {
   };
 
   const statusConfig = {
-    CANDIDATOU: { label: "Pendente", color: "bg-yellow-100 text-yellow-700" },
-    VISUALIZADO: { label: "Visualizada", color: "bg-blue-100 text-blue-700" },
-    CONTATADO: { label: "Aceita", color: "bg-green-100 text-green-700" },
-    REJEITADO: { label: "Recusada", color: "bg-red-100 text-red-700" }
+    CANDIDATOU: { 
+      label: "Aguardando Resposta", 
+      color: "bg-yellow-100 text-yellow-700 border-yellow-200",
+      icon: "⏳"
+    },
+    VISUALIZADO: { 
+      label: "Visualizada", 
+      color: "bg-blue-100 text-blue-700 border-blue-200",
+      icon: "👁️"
+    },
+    CONTATADO: { 
+      label: "Em Contato", 
+      color: "bg-green-100 text-green-700 border-green-200",
+      icon: "✅"
+    },
+    REJEITADO: { 
+      label: "Não Selecionado", 
+      color: "bg-gray-100 text-gray-700 border-gray-200",
+      icon: "❌"
+    }
   };
-
-  const filtros = [
-    { key: "TODAS", label: "Todas", count: candidaturasCompletas.length },
-    { key: "PENDENTES", label: "Pendentes", count: candidaturasCompletas.filter(i => i.match.status_candidatura === "CANDIDATOU").length },
-    { key: "VISUALIZADAS", label: "Visualizadas", count: candidaturasCompletas.filter(i => i.match.status_candidatura === "VISUALIZADO").length },
-    { key: "ACEITAS", label: "Aceitas", count: candidaturasCompletas.filter(i => i.match.status_candidatura === "CONTATADO").length },
-    { key: "RECUSADAS", label: "Recusadas", count: candidaturasCompletas.filter(i => i.match.status_candidatura === "REJEITADO").length }
-  ];
 
   if (isLoading) {
     return (
@@ -187,146 +185,142 @@ export default function MinhasCandidaturas() {
       <div className="absolute bottom-0 left-0 w-80 h-80 bg-pink-300 rounded-full blur-3xl opacity-20"></div>
 
       {/* HEADER */}
-      <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 pt-8 pb-8 px-4 relative">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between gap-4 mb-2">
-            <h1 className="text-3xl md:text-4xl font-black text-white">Minhas Candidaturas</h1>
-            <span className="px-4 py-2 bg-yellow-100 text-yellow-700 font-bold rounded-full text-sm">
-              {candidaturasCompletas.length} {candidaturasCompletas.length === 1 ? "candidatura" : "candidaturas"}
-            </span>
+      <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 pt-12 pb-16 px-4 relative overflow-hidden">
+        {/* Decoração */}
+        <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+        
+        <div className="max-w-5xl mx-auto relative z-10">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-3xl shadow-lg">
+              💼
+            </div>
+            <div>
+              <h1 className="text-4xl font-black text-white mb-1" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.2)' }}>
+                Minhas Candidaturas
+              </h1>
+              <p className="text-white/90 text-lg">
+                {candidaturasCompletas.length} {candidaturasCompletas.length === 1 ? "candidatura ativa" : "candidaturas ativas"}
+              </p>
+            </div>
           </div>
-          <p className="text-white/80">Acompanhe o status das suas candidaturas</p>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 -mt-4 relative z-10">
-        {/* FILTROS */}
-        <div className="bg-white rounded-3xl shadow-xl p-4 mb-6 overflow-x-auto">
-          <div className="flex gap-3 min-w-max">
-            {filtros.map((filtro) => (
-              <button
-                key={filtro.key}
-                onClick={() => setFiltroAtivo(filtro.key)}
-                className={`px-5 py-2.5 font-bold rounded-full transition-all whitespace-nowrap ${
-                  filtroAtivo === filtro.key
-                    ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-lg"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                {filtro.label} {filtro.count > 0 && `(${filtro.count})`}
-              </button>
-            ))}
-          </div>
-        </div>
+      <div className="max-w-5xl mx-auto px-4 -mt-8 relative z-10 pb-24">
 
         {/* LISTA DE CANDIDATURAS */}
-        {candidaturasFiltradas.length === 0 ? (
+        {candidaturasCompletas.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-3xl shadow-xl p-12 text-center"
+            className="bg-white rounded-3xl shadow-xl p-16 text-center"
           >
-            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-yellow-100 flex items-center justify-center">
-              <FileText className="w-10 h-10 text-yellow-500" />
+            <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-yellow-100 to-orange-100 flex items-center justify-center text-5xl">
+              📄
             </div>
-            <h3 className="text-2xl font-black text-gray-900 mb-2">
-              {filtroAtivo === "TODAS" ? "Nenhuma candidatura ainda" : `Nenhuma candidatura ${filtros.find(f => f.key === filtroAtivo)?.label.toLowerCase()}`}
+            <h3 className="text-3xl font-black text-gray-900 mb-3">
+              Nenhuma candidatura ainda
             </h3>
-            <p className="text-gray-600 mb-6">
-              {filtroAtivo === "TODAS" 
-                ? "Você ainda não se candidatou a nenhuma vaga. Que tal começar agora?"
-                : "Nenhuma candidatura encontrada nesta categoria."
-              }
+            <p className="text-gray-600 text-lg mb-8 max-w-md mx-auto">
+              Você ainda não se candidatou a nenhuma vaga. Explore as oportunidades disponíveis!
             </p>
             <button
               onClick={() => navigate(createPageUrl("NewJobs"))}
-              className="px-6 py-3 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold rounded-2xl hover:shadow-lg transition-all inline-flex items-center gap-2"
+              className="px-8 py-4 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold text-lg rounded-2xl hover:shadow-2xl hover:scale-105 transition-all inline-flex items-center gap-3"
             >
-              <Search className="w-5 h-5" />
+              <Search className="w-6 h-6" />
               Buscar Vagas
             </button>
           </motion.div>
         ) : (
-          <div className="space-y-4 pb-8">
-            {candidaturasFiltradas.map((item, index) => (
+          <div className="space-y-5">
+            {candidaturasCompletas.map((item, index) => (
               <motion.div
                 key={item.match.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="bg-white rounded-3xl shadow-lg p-6 hover:shadow-xl transition-all"
+                onClick={() => navigate(createPageUrl("DetalheVaga") + "/" + item.job.id)}
+                className="bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all cursor-pointer overflow-hidden group"
               >
-                <div className="flex gap-4">
-                  {/* Logo Clínica */}
-                  <div className="flex-shrink-0">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-pink-400 to-red-500 flex items-center justify-center text-white text-xl font-bold shadow-lg">
-                      {item.unit.nome_fantasia?.charAt(0).toUpperCase()}
-                    </div>
+                {/* Status Bar no Topo */}
+                <div className={`px-6 py-3 border-b-4 ${statusConfig[item.match.status_candidatura]?.color} flex items-center justify-between`}>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{statusConfig[item.match.status_candidatura]?.icon}</span>
+                    <span className="font-bold text-sm">
+                      {statusConfig[item.match.status_candidatura]?.label}
+                    </span>
                   </div>
+                  <span className="text-xs opacity-70">
+                    {formatDistanceToNow(new Date(item.match.created_date), { 
+                      addSuffix: true, 
+                      locale: ptBR 
+                    })}
+                  </span>
+                </div>
 
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-start justify-between gap-2 mb-2">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-bold text-gray-900 truncate mb-1">{item.job.titulo}</h3>
-                        <p className="text-sm text-gray-600 flex items-center gap-1 mb-2">
-                          <Briefcase className="w-4 h-4 flex-shrink-0" />
-                          {item.unit.nome_fantasia}
+                <div className="p-6">
+                  <div className="flex gap-5">
+                    {/* Logo Clínica */}
+                    <div className="flex-shrink-0">
+                      <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-pink-400 to-red-500 flex items-center justify-center text-white text-2xl font-bold shadow-xl group-hover:scale-110 transition-transform">
+                        {item.unit.nome_fantasia?.charAt(0).toUpperCase()}
+                      </div>
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-xl font-black text-gray-900 mb-2 group-hover:text-orange-600 transition-colors">
+                        {item.job.titulo}
+                      </h3>
+                      
+                      <div className="space-y-2 mb-4">
+                        <p className="text-gray-600 flex items-center gap-2">
+                          <Briefcase className="w-4 h-4 text-gray-400" />
+                          <span className="font-semibold">{item.unit.nome_fantasia}</span>
                         </p>
-                        <p className="text-sm text-gray-600 flex items-center gap-1">
-                          <MapPin className="w-4 h-4 flex-shrink-0" />
-                          {item.job.cidade} - {item.job.uf}
+                        <p className="text-gray-600 flex items-center gap-2">
+                          <MapPin className="w-4 h-4 text-gray-400" />
+                          <span>{item.job.cidade} - {item.job.uf}</span>
                         </p>
                       </div>
 
-                      {/* Badge Status */}
-                      <span className={`px-4 py-2 ${statusConfig[item.match.status_candidatura]?.color} font-bold rounded-full text-sm whitespace-nowrap`}>
-                        {statusConfig[item.match.status_candidatura]?.label}
-                      </span>
-                    </div>
-
-                    {/* Badges Info */}
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      <span className={`px-3 py-1.5 ${tipoVagaConfig[item.job.tipo_vaga]?.color} font-semibold rounded-full text-xs`}>
-                        {tipoVagaConfig[item.job.tipo_vaga]?.label}
-                      </span>
-                      {item.job.valor_proposto && item.job.tipo_remuneracao !== "A_COMBINAR" && (
-                        <span className="px-3 py-1.5 bg-green-100 text-green-700 font-semibold rounded-full text-xs flex items-center gap-1">
-                          <DollarSign className="w-3 h-3" />
-                          R$ {item.job.valor_proposto.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      {/* Badges Info */}
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        <span className={`px-4 py-2 ${tipoVagaConfig[item.job.tipo_vaga]?.color} font-bold rounded-full text-xs`}>
+                          {tipoVagaConfig[item.job.tipo_vaga]?.label}
                         </span>
-                      )}
-                    </div>
+                        {item.job.valor_proposto && item.job.tipo_remuneracao !== "A_COMBINAR" && (
+                          <span className="px-4 py-2 bg-green-100 text-green-700 font-bold rounded-full text-xs flex items-center gap-1">
+                            <DollarSign className="w-3.5 h-3.5" />
+                            R$ {item.job.valor_proposto.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                          </span>
+                        )}
+                        {item.job.horario_inicio && item.job.horario_fim && (
+                          <span className="px-4 py-2 bg-blue-100 text-blue-700 font-bold rounded-full text-xs flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5" />
+                            {item.job.horario_inicio} - {item.job.horario_fim}
+                          </span>
+                        )}
+                      </div>
 
-                    {/* Footer */}
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <span className="text-xs text-gray-400 flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {formatDistanceToNow(new Date(item.match.created_date), { 
-                          addSuffix: true, 
-                          locale: ptBR 
-                        })}
-                      </span>
-
-                      <div className="flex gap-2">
-                        {item.match.status_candidatura === "CANDIDATOU" && (
+                      {/* Footer - Ações */}
+                      {item.match.status_candidatura === "CANDIDATOU" && (
+                        <div className="flex items-center gap-3 pt-3 border-t border-gray-100">
                           <button
-                            onClick={() => handleCancelar(item)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCancelar(item);
+                            }}
                             disabled={cancelarMutation.isPending}
-                            className="px-4 py-2 text-red-500 font-semibold hover:bg-red-50 rounded-xl transition-all disabled:opacity-50 flex items-center gap-1"
+                            className="px-5 py-2.5 text-red-600 font-bold hover:bg-red-50 rounded-xl transition-all disabled:opacity-50 flex items-center gap-2 border-2 border-red-200 hover:border-red-400"
                           >
                             <X className="w-4 h-4" />
-                            Cancelar
+                            Cancelar Candidatura
                           </button>
-                        )}
-                        <button
-                          onClick={() => navigate(createPageUrl("DetalheVaga") + "/" + item.job.id)}
-                          className="px-4 py-2 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:border-yellow-400 hover:text-yellow-600 transition-all flex items-center gap-1"
-                        >
-                          <Eye className="w-4 h-4" />
-                          Ver Vaga
-                        </button>
-                      </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
