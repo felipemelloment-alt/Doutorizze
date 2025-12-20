@@ -27,6 +27,7 @@ export default function MarketplaceCreate() {
   const [uploading, setUploading] = useState(false);
   const [radarInterestsModalOpen, setRadarInterestsModalOpen] = useState(false);
   const [matchingInterests, setMatchingInterests] = useState([]);
+  const [userArea, setUserArea] = useState(null);
 
   const [formData, setFormData] = useState({
     tipo_mundo: "",
@@ -42,15 +43,35 @@ export default function MarketplaceCreate() {
   });
 
   useEffect(() => {
-    const loadUser = async () => {
+    const loadUserArea = async () => {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
+        
+        // Verificar se é profissional
+        const professionals = await base44.entities.Professional.filter({ user_id: currentUser.id });
+        if (professionals.length > 0) {
+          const tipo = professionals[0].tipo_profissional;
+          setUserArea(tipo === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA");
+          setFormData(prev => ({ ...prev, tipo_mundo: tipo === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA" }));
+          return;
+        }
+        
+        // Verificar se é clínica
+        const owners = await base44.entities.CompanyOwner.filter({ user_id: currentUser.id });
+        if (owners.length > 0) {
+          const units = await base44.entities.CompanyUnit.filter({ owner_id: owners[0].id });
+          if (units.length > 0) {
+            const tipo = units[0].tipo_mundo;
+            setUserArea(tipo);
+            setFormData(prev => ({ ...prev, tipo_mundo: tipo }));
+          }
+        }
       } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
+        console.error("Erro ao carregar área do usuário:", error);
       }
     };
-    loadUser();
+    loadUserArea();
   }, []);
 
   // Buscar radares ativos
@@ -313,15 +334,24 @@ export default function MarketplaceCreate() {
                 {/* Categoria */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Categoria *</label>
-                  <Select value={formData.tipo_mundo} onValueChange={(value) => setFormData({ ...formData, tipo_mundo: value })}>
-                    <SelectTrigger className="h-12 rounded-xl border-2">
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ODONTOLOGIA">🦷 Odontologia</SelectItem>
-                      <SelectItem value="MEDICINA">⚕️ Medicina</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  {userArea ? (
+                    <div className="flex items-center gap-3">
+                      <span className="px-4 py-3 bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-700 font-bold rounded-xl border-2 border-orange-200">
+                        {userArea === "ODONTOLOGIA" ? "🦷 Odontologia" : "⚕️ Medicina"}
+                      </span>
+                      <span className="text-sm text-gray-500">Sua área de atuação</span>
+                    </div>
+                  ) : (
+                    <Select value={formData.tipo_mundo} onValueChange={(value) => setFormData({ ...formData, tipo_mundo: value })}>
+                      <SelectTrigger className="h-12 rounded-xl border-2">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ODONTOLOGIA">🦷 Odontologia</SelectItem>
+                        <SelectItem value="MEDICINA">⚕️ Medicina</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
                 </div>
 
                 {/* Estado */}
