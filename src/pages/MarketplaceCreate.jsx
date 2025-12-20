@@ -16,9 +16,41 @@ import {
   SelectTrigger,
   SelectValue } from
 "@/components/ui/select";
+import CityAutocomplete from "@/components/forms/CityAutocomplete";
+import { useIBGECidades } from "@/components/hooks/useIBGECidades";
 import RadarInterestsModal from "../components/marketplace/RadarInterestsModal";
 import { toast } from "sonner";
 import { ArrowLeft, Upload, X, Check, Users, Radar, Zap, Camera, ShoppingBag, MapPin, Phone } from "lucide-react";
+
+const UFS = [
+  { sigla: "AC", nome: "Acre" },
+  { sigla: "AL", nome: "Alagoas" },
+  { sigla: "AP", nome: "Amapá" },
+  { sigla: "AM", nome: "Amazonas" },
+  { sigla: "BA", nome: "Bahia" },
+  { sigla: "CE", nome: "Ceará" },
+  { sigla: "DF", nome: "Distrito Federal" },
+  { sigla: "ES", nome: "Espírito Santo" },
+  { sigla: "GO", nome: "Goiás" },
+  { sigla: "MA", nome: "Maranhão" },
+  { sigla: "MT", nome: "Mato Grosso" },
+  { sigla: "MS", nome: "Mato Grosso do Sul" },
+  { sigla: "MG", nome: "Minas Gerais" },
+  { sigla: "PA", nome: "Pará" },
+  { sigla: "PB", nome: "Paraíba" },
+  { sigla: "PR", nome: "Paraná" },
+  { sigla: "PE", nome: "Pernambuco" },
+  { sigla: "PI", nome: "Piauí" },
+  { sigla: "RJ", nome: "Rio de Janeiro" },
+  { sigla: "RN", nome: "Rio Grande do Norte" },
+  { sigla: "RS", nome: "Rio Grande do Sul" },
+  { sigla: "RO", nome: "Rondônia" },
+  { sigla: "RR", nome: "Roraima" },
+  { sigla: "SC", nome: "Santa Catarina" },
+  { sigla: "SP", nome: "São Paulo" },
+  { sigla: "SE", nome: "Sergipe" },
+  { sigla: "TO", nome: "Tocantins" }
+];
 
 export default function MarketplaceCreate() {
   const navigate = useNavigate();
@@ -28,6 +60,9 @@ export default function MarketplaceCreate() {
   const [radarInterestsModalOpen, setRadarInterestsModalOpen] = useState(false);
   const [matchingInterests, setMatchingInterests] = useState([]);
   const [userArea, setUserArea] = useState(null);
+  const [uf, setUf] = useState("");
+  const [cidade, setCidade] = useState("");
+  const { cidades, loading: cidadesLoading } = useIBGECidades(uf);
 
   const [formData, setFormData] = useState({
     tipo_mundo: "",
@@ -200,8 +235,13 @@ export default function MarketplaceCreate() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!formData.tipo_mundo || !formData.titulo_item || !formData.preco || !formData.localizacao || !formData.telefone_contato) {
+    if (!formData.tipo_mundo || !formData.titulo_item || !formData.preco || !formData.telefone_contato) {
       toast.error("Preencha todos os campos obrigatórios!");
+      return;
+    }
+
+    if (!uf || !cidade) {
+      toast.error("Preencha a cidade e o estado!");
       return;
     }
 
@@ -465,15 +505,43 @@ export default function MarketplaceCreate() {
               </div>
               <h2 className="font-bold text-gray-900 text-lg">Localização</h2>
             </div>
-            <div className="p-6">
+            <div className="p-6 space-y-4">
+              {/* Estado (UF) */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Cidade - UF *</label>
-                <input
-                  type="text"
-                  placeholder="Ex: Goiânia - GO"
-                  value={formData.localizacao}
-                  onChange={(e) => setFormData({ ...formData, localizacao: e.target.value })}
-                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all text-lg outline-none"
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Estado *</label>
+                <Select 
+                  value={uf} 
+                  onValueChange={(value) => {
+                    setUf(value);
+                    setCidade(""); // Limpar cidade ao mudar estado
+                  }}
+                >
+                  <SelectTrigger className="h-14 rounded-xl border-2">
+                    <SelectValue placeholder="Selecione o estado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {UFS.map((estado) => (
+                      <SelectItem key={estado.sigla} value={estado.sigla}>
+                        {estado.sigla} - {estado.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Cidade */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Cidade *</label>
+                <CityAutocomplete
+                  value={cidade}
+                  onChange={(value) => {
+                    setCidade(value);
+                    setFormData({ ...formData, localizacao: `${value} - ${uf}` });
+                  }}
+                  cidades={cidades}
+                  loading={cidadesLoading}
+                  disabled={!uf}
+                  placeholder={uf ? "Digite para buscar a cidade" : "Selecione o estado primeiro"}
                 />
               </div>
             </div>
