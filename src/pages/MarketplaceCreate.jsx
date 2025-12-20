@@ -281,6 +281,11 @@ export default function MarketplaceCreate() {
       formData.foto_placa
     ].filter(Boolean);
 
+    // Usar WhatsApp verificado se visível
+    const telefoneContato = formData.whatsapp_visivel && user?.whatsapp_e164 
+      ? user.whatsapp_e164.replace("+55", "")
+      : formData.telefone_contato;
+
     const dadosAnuncio = {
       tipo_mundo: formData.tipo_mundo,
       categoria: formData.categoria,
@@ -293,9 +298,9 @@ export default function MarketplaceCreate() {
       especificacoes: formData.especificacoes,
       preco: parseFloat(formData.preco),
       localizacao,
-      telefone_contato: formData.telefone_contato,
+      telefone_contato: telefoneContato,
       whatsapp_visivel: formData.whatsapp_visivel,
-      whatsapp_verificado: formData.whatsapp_verificado,
+      whatsapp_verificado: user?.whatsapp_verified || false,
       foto_frontal: formData.foto_frontal,
       foto_lateral: formData.foto_lateral,
       foto_placa: formData.foto_placa || null,
@@ -746,17 +751,38 @@ export default function MarketplaceCreate() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => handleInputChange("whatsapp_visivel", !formData.whatsapp_visivel)}
-                  className={`w-14 h-8 rounded-full transition-all ${formData.whatsapp_visivel ? "bg-green-500" : "bg-gray-300"}`}
+                  onClick={() => {
+                    if (!user?.whatsapp_verified) {
+                      toast.error("Você precisa verificar seu WhatsApp nas Configurações primeiro!");
+                      return;
+                    }
+                    handleInputChange("whatsapp_visivel", !formData.whatsapp_visivel);
+                  }}
+                  disabled={!user?.whatsapp_verified}
+                  className={`w-14 h-8 rounded-full transition-all ${
+                    formData.whatsapp_visivel ? "bg-green-500" : "bg-gray-300"
+                  } ${!user?.whatsapp_verified && "opacity-50 cursor-not-allowed"}`}
                 >
                   <div className={`w-6 h-6 rounded-full bg-white shadow-lg transition-all ${formData.whatsapp_visivel ? "ml-7" : "ml-1"}`}></div>
                 </button>
               </div>
 
-              {formData.whatsapp_visivel && (
+              {!user?.whatsapp_verified && (
+                <div className="bg-yellow-50 rounded-xl p-4 border border-yellow-300 mb-4">
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                    <div className="text-sm text-yellow-800">
+                      <p className="font-bold mb-1">WhatsApp não verificado</p>
+                      <p>Vá em <strong>Configurações</strong> para verificar seu número e poder exibir no anúncio.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {user?.whatsapp_verified && formData.whatsapp_visivel && (
                 <div className="bg-white rounded-xl p-4 border border-green-300">
                   <p className="text-sm text-gray-700 mb-2">
-                    <strong>WhatsApp verificado:</strong> ({userWhatsApp?.slice(0, 2)}) {userWhatsApp?.slice(2, 7)}-{userWhatsApp?.slice(7)}
+                    <strong>WhatsApp verificado:</strong> {user.whatsapp_e164}
                   </p>
                   <div className="flex items-center gap-2 text-xs text-green-700">
                     <CheckCircle2 className="w-4 h-4" />
@@ -765,7 +791,7 @@ export default function MarketplaceCreate() {
                 </div>
               )}
 
-              {!formData.whatsapp_visivel && (
+              {!formData.whatsapp_visivel && user?.whatsapp_verified && (
                 <div className="bg-blue-50 rounded-xl p-4 border border-blue-300">
                   <p className="text-sm text-blue-700">
                     💬 Compradores usarão o <strong>chat interno</strong> (expira em 48h)

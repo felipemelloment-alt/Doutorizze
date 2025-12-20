@@ -28,6 +28,7 @@ import {
   Save,
   X
 } from "lucide-react";
+import WhatsAppVerificationSection from "@/components/marketplace/WhatsAppVerificationSection";
 
 export default function Configuracoes() {
   const navigate = useNavigate();
@@ -220,11 +221,26 @@ export default function Configuracoes() {
             </div>
           </motion.div>
 
-          {/* 2. NOTIFICAÇÕES */}
+          {/* 2. VERIFICAÇÃO WHATSAPP */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
+          >
+            <WhatsAppVerificationSection 
+              user={user} 
+              onVerified={async (whatsappE164) => {
+                const currentUser = await base44.auth.me();
+                setUser(currentUser);
+              }}
+            />
+          </motion.div>
+
+          {/* 3. NOTIFICAÇÕES */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
             className="bg-white rounded-3xl shadow-xl p-6"
           >
             <div className="flex items-center gap-3 mb-4">
@@ -272,11 +288,11 @@ export default function Configuracoes() {
             </div>
           </motion.div>
 
-          {/* 3. PRIVACIDADE */}
+          {/* 4. PRIVACIDADE */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.3 }}
             className="bg-white rounded-3xl shadow-xl p-6"
           >
             <div className="flex items-center gap-3 mb-4">
@@ -316,11 +332,11 @@ export default function Configuracoes() {
             </div>
           </motion.div>
 
-          {/* 4. PREFERÊNCIAS */}
+          {/* 5. PREFERÊNCIAS */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 0.4 }}
             className="bg-white rounded-3xl shadow-xl p-6"
           >
             <div className="flex items-center gap-3 mb-4">
@@ -371,12 +387,12 @@ export default function Configuracoes() {
             </div>
           </motion.div>
 
-          {/* 5. NEW JOBS (só profissional) */}
+          {/* 6. NEW JOBS (só profissional) */}
           {userType === "PROFISSIONAL" && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.5 }}
               className="bg-white rounded-3xl shadow-xl p-6"
             >
               <div className="flex items-center gap-3 mb-4">
@@ -454,11 +470,11 @@ export default function Configuracoes() {
             </motion.div>
           )}
 
-          {/* 6. SOBRE */}
+          {/* 7. SOBRE */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
+            transition={{ delay: 0.6 }}
             className="bg-white rounded-3xl shadow-xl p-6"
           >
             <div className="flex items-center gap-3 mb-4">

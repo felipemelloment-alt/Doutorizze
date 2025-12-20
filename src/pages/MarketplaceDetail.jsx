@@ -12,7 +12,9 @@ import {
   Share2,
   ChevronLeft,
   ChevronRight,
-  Flag
+  Flag,
+  CheckCircle2,
+  MessageCircle
 } from "lucide-react";
 import WhatsAppSafeButton from "@/components/ui/WhatsAppSafeButton";
 
@@ -273,7 +275,14 @@ export default function MarketplaceDetail() {
                 {item.anunciante_tipo === "DENTISTA" && "Dentista"}
                 {item.anunciante_tipo === "MEDICO" && "Médico"}
                 {item.anunciante_tipo === "CLINICA" && "Clínica"}
+                {item.anunciante_tipo === "FORNECEDOR" && "Fornecedor"}
               </p>
+              {item.whatsapp_verificado && (
+                <div className="flex items-center gap-1 text-green-600 text-sm font-semibold">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>WhatsApp Verificado</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -282,14 +291,27 @@ export default function MarketplaceDetail() {
       {/* Botões de Ação Fixos */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-2xl z-50">
         <div className="max-w-6xl mx-auto">
-          {/* WhatsApp principal */}
-          <WhatsAppSafeButton
-            phone={item.telefone_contato}
-            message={`Olá! Tenho interesse no item: ${item.titulo_item || 'equipamento'} - ${formatPrice(item.preco)}`}
-            className="w-full py-4 bg-green-500 hover:bg-green-600 text-white font-bold rounded-2xl flex items-center justify-center gap-3 shadow-lg mb-3 transition-all"
-          >
-            💬 Chamar no WhatsApp
-          </WhatsAppSafeButton>
+          {/* Botão de Contato Principal */}
+          {item.whatsapp_visivel && item.whatsapp_verificado ? (
+            <div>
+              <WhatsAppSafeButton
+                phone={item.telefone_contato}
+                message={`Olá! Tenho interesse no item: ${item.titulo_item || 'equipamento'} - ${formatPrice(item.preco)}`}
+                className="w-full py-4 bg-green-500 hover:bg-green-600 text-white font-bold rounded-2xl flex items-center justify-center gap-3 shadow-lg mb-3 transition-all"
+              >
+                <CheckCircle2 className="w-5 h-5" />
+                WhatsApp Verificado
+              </WhatsAppSafeButton>
+            </div>
+          ) : (
+            <button
+              onClick={() => toast.info("💬 Chat interno em breve! Por enquanto, reporte interesse.")}
+              className="w-full py-4 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-2xl flex items-center justify-center gap-3 shadow-lg mb-3 transition-all"
+            >
+              <MessageCircle className="w-5 h-5" />
+              Contato via Chat do App
+            </button>
+          )}
 
           {/* Grid 2 botões */}
           <div className="grid grid-cols-2 gap-3">
