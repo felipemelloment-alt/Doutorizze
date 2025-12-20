@@ -330,8 +330,8 @@ export default function Feed() {
           id: u.id,
           nome: u.nome_fantasia || u.nome,
           foto: u.foto_fachada_url,
-          // ESPECIALIDADE QUE A CLÍNICA BUSCA (não apenas "CLINICA")
-          especialidade: u.tipo_empresa || "ODONTOLOGIA",
+          // ESPECIALIDADE QUE A CLÍNICA BUSCA - usa tipo_mundo (ODONTOLOGIA/MEDICINA)
+          especialidade: u.tipo_mundo === "ODONTOLOGIA" ? "DENTISTA" : u.tipo_mundo === "MEDICINA" ? "MÉDICO" : "PROFISSIONAL",
           cidade: u.cidade,
           uf: u.uf,
           page: "PerfilClinicaPublico"
@@ -412,7 +412,7 @@ export default function Feed() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
+    <div className="min-h-screen bg-gray-50 pb-24 overflow-x-hidden" style={{ msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
       {/* Header */}
       <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 p-6 pb-8">
         <div className="flex items-center justify-between">
@@ -437,6 +437,16 @@ export default function Feed() {
           onItemClick={handleBannerItemClick}
         />
       </div>
+
+      {/* CSS Global para esconder scrollbar */}
+      <style>{`
+        body, html, #root {
+          overflow-x: hidden !important;
+        }
+        body::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
 
       {/* Lista de Posts */}
       <div className="px-4 space-y-4">
