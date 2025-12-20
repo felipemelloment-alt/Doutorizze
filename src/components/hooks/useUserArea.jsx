@@ -14,8 +14,6 @@ export function useUserArea() {
         const professionals = await base44.entities.Professional.filter({ user_id: user.id });
         if (professionals.length > 0) {
           const tipo = professionals[0].tipo_profissional;
-          // DENTISTA, AUXILIAR, TECNICO, PROTETICO = ODONTOLOGIA
-          // MEDICO, ENFERMEIRO = MEDICINA
           const areaOdonto = ["DENTISTA", "AUXILIAR", "TECNICO", "PROTETICO", "ASB", "TSB"];
           setUserArea(areaOdonto.includes(tipo) ? "ODONTOLOGIA" : "MEDICINA");
           setLoading(false);
@@ -46,7 +44,6 @@ export function useUserArea() {
         const hospitals = await base44.entities.Hospital.filter({ user_id: user.id });
         if (hospitals.length > 0) {
           const areas = hospitals[0].areas_atuacao || [];
-          // Se tem odontologia nas áreas, considera odonto, senão medicina
           setUserArea(areas.includes("ODONTOLOGIA") ? "ODONTOLOGIA" : "MEDICINA");
           setLoading(false);
           return;
@@ -66,7 +63,7 @@ export function useUserArea() {
         setLoading(false);
       } catch (error) {
         console.error("Erro ao detectar área do usuário:", error);
-        setUserArea("ODONTOLOGIA"); // Default em caso de erro
+        setUserArea("ODONTOLOGIA");
         setLoading(false);
       }
     };
