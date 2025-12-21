@@ -69,6 +69,7 @@ import CadastroFreelancer from './pages/CadastroFreelancer';
 import DashboardFreelancer from './pages/DashboardFreelancer';
 import EditarPerfilFreelancer from './pages/EditarPerfilFreelancer';
 import Portfolio from './pages/Portfolio';
+import PerfilFreelancer from './pages/PerfilFreelancer';
 import __Layout from './Layout.jsx';
 
 
@@ -144,6 +145,7 @@ export const PAGES = {
     "DashboardFreelancer": DashboardFreelancer,
     "EditarPerfilFreelancer": EditarPerfilFreelancer,
     "Portfolio": Portfolio,
+    "PerfilFreelancer": PerfilFreelancer,
 }
 
 export const pagesConfig = {
