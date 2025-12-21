@@ -86,7 +86,7 @@ export default function StoriesUnificado({ substituicoes, vagas, userType, onSub
           >
             {/* Badge Localização compacto */}
             <div className="flex items-center justify-center gap-0.5 mb-1.5 px-1.5 py-0.5 bg-gradient-to-r from-gray-800 to-gray-900 rounded-full shadow-md">
-              <MapPin className="w-2.5 h-2.5 text-blue-400" />
+              <MapPin className="w-2.5 h-2.5 text-red-500 fill-red-500" />
               <span className="text-[8px] text-white font-bold truncate">
                 {item.cidade}-{item.uf}
               </span>
@@ -117,7 +117,7 @@ export default function StoriesUnificado({ substituicoes, vagas, userType, onSub
             </h3>
 
             {/* Especialidade compacta */}
-            <p className="text-[8px] text-gray-600 font-semibold truncate text-center mb-1.5">
+            <p className="text-[8px] text-red-600 font-bold truncate text-center mb-1.5">
               {item.especialidade}
             </p>
 
