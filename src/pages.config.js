@@ -67,6 +67,8 @@ import ChatThread from './pages/ChatThread';
 import Chats from './pages/Chats';
 import CadastroFreelancer from './pages/CadastroFreelancer';
 import DashboardFreelancer from './pages/DashboardFreelancer';
+import EditarPerfilFreelancer from './pages/EditarPerfilFreelancer';
+import Portfolio from './pages/Portfolio';
 import __Layout from './Layout.jsx';
 
 
@@ -140,6 +142,8 @@ export const PAGES = {
     "Chats": Chats,
     "CadastroFreelancer": CadastroFreelancer,
     "DashboardFreelancer": DashboardFreelancer,
+    "EditarPerfilFreelancer": EditarPerfilFreelancer,
+    "Portfolio": Portfolio,
 }
 
 export const pagesConfig = {
