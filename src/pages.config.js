@@ -65,11 +65,6 @@ import OnboardingVertical from './pages/OnboardingVertical';
 import OnboardingTipoConta from './pages/OnboardingTipoConta';
 import ChatThread from './pages/ChatThread';
 import Chats from './pages/Chats';
-import CadastroFreelancer from './pages/CadastroFreelancer';
-import DashboardFreelancer from './pages/DashboardFreelancer';
-import EditarPerfilFreelancer from './pages/EditarPerfilFreelancer';
-import Portfolio from './pages/Portfolio';
-import PerfilFreelancer from './pages/PerfilFreelancer';
 import __Layout from './Layout.jsx';
 
 
@@ -141,11 +136,6 @@ export const PAGES = {
     "OnboardingTipoConta": OnboardingTipoConta,
     "ChatThread": ChatThread,
     "Chats": Chats,
-    "CadastroFreelancer": CadastroFreelancer,
-    "DashboardFreelancer": DashboardFreelancer,
-    "EditarPerfilFreelancer": EditarPerfilFreelancer,
-    "Portfolio": Portfolio,
-    "PerfilFreelancer": PerfilFreelancer,
 }
 
 export const pagesConfig = {
