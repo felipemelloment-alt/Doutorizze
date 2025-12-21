@@ -31,7 +31,9 @@ import {
 export default function NewJobs() {
   const { userArea } = useUserArea();
   const [user, setUser] = useState(null);
+  const [userType, setUserType] = useState(null);
   const [professional, setProfessional] = useState(null);
+  const [freelancer, setFreelancer] = useState(null);
   const [newJobsActive, setNewJobsActive] = useState(false);
   const [searchCity, setSearchCity] = useState("");
   const [searchSpecialty, setSearchSpecialty] = useState("");
@@ -43,9 +45,19 @@ export default function NewJobs() {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
         
-        // Buscar profissional logado
+        // Detectar tipo de usuário
+        const freelancerResult = await base44.entities.Freelancer.filter({ user_id: currentUser.id });
+        if (freelancerResult.length > 0) {
+          setUserType("freelancer");
+          setFreelancer(freelancerResult[0]);
+          return;
+        }
+
         const profResult = await base44.entities.Professional.filter({ user_id: currentUser.id });
-        setProfessional(profResult[0] || null);
+        if (profResult.length > 0) {
+          setUserType("professional");
+          setProfessional(profResult[0]);
+        }
       } catch (error) {
         console.error("Erro ao carregar usuário:", error);
       }
@@ -113,8 +125,16 @@ export default function NewJobs() {
     return score;
   };
 
-  // Filtrar vagas por busca e área
+  // Filtrar vagas por busca, área e tipo de usuário
   const filteredJobs = jobs.filter(job => {
+    // FILTRO CRÍTICO: tipo de candidato aceito
+    if (userType === "freelancer" && !job.accepts_applications_from?.freelancers) {
+      return false;
+    }
+    if (userType === "professional" && !job.accepts_applications_from?.professionals) {
+      return false;
+    }
+
     // Filtro de área (ODONTOLOGIA só vê DENTISTA, MEDICINA só vê MEDICO)
     const tipoProfissionalEsperado = userArea === "ODONTOLOGIA" ? "DENTISTA" : "MEDICO";
     if (job.tipo_profissional !== tipoProfissionalEsperado) {
@@ -390,6 +410,23 @@ function JobCard({ job, unit, isSuperJob, matchScore }) {
     navigate(createPageUrl("DetalheVaga") + "/" + job.id);
   };
 
+  // Display de orçamento adaptativo
+  const getBudgetDisplay = (job) => {
+    if ((job.job_type === 'freelance' || job.job_type === 'contract') && job.project_details?.budget_range) {
+      const { min, max } = job.project_details.budget_range;
+      const suffix = job.project_details.budget_type === 'hourly' ? '/h' : 
+                     job.project_details.budget_type === 'daily' ? '/dia' : '';
+      return `R$ ${min.toLocaleString('pt-BR')} - R$ ${max.toLocaleString('pt-BR')}${suffix}`;
+    }
+    if (job.valor_proposto && job.tipo_remuneracao !== "A_COMBINAR") {
+      const suffix = job.tipo_remuneracao === "FIXO" ? "/mês" : 
+                     job.tipo_remuneracao === "DIARIA" ? "/dia" : 
+                     job.tipo_remuneracao === "PORCENTAGEM" ? "%" : "";
+      return `R$ ${job.valor_proposto.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}${suffix}`;
+    }
+    return "A Combinar";
+  };
+
   // Configuração de badges por score
   const matchConfig = {
     4: { badge: "⚡ MATCH PERFEITO", color: "bg-yellow-100 text-yellow-700 border-yellow-400", borderColor: "border-yellow-400" },
@@ -408,11 +445,20 @@ function JobCard({ job, unit, isSuperJob, matchScore }) {
     TEMPORARIO: "Temporário"
   };
 
-  const tipoRemuneracaoLabels = {
-    FIXO: "/mês",
-    DIARIA: "/dia",
-    PORCENTAGEM: "%",
-    A_COMBINAR: ""
+  const jobTypeLabels = {
+    "full-time": "Tempo Integral",
+    "part-time": "Meio Período",
+    "contract": "Contrato",
+    "freelance": "Freelance",
+    "temporary": "Temporário"
+  };
+
+  const jobTypeBadgeVariant = {
+    "freelance": "bg-purple-100 text-purple-700 border-purple-300",
+    "contract": "bg-blue-100 text-blue-700 border-blue-300",
+    "full-time": "bg-green-100 text-green-700 border-green-300",
+    "part-time": "bg-yellow-100 text-yellow-700 border-yellow-300",
+    "temporary": "bg-orange-100 text-orange-700 border-orange-300"
   };
 
   const getTimeAgo = (date) => {
@@ -439,6 +485,11 @@ function JobCard({ job, unit, isSuperJob, matchScore }) {
               <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
                 {tipoVagaLabels[job.tipo_vaga] || job.tipo_vaga}
               </span>
+              {job.job_type && (
+                <span className={`px-3 py-1 ${jobTypeBadgeVariant[job.job_type] || 'bg-gray-100 text-gray-700'} rounded-full text-xs font-bold border-2`}>
+                  {jobTypeLabels[job.job_type] || job.job_type}
+                </span>
+              )}
               {job.especialidades_aceitas?.[0] && (
                 <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-bold">
                   {job.especialidades_aceitas[0]}
@@ -450,14 +501,9 @@ function JobCard({ job, unit, isSuperJob, matchScore }) {
                 </span>
               )}
             </div>
-            {job.tipo_remuneracao === "A_COMBINAR" ? (
-              <p className="text-lg font-black text-blue-600">A Combinar</p>
-            ) : job.valor_proposto && (
-              <p className="text-xl font-black text-green-600">
-                R$ {job.valor_proposto.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                {tipoRemuneracaoLabels[job.tipo_remuneracao]}
-              </p>
-            )}
+            <p className="text-xl font-black text-green-600">
+              {getBudgetDisplay(job)}
+            </p>
           </div>
 
           {/* Título */}
