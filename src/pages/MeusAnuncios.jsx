@@ -66,7 +66,7 @@ export default function MeusAnuncios() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 pb-24">
       <div className="max-w-5xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -74,13 +74,17 @@ export default function MeusAnuncios() {
             <h1 className="text-2xl font-black text-gray-900">Meus Anúncios</h1>
             <p className="text-sm text-gray-600">Gerencie seus anúncios de procura de emprego</p>
           </div>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => navigate(createPageUrl("CriarAnuncioProfissional"))}
-            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all"
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-black rounded-xl shadow-lg hover:shadow-xl transition-all"
           >
-            <Plus className="w-5 h-5" />
+            <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+              <Plus className="w-4 h-4" />
+            </div>
             Criar Anúncio
-          </button>
+          </motion.button>
         </div>
 
         {/* Lista */}
@@ -89,13 +93,17 @@ export default function MeusAnuncios() {
             <div className="text-6xl mb-4">📢</div>
             <h3 className="text-lg font-bold text-gray-500 mb-2">Nenhum anúncio criado</h3>
             <p className="text-sm text-gray-400 mb-5">Crie seu primeiro anúncio e deixe as clínicas te encontrarem!</p>
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => navigate(createPageUrl("CriarAnuncioProfissional"))}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-black rounded-2xl shadow-xl hover:shadow-2xl"
             >
-              <Plus className="w-5 h-5" />
+              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                <Plus className="w-5 h-5" />
+              </div>
               Criar Primeiro Anúncio
-            </button>
+            </motion.button>
           </div>
         ) : (
           <div className="space-y-4">
@@ -136,20 +144,24 @@ export default function MeusAnuncios() {
                   </div>
 
                   <div className="flex gap-2">
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
                       onClick={() => handleToggleStatus(ad)}
-                      className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                      className="p-2.5 border-2 border-gray-300 rounded-lg hover:bg-yellow-50 hover:border-yellow-400 transition-all"
                       title={ad.status === "ATIVO" ? "Pausar" : "Ativar"}
                     >
-                      {ad.status === "ATIVO" ? <Pause className="w-4 h-4 text-gray-600" /> : <Play className="w-4 h-4 text-gray-600" />}
-                    </button>
-                    <button
+                      {ad.status === "ATIVO" ? <Pause className="w-4 h-4 text-gray-600" /> : <Play className="w-4 h-4 text-green-600" />}
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
                       onClick={() => handleDelete(ad)}
-                      className="p-2 border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400"
+                      className="p-2.5 border-2 border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all"
                       title="Excluir"
                     >
                       <Trash2 className="w-4 h-4 text-gray-600" />
-                    </button>
+                    </motion.button>
                   </div>
                 </div>
               </motion.div>

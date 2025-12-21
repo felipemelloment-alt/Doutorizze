@@ -169,7 +169,7 @@ export default function CriarAnuncioProfissional() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-orange-50 to-pink-50 pb-24">
       <div className="max-w-3xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="mb-6">
@@ -178,26 +178,41 @@ export default function CriarAnuncioProfissional() {
             Voltar
           </button>
           
-          <div className="bg-white rounded-2xl p-6 shadow-lg">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-md">
-                <User className="w-7 h-7 text-white" />
+          <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 rounded-3xl p-6 shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/20 rounded-full blur-xl"></div>
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center shadow-lg">
+                  <User className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-black text-white drop-shadow-lg">Criar Anúncio</h1>
+                  <p className="text-white/90 text-sm">Mostre que você está disponível</p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-2xl font-black text-gray-900">Criar Anúncio</h1>
-                <p className="text-sm text-gray-600">Mostre que você está disponível</p>
-              </div>
-            </div>
 
-            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all" style={{ width: `${(etapa / 3) * 100}%` }}></div>
+              <div className="h-3 bg-white/30 rounded-full overflow-hidden backdrop-blur">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(etapa / 3) * 100}%` }}
+                  className="h-full bg-white shadow-lg"
+                />
+              </div>
+              <p className="text-xs text-white/90 mt-2 font-semibold">Etapa {etapa} de 3 • {Math.round((etapa / 3) * 100)}% completo</p>
             </div>
-            <p className="text-xs text-gray-500 mt-2">Etapa {etapa} de 3</p>
           </div>
         </div>
 
         {/* Formulário */}
-        <motion.div key={etapa} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white rounded-2xl shadow-lg p-6">
+        <motion.div 
+          key={etapa} 
+          initial={{ opacity: 0, x: 20 }} 
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          className="bg-white rounded-3xl shadow-xl p-6 md:p-8 border-2 border-gray-100"
+        >
           {etapa === 1 && (
             <div className="space-y-5">
               <div>
@@ -225,36 +240,43 @@ export default function CriarAnuncioProfissional() {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Tipo de Vaga de Interesse *</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {["PLANTAO", "SUBSTITUICAO", "FIXO", "TEMPORARIO"].map((tipo) => (
-                    <button
+                <div className="grid grid-cols-2 gap-3">
+                  {(professional?.tipo_profissional === "DENTISTA" 
+                    ? ["SUBSTITUICAO", "FIXO", "TEMPORARIO"]
+                    : ["PLANTAO", "SUBSTITUICAO", "FIXO", "TEMPORARIO"]
+                  ).map((tipo) => (
+                    <motion.button
                       key={tipo}
                       type="button"
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => toggleItem("tipos_vaga_interesse", tipo)}
-                      className={`py-2.5 px-4 rounded-lg font-semibold transition-all text-sm ${
+                      className={`py-3 px-4 rounded-xl font-bold transition-all text-sm shadow-md ${
                         formData.tipos_vaga_interesse.includes(tipo)
-                          ? "bg-blue-500 text-white shadow-md"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          ? "bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white shadow-lg scale-105"
+                          : "bg-white border-2 border-gray-200 text-gray-700 hover:border-orange-400 hover:shadow-lg"
                       }`}
                     >
-                      {tipo === "PLANTAO" && "Plantão"}
-                      {tipo === "SUBSTITUICAO" && "Substituição"}
-                      {tipo === "FIXO" && "Fixo"}
-                      {tipo === "TEMPORARIO" && "Temporário"}
-                    </button>
+                      {tipo === "PLANTAO" && "🏥 Plantão"}
+                      {tipo === "SUBSTITUICAO" && "🔄 Substituição"}
+                      {tipo === "FIXO" && "📌 Fixo"}
+                      {tipo === "TEMPORARIO" && "⏱️ Temporário"}
+                    </motion.button>
                   ))}
                 </div>
               </div>
 
-              <label className="flex items-center gap-3 p-4 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
+              <motion.label 
+                whileHover={{ scale: 1.02 }}
+                className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl hover:border-orange-400 hover:bg-orange-50 cursor-pointer transition-all"
+              >
                 <input
                   type="checkbox"
                   checked={formData.aceita_freelance}
                   onChange={(e) => handleChange("aceita_freelance", e.target.checked)}
-                  className="w-5 h-5 accent-blue-500"
+                  className="w-5 h-5 accent-orange-500"
                 />
-                <span className="text-sm text-gray-700 font-medium">Aceito trabalho freelance/substituição temporária</span>
-              </label>
+                <span className="text-sm text-gray-700 font-semibold">⚡ Aceito trabalho freelance/substituição temporária</span>
+              </motion.label>
             </div>
           )}
 
@@ -280,13 +302,15 @@ export default function CriarAnuncioProfissional() {
                     disabled={!formData.uf}
                     placeholder="Selecione a cidade"
                   />
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={adicionarCidade}
                     disabled={!formData.cidadeTemp || formData.cidades_interesse.length >= 5}
-                    className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-5 py-2 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold rounded-lg shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Adicionar
-                  </button>
+                    + Add
+                  </motion.button>
                 </div>
 
                 {formData.cidades_interesse.length > 0 && (
@@ -305,18 +329,20 @@ export default function CriarAnuncioProfissional() {
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Dias Disponíveis *</label>
                 <div className="grid grid-cols-4 gap-2">
                   {["SEG", "TER", "QUA", "QUI", "SEX", "SAB", "DOM", "INTEGRAL"].map((dia) => (
-                    <button
+                    <motion.button
                       key={dia}
                       type="button"
+                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.05 }}
                       onClick={() => toggleItem("dias_semana_disponiveis", dia)}
-                      className={`py-2 px-3 rounded-lg font-semibold text-sm transition-all ${
+                      className={`py-2.5 rounded-lg font-bold text-xs transition-all ${
                         formData.dias_semana_disponiveis.includes(dia)
-                          ? "bg-blue-500 text-white shadow-md"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          ? "bg-gradient-to-br from-yellow-400 to-orange-500 text-white shadow-lg"
+                          : "bg-white border-2 border-gray-200 text-gray-700 hover:border-yellow-400"
                       }`}
                     >
                       {dia}
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
               </div>
@@ -364,23 +390,24 @@ export default function CriarAnuncioProfissional() {
             <div className="space-y-5">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Formas de Remuneração Aceitas *</label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-3">
                   {["FIXO", "DIARIA", "PORCENTAGEM", "A_COMBINAR"].map((tipo) => (
-                    <button
+                    <motion.button
                       key={tipo}
                       type="button"
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => toggleItem("formas_remuneracao_aceitas", tipo)}
-                      className={`py-2.5 px-4 rounded-lg font-semibold text-sm transition-all ${
+                      className={`py-3 px-4 rounded-xl font-bold text-sm transition-all shadow-md ${
                         formData.formas_remuneracao_aceitas.includes(tipo)
-                          ? "bg-green-500 text-white shadow-md"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg scale-105"
+                          : "bg-white border-2 border-gray-200 text-gray-700 hover:border-green-400 hover:shadow-lg"
                       }`}
                     >
-                      {tipo === "FIXO" && "Fixo (CLT)"}
-                      {tipo === "DIARIA" && "Diária"}
-                      {tipo === "PORCENTAGEM" && "Porcentagem"}
-                      {tipo === "A_COMBINAR" && "A Combinar"}
-                    </button>
+                      {tipo === "FIXO" && "💰 Fixo (CLT)"}
+                      {tipo === "DIARIA" && "📅 Diária"}
+                      {tipo === "PORCENTAGEM" && "📊 Porcentagem"}
+                      {tipo === "A_COMBINAR" && "💬 A Combinar"}
+                    </motion.button>
                   ))}
                 </div>
               </div>
@@ -418,45 +445,57 @@ export default function CriarAnuncioProfissional() {
               </div>
 
               {/* Resumo */}
-              <div className="bg-blue-50 rounded-xl p-5 border border-blue-200">
-                <h3 className="text-sm font-bold text-gray-900 mb-3">📋 Resumo</h3>
-                <div className="space-y-1.5 text-sm">
-                  <p><strong>Título:</strong> {formData.titulo}</p>
-                  <p><strong>Tipos de vaga:</strong> {formData.tipos_vaga_interesse.join(", ")}</p>
-                  <p><strong>Cidades:</strong> {formData.cidades_interesse.slice(0, 2).join(", ")}{formData.cidades_interesse.length > 2 && "..."}</p>
-                  <p><strong>Disponibilidade:</strong> {formData.disponibilidade_inicio}</p>
-                  <p><strong>Formas pagamento:</strong> {formData.formas_remuneracao_aceitas.join(", ")}</p>
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-gradient-to-br from-yellow-50 via-orange-50 to-pink-50 rounded-2xl p-5 border-2 border-orange-200"
+              >
+                <h3 className="text-base font-black text-gray-900 mb-3 flex items-center gap-2">
+                  📋 Resumo do Anúncio
+                </h3>
+                <div className="space-y-2 text-sm bg-white rounded-xl p-4">
+                  <p className="flex items-start gap-2"><strong className="text-gray-900 min-w-[100px]">Título:</strong> <span className="text-gray-700">{formData.titulo}</span></p>
+                  <p className="flex items-start gap-2"><strong className="text-gray-900 min-w-[100px]">Tipos vaga:</strong> <span className="text-gray-700">{formData.tipos_vaga_interesse.join(", ")}</span></p>
+                  <p className="flex items-start gap-2"><strong className="text-gray-900 min-w-[100px]">Cidades:</strong> <span className="text-gray-700">{formData.cidades_interesse.slice(0, 2).join(", ")}{formData.cidades_interesse.length > 2 && "..."}</span></p>
+                  <p className="flex items-start gap-2"><strong className="text-gray-900 min-w-[100px]">Início:</strong> <span className="text-gray-700">{formData.disponibilidade_inicio}</span></p>
+                  <p className="flex items-start gap-2"><strong className="text-gray-900 min-w-[100px]">Pagamento:</strong> <span className="text-gray-700">{formData.formas_remuneracao_aceitas.join(", ")}</span></p>
                 </div>
-              </div>
+              </motion.div>
             </div>
           )}
 
           <div className="flex gap-3 mt-6">
             {etapa > 1 && (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setEtapa(prev => prev - 1)}
-                className="flex-1 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50"
+                className="flex-1 py-4 border-2 border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-all"
               >
                 Voltar
-              </button>
+              </motion.button>
             )}
             {etapa < 3 ? (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={proximaEtapa}
-                className="flex-1 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                className="flex-1 py-4 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-black rounded-xl shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
               >
                 Continuar
-                <ArrowRight className="w-4 h-4" />
-              </button>
+                <ArrowRight className="w-5 h-5" />
+              </motion.button>
             ) : (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={publicar}
                 disabled={loading}
-                className="flex-1 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-black rounded-xl shadow-xl hover:shadow-2xl disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {loading ? "Publicando..." : "Publicar Anúncio"}
+                {loading ? "Publicando..." : "✅ Publicar Anúncio"}
                 <CheckCircle2 className="w-5 h-5" />
-              </button>
+              </motion.button>
             )}
           </div>
         </motion.div>

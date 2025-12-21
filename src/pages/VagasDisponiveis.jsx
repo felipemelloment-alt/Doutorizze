@@ -121,13 +121,18 @@ export default function VagasDisponiveis() {
               </div>
             </div>
             {professional && (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => navigate(createPageUrl("CriarAnuncioProfissional"))}
-                className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all"
+                className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-black rounded-xl shadow-lg hover:shadow-xl transition-all"
               >
-                <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">Criar Anúncio</span>
-              </button>
+                <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+                  <Plus className="w-4 h-4" />
+                </div>
+                <span className="hidden sm:inline">Criar Meu Anúncio</span>
+                <span className="sm:hidden">Anunciar</span>
+              </motion.button>
             )}
           </div>
         </motion.div>
