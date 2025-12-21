@@ -52,10 +52,10 @@ export default function SubstituicoesStories({ items, userType, onItemClick }) {
     : "⚡ CLÍNICAS BUSCANDO SUBSTITUTOS - URGENTE ⚡";
 
   return (
-    <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 py-4 mb-4 shadow-lg">
+    <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 py-3 mb-3 shadow-lg">
       {/* Título */}
-      <div className="px-4 mb-3">
-        <h2 className="text-center font-black text-sm text-white tracking-wide uppercase animate-pulse">
+      <div className="px-4 mb-2">
+        <h2 className="text-center font-black text-xs text-white tracking-wide uppercase animate-pulse">
           {titulo}
         </h2>
       </div>

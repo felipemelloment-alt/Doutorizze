@@ -74,10 +74,10 @@ function StoriesBanner({ items, userType, onItemClick }) {
     : "💼 CLÍNICAS CONTRATANDO - VAGAS FIXAS";
 
   return (
-    <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 py-4 mb-4 shadow-sm">
+    <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 py-3 mb-3 shadow-sm">
       {/* Título */}
-      <div className="px-4 mb-3">
-        <h2 className="text-center font-black text-sm text-white tracking-wide uppercase">
+      <div className="px-4 mb-2">
+        <h2 className="text-center font-black text-xs text-white tracking-wide uppercase">
           {titulo}
         </h2>
       </div>
@@ -546,23 +546,23 @@ export default function Feed() {
   return (
     <div className="min-h-screen bg-gray-50 pb-24 overflow-x-hidden" style={{ msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
       {/* Header */}
-      <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 p-6 pb-8">
+      <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 px-4 py-3 pb-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-black text-white">Feed</h1>
-            <p className="text-white/80 text-sm">Novidades e oportunidades</p>
+            <h1 className="text-xl font-black text-white tracking-tight">Feed</h1>
+            <p className="text-white/90 text-xs font-medium">Novidades e oportunidades</p>
           </div>
           <button
             onClick={() => navigate(createPageUrl("NotificationCenter"))}
-            className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center"
+            className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all"
           >
-            <Bell className="w-6 h-6 text-white" />
+            <Bell className="w-5 h-5 text-white" />
           </button>
         </div>
       </div>
 
       {/* Stories de Substituições - NOVO */}
-      <div className="-mt-4">
+      <div className="-mt-3">
         <SubstituicoesStories
           items={substituicoesItems}
           userType={userType}
@@ -571,7 +571,7 @@ export default function Feed() {
       </div>
 
       {/* Banner Stories - AUTO-SCROLL INFINITO */}
-      <div>
+      <div className="-mt-2">
         <StoriesBanner
           items={bannerItems}
           userType={userType}
