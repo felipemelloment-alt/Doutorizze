@@ -23,8 +23,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { 
-  buscarVagaPorId, 
-  candidatarSeVaga,
+  buscarSubstituicao, 
+  candidatarSe,
   listarCandidatos 
 } from "@/components/api/substituicao";
 import { 
@@ -67,7 +67,7 @@ export default function DetalheSubstituicao() {
   const { data: vaga, isLoading } = useQuery({
     queryKey: ["substituicao", vagaId],
     queryFn: async () => {
-      const result = await buscarVagaPorId(vagaId);
+      const result = await buscarSubstituicao(vagaId);
       return result;
     },
     enabled: !!vagaId
@@ -84,7 +84,7 @@ export default function DetalheSubstituicao() {
 
   const candidaturaMutation = useMutation({
     mutationFn: async () => {
-      return await candidatarSeVaga(vagaId, { mensagem_profissional: mensagem });
+      return await candidatarSe(vagaId, professional.id, mensagem);
     },
     onSuccess: () => {
       toast.success("Candidatura enviada com sucesso!");
