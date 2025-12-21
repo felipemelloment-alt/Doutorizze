@@ -73,6 +73,8 @@ import MinhasSubstituicoes from './pages/MinhasSubstituicoes';
 import GerenciarCandidatos from './pages/GerenciarCandidatos';
 import MinhasCandidaturasSubstituicao from './pages/MinhasCandidaturasSubstituicao';
 import DisponibilidadeSubstituicao from './pages/DisponibilidadeSubstituicao';
+import ConfirmarSubstituicao from './pages/ConfirmarSubstituicao';
+import ValidarComparecimento from './pages/ValidarComparecimento';
 import __Layout from './Layout.jsx';
 
 
@@ -152,6 +154,8 @@ export const PAGES = {
     "GerenciarCandidatos": GerenciarCandidatos,
     "MinhasCandidaturasSubstituicao": MinhasCandidaturasSubstituicao,
     "DisponibilidadeSubstituicao": DisponibilidadeSubstituicao,
+    "ConfirmarSubstituicao": ConfirmarSubstituicao,
+    "ValidarComparecimento": ValidarComparecimento,
 }
 
 export const pagesConfig = {
