@@ -75,6 +75,7 @@ import MinhasCandidaturasSubstituicao from './pages/MinhasCandidaturasSubstituic
 import DisponibilidadeSubstituicao from './pages/DisponibilidadeSubstituicao';
 import ConfirmarSubstituicao from './pages/ConfirmarSubstituicao';
 import ValidarComparecimento from './pages/ValidarComparecimento';
+import DashboardSubstituicoes from './pages/DashboardSubstituicoes';
 import __Layout from './Layout.jsx';
 
 
@@ -156,6 +157,7 @@ export const PAGES = {
     "DisponibilidadeSubstituicao": DisponibilidadeSubstituicao,
     "ConfirmarSubstituicao": ConfirmarSubstituicao,
     "ValidarComparecimento": ValidarComparecimento,
+    "DashboardSubstituicoes": DashboardSubstituicoes,
 }
 
 export const pagesConfig = {
