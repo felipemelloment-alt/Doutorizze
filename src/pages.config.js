@@ -71,6 +71,8 @@ import VagasDisponiveis from './pages/VagasDisponiveis';
 import DetalheSubstituicao from './pages/DetalheSubstituicao';
 import MinhasSubstituicoes from './pages/MinhasSubstituicoes';
 import GerenciarCandidatos from './pages/GerenciarCandidatos';
+import MinhasCandidaturasSubstituicao from './pages/MinhasCandidaturasSubstituicao';
+import DisponibilidadeSubstituicao from './pages/DisponibilidadeSubstituicao';
 import __Layout from './Layout.jsx';
 
 
@@ -148,6 +150,8 @@ export const PAGES = {
     "DetalheSubstituicao": DetalheSubstituicao,
     "MinhasSubstituicoes": MinhasSubstituicoes,
     "GerenciarCandidatos": GerenciarCandidatos,
+    "MinhasCandidaturasSubstituicao": MinhasCandidaturasSubstituicao,
+    "DisponibilidadeSubstituicao": DisponibilidadeSubstituicao,
 }
 
 export const pagesConfig = {
