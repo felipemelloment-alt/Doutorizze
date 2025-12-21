@@ -111,9 +111,9 @@ function StoriesBanner({ items, userType, onItemClick }) {
             className="flex-shrink-0 flex flex-col items-center min-w-[90px] transition-transform active:scale-95 p-2 rounded-2xl hover:bg-white/10"
           >
             {/* Localização */}
-            <div className="flex items-center gap-1 mb-1">
-              <MapPin className="w-3 h-3 text-red-500" />
-              <span className="text-[10px] text-gray-600 font-medium truncate max-w-[80px]">
+            <div className="flex items-center gap-1 mb-1 px-2 py-0.5 bg-white/90 backdrop-blur-sm rounded-full">
+              <MapPin className="w-3 h-3 text-blue-600" />
+              <span className="text-[10px] text-gray-900 font-bold truncate max-w-[80px]">
                 {item.cidade} - {item.uf}
               </span>
             </div>
@@ -140,17 +140,17 @@ function StoriesBanner({ items, userType, onItemClick }) {
             </div>
 
             {/* Nome */}
-            <span className="text-[11px] font-bold text-gray-900 truncate max-w-[90px] text-center leading-tight">
+            <span className="text-[11px] font-black text-white truncate max-w-[90px] text-center leading-tight drop-shadow-lg">
               {item.nome}
             </span>
 
-            {/* ESPECIALIDADE em verde (não "CLINICA") */}
-            <span className="text-[10px] text-green-600 font-bold truncate max-w-[90px] uppercase">
+            {/* ESPECIALIDADE */}
+            <span className="text-[10px] text-white font-bold truncate max-w-[90px] uppercase drop-shadow-md">
               {item.especialidade}
             </span>
 
             {/* Badge VAGA FIXA */}
-            <span className="mt-1 px-2 py-0.5 bg-blue-100 text-blue-700 text-[9px] font-bold rounded-full">
+            <span className="mt-1 px-2 py-0.5 bg-white text-blue-700 text-[9px] font-black rounded-full shadow-md">
               VAGA FIXA
             </span>
           </button>

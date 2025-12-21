@@ -132,15 +132,15 @@ export default function SubstituicoesStories({ items, userType, onItemClick }) {
               <h3 className="text-xs font-black text-gray-900 truncate leading-tight">
                 {item.nome}
               </h3>
-              <p className="text-[10px] text-yellow-600 font-bold truncate">
+              <p className="text-[10px] text-orange-600 font-black truncate">
                 {item.especialidade}
               </p>
             </div>
 
             {/* Localização */}
-            <div className="flex items-center justify-center gap-1 mb-2 px-2 py-1 bg-white rounded-lg">
-              <MapPin className="w-3 h-3 text-gray-500" />
-              <span className="text-[9px] text-gray-700 font-semibold truncate">
+            <div className="flex items-center justify-center gap-1 mb-2 px-2 py-1 bg-gray-900 rounded-lg">
+              <MapPin className="w-3 h-3 text-yellow-400" />
+              <span className="text-[9px] text-white font-black truncate">
                 {item.cidade}/{item.uf}
               </span>
             </div>
@@ -150,7 +150,7 @@ export default function SubstituicoesStories({ items, userType, onItemClick }) {
               <>
                 {/* Data */}
                 {item.dataTexto && (
-                  <div className="flex items-center gap-1 mb-1 text-[9px] text-gray-600">
+                  <div className="flex items-center gap-1 mb-1 text-[9px] text-gray-900 font-bold">
                     <Clock className="w-3 h-3" />
                     <span className="truncate">{item.dataTexto}</span>
                   </div>
@@ -158,7 +158,7 @@ export default function SubstituicoesStories({ items, userType, onItemClick }) {
                 
                 {/* Remuneração */}
                 {item.remuneracao && (
-                  <div className="flex items-center gap-1 text-[9px] text-green-600 font-bold">
+                  <div className="flex items-center gap-1 text-[9px] text-green-700 font-black px-2 py-1 bg-green-100 rounded-full">
                     <DollarSign className="w-3 h-3" />
                     <span className="truncate">{item.remuneracao}</span>
                   </div>
@@ -170,10 +170,10 @@ export default function SubstituicoesStories({ items, userType, onItemClick }) {
             {userType === "CLINICA" && item.statusBadge && (
               <div className={`mt-2 px-2 py-1 rounded-full text-center ${
                 item.statusBadge === "ONLINE" 
-                  ? "bg-green-100 text-green-700"
-                  : "bg-gray-100 text-gray-700"
+                  ? "bg-green-600 text-white"
+                  : "bg-gray-600 text-white"
               }`}>
-                <span className="text-[9px] font-bold">{item.statusBadge}</span>
+                <span className="text-[9px] font-black">{item.statusBadge}</span>
               </div>
             )}
           </button>
