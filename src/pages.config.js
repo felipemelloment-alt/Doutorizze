@@ -69,6 +69,8 @@ import EscolherTipoCriador from './pages/EscolherTipoCriador';
 import CriarSubstituicao from './pages/CriarSubstituicao';
 import VagasDisponiveis from './pages/VagasDisponiveis';
 import DetalheSubstituicao from './pages/DetalheSubstituicao';
+import MinhasSubstituicoes from './pages/MinhasSubstituicoes';
+import GerenciarCandidatos from './pages/GerenciarCandidatos';
 import __Layout from './Layout.jsx';
 
 
@@ -144,6 +146,8 @@ export const PAGES = {
     "CriarSubstituicao": CriarSubstituicao,
     "VagasDisponiveis": VagasDisponiveis,
     "DetalheSubstituicao": DetalheSubstituicao,
+    "MinhasSubstituicoes": MinhasSubstituicoes,
+    "GerenciarCandidatos": GerenciarCandidatos,
 }
 
 export const pagesConfig = {
