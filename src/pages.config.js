@@ -68,6 +68,7 @@ import Chats from './pages/Chats';
 import EscolherTipoCriador from './pages/EscolherTipoCriador';
 import CriarSubstituicao from './pages/CriarSubstituicao';
 import VagasDisponiveis from './pages/VagasDisponiveis';
+import DetalheSubstituicao from './pages/DetalheSubstituicao';
 import __Layout from './Layout.jsx';
 
 
@@ -142,6 +143,7 @@ export const PAGES = {
     "EscolherTipoCriador": EscolherTipoCriador,
     "CriarSubstituicao": CriarSubstituicao,
     "VagasDisponiveis": VagasDisponiveis,
+    "DetalheSubstituicao": DetalheSubstituicao,
 }
 
 export const pagesConfig = {
