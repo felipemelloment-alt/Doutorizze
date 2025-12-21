@@ -546,9 +546,9 @@ export default function Feed() {
   return (
     <div className="min-h-screen bg-gray-50 pb-24 overflow-x-hidden" style={{ msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
       {/* Header */}
-      <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 px-4 py-4 shadow-lg">
+      <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 px-4 py-3 shadow-lg">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-black text-white tracking-tight uppercase drop-shadow-lg">
+          <h1 className="text-lg font-black text-white tracking-tight uppercase drop-shadow-lg">
             OPORTUNIDADES
           </h1>
           <button

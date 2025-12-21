@@ -85,21 +85,21 @@ export default function StoriesUnificado({ substituicoes, vagas, userType, onSub
             className="flex-shrink-0 w-[90px] bg-white/95 backdrop-blur-sm rounded-xl p-2 shadow-lg hover:shadow-2xl transition-all active:scale-95 hover:bg-white"
           >
             {/* Badge Localização compacto */}
-            <div className="flex items-center justify-center gap-0.5 mb-1.5 px-1.5 py-0.5 bg-gray-900/90 rounded-md">
-              <MapPin className="w-2.5 h-2.5 text-red-500" />
-              <span className="text-[8px] text-pink-400 font-bold truncate">
+            <div className="flex items-center justify-center gap-0.5 mb-1.5 px-1.5 py-0.5 bg-gradient-to-r from-gray-800 to-gray-900 rounded-full shadow-md">
+              <MapPin className="w-2.5 h-2.5 text-blue-400" />
+              <span className="text-[8px] text-white font-bold truncate">
                 {item.cidade}-{item.uf}
               </span>
             </div>
 
             {/* Foto Circular compacta */}
-            <div className="relative mb-1.5 mx-auto">
+            <div className="relative mb-1.5 flex items-center justify-center">
               <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 ring-2 ring-white">
                 {item.foto ? (
                   <img
                     src={item.foto}
                     alt={item.nome}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover object-center"
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
@@ -122,12 +122,12 @@ export default function StoriesUnificado({ substituicoes, vagas, userType, onSub
             </p>
 
             {/* Badge Tipo compacto */}
-            <div className={`flex items-center justify-center gap-0.5 px-1.5 py-0.5 bg-gray-900/90 rounded-md ${
+            <div className={`flex items-center justify-center gap-0.5 px-1.5 py-0.5 rounded-full shadow-md ${
               item.tipo === 'substituicao'
-                ? 'text-orange-400'
-                : 'text-blue-400'
+                ? 'bg-gradient-to-r from-red-600 to-red-500'
+                : 'bg-gradient-to-r from-green-600 to-green-500'
             }`}>
-              <span className="text-[8px] font-bold truncate">
+              <span className="text-[8px] font-black text-white truncate uppercase tracking-wide">
                 {item.tipo === 'substituicao' ? 'URGENTE' : 'VAGA'}
               </span>
             </div>
