@@ -112,7 +112,7 @@ function StoriesBanner({ items, userType, onItemClick }) {
           >
             {/* Localização */}
             <div className="flex items-center gap-1 mb-1 px-2 py-0.5 bg-white/90 backdrop-blur-sm rounded-full">
-              <MapPin className="w-3 h-3 text-blue-600" />
+              <MapPin className="w-3 h-3 text-red-500 fill-red-500" />
               <span className="text-[10px] text-gray-900 font-bold truncate max-w-[80px]">
                 {item.cidade} - {item.uf}
               </span>
@@ -145,12 +145,12 @@ function StoriesBanner({ items, userType, onItemClick }) {
             </span>
 
             {/* ESPECIALIDADE */}
-            <span className="text-[10px] text-white font-bold truncate max-w-[90px] uppercase drop-shadow-md">
+            <span className="text-[10px] text-red-500 font-bold truncate max-w-[90px] uppercase drop-shadow-md">
               {item.especialidade}
             </span>
 
             {/* Badge VAGA FIXA */}
-            <span className="mt-1 px-2 py-0.5 bg-white text-blue-700 text-[9px] font-black rounded-full shadow-md">
+            <span className="mt-1 px-2 py-0.5 bg-green-600 text-white text-[9px] font-black rounded-full shadow-md">
               VAGA FIXA
             </span>
           </button>
