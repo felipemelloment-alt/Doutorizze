@@ -86,8 +86,8 @@ export default function StoriesUnificado({ substituicoes, vagas, userType, onSub
           >
             {/* Badge Localização compacto */}
             <div className="flex items-center justify-center gap-0.5 mb-1.5 px-1.5 py-0.5 bg-gray-900/90 rounded-md">
-              <MapPin className="w-2.5 h-2.5 text-yellow-400" />
-              <span className="text-[8px] text-white font-bold truncate">
+              <MapPin className="w-2.5 h-2.5 text-red-500" />
+              <span className="text-[8px] text-pink-400 font-bold truncate">
                 {item.cidade}-{item.uf}
               </span>
             </div>
@@ -122,12 +122,12 @@ export default function StoriesUnificado({ substituicoes, vagas, userType, onSub
             </p>
 
             {/* Badge Tipo compacto */}
-            <div className={`px-1.5 py-0.5 rounded-md text-center ${
+            <div className={`flex items-center justify-center gap-0.5 px-1.5 py-0.5 bg-gray-900/90 rounded-md ${
               item.tipo === 'substituicao'
-                ? 'bg-orange-500 text-white'
-                : 'bg-blue-600 text-white'
+                ? 'text-orange-400'
+                : 'text-blue-400'
             }`}>
-              <span className="text-[7px] font-black uppercase tracking-tight">
+              <span className="text-[8px] font-bold truncate">
                 {item.tipo === 'substituicao' ? 'URGENTE' : 'VAGA'}
               </span>
             </div>
