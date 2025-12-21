@@ -48,14 +48,14 @@ export default function SubstituicoesStories({ items, userType, onItemClick }) {
   if (items.length === 0) return null;
 
   const titulo = userType === "CLINICA" 
-    ? "⚡ PROFISSIONAIS DISPONÍVEIS PARA SUBSTITUIÇÃO"
-    : "⚡ VAGAS URGENTES DE SUBSTITUIÇÃO";
+    ? "⚡ DENTISTAS/MÉDICOS ONLINE - SUBSTITUIÇÕES ⚡"
+    : "⚡ CLÍNICAS BUSCANDO SUBSTITUTOS - URGENTE ⚡";
 
   return (
-    <div className="bg-white py-4 mb-4 shadow-sm border-b-4 border-yellow-400">
+    <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 py-4 mb-4 shadow-lg">
       {/* Título */}
       <div className="px-4 mb-3">
-        <h2 className="text-center font-black text-sm text-yellow-600 tracking-wide uppercase">
+        <h2 className="text-center font-black text-sm text-white tracking-wide uppercase animate-pulse">
           {titulo}
         </h2>
       </div>
@@ -85,15 +85,19 @@ export default function SubstituicoesStories({ items, userType, onItemClick }) {
           <button
             key={`${item.id}-${index}`}
             onClick={() => onItemClick(item)}
-            className="flex-shrink-0 w-[140px] bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-3 border-2 border-yellow-200 hover:border-yellow-400 transition-all active:scale-95 shadow-md hover:shadow-lg"
+            className="flex-shrink-0 w-[140px] bg-white rounded-2xl p-3 border-3 border-yellow-400 hover:border-red-500 transition-all active:scale-95 shadow-xl hover:shadow-2xl ring-2 ring-yellow-300"
           >
-            {/* Badge Urgência (se IMEDIATO) */}
-            {item.isUrgente && (
-              <div className="flex items-center justify-center gap-1 mb-2 px-2 py-1 bg-red-500 text-white rounded-full">
-                <Zap className="w-3 h-3" />
-                <span className="text-[9px] font-black">URGENTE</span>
-              </div>
-            )}
+            {/* Badge Identificação - SEMPRE VISÍVEL */}
+            <div className={`flex items-center justify-center gap-1 mb-2 px-2 py-1 rounded-full ${
+              item.isUrgente 
+                ? "bg-red-500 text-white animate-pulse" 
+                : "bg-gradient-to-r from-yellow-400 to-orange-500 text-white"
+            }`}>
+              <Zap className="w-3 h-3" />
+              <span className="text-[9px] font-black">
+                {item.isUrgente ? "URGENTE AGORA" : "SUBSTITUIÇÃO"}
+              </span>
+            </div>
 
             {/* Foto circular */}
             <div className="relative mb-2 mx-auto">

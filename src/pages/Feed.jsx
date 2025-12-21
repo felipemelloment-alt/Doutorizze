@@ -70,14 +70,14 @@ function StoriesBanner({ items, userType, onItemClick }) {
   if (items.length === 0) return null;
 
   const titulo = userType === "CLINICA" 
-    ? "🔔 PROFISSIONAIS DISPONÍVEIS 📣"
-    : "🔔 CLÍNICAS CONTRATANDO 📣";
+    ? "💼 DENTISTAS/MÉDICOS DISPONÍVEIS - VAGAS FIXAS"
+    : "💼 CLÍNICAS CONTRATANDO - VAGAS FIXAS";
 
   return (
-    <div className="bg-white py-4 mb-4 shadow-sm">
+    <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 py-4 mb-4 shadow-sm">
       {/* Título */}
       <div className="px-4 mb-3">
-        <h2 className="text-center font-black text-lg text-red-600 tracking-wide">
+        <h2 className="text-center font-black text-sm text-white tracking-wide uppercase">
           {titulo}
         </h2>
       </div>
@@ -108,7 +108,7 @@ function StoriesBanner({ items, userType, onItemClick }) {
           <button
             key={`${item.id}-${index}`}
             onClick={() => onItemClick(item)}
-            className="flex-shrink-0 flex flex-col items-center min-w-[90px] transition-transform active:scale-95"
+            className="flex-shrink-0 flex flex-col items-center min-w-[90px] transition-transform active:scale-95 p-2 rounded-2xl hover:bg-white/10"
           >
             {/* Localização */}
             <div className="flex items-center gap-1 mb-1">
@@ -149,12 +149,10 @@ function StoriesBanner({ items, userType, onItemClick }) {
               {item.especialidade}
             </span>
 
-            {/* Tipo de trabalho (só para profissionais) */}
-            {item.tipo_trabalho && (
-              <span className="mt-1 px-2 py-0.5 bg-yellow-100 text-yellow-700 text-[9px] font-bold rounded-full">
-                {item.tipo_trabalho}
-              </span>
-            )}
+            {/* Badge VAGA FIXA */}
+            <span className="mt-1 px-2 py-0.5 bg-blue-100 text-blue-700 text-[9px] font-bold rounded-full">
+              VAGA FIXA
+            </span>
           </button>
         ))}
       </div>
