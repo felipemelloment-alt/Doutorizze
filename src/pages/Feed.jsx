@@ -546,16 +546,16 @@ export default function Feed() {
   return (
     <div className="min-h-screen bg-gray-50 pb-24 overflow-x-hidden" style={{ msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
       {/* Header */}
-      <div className="bg-white px-4 py-4 border-b-2 border-gray-200">
+      <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 px-4 py-4 shadow-lg">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-black text-red-600 tracking-tight uppercase">
+          <h1 className="text-2xl font-black text-white tracking-tight uppercase drop-shadow-lg">
             OPORTUNIDADES
           </h1>
           <button
             onClick={() => navigate(createPageUrl("NotificationCenter"))}
-            className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-all"
+            className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all"
           >
-            <Bell className="w-5 h-5 text-gray-700" />
+            <Bell className="w-5 h-5 text-white" />
           </button>
         </div>
       </div>
@@ -569,13 +569,6 @@ export default function Feed() {
         onVagaClick={handleBannerItemClick}
       />
 
-      {/* Separador ÚLTIMAS NOTÍCIAS */}
-      <div className="bg-white py-3 px-4 border-b-2 border-gray-200 mb-4">
-        <h2 className="text-xl font-black text-red-600 tracking-tight uppercase text-center">
-          ÚLTIMAS NOTÍCIAS
-        </h2>
-      </div>
-
       {/* CSS Global para esconder scrollbar */}
       <style>{`
         body, html, #root {
@@ -587,7 +580,7 @@ export default function Feed() {
       `}</style>
 
       {/* Lista de Posts */}
-      <div className="px-4 space-y-4 bg-gray-50">
+      <div className="px-4 py-4 space-y-4">
         {isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (

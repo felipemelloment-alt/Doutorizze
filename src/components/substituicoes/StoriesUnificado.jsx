@@ -42,7 +42,10 @@ export default function StoriesUnificado({ substituicoes, vagas, userType, onSub
   if (allItems.length === 0) return null;
 
   return (
-    <div className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 py-4 px-4 mb-4">
+    <div className="relative overflow-hidden py-3 px-3 bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600">
+      {/* Efeito de brilho */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse"></div>
+      
       {/* Carrossel */}
       <div
         ref={scrollRef}
@@ -51,7 +54,7 @@ export default function StoriesUnificado({ substituicoes, vagas, userType, onSub
         onMouseDown={handleInteractionStart}
         onMouseUp={handleInteractionEnd}
         onMouseLeave={handleInteractionEnd}
-        className="flex gap-3 overflow-x-auto"
+        className="flex gap-2.5 overflow-x-auto relative z-10"
         style={{ 
           scrollBehavior: 'auto',
           msOverflowStyle: 'none',
@@ -79,19 +82,19 @@ export default function StoriesUnificado({ substituicoes, vagas, userType, onSub
                   : onVagaClick(item);
               }
             }}
-            className="flex-shrink-0 w-[110px] bg-white rounded-2xl p-3 shadow-lg hover:shadow-xl transition-all active:scale-95"
+            className="flex-shrink-0 w-[90px] bg-white/95 backdrop-blur-sm rounded-xl p-2 shadow-lg hover:shadow-2xl transition-all active:scale-95 hover:bg-white"
           >
-            {/* Badge Localização */}
-            <div className="flex items-center justify-center gap-1 mb-2 px-2 py-1 bg-purple-100 rounded-full">
-              <MapPin className="w-3 h-3 text-purple-600" />
-              <span className="text-[9px] text-purple-900 font-bold truncate">
-                {item.cidade} - {item.uf}
+            {/* Badge Localização compacto */}
+            <div className="flex items-center justify-center gap-0.5 mb-1.5 px-1.5 py-0.5 bg-gray-900/90 rounded-md">
+              <MapPin className="w-2.5 h-2.5 text-yellow-400" />
+              <span className="text-[8px] text-white font-bold truncate">
+                {item.cidade}-{item.uf}
               </span>
             </div>
 
-            {/* Foto Circular */}
-            <div className="relative mb-2 mx-auto">
-              <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200">
+            {/* Foto Circular compacta */}
+            <div className="relative mb-1.5 mx-auto">
+              <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 ring-2 ring-white">
                 {item.foto ? (
                   <img
                     src={item.foto}
@@ -99,8 +102,8 @@ export default function StoriesUnificado({ substituicoes, vagas, userType, onSub
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center">
-                    <span className="text-2xl font-bold text-white">
+                  <div className="w-full h-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
+                    <span className="text-lg font-bold text-white">
                       {item.nome?.charAt(0) || "?"}
                     </span>
                   </div>
@@ -108,24 +111,24 @@ export default function StoriesUnificado({ substituicoes, vagas, userType, onSub
               </div>
             </div>
 
-            {/* Nome */}
-            <h3 className="text-xs font-black text-gray-900 truncate text-center mb-1">
+            {/* Nome compacto */}
+            <h3 className="text-[10px] font-black text-gray-900 truncate text-center leading-tight mb-0.5">
               {item.nome}
             </h3>
 
-            {/* Especialidade */}
-            <p className="text-[10px] text-gray-600 font-bold truncate text-center mb-2">
+            {/* Especialidade compacta */}
+            <p className="text-[8px] text-gray-600 font-semibold truncate text-center mb-1.5">
               {item.especialidade}
             </p>
 
-            {/* Badge Tipo */}
-            <div className={`px-2 py-1 rounded-full text-center ${
+            {/* Badge Tipo compacto */}
+            <div className={`px-1.5 py-0.5 rounded-md text-center ${
               item.tipo === 'substituicao'
-                ? 'bg-yellow-400 text-yellow-900'
-                : 'bg-blue-500 text-white'
+                ? 'bg-orange-500 text-white'
+                : 'bg-blue-600 text-white'
             }`}>
-              <span className="text-[9px] font-black uppercase">
-                {item.tipo === 'substituicao' ? 'SUBSTITUIÇÃO' : 'VAGA FIXA'}
+              <span className="text-[7px] font-black uppercase tracking-tight">
+                {item.tipo === 'substituicao' ? 'URGENTE' : 'VAGA'}
               </span>
             </div>
           </button>
