@@ -21,7 +21,8 @@ import {
   Edit,
   MessageCircle,
   Filter,
-  Plus
+  Plus,
+  Eye
 } from "lucide-react";
 
 export default function BottomBar() {
@@ -34,6 +35,13 @@ export default function BottomBar() {
       try {
         const user = await base44.auth.me();
         
+        // Verificar se é freelancer
+        const freelancers = await base44.entities.Freelancer.filter({ user_id: user.id });
+        if (freelancers.length > 0) {
+          setUserType("FREELANCER");
+          return;
+        }
+
         // Verificar se é profissional
         const professionals = await base44.entities.Professional.filter({ user_id: user.id });
         if (professionals.length > 0) {
@@ -83,6 +91,7 @@ export default function BottomBar() {
     "/CadastroFornecedor",
     "/CadastroHospital",
     "/CadastroInstituicao",
+    "/CadastroFreelancer",
     "/EscolherTipoCadastro",
     "/CadastroSucesso",
     "/AvaliarClinica",
@@ -337,7 +346,17 @@ export default function BottomBar() {
     { icon: GraduationCap, label: "Perfil", page: "PerfilInstituicao", isCenter: false }
   ];
 
+  // Configuração de botões para FREELANCER
+  const botoesFreelancer = [
+    { icon: Briefcase, label: "Vagas", page: "NewJobs", isCenter: false },
+    { icon: Eye, label: "Portfólio", page: "Portfolio", isCenter: false },
+    { icon: null, label: null, page: null, isCenter: true },
+    { icon: MessageCircle, label: "Propostas", page: "MinhasCandidaturas", isCenter: false },
+    { icon: User, label: "Perfil", page: "DashboardFreelancer", isCenter: false }
+  ];
+
   const botoesMap = {
+    FREELANCER: botoesFreelancer,
     PROFISSIONAL: botoesProfissional,
     CLINICA: botoesClinica,
     FORNECEDOR: botoesFornecedor,

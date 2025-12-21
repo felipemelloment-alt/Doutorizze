@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Briefcase, UserRound, Building2, CheckCircle, Package, Hospital, GraduationCap } from "lucide-react";
+import { Briefcase, UserRound, Building2, CheckCircle, Package, Hospital, GraduationCap, Zap } from "lucide-react";
 
 export default function EscolherTipoCadastro() {
   const navigate = useNavigate();
@@ -110,6 +110,37 @@ export default function EscolherTipoCadastro() {
 
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-xl">
               <Briefcase className="w-8 h-8 text-white" strokeWidth={2.5} />
+            </div>
+
+            <h3 className="text-xl font-black text-gray-900 text-center mb-2">
+              Sou Freelancer
+            </h3>
+            <p className="text-gray-600 text-center mb-4 text-sm">
+              Trabalho por projeto
+            </p>
+
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all"
+            >
+              Cadastrar →
+            </motion.button>
+          </motion.div>
+
+          {/* Card Freelancer */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.25 }}
+            onClick={() => navigate("/CadastroFreelancer")}
+            className="bg-white rounded-3xl p-6 shadow-xl border-2 border-transparent hover:border-purple-400 transition-all duration-300 cursor-pointer group relative"
+          >
+            <span className="absolute top-2 right-2 px-3 py-1 bg-gradient-to-r from-purple-400 to-pink-400 text-white text-xs font-bold rounded-full">
+              NOVO
+            </span>
+
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-xl">
+              <Zap className="w-8 h-8 text-white" strokeWidth={2.5} />
             </div>
 
             <h3 className="text-xl font-black text-gray-900 text-center mb-2">
