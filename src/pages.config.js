@@ -66,6 +66,7 @@ import OnboardingTipoConta from './pages/OnboardingTipoConta';
 import ChatThread from './pages/ChatThread';
 import Chats from './pages/Chats';
 import EscolherTipoCriador from './pages/EscolherTipoCriador';
+import CriarSubstituicao from './pages/CriarSubstituicao';
 import __Layout from './Layout.jsx';
 
 
@@ -138,6 +139,7 @@ export const PAGES = {
     "ChatThread": ChatThread,
     "Chats": Chats,
     "EscolherTipoCriador": EscolherTipoCriador,
+    "CriarSubstituicao": CriarSubstituicao,
 }
 
 export const pagesConfig = {
