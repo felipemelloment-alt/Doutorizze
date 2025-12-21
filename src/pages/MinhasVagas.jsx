@@ -160,20 +160,20 @@ export default function MinhasVagas() {
         </div>
 
         {/* FILTROS */}
-        <div className="flex gap-3 mb-6 overflow-x-auto pb-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           {["TODAS", "ABERTAS", "PAUSADAS", "PREENCHIDAS"].map((filtro) => (
             <button
               key={filtro}
               onClick={() => setFiltroStatus(filtro)}
-              className={`px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${
+              className={`px-4 py-3 rounded-xl font-bold transition-all text-sm md:text-base ${
                 filtroStatus === filtro
                   ? "bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg"
                   : "bg-white border-2 border-gray-200 text-gray-700 hover:border-pink-400"
               }`}
             >
-              {filtro}
+              <span className="block">{filtro}</span>
               {filtro !== "TODAS" && (
-                <span className="ml-2 px-2 py-0.5 bg-white/20 rounded-full text-xs">
+                <span className="mt-1 inline-block px-2 py-0.5 bg-white/20 rounded-full text-xs">
                   {jobs.filter(j => {
                     if (filtro === "ABERTAS") return j.status === "ABERTO";
                     if (filtro === "PAUSADAS") return j.status === "PAUSADO";
