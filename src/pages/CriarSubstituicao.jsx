@@ -27,7 +27,7 @@ import {
   publicarSubstituicao 
 } from "@/components/api/substituicao";
 import {
-  ESPECIALIDADES_ODONTO,
+  ESPECIALIDADES,
   PROCEDIMENTOS_ODONTO,
   TIPOS_REMUNERACAO,
   FORMAS_PAGAMENTO
@@ -497,7 +497,7 @@ export default function CriarSubstituicao() {
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-400 outline-none"
                     >
                       <option value="">Selecione...</option>
-                      {ESPECIALIDADES_ODONTO.map(esp => (
+                      {ESPECIALIDADES.map(esp => (
                         <option key={esp} value={esp}>{esp}</option>
                       ))}
                     </select>
