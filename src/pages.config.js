@@ -76,6 +76,8 @@ import DisponibilidadeSubstituicao from './pages/DisponibilidadeSubstituicao';
 import ConfirmarSubstituicao from './pages/ConfirmarSubstituicao';
 import ValidarComparecimento from './pages/ValidarComparecimento';
 import DashboardSubstituicoes from './pages/DashboardSubstituicoes';
+import CriarAnuncioProfissional from './pages/CriarAnuncioProfissional';
+import MeusAnuncios from './pages/MeusAnuncios';
 import __Layout from './Layout.jsx';
 
 
@@ -158,6 +160,8 @@ export const PAGES = {
     "ConfirmarSubstituicao": ConfirmarSubstituicao,
     "ValidarComparecimento": ValidarComparecimento,
     "DashboardSubstituicoes": DashboardSubstituicoes,
+    "CriarAnuncioProfissional": CriarAnuncioProfissional,
+    "MeusAnuncios": MeusAnuncios,
 }
 
 export const pagesConfig = {

@@ -15,7 +15,8 @@ import {
   Filter,
   ChevronRight,
   Zap,
-  TrendingUp
+  TrendingUp,
+  Plus
 } from "lucide-react";
 import { listarVagasDisponiveis } from "@/components/api/substituicao";
 import { formatarTextoData, formatarValor, calcularTempoRestante } from "@/components/constants/substituicao";
@@ -119,6 +120,15 @@ export default function VagasDisponiveis() {
                 </p>
               </div>
             </div>
+            {professional && (
+              <button
+                onClick={() => navigate(createPageUrl("CriarAnuncioProfissional"))}
+                className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline">Criar Anúncio</span>
+              </button>
+            )}
           </div>
         </motion.div>
 
