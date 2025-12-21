@@ -97,52 +97,53 @@ export default function VagasDisponiveis() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 pb-24">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
+    <div className="min-h-screen bg-gray-50 pb-24">
+      <div className="container mx-auto px-4 py-6">
+        {/* Header Compacto */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 rounded-3xl p-8 mb-8 relative overflow-hidden"
+          className="bg-white rounded-2xl p-6 mb-6 shadow-lg"
         >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
-          <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/20 rounded-full blur-3xl"></div>
-          
-          <div className="relative z-10">
-            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-3xl mb-4">
-              💼
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-md">
+                <Briefcase className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-black text-gray-900">
+                  Vagas de Emprego
+                </h1>
+                <p className="text-gray-600 text-sm">
+                  {vagasFiltradas.length} {vagasFiltradas.length === 1 ? "vaga disponível" : "vagas disponíveis"}
+                </p>
+              </div>
             </div>
-            <h1 className="text-4xl md:text-5xl font-black text-white mb-2">
-              VAGAS ABERTAS
-            </h1>
-            <p className="text-white/90 text-lg">
-              {vagasFiltradas.length} oportunidade{vagasFiltradas.length !== 1 ? "s" : ""} disponível{vagasFiltradas.length !== 1 ? "is" : ""}
-            </p>
           </div>
         </motion.div>
 
         {/* Search e Filtros */}
-        <div className="bg-white rounded-3xl p-6 shadow-xl mb-8">
-          <div className="flex gap-4 mb-4">
+        <div className="bg-white rounded-2xl p-5 shadow-md mb-6">
+          <div className="flex gap-3 mb-4">
             <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Buscar por especialidade, clínica ou cidade..."
+                placeholder="Buscar especialidade, clínica ou cidade..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-400 outline-none"
+                className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
               />
             </div>
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all ${
+              className={`px-5 py-3 rounded-xl font-semibold flex items-center gap-2 transition-all ${
                 showFilters 
-                  ? "bg-yellow-500 text-white" 
+                  ? "bg-blue-500 text-white shadow-md" 
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              <Filter className="w-5 h-5" />
+              <Filter className="w-4 h-4" />
               Filtros
             </button>
           </div>
@@ -151,14 +152,14 @@ export default function VagasDisponiveis() {
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
-              className="grid md:grid-cols-3 gap-4 pt-4 border-t-2 border-gray-100"
+              className="grid md:grid-cols-3 gap-3 pt-4 border-t border-gray-200"
             >
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Especialidade</label>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Especialidade</label>
                 <select
                   value={filtroEspecialidade}
                   onChange={(e) => setFiltroEspecialidade(e.target.value)}
-                  className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-yellow-400 outline-none"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm"
                 >
                   <option value="all">Todas</option>
                   {especialidades.map(esp => (
@@ -168,11 +169,11 @@ export default function VagasDisponiveis() {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Cidade</label>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Cidade</label>
                 <select
                   value={filtroCidade}
                   onChange={(e) => setFiltroCidade(e.target.value)}
-                  className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-yellow-400 outline-none"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm"
                 >
                   <option value="all">Todas</option>
                   {cidades.map(cidade => (
@@ -182,11 +183,11 @@ export default function VagasDisponiveis() {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Tipo</label>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Tipo</label>
                 <select
                   value={filtroTipoData}
                   onChange={(e) => setFiltroTipoData(e.target.value)}
-                  className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-yellow-400 outline-none"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm"
                 >
                   <option value="all">Todos</option>
                   <option value="IMEDIATO">🚨 Imediato</option>
@@ -200,18 +201,18 @@ export default function VagasDisponiveis() {
 
         {/* Vagas Urgentes */}
         {vagasUrgentes.length > 0 && (
-          <div className="mb-8">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-red-500 flex items-center justify-center">
-                <Zap className="w-6 h-6 text-white" />
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-10 h-10 rounded-lg bg-red-500 flex items-center justify-center shadow-md">
+                <Zap className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-black text-gray-900">🚨 URGENTE - HOJE</h2>
-                <p className="text-gray-600">Vagas que precisam de alguém agora</p>
+                <h2 className="text-lg font-bold text-gray-900">🚨 Urgente</h2>
+                <p className="text-xs text-gray-600">Precisam de alguém agora</p>
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-4">
               {vagasUrgentes.map(vaga => (
                 <VagaCard key={vaga.id} vaga={vaga} isUrgente navigate={navigate} />
               ))}
@@ -222,17 +223,17 @@ export default function VagasDisponiveis() {
         {/* Vagas Normais */}
         {vagasNormais.length > 0 && (
           <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-white" />
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center shadow-md">
+                <Briefcase className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-black text-gray-900">Outras Oportunidades</h2>
-                <p className="text-gray-600">Vagas programadas</p>
+                <h2 className="text-lg font-bold text-gray-900">Todas as Vagas</h2>
+                <p className="text-xs text-gray-600">Oportunidades disponíveis</p>
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-4">
               {vagasNormais.map(vaga => (
                 <VagaCard key={vaga.id} vaga={vaga} navigate={navigate} />
               ))}
@@ -242,12 +243,12 @@ export default function VagasDisponiveis() {
 
         {/* Empty State */}
         {vagasFiltradas.length === 0 && (
-          <div className="bg-white rounded-3xl p-12 text-center shadow-xl">
-            <div className="text-8xl mb-6 opacity-50">🔍</div>
-            <h3 className="text-2xl font-bold text-gray-400 mb-2">
+          <div className="bg-white rounded-2xl p-10 text-center shadow-md">
+            <div className="text-6xl mb-4 opacity-50">🔍</div>
+            <h3 className="text-lg font-bold text-gray-500 mb-2">
               Nenhuma vaga encontrada
             </h3>
-            <p className="text-gray-400 mb-6">
+            <p className="text-sm text-gray-400 mb-5">
               Tente ajustar os filtros ou volte mais tarde
             </p>
             <button
@@ -257,7 +258,7 @@ export default function VagasDisponiveis() {
                 setFiltroCidade("all");
                 setFiltroTipoData("all");
               }}
-              className="px-6 py-3 bg-yellow-500 text-white font-bold rounded-xl hover:bg-yellow-600 transition-all"
+              className="px-5 py-2.5 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-all"
             >
               Limpar Filtros
             </button>
@@ -277,65 +278,65 @@ function VagaCard({ vaga, isUrgente, navigate }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       onClick={() => navigate(createPageUrl(`DetalheVaga?id=${vaga.id}`))}
-      className={`bg-white rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all cursor-pointer hover:scale-[1.02] ${
-        isUrgente ? "border-4 border-red-500" : ""
+      className={`bg-white rounded-xl p-5 shadow-md hover:shadow-lg transition-all cursor-pointer border-l-4 ${
+        isUrgente ? "border-l-red-500" : "border-l-blue-500"
       }`}
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-1.5 mb-2">
             {isUrgente && (
-              <span className="px-3 py-1 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
-                🚨 URGENTE
+              <span className="px-2 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full">
+                URGENTE
               </span>
             )}
-            <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">
+            <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-[10px] font-semibold rounded-full">
               {vaga.tipo_data === "IMEDIATO" && "⚡ IMEDIATO"}
-              {vaga.tipo_data === "DATA_ESPECIFICA" && "📅 DATA"}
+              {vaga.tipo_data === "DATA_ESPECIFICA" && "📅 DATA ESPECÍFICA"}
               {vaga.tipo_data === "PERIODO" && "📊 PERÍODO"}
             </span>
           </div>
-          <h3 className="text-xl font-black text-gray-900 mb-1">
+          <h3 className="text-base font-bold text-gray-900 mb-0.5">
             {vaga.especialidade_necessaria}
           </h3>
-          <p className="text-sm text-gray-600 font-semibold">
+          <p className="text-sm text-gray-600">
             {vaga.nome_clinica}
           </p>
         </div>
 
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center flex-shrink-0">
-          <Briefcase className="w-6 h-6 text-white" />
+        <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-sm">
+          <Briefcase className="w-5 h-5 text-white" />
         </div>
       </div>
 
       {/* Info Grid */}
-      <div className="space-y-3 mb-4">
-        <div className="flex items-center gap-2 text-sm">
-          <Calendar className="w-4 h-4 text-gray-400" />
-          <span className="text-gray-700 font-semibold">
+      <div className="space-y-2 mb-3">
+        <div className="flex items-center gap-2 text-xs">
+          <Calendar className="w-3.5 h-3.5 text-gray-400" />
+          <span className="text-gray-700 font-medium">
             {formatarTextoData(vaga)}
           </span>
         </div>
 
-        <div className="flex items-center gap-2 text-sm">
-          <MapPin className="w-4 h-4 text-gray-400" />
+        <div className="flex items-center gap-2 text-xs">
+          <MapPin className="w-3.5 h-3.5 text-gray-400" />
           <span className="text-gray-700">
             {vaga.cidade}/{vaga.uf}
           </span>
         </div>
 
-        <div className="flex items-center gap-2 text-sm">
-          <DollarSign className="w-4 h-4 text-gray-400" />
-          <span className="text-gray-700 font-bold">
+        <div className="flex items-center gap-2 text-xs">
+          <DollarSign className="w-3.5 h-3.5 text-gray-400" />
+          <span className="text-gray-700 font-semibold">
             {vaga.tipo_remuneracao === "DIARIA" 
               ? formatarValor(vaga.valor_diaria)
               : "% por procedimento"}
           </span>
         </div>
 
-        <div className="flex items-center gap-2 text-sm">
-          <Users className="w-4 h-4 text-gray-400" />
+        <div className="flex items-center gap-2 text-xs">
+          <Users className="w-3.5 h-3.5 text-gray-400" />
           <span className="text-gray-600">
             {vaga.total_candidatos || 0} candidato{vaga.total_candidatos !== 1 ? "s" : ""}
           </span>
@@ -344,10 +345,10 @@ function VagaCard({ vaga, isUrgente, navigate }) {
 
       {/* Tempo Restante */}
       {tempoRestante && !tempoRestante.expirado && (
-        <div className="bg-yellow-50 rounded-xl p-3 mb-4">
-          <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-yellow-600" />
-            <span className="text-sm font-bold text-yellow-700">
+        <div className="bg-yellow-50 rounded-lg p-2.5 mb-3">
+          <div className="flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5 text-yellow-600" />
+            <span className="text-xs font-semibold text-yellow-700">
               Expira em {tempoRestante.texto}
             </span>
           </div>
@@ -355,9 +356,9 @@ function VagaCard({ vaga, isUrgente, navigate }) {
       )}
 
       {/* Botão */}
-      <button className="w-full py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:shadow-lg transition-all">
+      <button className="w-full py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-lg flex items-center justify-center gap-1.5 hover:shadow-md transition-all text-sm">
         Ver Detalhes
-        <ChevronRight className="w-5 h-5" />
+        <ChevronRight className="w-4 h-4" />
       </button>
     </motion.div>
   );
