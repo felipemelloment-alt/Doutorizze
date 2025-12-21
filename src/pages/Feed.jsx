@@ -23,6 +23,8 @@ import {
   Briefcase
 } from "lucide-react";
 import { toast } from "sonner";
+import SubstituicoesStories from "@/components/substituicoes/SubstituicoesStories";
+import { formatarTextoData, formatarValor } from "@/components/constants/substituicao";
 
 // Componente do Banner Stories com Auto-scroll INFINITO SEAMLESS
 function StoriesBanner({ items, userType, onItemClick }) {
@@ -175,6 +177,7 @@ export default function Feed() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [userType, setUserType] = useState(null);
+  const [userArea, setUserArea] = useState(null); // ODONTOLOGIA ou MEDICINA
   const [userLocation, setUserLocation] = useState({ cidade: null, uf: null });
 
   // Carregar dados do usuário
@@ -197,6 +200,7 @@ export default function Feed() {
           console.log("📍 Cidades Atendimento:", prof.cidades_atendimento);
           
           setUserType("PROFISSIONAL");
+          setUserArea(prof.tipo_profissional === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA");
           setUserLocation({
             cidade: prof.cidades_atendimento?.[0]?.split(' - ')[0] || "Não informada",
             uf: prof.uf_conselho || "Não informado"
@@ -218,6 +222,7 @@ export default function Feed() {
             console.log("📍 UF:", unit.uf);
             console.log("📍 Cidade:", unit.cidade);
             
+            setUserArea(unit.tipo_mundo === "ODONTOLOGIA" ? "ODONTOLOGIA" : unit.tipo_mundo === "MEDICINA" ? "MEDICINA" : "AMBOS");
             setUserLocation({
               cidade: unit.cidade,
               uf: unit.uf
@@ -417,8 +422,107 @@ export default function Feed() {
     }
   };
 
+  // Handler para clique nos stories de substituição
+  const handleSubstituicaoClick = (item) => {
+    if (String(item.id).includes('-dup-')) {
+      const realId = String(item.id).split('-dup-')[0];
+      if (item.tipo === "profissional") {
+        navigate(createPageUrl("VerProfissional") + `?id=${realId}`);
+      } else {
+        navigate(createPageUrl("DetalheSubstituicao") + `?id=${realId}`);
+      }
+      return;
+    }
+
+    if (item.tipo === "profissional") {
+      navigate(createPageUrl("VerProfissional") + `?id=${item.id}`);
+    } else {
+      navigate(createPageUrl("DetalheSubstituicao") + `?id=${item.id}`);
+    }
+  };
+
+  // Buscar profissionais ONLINE para substituição (para clínicas verem)
+  const { data: profissionaisOnlineSubstituicao = [] } = useQuery({
+    queryKey: ["profissionaisOnlineSubstituicao", userLocation.cidade, userArea],
+    queryFn: async () => {
+      if (userType !== "CLINICA" || !userLocation.cidade || !userArea) return [];
+      
+      const profissionais = await base44.entities.Professional.filter({
+        status_disponibilidade_substituicao: "ONLINE",
+        disponivel_substituicao: true,
+        esta_suspenso: false,
+        status_cadastro: "APROVADO"
+      });
+      
+      // Filtrar por área e cidade
+      const filtered = profissionais
+        .filter(p => {
+          // Filtrar por área
+          if (userArea === "ODONTOLOGIA" && p.tipo_profissional !== "DENTISTA") return false;
+          if (userArea === "MEDICINA" && p.tipo_profissional !== "MEDICO") return false;
+          
+          // Filtrar por cidade
+          if (!p.cidades_atendimento || p.cidades_atendimento.length === 0) return false;
+          const profCidades = p.cidades_atendimento.map(c => c.split(' - ')[0].toLowerCase());
+          return profCidades.includes(userLocation.cidade.toLowerCase());
+        })
+        .map(p => ({
+          id: p.id,
+          nome: p.nome_completo,
+          foto: p.selfie_documento_url,
+          especialidade: p.especialidade_principal || "Clínica Geral",
+          cidade: userLocation.cidade,
+          uf: p.uf_conselho,
+          statusBadge: "ONLINE",
+          tipo: "profissional"
+        }));
+      
+      return filtered;
+    },
+    enabled: userType === "CLINICA" && !!userLocation.cidade && !!userArea
+  });
+
+  // Buscar vagas de substituição abertas (para profissionais verem)
+  const { data: vagasSubstituicaoAbertas = [] } = useQuery({
+    queryKey: ["vagasSubstituicaoAbertas", userLocation.cidade, userArea],
+    queryFn: async () => {
+      if (userType !== "PROFISSIONAL" || !userLocation.cidade || !userArea) return [];
+      
+      const vagas = await base44.entities.SubstituicaoUrgente.filter({
+        status: "ABERTA"
+      });
+      
+      // Filtrar por área e cidade
+      const filtered = vagas
+        .filter(v => {
+          // Filtrar por área
+          if (userArea === "ODONTOLOGIA" && v.tipo_profissional !== "DENTISTA") return false;
+          if (userArea === "MEDICINA" && v.tipo_profissional !== "MEDICO") return false;
+          
+          // Filtrar por cidade
+          return v.cidade?.toLowerCase() === userLocation.cidade?.toLowerCase();
+        })
+        .map(v => ({
+          id: v.id,
+          nome: v.nome_clinica,
+          foto: null,
+          especialidade: v.especialidade_necessaria,
+          cidade: v.cidade,
+          uf: v.uf,
+          isUrgente: v.tipo_data === "IMEDIATO",
+          dataTexto: formatarTextoData(v).substring(0, 15) + "...",
+          remuneracao: v.tipo_remuneracao === "DIARIA" ? formatarValor(v.valor_diaria) : "% proc.",
+          tipo: "substituicao"
+        }));
+      
+      return filtered;
+    },
+    enabled: userType === "PROFISSIONAL" && !!userLocation.cidade && !!userArea
+  });
+
   // Determinar itens do banner baseado no tipo de usuário
   const bannerItems = userType === "CLINICA" ? profissionaisProximos : clinicasProximas;
+  const substituicoesItems = userType === "CLINICA" ? profissionaisOnlineSubstituicao : vagasSubstituicaoAbertas;
 
   const handleLike = async (postId) => {
     toast.success("Curtido!");
@@ -459,8 +563,17 @@ export default function Feed() {
         </div>
       </div>
 
-      {/* Banner Stories - AUTO-SCROLL INFINITO */}
+      {/* Stories de Substituições - NOVO */}
       <div className="-mt-4">
+        <SubstituicoesStories
+          items={substituicoesItems}
+          userType={userType}
+          onItemClick={handleSubstituicaoClick}
+        />
+      </div>
+
+      {/* Banner Stories - AUTO-SCROLL INFINITO */}
+      <div>
         <StoriesBanner
           items={bannerItems}
           userType={userType}
