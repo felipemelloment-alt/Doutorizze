@@ -122,6 +122,30 @@ export default function BottomBar() {
     }
     
     // ============================================
+    // SUBSTITUIÇÕES
+    // ============================================
+    if (path.includes("vagasdisponiveis") || path.includes("minhassubstituicoes") || path.includes("candidaturassubstituicao") || path.includes("criarsubstituicao") || path.includes("escolhertipocriador")) {
+      if (userType === "CLINICA") {
+        return { 
+          icon: Plus, 
+          label: "Criar", 
+          page: "EscolherTipoCriador",
+          iconColor: "text-orange-500",
+          activeColor: "text-orange-500",
+          bgColor: "bg-orange-500"
+        };
+      }
+      return { 
+        icon: Plus, 
+        label: "Aplicar", 
+        page: "VagasDisponiveis",
+        iconColor: "text-yellow-500",
+        activeColor: "text-yellow-500",
+        bgColor: "bg-yellow-500"
+      };
+    }
+    
+    // ============================================
     // VAGAS (NewJobs + páginas relacionadas)
     // ============================================
     if (path.includes("newjobs") || path.includes("criarvaga") || path.includes("editarvaga")) {
@@ -295,7 +319,7 @@ export default function BottomBar() {
   // Configuração de botões para PROFISSIONAL
   const botoesProfissional = [
     { icon: Newspaper, label: "Feed", page: "Feed", isCenter: false },
-    { icon: Briefcase, label: "Vagas", page: "NewJobs", isCenter: false },
+    { icon: Briefcase, label: "Vagas", page: "VagasDisponiveis", isCenter: false },
     { icon: null, label: null, page: null, isCenter: true },
     { icon: MessageCircle, label: "Chats", page: "Chats", isCenter: false },
     { icon: User, label: "Perfil", page: "MeuPerfil", isCenter: false }
@@ -304,7 +328,7 @@ export default function BottomBar() {
   // Configuração de botões para CLINICA
   const botoesClinica = [
     { icon: Newspaper, label: "Feed", page: "Feed", isCenter: false },
-    { icon: Search, label: "Buscar", page: "BuscarProfissionais", isCenter: false },
+    { icon: Briefcase, label: "Vagas", page: "MinhasSubstituicoes", isCenter: false },
     { icon: null, label: null, page: null, isCenter: true },
     { icon: MessageCircle, label: "Chats", page: "Chats", isCenter: false },
     { icon: Building2, label: "Perfil", page: "PerfilClinica", isCenter: false }
