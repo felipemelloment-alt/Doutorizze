@@ -23,7 +23,7 @@ import {
   Briefcase
 } from "lucide-react";
 import { toast } from "sonner";
-import SubstituicoesStories from "@/components/substituicoes/SubstituicoesStories";
+import StoriesUnificado from "@/components/substituicoes/StoriesUnificado";
 import { formatarTextoData, formatarValor } from "@/components/constants/substituicao";
 
 // Componente do Banner Stories com Auto-scroll INFINITO SEAMLESS
@@ -546,37 +546,34 @@ export default function Feed() {
   return (
     <div className="min-h-screen bg-gray-50 pb-24 overflow-x-hidden" style={{ msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
       {/* Header */}
-      <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 px-4 py-3 pb-4">
+      <div className="bg-white px-4 py-4 border-b-2 border-gray-200">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-black text-white tracking-tight">Feed</h1>
-            <p className="text-white/90 text-xs font-medium">Novidades e oportunidades</p>
-          </div>
+          <h1 className="text-2xl font-black text-red-600 tracking-tight uppercase">
+            OPORTUNIDADES
+          </h1>
           <button
             onClick={() => navigate(createPageUrl("NotificationCenter"))}
-            className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all"
+            className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-all"
           >
-            <Bell className="w-5 h-5 text-white" />
+            <Bell className="w-5 h-5 text-gray-700" />
           </button>
         </div>
       </div>
 
-      {/* Stories de Substituições - NOVO */}
-      <div className="-mt-3">
-        <SubstituicoesStories
-          items={substituicoesItems}
-          userType={userType}
-          onItemClick={handleSubstituicaoClick}
-        />
-      </div>
+      {/* Stories Unificado */}
+      <StoriesUnificado
+        substituicoes={substituicoesItems}
+        vagas={bannerItems}
+        userType={userType}
+        onSubstituicaoClick={handleSubstituicaoClick}
+        onVagaClick={handleBannerItemClick}
+      />
 
-      {/* Banner Stories - AUTO-SCROLL INFINITO */}
-      <div className="-mt-2">
-        <StoriesBanner
-          items={bannerItems}
-          userType={userType}
-          onItemClick={handleBannerItemClick}
-        />
+      {/* Separador ÚLTIMAS NOTÍCIAS */}
+      <div className="bg-white py-3 px-4 border-b-2 border-gray-200 mb-4">
+        <h2 className="text-xl font-black text-red-600 tracking-tight uppercase text-center">
+          ÚLTIMAS NOTÍCIAS
+        </h2>
       </div>
 
       {/* CSS Global para esconder scrollbar */}
@@ -590,7 +587,7 @@ export default function Feed() {
       `}</style>
 
       {/* Lista de Posts */}
-      <div className="px-4 space-y-4">
+      <div className="px-4 space-y-4 bg-gray-50">
         {isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
