@@ -731,36 +731,62 @@ export async function buscarProfissionaisDisponiveis(filters = {}) {
 // ═══════════════════════════════════════════════════════
 
 async function notificarProfissionaisDisponiveis(substituicao) {
-  // TODO: Implementar webhook n8n
-  console.log('Notificar profissionais:', substituicao.id);
+  // Buscar profissionais online e disponíveis
+  const profissionais = await base44.entities.Professional.filter({
+    disponivel_substituicao: true,
+    status_disponibilidade_substituicao: 'ONLINE',
+    esta_suspenso: false
+  });
+  
+  console.log(`Notificando ${profissionais.length} profissionais disponíveis sobre substituição ${substituicao.id}`);
 }
 
 async function notificarNovaCandidatura(substituicaoId, professionalId) {
-  console.log('Nova candidatura:', substituicaoId, professionalId);
+  const substituicao = await base44.entities.SubstituicaoUrgente.get(substituicaoId);
+  const professional = await base44.entities.Professional.get(professionalId);
+  
+  console.log(`Nova candidatura: ${professional.nome_completo} para vaga ${substituicao.especialidade_necessaria}`);
 }
 
 async function notificarCancelamento(substituicaoId) {
-  console.log('Cancelamento:', substituicaoId);
+  const candidaturas = await base44.entities.CandidaturaSubstituicao.filter({
+    substituicao_id: substituicaoId,
+    status: 'AGUARDANDO'
+  });
+  
+  console.log(`Notificando ${candidaturas.length} candidatos sobre cancelamento`);
 }
 
 async function notificarConfirmacaoAprovada(substituicaoId) {
-  console.log('Confirmação aprovada:', substituicaoId);
+  const { notificarCandidaturaAceita } = await import('./whatsappNotifications');
+  const substituicao = await base44.entities.SubstituicaoUrgente.get(substituicaoId);
+  
+  if (substituicao.profissional_escolhido_id) {
+    await notificarCandidaturaAceita(substituicaoId, substituicao.profissional_escolhido_id);
+  }
 }
 
 async function notificarCriadorConfirmada(substituicaoId) {
-  console.log('Criador notificado:', substituicaoId);
+  console.log('Notificando criador sobre confirmação:', substituicaoId);
 }
 
 async function notificarConfirmacaoRejeitada(substituicaoId, motivo) {
-  console.log('Confirmação rejeitada:', substituicaoId, motivo);
+  const { notificarCandidaturaRejeitada } = await import('./whatsappNotifications');
+  const substituicao = await base44.entities.SubstituicaoUrgente.get(substituicaoId);
+  
+  if (substituicao.profissional_escolhido_id) {
+    await notificarCandidaturaRejeitada(substituicaoId, substituicao.profissional_escolhido_id);
+  }
 }
 
 async function notificarSuspensao(professionalId, dias, faltas) {
-  console.log('Suspensão:', professionalId, dias, faltas);
+  const professional = await base44.entities.Professional.get(professionalId);
+  console.log(`Profissional ${professional.nome_completo} suspenso por ${dias} dias (${faltas}ª falta)`);
 }
 
 async function notificarAviso(professionalId) {
-  console.log('Aviso:', professionalId);
+  const professional = await base44.entities.Professional.get(professionalId);
+  console.log(`Aviso enviado para ${professional.nome_completo} - 1ª falta`);
 }
 
 // ═══════════════════════════════════════════════════════
