@@ -10,23 +10,11 @@ import {
   FileText, 
   Clock, 
   DollarSign,
-  CheckCircle2,
-  Plus,
-  X,
-  Calendar as CalendarIcon,
-  AlertCircle
+  CheckCircle2
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useIBGECidades } from "@/components/hooks/useIBGECidades";
 import CityAutocomplete from "@/components/forms/CityAutocomplete";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 
 export default function CriarVaga() {
   const navigate = useNavigate();
@@ -41,17 +29,10 @@ export default function CriarVaga() {
     titulo: "",
     descricao: "",
     tipo_vaga: "",
-    job_type: "full-time",
     tipo_profissional: userArea === "ODONTOLOGIA" ? "DENTISTA" : "MEDICO",
-    accepts_applications_from: {
-      professionals: true,
-      freelancers: false
-    },
 
     // ETAPA 2
     especialidades_aceitas: [],
-    required_skills: [],
-    preferred_skills: [],
     exige_experiencia: false,
     tempo_experiencia_minimo: "",
     falar_com: "",
@@ -68,17 +49,8 @@ export default function CriarVaga() {
     // ETAPA 4
     valor_proposto: "",
     tipo_remuneracao: "",
-    project_details: {
-      budget_type: "fixed",
-      budget_range: { min: "", max: "", currency: "BRL" },
-      duration_estimate: "",
-      deadline: null
-    },
     aceita_termos: false
   });
-  
-  const [newSkill, setNewSkill] = useState("");
-  const [skillType, setSkillType] = useState("required");
 
   const totalEtapas = 4;
   const progressoPercentual = (etapaAtual / totalEtapas) * 100;
@@ -115,47 +87,6 @@ export default function CriarVaga() {
   const handleInputChange = (campo, valor) => {
     setFormData(prev => ({ ...prev, [campo]: valor }));
   };
-
-  const handleProjectDetailsChange = (campo, valor) => {
-    setFormData(prev => ({
-      ...prev,
-      project_details: { ...prev.project_details, [campo]: valor }
-    }));
-  };
-
-  const handleBudgetRangeChange = (campo, valor) => {
-    setFormData(prev => ({
-      ...prev,
-      project_details: {
-        ...prev.project_details,
-        budget_range: { ...prev.project_details.budget_range, [campo]: valor }
-      }
-    }));
-  };
-
-  const addSkill = () => {
-    if (!newSkill.trim()) return;
-    const field = skillType === "required" ? "required_skills" : "preferred_skills";
-    if (formData[field].includes(newSkill.trim())) {
-      toast.error("Habilidade já adicionada");
-      return;
-    }
-    setFormData(prev => ({
-      ...prev,
-      [field]: [...prev[field], newSkill.trim()]
-    }));
-    setNewSkill("");
-  };
-
-  const removeSkill = (skill, type) => {
-    const field = type === "required" ? "required_skills" : "preferred_skills";
-    setFormData(prev => ({
-      ...prev,
-      [field]: prev[field].filter(s => s !== skill)
-    }));
-  };
-
-  const isFreelanceMode = formData.job_type === "freelance" || formData.job_type === "contract" || formData.accepts_applications_from.freelancers;
 
   const toggleEspecialidade = (especialidade) => {
     setFormData(prev => {
@@ -219,10 +150,6 @@ export default function CriarVaga() {
           toast.error("Selecione o tipo de profissional");
           return false;
         }
-        if (!formData.accepts_applications_from.professionals && !formData.accepts_applications_from.freelancers) {
-          toast.error("Selecione pelo menos um tipo de candidato");
-          return false;
-        }
         return true;
 
       case 2:
@@ -260,25 +187,13 @@ export default function CriarVaga() {
         return true;
 
       case 4:
-        if (isFreelanceMode) {
-          const { min, max } = formData.project_details.budget_range;
-          if (!min || !max) {
-            toast.error("Preencha a faixa de orçamento");
-            return false;
-          }
-          if (parseFloat(min) >= parseFloat(max)) {
-            toast.error("Orçamento mínimo deve ser menor que o máximo");
-            return false;
-          }
-        } else {
-          if (formData.tipo_remuneracao !== "A_COMBINAR" && !formData.valor_proposto) {
-            toast.error("Informe o valor proposto ou selecione 'A Combinar'");
-            return false;
-          }
-          if (!formData.tipo_remuneracao) {
-            toast.error("Selecione o tipo de remuneração");
-            return false;
-          }
+        if (formData.tipo_remuneracao !== "A_COMBINAR" && !formData.valor_proposto) {
+          toast.error("Informe o valor proposto ou selecione 'A Combinar'");
+          return false;
+        }
+        if (!formData.tipo_remuneracao) {
+          toast.error("Selecione o tipo de remuneração");
+          return false;
         }
         if (!formData.aceita_termos) {
           toast.error("Você deve aceitar os termos");
@@ -324,12 +239,8 @@ export default function CriarVaga() {
         titulo: formData.titulo.trim(),
         descricao: formData.descricao.trim(),
         tipo_vaga: formData.tipo_vaga,
-        job_type: formData.job_type,
         tipo_profissional: formData.tipo_profissional,
-        accepts_applications_from: formData.accepts_applications_from,
         especialidades_aceitas: formData.especialidades_aceitas,
-        required_skills: formData.required_skills,
-        preferred_skills: formData.preferred_skills,
         exige_experiencia: formData.exige_experiencia,
         tempo_experiencia_minimo: formData.exige_experiencia ? parseInt(formData.tempo_experiencia_minimo) : 0,
         selecao_dias: formData.selecao_dias,
@@ -340,14 +251,6 @@ export default function CriarVaga() {
         uf: formData.uf,
         valor_proposto: valorPropostoNumero,
         tipo_remuneracao: formData.tipo_remuneracao,
-        project_details: isFreelanceMode ? {
-          ...formData.project_details,
-          budget_range: {
-            min: parseFloat(formData.project_details.budget_range.min),
-            max: parseFloat(formData.project_details.budget_range.max),
-            currency: "BRL"
-          }
-        } : null,
         falar_com: formData.falar_com,
         instagram_clinica: formData.instagram_clinica || "",
         status: "ABERTO",
@@ -418,62 +321,15 @@ export default function CriarVaga() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Tipo de Contrato *</label>
-                <select
-                  value={formData.job_type}
-                  onChange={(e) => handleInputChange("job_type", e.target.value)}
-                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-pink-400 focus:ring-4 focus:ring-pink-100 appearance-none bg-white cursor-pointer transition-all outline-none"
-                >
-                  <option value="full-time">Tempo Integral</option>
-                  <option value="part-time">Meio Período</option>
-                  <option value="contract">Contrato</option>
-                  <option value="freelance">Freelance</option>
-                  <option value="temporary">Temporário</option>
-                </select>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Tipo de Profissional</label>
+                <div className="flex items-center gap-2">
+                  <span className="px-4 py-3 bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-700 font-bold rounded-xl border-2 border-orange-200">
+                    {userArea === "ODONTOLOGIA" ? "🦷 Dentista" : "⚕️ Médico"}
+                  </span>
+                  <span className="text-sm text-gray-500">Definido pela sua clínica</span>
+                </div>
               </div>
             </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">Aceita candidaturas de: *</label>
-              <div className="space-y-3">
-                <label className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
-                  <Checkbox
-                    checked={formData.accepts_applications_from.professionals}
-                    onCheckedChange={(checked) => handleInputChange("accepts_applications_from", {
-                      ...formData.accepts_applications_from,
-                      professionals: checked
-                    })}
-                  />
-                  <div>
-                    <p className="font-semibold text-gray-900">Profissionais CLT/PJ</p>
-                    <p className="text-sm text-gray-500">Dentistas e médicos tradicionais</p>
-                  </div>
-                </label>
-
-                <label className="flex items-center gap-3 p-4 border-2 border-purple-200 rounded-xl hover:bg-purple-50 cursor-pointer">
-                  <Checkbox
-                    checked={formData.accepts_applications_from.freelancers}
-                    onCheckedChange={(checked) => handleInputChange("accepts_applications_from", {
-                      ...formData.accepts_applications_from,
-                      freelancers: checked
-                    })}
-                  />
-                  <div>
-                    <p className="font-semibold text-gray-900">Freelancers</p>
-                    <p className="text-sm text-gray-500">Profissionais por projeto</p>
-                  </div>
-                </label>
-              </div>
-            </div>
-
-            {formData.accepts_applications_from.freelancers && (
-              <Alert className="bg-purple-50 border-purple-200">
-                <AlertCircle className="h-4 w-4 text-purple-600" />
-                <AlertDescription className="text-purple-800">
-                  <strong>Modo Freelance ativado!</strong> Você precisará fornecer orçamento e detalhes do projeto na etapa 4.
-                </AlertDescription>
-              </Alert>
-            )}
           </div>
         );
 
@@ -567,78 +423,6 @@ export default function CriarVaga() {
                 className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
               />
               <p className="text-xs text-gray-500 mt-1">Nome do responsável para contato</p>
-            </div>
-
-            {/* Sistema de Skills */}
-            <div className="bg-blue-50 rounded-2xl p-6 border-2 border-blue-200">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">🎯 Habilidades</h3>
-              
-              <div className="flex gap-3 mb-4">
-                <input
-                  type="text"
-                  value={newSkill}
-                  onChange={(e) => setNewSkill(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
-                  placeholder="Ex: Implantodontia, Gestão de equipe..."
-                  className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-400 outline-none"
-                />
-                <select
-                  value={skillType}
-                  onChange={(e) => setSkillType(e.target.value)}
-                  className="px-4 py-3 border-2 border-gray-200 rounded-xl bg-white outline-none"
-                >
-                  <option value="required">Obrigatória</option>
-                  <option value="preferred">Desejável</option>
-                </select>
-                <button
-                  type="button"
-                  onClick={addSkill}
-                  className="px-4 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 flex items-center gap-2"
-                >
-                  <Plus className="w-5 h-5" />
-                  Adicionar
-                </button>
-              </div>
-
-              {formData.required_skills.length > 0 && (
-                <div className="mb-3">
-                  <p className="text-sm font-semibold text-gray-700 mb-2">Obrigatórias:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.required_skills.map((skill, idx) => (
-                      <Badge key={idx} className="bg-red-100 text-red-700 border-red-300 border-2 px-3 py-1">
-                        {skill}
-                        <button
-                          type="button"
-                          onClick={() => removeSkill(skill, "required")}
-                          className="ml-2 hover:text-red-900"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {formData.preferred_skills.length > 0 && (
-                <div>
-                  <p className="text-sm font-semibold text-gray-700 mb-2">Desejáveis:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.preferred_skills.map((skill, idx) => (
-                      <Badge key={idx} variant="secondary" className="border-2 px-3 py-1">
-                        {skill}
-                        <button
-                          type="button"
-                          onClick={() => removeSkill(skill, "preferred")}
-                          className="ml-2 hover:text-gray-900"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         );
@@ -781,131 +565,36 @@ export default function CriarVaga() {
       case 4:
         return (
           <div className="space-y-6">
-            <Tabs defaultValue={isFreelanceMode ? "projeto" : "salario"} className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="salario">Salário Mensal</TabsTrigger>
-                <TabsTrigger value="projeto">Orçamento Projeto</TabsTrigger>
-              </TabsList>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Tipo de Remuneração *</label>
+              <select
+                value={formData.tipo_remuneracao}
+                onChange={(e) => handleInputChange("tipo_remuneracao", e.target.value)}
+                className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-pink-400 focus:ring-4 focus:ring-pink-100 appearance-none bg-white cursor-pointer transition-all outline-none"
+              >
+                <option value="">Selecione</option>
+                <option value="FIXO">Fixo (mensal)</option>
+                <option value="DIARIA">Diária</option>
+                <option value="PORCENTAGEM">Porcentagem</option>
+                <option value="A_COMBINAR">A Combinar</option>
+              </select>
+            </div>
 
-              <TabsContent value="salario" className="space-y-4 mt-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Tipo de Remuneração *</label>
-                  <select
-                    value={formData.tipo_remuneracao}
-                    onChange={(e) => handleInputChange("tipo_remuneracao", e.target.value)}
-                    className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-pink-400 focus:ring-4 focus:ring-pink-100 appearance-none bg-white cursor-pointer transition-all outline-none"
-                  >
-                    <option value="">Selecione</option>
-                    <option value="FIXO">Fixo (mensal)</option>
-                    <option value="DIARIA">Diária</option>
-                    <option value="PORCENTAGEM">Porcentagem</option>
-                    <option value="A_COMBINAR">A Combinar</option>
-                  </select>
-                </div>
-
-                {formData.tipo_remuneracao !== "A_COMBINAR" && (
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Valor Proposto *</label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">R$</span>
-                      <input
-                        type="text"
-                        value={formData.valor_proposto}
-                        onChange={(e) => handleInputChange("valor_proposto", aplicarMascaraDinheiro(e.target.value))}
-                        placeholder="0,00"
-                        className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
-                      />
-                    </div>
-                  </div>
-                )}
-              </TabsContent>
-
-              <TabsContent value="projeto" className="space-y-4 mt-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Tipo de Orçamento *</label>
-                  <select
-                    value={formData.project_details.budget_type}
-                    onChange={(e) => handleProjectDetailsChange("budget_type", e.target.value)}
-                    className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-purple-400 focus:ring-4 focus:ring-purple-100 appearance-none bg-white cursor-pointer transition-all outline-none"
-                  >
-                    <option value="fixed">Valor Fixo</option>
-                    <option value="hourly">Por Hora</option>
-                    <option value="daily">Por Dia</option>
-                  </select>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Orçamento Mínimo *</label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">R$</span>
-                      <input
-                        type="number"
-                        value={formData.project_details.budget_range.min}
-                        onChange={(e) => handleBudgetRangeChange("min", e.target.value)}
-                        placeholder="0"
-                        min="0"
-                        className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-purple-400 outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Orçamento Máximo *</label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">R$</span>
-                      <input
-                        type="number"
-                        value={formData.project_details.budget_range.max}
-                        onChange={(e) => handleBudgetRangeChange("max", e.target.value)}
-                        placeholder="0"
-                        min="0"
-                        className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-purple-400 outline-none"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Duração Estimada</label>
+            {formData.tipo_remuneracao !== "A_COMBINAR" && (
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Valor Proposto *</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">R$</span>
                   <input
                     type="text"
-                    value={formData.project_details.duration_estimate}
-                    onChange={(e) => handleProjectDetailsChange("duration_estimate", e.target.value)}
-                    placeholder="Ex: 2 semanas, 1 mês"
-                    className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-purple-400 outline-none"
+                    value={formData.valor_proposto}
+                    onChange={(e) => handleInputChange("valor_proposto", aplicarMascaraDinheiro(e.target.value))}
+                    placeholder="0,00"
+                    className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none"
                   />
                 </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Prazo Final</label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button
-                        type="button"
-                        className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-left flex items-center gap-2 hover:border-purple-400 transition-all"
-                      >
-                        <CalendarIcon className="w-5 h-5 text-gray-400" />
-                        {formData.project_details.deadline ? (
-                          format(new Date(formData.project_details.deadline), "PPP", { locale: ptBR })
-                        ) : (
-                          <span className="text-gray-500">Selecione uma data</span>
-                        )}
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={formData.project_details.deadline ? new Date(formData.project_details.deadline) : undefined}
-                        onSelect={(date) => handleProjectDetailsChange("deadline", date?.toISOString())}
-                        disabled={(date) => date < new Date()}
-                        locale={ptBR}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              </TabsContent>
-            </Tabs>
+              </div>
+            )}
 
             {/* Resumo */}
             <div className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-2xl p-6 border-2 border-pink-200">

@@ -23,26 +23,18 @@ import {
   X,
   Flag,
   AlertTriangle,
-  Edit,
-  AlertCircle
+  Edit
 } from "lucide-react";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import ShareButton from "@/components/shared/ShareButton";
 import WhatsAppSafeButton from "@/components/ui/WhatsAppSafeButton";
-import ProposalForm from "@/components/freelancer/ProposalForm";
 
 export default function DetalheVaga() {
   const navigate = useNavigate();
   const { id } = useParams();
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
-  const [userType, setUserType] = useState(null);
   const [professional, setProfessional] = useState(null);
-  const [freelancer, setFreelancer] = useState(null);
   const [confirmModal, setConfirmModal] = useState(false);
-  const [showProposalDialog, setShowProposalDialog] = useState(false);
   const [dadosCorretos, setDadosCorretos] = useState(false);
   const [candidaturasNoMes, setCandidaturasNoMes] = useState(0);
   const [verificandoLimite, setVerificandoLimite] = useState(false);
@@ -53,19 +45,8 @@ export default function DetalheVaga() {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
         
-        // Detectar tipo
-        const freelancerResult = await base44.entities.Freelancer.filter({ user_id: currentUser.id });
-        if (freelancerResult.length > 0) {
-          setUserType("freelancer");
-          setFreelancer(freelancerResult[0]);
-          return;
-        }
-
         const profResult = await base44.entities.Professional.filter({ user_id: currentUser.id });
-        if (profResult.length > 0) {
-          setUserType("professional");
-          setProfessional(profResult[0]);
-        }
+        setProfessional(profResult[0] || null);
       } catch (error) {
         console.error("Erro ao carregar usuário:", error);
       }
@@ -98,19 +79,16 @@ export default function DetalheVaga() {
 
   // Verificar se já candidatou
   const { data: jaCandidatou } = useQuery({
-    queryKey: ["jobMatch", id, professional?.id, freelancer?.id],
+    queryKey: ["jobMatch", id, professional?.id],
     queryFn: async () => {
-      if (!id) return false;
-      const applicantId = userType === "freelancer" ? freelancer?.id : professional?.id;
-      if (!applicantId) return false;
-
+      if (!professional?.id || !id) return false;
       const matches = await base44.entities.JobMatch.filter({
         job_id: id,
-        applicant_id: applicantId
+        professional_id: professional.id
       });
       return matches.length > 0;
     },
-    enabled: (!!professional?.id || !!freelancer?.id) && !!id
+    enabled: !!professional?.id && !!id
   });
 
   // Verificar limite de candidaturas
@@ -134,15 +112,13 @@ export default function DetalheVaga() {
     return candidaturasMesEspecialidade.length;
   };
 
-  // Mutation para candidatar (professional)
+  // Mutation para candidatar
   const candidatarMutation = useMutation({
     mutationFn: async () => {
       if (!professional?.id || !id) throw new Error("Dados incompletos");
       
       return await base44.entities.JobMatch.create({
         job_id: id,
-        applicant_type: "professional",
-        applicant_id: professional.id,
         professional_id: professional.id,
         match_score: 0,
         match_type: "OUTROS",
@@ -159,36 +135,6 @@ export default function DetalheVaga() {
       toast.error("❌ Erro ao enviar candidatura: " + error.message);
     }
   });
-
-  // Mutation para proposta (freelancer)
-  const enviarPropostaMutation = useMutation({
-    mutationFn: async (proposalData) => {
-      if (!freelancer?.id || !id) throw new Error("Dados incompletos");
-
-      return await base44.entities.JobMatch.create({
-        job_id: id,
-        applicant_type: "freelancer",
-        applicant_id: freelancer.id,
-        match_score: 0,
-        match_type: "OUTROS",
-        status_candidatura: "CANDIDATOU",
-        proposal: proposalData,
-        proposal_status: "pending"
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["jobMatch"] });
-      toast.success("✅ Proposta enviada com sucesso!");
-      setShowProposalDialog(false);
-    },
-    onError: (error) => {
-      toast.error("❌ Erro ao enviar proposta: " + error.message);
-    }
-  });
-
-  const handleFreelanceProposal = async (proposalData) => {
-    await enviarPropostaMutation.mutateAsync(proposalData);
-  };
 
   const handleCandidatar = async () => {
     setVerificandoLimite(true);
@@ -258,13 +204,6 @@ export default function DetalheVaga() {
     SEMANA_TODA: "Semana toda (Seg-Sex)",
     MES_TODO: "Mês todo"
   };
-
-  // Verificar se pode aplicar
-  const canApply = userType === "freelancer"
-    ? vaga?.accepts_applications_from?.freelancers
-    : vaga?.accepts_applications_from?.professionals;
-
-  const isFreelanceJob = vaga?.job_type === "freelance" || vaga?.job_type === "contract" || vaga?.accepts_applications_from?.freelancers;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 relative overflow-hidden pb-24">
@@ -451,107 +390,6 @@ export default function DetalheVaga() {
           </div>
         </motion.div>
 
-        {/* CARD SKILLS (se houver) */}
-        {(vaga.required_skills?.length > 0 || vaga.preferred_skills?.length > 0) && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-            className="bg-white rounded-3xl shadow-xl p-6"
-          >
-            <h2 className="text-xl font-black text-gray-900 mb-4">Habilidades</h2>
-            
-            {vaga.required_skills?.length > 0 && (
-              <div className="mb-4">
-                <p className="text-sm font-semibold text-gray-700 mb-2">Obrigatórias:</p>
-                <div className="flex flex-wrap gap-2">
-                  {vaga.required_skills.map((skill, idx) => (
-                    <Badge key={idx} className="bg-red-100 text-red-700 border-red-300 border-2">
-                      {skill}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {vaga.preferred_skills?.length > 0 && (
-              <div>
-                <p className="text-sm font-semibold text-gray-700 mb-2">Desejáveis:</p>
-                <div className="flex flex-wrap gap-2">
-                  {vaga.preferred_skills.map((skill, idx) => (
-                    <Badge key={idx} variant="secondary" className="border-2">
-                      {skill}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-          </motion.div>
-        )}
-
-        {/* CARD DETALHES DO PROJETO (freelance) */}
-        {isFreelanceJob && vaga.project_details && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.27 }}
-            className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-3xl shadow-xl p-6 border-2 border-purple-200"
-          >
-            <h2 className="text-xl font-black text-gray-900 mb-4">📋 Detalhes do Projeto</h2>
-            
-            <div className="space-y-3">
-              {vaga.project_details.duration_estimate && (
-                <div className="flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-purple-600" />
-                  <span className="text-gray-700">
-                    <strong>Duração:</strong> {vaga.project_details.duration_estimate}
-                  </span>
-                </div>
-              )}
-
-              {vaga.project_details.deadline && (
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-purple-600" />
-                  <span className="text-gray-700">
-                    <strong>Prazo:</strong> {new Date(vaga.project_details.deadline).toLocaleDateString('pt-BR')}
-                  </span>
-                </div>
-              )}
-
-              {vaga.project_details.budget_range && (
-                <div className="p-4 bg-white rounded-xl border-2 border-purple-200">
-                  <p className="text-sm text-gray-600 mb-1">Orçamento Sugerido:</p>
-                  <p className="text-2xl font-black text-purple-700">
-                    R$ {vaga.project_details.budget_range.min?.toLocaleString('pt-BR')} - R$ {vaga.project_details.budget_range.max?.toLocaleString('pt-BR')}
-                  </p>
-                  {vaga.project_details.budget_type && (
-                    <p className="text-sm text-gray-600 mt-1">
-                      Tipo: {vaga.project_details.budget_type === "hourly" ? "Por hora" : vaga.project_details.budget_type === "daily" ? "Por dia" : "Valor fixo"}
-                    </p>
-                  )}
-                </div>
-              )}
-
-              {vaga.project_details.milestones?.length > 0 && (
-                <div>
-                  <p className="font-semibold text-gray-900 mb-2">Marcos do Projeto:</p>
-                  <div className="space-y-2">
-                    {vaga.project_details.milestones.map((milestone, idx) => (
-                      <div key={idx} className="p-3 bg-white rounded-xl border border-purple-200">
-                        <div className="flex items-center justify-between mb-1">
-                          <p className="font-bold text-gray-900">{milestone.title}</p>
-                          <Badge variant="outline">{milestone.payment_percentage}%</Badge>
-                        </div>
-                        <p className="text-sm text-gray-600">{milestone.description}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-
         {/* CARD REMUNERAÇÃO - DESTAQUE */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -677,14 +515,7 @@ export default function DetalheVaga() {
       {/* FOOTER FIXO - BOTÃO CANDIDATAR */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 p-4 shadow-2xl z-40">
         <div className="max-w-4xl mx-auto">
-          {!canApply ? (
-            <Alert className="bg-red-50 border-red-200">
-              <AlertCircle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-red-800">
-                Esta vaga não aceita candidaturas de <strong>{userType === "freelancer" ? "freelancers" : "profissionais CLT/PJ"}</strong>
-              </AlertDescription>
-            </Alert>
-          ) : jaCandidatou ? (
+          {jaCandidatou ? (
             <button
               disabled
               className="w-full py-5 bg-gray-300 text-gray-500 font-bold rounded-2xl cursor-not-allowed flex items-center justify-center gap-3"
@@ -692,23 +523,6 @@ export default function DetalheVaga() {
               <CheckCircle2 className="w-6 h-6" />
               Você já se candidatou a esta vaga
             </button>
-          ) : userType === "freelancer" ? (
-            <Dialog open={showProposalDialog} onOpenChange={setShowProposalDialog}>
-              <DialogTrigger asChild>
-                <button className="w-full py-5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center justify-center gap-3 text-lg">
-                  <Send className="w-6 h-6" />
-                  ENVIAR PROPOSTA
-                </button>
-              </DialogTrigger>
-              <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                <ProposalForm
-                  job={vaga}
-                  freelancer={freelancer}
-                  onSubmit={handleFreelanceProposal}
-                  onCancel={() => setShowProposalDialog(false)}
-                />
-              </DialogContent>
-            </Dialog>
           ) : (
             <button
               onClick={handleCandidatar}
