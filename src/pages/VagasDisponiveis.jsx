@@ -259,7 +259,7 @@ export default function VagasDisponiveis() {
               </div>
             </motion.div>
           )}
-        </div>
+        </motion.div>
 
         {/* Vagas Urgentes */}
         {vagasUrgentes.length > 0 && (
