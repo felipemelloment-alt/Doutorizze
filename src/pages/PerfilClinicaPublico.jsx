@@ -32,14 +32,15 @@ export default function PerfilClinicaPublico() {
   const id = paramId || queryId;
 
   // Buscar unidade da clínica
-  const { data: unit, isLoading } = useQuery({
+  const { data: unit, isLoading, isError } = useQuery({
     queryKey: ["companyUnitPublic", id],
     queryFn: async () => {
       if (!id) return null;
       const result = await base44.entities.CompanyUnit.filter({ id });
       return result[0] || null;
     },
-    enabled: !!id
+    enabled: !!id,
+    retry: 1
   });
 
   // Buscar avaliações
@@ -68,12 +69,32 @@ export default function PerfilClinicaPublico() {
     enabled: !!id
   });
 
-  if (isLoading || !unit) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 flex items-center justify-center p-6">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-orange-500 mx-auto mb-4"></div>
           <p className="text-gray-600 font-semibold">Carregando perfil...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || !unit || !id) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 flex items-center justify-center p-6">
+        <div className="text-center">
+          <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+            <Building2 className="w-8 h-8 text-red-500" />
+          </div>
+          <p className="text-gray-900 font-bold text-xl mb-2">Clínica não encontrada</p>
+          <p className="text-gray-600 mb-4">Este perfil pode ter sido removido ou não existe.</p>
+          <button
+            onClick={() => navigate(-1)}
+            className="px-6 py-3 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold rounded-2xl hover:shadow-lg transition-all"
+          >
+            Voltar
+          </button>
         </div>
       </div>
     );
