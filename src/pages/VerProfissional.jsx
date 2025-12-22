@@ -55,14 +55,15 @@ export default function VerProfissional() {
   }, []);
 
   // Buscar profissional
-  const { data: professional, isLoading } = useQuery({
+  const { data: professional, isLoading, isError } = useQuery({
     queryKey: ["professional", id],
     queryFn: async () => {
       if (!id) return null;
       const result = await base44.entities.Professional.filter({ id });
       return result[0] || null;
     },
-    enabled: !!id
+    enabled: !!id,
+    retry: 1
   });
 
   // Buscar avaliações
@@ -164,12 +165,32 @@ export default function VerProfissional() {
     }
   });
 
-  if (isLoading || !professional) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 flex items-center justify-center p-6">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-orange-500 mx-auto mb-4"></div>
           <p className="text-gray-600 font-semibold">Carregando perfil...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || !professional || !id) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 flex items-center justify-center p-6">
+        <div className="text-center">
+          <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+            <X className="w-8 h-8 text-red-500" />
+          </div>
+          <p className="text-gray-900 font-bold text-xl mb-2">Profissional não encontrado</p>
+          <p className="text-gray-600 mb-4">Este perfil pode ter sido removido ou não existe.</p>
+          <button
+            onClick={() => navigate(-1)}
+            className="px-6 py-3 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold rounded-2xl hover:shadow-lg transition-all"
+          >
+            Voltar
+          </button>
         </div>
       </div>
     );
