@@ -4,6 +4,7 @@ import { createPageUrl } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useUserArea } from "@/components/hooks/useUserArea";
+import { notificarSuperJobMatch } from "@/components/api/whatsappNotifications";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -144,6 +145,22 @@ export default function NewJobs() {
   const superJobs = jobsComMatch.filter(j => j.matchScore === 4);
   const jobsSemelhante = jobsComMatch.filter(j => j.matchScore === 3);
   const outrasVagas = jobsComMatch.filter(j => j.matchScore >= 0 && j.matchScore <= 2);
+
+  // Notificar Super Jobs via WhatsApp
+  useEffect(() => {
+    const notificarSuperJobs = async () => {
+      if (!professional || superJobs.length === 0) return;
+
+      for (const vaga of superJobs) {
+        try {
+          await notificarSuperJobMatch(vaga.id, professional.id, vaga.matchScore);
+        } catch (e) {
+          console.log('Já notificado ou erro:', e.message);
+        }
+      }
+    };
+    notificarSuperJobs();
+  }, [superJobs, professional]);
 
   const handleToggleNewJobs = async () => {
     setNewJobsActive(!newJobsActive);

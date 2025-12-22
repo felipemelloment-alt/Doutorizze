@@ -37,46 +37,54 @@ export async function criarNotificacao(data) {
 }
 
 /**
- * Enviar notificação via n8n webhook
+ * Enviar notificação via Evolution API
  */
 export async function enviarNotificacao(notificationId) {
-  const notification = await base44.entities.WhatsAppNotification.get(notificationId);
+  const notifications = await base44.entities.WhatsAppNotification.filter({ id: notificationId });
+  const notification = notifications[0];
+  
+  if (!notification) {
+    throw new Error('Notificação não encontrada');
+  }
   
   if (notification.status === 'SENT' || notification.status === 'DELIVERED') {
     throw new Error('Notificação já foi enviada');
   }
   
   try {
-    // Disparar webhook n8n (placeholder - configurar URL)
-    const webhookUrl = import.meta.env.VITE_N8N_WHATSAPP_WEBHOOK || 'https://seu-n8n.com/webhook/whatsapp';
+    // Formatar número para E.164
+    let numero = notification.destinatario_whatsapp.replace(/\D/g, '');
+    if (numero.length === 11) {
+      numero = '55' + numero;
+    }
     
-    const response = await fetch(webhookUrl, {
+    // Enviar via Evolution API
+    const response = await fetch('https://creditoodonto-evolution.cloudfy.live/message/sendText/Remarketing', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': '698A2AC7F52A-4C98-8452-53D933343047'
+      },
       body: JSON.stringify({
-        notification_id: notificationId,
-        whatsapp: notification.destinatario_whatsapp,
-        nome: notification.destinatario_nome,
-        mensagem: notification.mensagem_texto,
-        tipo: notification.tipo,
-        metadata: notification.metadata
+        number: numero,
+        text: notification.mensagem_texto
       })
     });
     
     const result = await response.json();
     
-    if (response.ok && result.success) {
+    if (response.ok) {
       // Atualizar como enviada
       await base44.entities.WhatsAppNotification.update(notificationId, {
         status: 'SENT',
         sent_at: new Date().toISOString(),
-        evolution_message_id: result.message_id,
+        evolution_message_id: result.key?.id || null,
         evolution_response: result
       });
       
       return { success: true, result };
     } else {
-      throw new Error(result.error || 'Falha ao enviar');
+      throw new Error(result.message || 'Falha ao enviar');
     }
   } catch (error) {
     // Incrementar retry
