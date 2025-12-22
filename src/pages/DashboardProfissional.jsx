@@ -73,14 +73,14 @@ export default function DashboardProfissional() {
     enabled: matches.length > 0
   });
 
-  // Buscar avaliações
+  // Buscar avaliações - DINÂMICO POR TIPO
   const { data: ratings = [] } = useQuery({
     queryKey: ["ratings", professional?.id],
     queryFn: async () => {
       if (!professional) return [];
       return await base44.entities.Rating.filter({ 
         avaliado_id: professional.id,
-        avaliado_tipo: "DENTISTA"
+        avaliado_tipo: professional.tipo_profissional
       });
     },
     enabled: !!professional
