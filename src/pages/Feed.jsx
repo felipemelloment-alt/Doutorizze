@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
@@ -25,6 +25,9 @@ import {
 import { toast } from "sonner";
 import StoriesUnificado from "@/components/substituicoes/StoriesUnificado";
 import { formatarTextoData, formatarValor } from "@/components/constants/substituicao";
+import FeedCard from "@/components/feed/FeedCard";
+import VideoModal from "@/components/feed/VideoModal";
+import ComunidadeTelegramCard from "@/components/feed/ComunidadeTelegramCard";
 
 // Componente do Banner Stories com Auto-scroll INFINITO SEAMLESS
 function StoriesBanner({ items, userType, onItemClick }) {
@@ -173,10 +176,12 @@ const tipoPostConfig = {
 
 export default function Feed() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
   const [userType, setUserType] = useState(null);
   const [userArea, setUserArea] = useState(null); // ODONTOLOGIA ou MEDICINA
   const [userLocation, setUserLocation] = useState({ cidade: null, uf: null });
+  const [videoModal, setVideoModal] = useState({ open: false, post: null });
 
   // Carregar dados do usuário
   useEffect(() => {
@@ -389,14 +394,18 @@ export default function Feed() {
 
   // Buscar posts do feed - FILTRADO POR ÁREA
   const { data: posts = [], isLoading } = useQuery({
-    queryKey: ["feedPosts", user?.vertical],
+    queryKey: ["feedPosts", userArea],
     queryFn: async () => {
       const feedPosts = await base44.entities.FeedPost.filter({ ativo: true });
       
-      // Filtrar: mostrar apenas posts da área do usuário ou AMBOS
-      const filteredPosts = feedPosts.filter(post => 
-        post.area === "AMBOS" || post.area === user?.vertical
-      );
+      // Filtrar: não expirados e por área
+      const now = new Date();
+      const filteredPosts = feedPosts.filter(post => {
+        // Verificar expiração
+        if (post.expires_at && new Date(post.expires_at) < now) return false;
+        // Verificar área
+        return post.area === "AMBOS" || post.area === userArea;
+      });
       
       return filteredPosts.sort((a, b) => {
         if (a.destaque && !b.destaque) return -1;
@@ -404,8 +413,24 @@ export default function Feed() {
         return new Date(b.created_date) - new Date(a.created_date);
       });
     },
-    enabled: !!user
+    enabled: !!user && !!userArea
   });
+
+  // Handler para curtir post
+  const handleCurtir = async (postId) => {
+    try {
+      const post = posts.find(p => p.id === postId);
+      if (!post) return;
+      
+      await base44.entities.FeedPost.update(postId, {
+        curtidas: (post.curtidas || 0) + 1
+      });
+      queryClient.invalidateQueries({ queryKey: ["feedPosts"] });
+      toast.success("Curtido!");
+    } catch (error) {
+      console.error("Erro ao curtir:", error);
+    }
+  };
 
   // Handler para clique no item do banner
   const handleBannerItemClick = (item) => {
@@ -586,7 +611,7 @@ export default function Feed() {
         }
       `}</style>
 
-      {/* Lista de Posts */}
+      {/* Lista de Posts - Intercalando com CTA Telegram */}
       <div className="px-4 py-4 space-y-4">
         {isLoading ? (
           <div className="space-y-4">
@@ -610,94 +635,32 @@ export default function Feed() {
             </p>
           </div>
         ) : (
-          posts.map((post) => {
-            const config = tipoPostConfig[post.tipo_post] || tipoPostConfig.NOVIDADE;
-            const PostIcon = config.icon;
-
-            return (
-              <motion.div
-                key={post.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-2xl shadow-lg overflow-hidden"
-              >
-                {post.imagem_url && (
-                  <div className="relative h-48 overflow-hidden">
-                    <img
-                      src={post.imagem_url}
-                      alt={post.titulo}
-                      className="w-full h-full object-cover"
-                    />
-                    {post.destaque && (
-                      <div className="absolute top-3 left-3 px-3 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full">
-                        ⭐ Destaque
-                      </div>
-                    )}
-                  </div>
+          <>
+            {posts.map((post, index) => (
+              <React.Fragment key={post.id}>
+                <FeedCard
+                  post={post}
+                  onVideoClick={(p) => setVideoModal({ open: true, post: p })}
+                  onCurtir={handleCurtir}
+                />
+                
+                {/* A cada 5 posts, mostrar CTA do Telegram */}
+                {(index + 1) % 5 === 0 && (
+                  <ComunidadeTelegramCard key={`telegram-${index}`} />
                 )}
-
-                <div className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className={`px-3 py-1 ${config.bgColor} ${config.color} text-xs font-bold rounded-full flex items-center gap-1`}>
-                      <PostIcon className="w-3 h-3" />
-                      {config.label}
-                    </span>
-                    <span className="text-xs text-gray-400">
-                      {formatDistanceToNow(new Date(post.created_date), { addSuffix: true, locale: ptBR })}
-                    </span>
-                  </div>
-
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">
-                    {post.titulo}
-                  </h3>
-
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                    {post.descricao}
-                  </p>
-
-                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <div className="flex items-center gap-4">
-                      <button
-                        onClick={() => handleLike(post.id)}
-                        className="flex items-center gap-1 text-gray-500 hover:text-red-500 transition-colors"
-                      >
-                        <Heart className="w-5 h-5" />
-                        <span className="text-sm">{post.curtidas || 0}</span>
-                      </button>
-
-                      <div className="flex items-center gap-1 text-gray-500">
-                        <Eye className="w-5 h-5" />
-                        <span className="text-sm">{post.visualizacoes || 0}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleShare(post)}
-                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                      >
-                        <Share2 className="w-5 h-5 text-gray-500" />
-                      </button>
-
-                      {post.link_externo && (
-                        <a
-                          href={post.link_externo}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-sm font-bold rounded-full hover:shadow-lg transition-all"
-                        >
-                          Ver mais
-                          <ExternalLink className="w-4 h-4" />
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })
+              </React.Fragment>
+            ))}
+          </>
         )}
       </div>
+
+      {/* Modal de Vídeo */}
+      <VideoModal
+        isOpen={videoModal.open}
+        onClose={() => setVideoModal({ open: false, post: null })}
+        post={videoModal.post}
+        onCurtir={handleCurtir}
+      />
     </div>
   );
 }

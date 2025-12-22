@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import ShareButton from "@/components/shared/ShareButton";
+import TelegramSection from "@/components/profile/TelegramSection";
 
 export default function MeuPerfil() {
   const navigate = useNavigate();
@@ -549,6 +550,15 @@ export default function MeuPerfil() {
             </div>
             <p className="text-3xl font-black text-gray-900">{candidaturasEnviadas}</p>
           </div>
+        </motion.div>
+
+        {/* SEÇÃO COMUNIDADE TELEGRAM */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+        >
+          <TelegramSection user={user} />
         </motion.div>
       </div>
 

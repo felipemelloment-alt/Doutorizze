@@ -1,169 +1,171 @@
-import NotificationCenter from './pages/NotificationCenter';
-import HomePage from './pages/HomePage';
-import NewJobs from './pages/NewJobs';
-import Marketplace from './pages/Marketplace';
-import MarketplaceDetail from './pages/MarketplaceDetail';
-import MarketplaceCreate from './pages/MarketplaceCreate';
-import TestProfessional from './pages/TestProfessional';
-import TestCompany from './pages/TestCompany';
-import TestJob from './pages/TestJob';
-import TestCompanyOwner from './pages/TestCompanyOwner';
-import TestCompanyUnit from './pages/TestCompanyUnit';
-import TestJobMatch from './pages/TestJobMatch';
-import TestJobContract from './pages/TestJobContract';
-import TestRating from './pages/TestRating';
-import BuscarProfissionais from './pages/BuscarProfissionais';
-import EscolherTipoCadastro from './pages/EscolherTipoCadastro';
-import CadastroProfissional from './pages/CadastroProfissional';
-import CadastroClinica from './pages/CadastroClinica';
-import CadastroSucesso from './pages/CadastroSucesso';
 import AdminAprovacoes from './pages/AdminAprovacoes';
-import SimulacaoCredito from './pages/SimulacaoCredito';
-import DashboardProfissional from './pages/DashboardProfissional';
-import DashboardClinica from './pages/DashboardClinica';
-import CriarVaga from './pages/CriarVaga';
-import MinhasVagas from './pages/MinhasVagas';
-import MeuPerfil from './pages/MeuPerfil';
-import EditarPerfil from './pages/EditarPerfil';
-import PerfilClinica from './pages/PerfilClinica';
-import EditarClinica from './pages/EditarClinica';
-import DetalheVaga from './pages/DetalheVaga';
-import MinhasCandidaturas from './pages/MinhasCandidaturas';
-import VerProfissional from './pages/VerProfissional';
-import Contratar from './pages/Contratar';
-import EditarVaga from './pages/EditarVaga';
-import PerfilClinicaPublico from './pages/PerfilClinicaPublico';
-import AvaliarClinica from './pages/AvaliarClinica';
-import AvaliarProfissional from './pages/AvaliarProfissional';
-import NotificationSettings from './pages/NotificationSettings';
-import Feed from './pages/Feed';
-import Denunciar from './pages/Denunciar';
 import AdminDenuncias from './pages/AdminDenuncias';
 import AdminFeed from './pages/AdminFeed';
-import CadastroFornecedor from './pages/CadastroFornecedor';
-import DashboardFornecedor from './pages/DashboardFornecedor';
-import CriarPromocao from './pages/CriarPromocao';
-import MinhasPromocoes from './pages/MinhasPromocoes';
-import CadastroHospital from './pages/CadastroHospital';
-import DashboardHospital from './pages/DashboardHospital';
-import Configuracoes from './pages/Configuracoes';
-import Ajuda from './pages/Ajuda';
 import AdminRelatorios from './pages/AdminRelatorios';
-import MinhasAvaliacoes from './pages/MinhasAvaliacoes';
-import Onboarding from './pages/Onboarding';
-import TermosUso from './pages/TermosUso';
-import PoliticaPrivacidade from './pages/PoliticaPrivacidade';
+import Ajuda from './pages/Ajuda';
+import AvaliarClinica from './pages/AvaliarClinica';
+import AvaliarProfissional from './pages/AvaliarProfissional';
+import BuscarProfissionais from './pages/BuscarProfissionais';
+import CadastroClinica from './pages/CadastroClinica';
+import CadastroFornecedor from './pages/CadastroFornecedor';
+import CadastroHospital from './pages/CadastroHospital';
 import CadastroInstituicao from './pages/CadastroInstituicao';
-import DashboardInstituicao from './pages/DashboardInstituicao';
-import CriarCurso from './pages/CriarCurso';
-import MeusCursos from './pages/MeusCursos';
-import Cursos from './pages/Cursos';
-import DetalheCurso from './pages/DetalheCurso';
-import MeusAnunciosMarketplace from './pages/MeusAnunciosMarketplace';
-import FeedConfig from './pages/FeedConfig';
-import OnboardingVertical from './pages/OnboardingVertical';
-import OnboardingTipoConta from './pages/OnboardingTipoConta';
+import CadastroProfissional from './pages/CadastroProfissional';
+import CadastroSucesso from './pages/CadastroSucesso';
 import ChatThread from './pages/ChatThread';
 import Chats from './pages/Chats';
-import EscolherTipoCriador from './pages/EscolherTipoCriador';
-import CriarSubstituicao from './pages/CriarSubstituicao';
-import VagasDisponiveis from './pages/VagasDisponiveis';
-import DetalheSubstituicao from './pages/DetalheSubstituicao';
-import MinhasSubstituicoes from './pages/MinhasSubstituicoes';
-import GerenciarCandidatos from './pages/GerenciarCandidatos';
-import MinhasCandidaturasSubstituicao from './pages/MinhasCandidaturasSubstituicao';
-import DisponibilidadeSubstituicao from './pages/DisponibilidadeSubstituicao';
+import Configuracoes from './pages/Configuracoes';
 import ConfirmarSubstituicao from './pages/ConfirmarSubstituicao';
-import ValidarComparecimento from './pages/ValidarComparecimento';
-import DashboardSubstituicoes from './pages/DashboardSubstituicoes';
+import Contratar from './pages/Contratar';
 import CriarAnuncioProfissional from './pages/CriarAnuncioProfissional';
+import CriarCurso from './pages/CriarCurso';
+import CriarPromocao from './pages/CriarPromocao';
+import CriarSubstituicao from './pages/CriarSubstituicao';
+import CriarVaga from './pages/CriarVaga';
+import Cursos from './pages/Cursos';
+import DashboardClinica from './pages/DashboardClinica';
+import DashboardFornecedor from './pages/DashboardFornecedor';
+import DashboardHospital from './pages/DashboardHospital';
+import DashboardInstituicao from './pages/DashboardInstituicao';
+import DashboardProfissional from './pages/DashboardProfissional';
+import DashboardSubstituicoes from './pages/DashboardSubstituicoes';
+import Denunciar from './pages/Denunciar';
+import DetalheCurso from './pages/DetalheCurso';
+import DetalheSubstituicao from './pages/DetalheSubstituicao';
+import DetalheVaga from './pages/DetalheVaga';
+import DisponibilidadeSubstituicao from './pages/DisponibilidadeSubstituicao';
+import EditarClinica from './pages/EditarClinica';
+import EditarPerfil from './pages/EditarPerfil';
+import EditarVaga from './pages/EditarVaga';
+import EscolherTipoCadastro from './pages/EscolherTipoCadastro';
+import EscolherTipoCriador from './pages/EscolherTipoCriador';
+import Feed from './pages/Feed';
+import FeedConfig from './pages/FeedConfig';
+import GerenciarCandidatos from './pages/GerenciarCandidatos';
+import Home from './pages/Home';
+import HomePage from './pages/HomePage';
+import Marketplace from './pages/Marketplace';
+import MarketplaceCreate from './pages/MarketplaceCreate';
+import MarketplaceDetail from './pages/MarketplaceDetail';
+import MeuPerfil from './pages/MeuPerfil';
 import MeusAnuncios from './pages/MeusAnuncios';
+import MeusAnunciosMarketplace from './pages/MeusAnunciosMarketplace';
+import MeusCursos from './pages/MeusCursos';
+import MinhasAvaliacoes from './pages/MinhasAvaliacoes';
+import MinhasCandidaturas from './pages/MinhasCandidaturas';
+import MinhasCandidaturasSubstituicao from './pages/MinhasCandidaturasSubstituicao';
+import MinhasPromocoes from './pages/MinhasPromocoes';
+import MinhasSubstituicoes from './pages/MinhasSubstituicoes';
+import MinhasVagas from './pages/MinhasVagas';
+import NewJobs from './pages/NewJobs';
+import NotificationCenter from './pages/NotificationCenter';
+import NotificationSettings from './pages/NotificationSettings';
+import Onboarding from './pages/Onboarding';
+import OnboardingTipoConta from './pages/OnboardingTipoConta';
+import OnboardingVertical from './pages/OnboardingVertical';
+import PerfilClinica from './pages/PerfilClinica';
+import PerfilClinicaPublico from './pages/PerfilClinicaPublico';
+import PoliticaPrivacidade from './pages/PoliticaPrivacidade';
+import SimulacaoCredito from './pages/SimulacaoCredito';
+import TermosUso from './pages/TermosUso';
 import TestClaudeAI from './pages/TestClaudeAI';
+import TestCompany from './pages/TestCompany';
+import TestCompanyOwner from './pages/TestCompanyOwner';
+import TestCompanyUnit from './pages/TestCompanyUnit';
+import TestJob from './pages/TestJob';
+import TestJobContract from './pages/TestJobContract';
+import TestJobMatch from './pages/TestJobMatch';
+import TestProfessional from './pages/TestProfessional';
+import TestRating from './pages/TestRating';
+import VagasDisponiveis from './pages/VagasDisponiveis';
+import ValidarComparecimento from './pages/ValidarComparecimento';
+import VerProfissional from './pages/VerProfissional';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "NotificationCenter": NotificationCenter,
-    "HomePage": HomePage,
-    "NewJobs": NewJobs,
-    "Marketplace": Marketplace,
-    "MarketplaceDetail": MarketplaceDetail,
-    "MarketplaceCreate": MarketplaceCreate,
-    "TestProfessional": TestProfessional,
-    "TestCompany": TestCompany,
-    "TestJob": TestJob,
-    "TestCompanyOwner": TestCompanyOwner,
-    "TestCompanyUnit": TestCompanyUnit,
-    "TestJobMatch": TestJobMatch,
-    "TestJobContract": TestJobContract,
-    "TestRating": TestRating,
-    "BuscarProfissionais": BuscarProfissionais,
-    "EscolherTipoCadastro": EscolherTipoCadastro,
-    "CadastroProfissional": CadastroProfissional,
-    "CadastroClinica": CadastroClinica,
-    "CadastroSucesso": CadastroSucesso,
     "AdminAprovacoes": AdminAprovacoes,
-    "SimulacaoCredito": SimulacaoCredito,
-    "DashboardProfissional": DashboardProfissional,
-    "DashboardClinica": DashboardClinica,
-    "CriarVaga": CriarVaga,
-    "MinhasVagas": MinhasVagas,
-    "MeuPerfil": MeuPerfil,
-    "EditarPerfil": EditarPerfil,
-    "PerfilClinica": PerfilClinica,
-    "EditarClinica": EditarClinica,
-    "DetalheVaga": DetalheVaga,
-    "MinhasCandidaturas": MinhasCandidaturas,
-    "VerProfissional": VerProfissional,
-    "Contratar": Contratar,
-    "EditarVaga": EditarVaga,
-    "PerfilClinicaPublico": PerfilClinicaPublico,
-    "AvaliarClinica": AvaliarClinica,
-    "AvaliarProfissional": AvaliarProfissional,
-    "NotificationSettings": NotificationSettings,
-    "Feed": Feed,
-    "Denunciar": Denunciar,
     "AdminDenuncias": AdminDenuncias,
     "AdminFeed": AdminFeed,
-    "CadastroFornecedor": CadastroFornecedor,
-    "DashboardFornecedor": DashboardFornecedor,
-    "CriarPromocao": CriarPromocao,
-    "MinhasPromocoes": MinhasPromocoes,
-    "CadastroHospital": CadastroHospital,
-    "DashboardHospital": DashboardHospital,
-    "Configuracoes": Configuracoes,
-    "Ajuda": Ajuda,
     "AdminRelatorios": AdminRelatorios,
-    "MinhasAvaliacoes": MinhasAvaliacoes,
-    "Onboarding": Onboarding,
-    "TermosUso": TermosUso,
-    "PoliticaPrivacidade": PoliticaPrivacidade,
+    "Ajuda": Ajuda,
+    "AvaliarClinica": AvaliarClinica,
+    "AvaliarProfissional": AvaliarProfissional,
+    "BuscarProfissionais": BuscarProfissionais,
+    "CadastroClinica": CadastroClinica,
+    "CadastroFornecedor": CadastroFornecedor,
+    "CadastroHospital": CadastroHospital,
     "CadastroInstituicao": CadastroInstituicao,
-    "DashboardInstituicao": DashboardInstituicao,
-    "CriarCurso": CriarCurso,
-    "MeusCursos": MeusCursos,
-    "Cursos": Cursos,
-    "DetalheCurso": DetalheCurso,
-    "MeusAnunciosMarketplace": MeusAnunciosMarketplace,
-    "FeedConfig": FeedConfig,
-    "OnboardingVertical": OnboardingVertical,
-    "OnboardingTipoConta": OnboardingTipoConta,
+    "CadastroProfissional": CadastroProfissional,
+    "CadastroSucesso": CadastroSucesso,
     "ChatThread": ChatThread,
     "Chats": Chats,
-    "EscolherTipoCriador": EscolherTipoCriador,
-    "CriarSubstituicao": CriarSubstituicao,
-    "VagasDisponiveis": VagasDisponiveis,
-    "DetalheSubstituicao": DetalheSubstituicao,
-    "MinhasSubstituicoes": MinhasSubstituicoes,
-    "GerenciarCandidatos": GerenciarCandidatos,
-    "MinhasCandidaturasSubstituicao": MinhasCandidaturasSubstituicao,
-    "DisponibilidadeSubstituicao": DisponibilidadeSubstituicao,
+    "Configuracoes": Configuracoes,
     "ConfirmarSubstituicao": ConfirmarSubstituicao,
-    "ValidarComparecimento": ValidarComparecimento,
-    "DashboardSubstituicoes": DashboardSubstituicoes,
+    "Contratar": Contratar,
     "CriarAnuncioProfissional": CriarAnuncioProfissional,
+    "CriarCurso": CriarCurso,
+    "CriarPromocao": CriarPromocao,
+    "CriarSubstituicao": CriarSubstituicao,
+    "CriarVaga": CriarVaga,
+    "Cursos": Cursos,
+    "DashboardClinica": DashboardClinica,
+    "DashboardFornecedor": DashboardFornecedor,
+    "DashboardHospital": DashboardHospital,
+    "DashboardInstituicao": DashboardInstituicao,
+    "DashboardProfissional": DashboardProfissional,
+    "DashboardSubstituicoes": DashboardSubstituicoes,
+    "Denunciar": Denunciar,
+    "DetalheCurso": DetalheCurso,
+    "DetalheSubstituicao": DetalheSubstituicao,
+    "DetalheVaga": DetalheVaga,
+    "DisponibilidadeSubstituicao": DisponibilidadeSubstituicao,
+    "EditarClinica": EditarClinica,
+    "EditarPerfil": EditarPerfil,
+    "EditarVaga": EditarVaga,
+    "EscolherTipoCadastro": EscolherTipoCadastro,
+    "EscolherTipoCriador": EscolherTipoCriador,
+    "Feed": Feed,
+    "FeedConfig": FeedConfig,
+    "GerenciarCandidatos": GerenciarCandidatos,
+    "Home": Home,
+    "HomePage": HomePage,
+    "Marketplace": Marketplace,
+    "MarketplaceCreate": MarketplaceCreate,
+    "MarketplaceDetail": MarketplaceDetail,
+    "MeuPerfil": MeuPerfil,
     "MeusAnuncios": MeusAnuncios,
+    "MeusAnunciosMarketplace": MeusAnunciosMarketplace,
+    "MeusCursos": MeusCursos,
+    "MinhasAvaliacoes": MinhasAvaliacoes,
+    "MinhasCandidaturas": MinhasCandidaturas,
+    "MinhasCandidaturasSubstituicao": MinhasCandidaturasSubstituicao,
+    "MinhasPromocoes": MinhasPromocoes,
+    "MinhasSubstituicoes": MinhasSubstituicoes,
+    "MinhasVagas": MinhasVagas,
+    "NewJobs": NewJobs,
+    "NotificationCenter": NotificationCenter,
+    "NotificationSettings": NotificationSettings,
+    "Onboarding": Onboarding,
+    "OnboardingTipoConta": OnboardingTipoConta,
+    "OnboardingVertical": OnboardingVertical,
+    "PerfilClinica": PerfilClinica,
+    "PerfilClinicaPublico": PerfilClinicaPublico,
+    "PoliticaPrivacidade": PoliticaPrivacidade,
+    "SimulacaoCredito": SimulacaoCredito,
+    "TermosUso": TermosUso,
     "TestClaudeAI": TestClaudeAI,
+    "TestCompany": TestCompany,
+    "TestCompanyOwner": TestCompanyOwner,
+    "TestCompanyUnit": TestCompanyUnit,
+    "TestJob": TestJob,
+    "TestJobContract": TestJobContract,
+    "TestJobMatch": TestJobMatch,
+    "TestProfessional": TestProfessional,
+    "TestRating": TestRating,
+    "VagasDisponiveis": VagasDisponiveis,
+    "ValidarComparecimento": ValidarComparecimento,
+    "VerProfissional": VerProfissional,
 }
 
 export const pagesConfig = {
