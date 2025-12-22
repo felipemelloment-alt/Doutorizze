@@ -17,7 +17,8 @@ import {
   Upload,
   CheckCircle2,
   Camera,
-  X
+  X,
+  Award
 } from "lucide-react";
 import { getEspecialidades, getRegistroLabel } from "@/components/constants/especialidades";
 import { useIBGECidades } from "@/components/hooks/useIBGECidades";
