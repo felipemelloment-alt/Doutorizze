@@ -128,11 +128,12 @@ export default function CriarAnuncioProfissional() {
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 60);
 
+      // GARANTIR QUE O ANÚNCIO SEJA DA ÁREA CORRETA
       await base44.entities.ProfessionalAd.create({
         professional_id: professional.id,
         titulo: formData.titulo,
         descricao: formData.descricao,
-        tipo_profissional: professional.tipo_profissional,
+        tipo_profissional: professional.tipo_profissional, // DENTISTA ou MEDICO
         especialidade_principal: professional.especialidade_principal,
         especialidades_extras: [],
         tempo_formado_anos: professional.tempo_formado_anos,

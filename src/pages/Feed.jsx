@@ -387,17 +387,24 @@ export default function Feed() {
     enabled: userType === "PROFISSIONAL" && !!userLocation.uf
   });
 
-  // Buscar posts do feed
+  // Buscar posts do feed - FILTRADO POR ÁREA
   const { data: posts = [], isLoading } = useQuery({
-    queryKey: ["feedPosts"],
+    queryKey: ["feedPosts", user?.vertical],
     queryFn: async () => {
       const feedPosts = await base44.entities.FeedPost.filter({ ativo: true });
-      return feedPosts.sort((a, b) => {
+      
+      // Filtrar: mostrar apenas posts da área do usuário ou AMBOS
+      const filteredPosts = feedPosts.filter(post => 
+        post.area === "AMBOS" || post.area === user?.vertical
+      );
+      
+      return filteredPosts.sort((a, b) => {
         if (a.destaque && !b.destaque) return -1;
         if (!a.destaque && b.destaque) return 1;
         return new Date(b.created_date) - new Date(a.created_date);
       });
-    }
+    },
+    enabled: !!user
   });
 
   // Handler para clique no item do banner

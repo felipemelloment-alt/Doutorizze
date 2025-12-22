@@ -18,8 +18,8 @@ import {
   TrendingUp,
   Plus
 } from "lucide-react";
-import { listarVagasDisponiveis } from "@/components/api/substituicao";
 import { formatarTextoData, formatarValor, calcularTempoRestante } from "@/components/constants/substituicao";
+import { Star } from "lucide-react";
 
 export default function VagasDisponiveis() {
   const navigate = useNavigate();
@@ -51,10 +51,20 @@ export default function VagasDisponiveis() {
   }, []);
 
   const { data: vagas = [], isLoading } = useQuery({
-    queryKey: ["vagasDisponiveis"],
+    queryKey: ["vagasDisponiveis", user?.vertical],
     queryFn: async () => {
-      const result = await listarVagasDisponiveis();
-      return result || [];
+      if (!user?.vertical) return [];
+      
+      // Determinar tipo profissional baseado no vertical do usuário
+      const tipoProfissional = user.vertical === "ODONTOLOGIA" ? "DENTISTA" : "MEDICO";
+      
+      // Buscar apenas substituições da área do usuário
+      const result = await base44.entities.SubstituicaoUrgente.filter({ 
+        status: "ABERTA",
+        tipo_profissional: tipoProfissional
+      });
+      
+      return result.sort((a, b) => new Date(b.publicada_em) - new Date(a.publicada_em)) || [];
     },
     enabled: !!user
   });

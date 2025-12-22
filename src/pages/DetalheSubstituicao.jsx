@@ -65,12 +65,23 @@ export default function DetalheSubstituicao() {
   }, []);
 
   const { data: vaga, isLoading } = useQuery({
-    queryKey: ["substituicao", vagaId],
+    queryKey: ["substituicao", vagaId, user?.vertical],
     queryFn: async () => {
       const result = await buscarSubstituicao(vagaId);
+      
+      // VALIDAR SE A SUBSTITUIÇÃO É DA ÁREA DO USUÁRIO
+      if (result && user?.vertical) {
+        const tipoProfissionalEsperado = user.vertical === "ODONTOLOGIA" ? "DENTISTA" : "MEDICO";
+        if (result.tipo_profissional !== tipoProfissionalEsperado) {
+          toast.error("⛔ Esta vaga não é da sua área de atuação");
+          navigate(-1);
+          return null;
+        }
+      }
+      
       return result;
     },
-    enabled: !!vagaId
+    enabled: !!vagaId && !!user
   });
 
   const { data: candidatos = [] } = useQuery({

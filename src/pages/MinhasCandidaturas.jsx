@@ -40,11 +40,13 @@ export default function MinhasCandidaturas() {
     loadProfessional();
   }, []);
 
-  // Buscar candidaturas
+  // Buscar candidaturas - SEMPRE DA ÁREA DO PROFISSIONAL
   const { data: matches = [], isLoading } = useQuery({
     queryKey: ["myCandidaturas", professional?.id],
     queryFn: async () => {
       if (!professional?.id) return [];
+      // JobMatch já conecta com Professional que tem tipo_profissional
+      // então automaticamente só mostra vagas da área correta
       return await base44.entities.JobMatch.filter({ 
         professional_id: professional.id,
         status_candidatura: "CANDIDATOU"
