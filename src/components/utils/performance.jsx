@@ -3,11 +3,11 @@
  * Helpers para otimização de performance
  */
 
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 // Debounce para search inputs
 export function useDebounce(value, delay = 500) {
-  const [debouncedValue, setDebouncedValue] = React.useState(value);
+  const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -53,8 +53,8 @@ export function useLazyLoad(callback, options = {}) {
 
 // Image lazy load com placeholder
 export function LazyImage({ src, alt, className, placeholder = '/placeholder.png' }) {
-  const [imageSrc, setImageSrc] = React.useState(placeholder);
-  const [isLoaded, setIsLoaded] = React.useState(false);
+  const [imageSrc, setImageSrc] = useState(placeholder);
+  const [isLoaded, setIsLoaded] = useState(false);
   const imgRef = useRef(null);
 
   useEffect(() => {
