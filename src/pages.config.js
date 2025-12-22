@@ -68,15 +68,6 @@ import PerfilClinicaPublico from './pages/PerfilClinicaPublico';
 import PoliticaPrivacidade from './pages/PoliticaPrivacidade';
 import SimulacaoCredito from './pages/SimulacaoCredito';
 import TermosUso from './pages/TermosUso';
-import TestClaudeAI from './pages/TestClaudeAI';
-import TestCompany from './pages/TestCompany';
-import TestCompanyOwner from './pages/TestCompanyOwner';
-import TestCompanyUnit from './pages/TestCompanyUnit';
-import TestJob from './pages/TestJob';
-import TestJobContract from './pages/TestJobContract';
-import TestJobMatch from './pages/TestJobMatch';
-import TestProfessional from './pages/TestProfessional';
-import TestRating from './pages/TestRating';
 import VagasDisponiveis from './pages/VagasDisponiveis';
 import ValidarComparecimento from './pages/ValidarComparecimento';
 import VerProfissional from './pages/VerProfissional';
@@ -154,15 +145,6 @@ export const PAGES = {
     "PoliticaPrivacidade": PoliticaPrivacidade,
     "SimulacaoCredito": SimulacaoCredito,
     "TermosUso": TermosUso,
-    "TestClaudeAI": TestClaudeAI,
-    "TestCompany": TestCompany,
-    "TestCompanyOwner": TestCompanyOwner,
-    "TestCompanyUnit": TestCompanyUnit,
-    "TestJob": TestJob,
-    "TestJobContract": TestJobContract,
-    "TestJobMatch": TestJobMatch,
-    "TestProfessional": TestProfessional,
-    "TestRating": TestRating,
     "VagasDisponiveis": VagasDisponiveis,
     "ValidarComparecimento": ValidarComparecimento,
     "VerProfissional": VerProfissional,
