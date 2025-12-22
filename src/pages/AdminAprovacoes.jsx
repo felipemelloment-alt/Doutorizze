@@ -393,33 +393,33 @@ export default function AdminAprovacoes() {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header Admin */}
-      <div className="bg-white shadow-md py-4 px-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-pink-500 flex items-center justify-center">
-            <Shield className="w-6 h-6 text-white" />
+      <div className="bg-white shadow-md py-4 px-4 md:px-6 flex items-center justify-between">
+        <div className="flex items-center gap-2 md:gap-3">
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-pink-500 flex items-center justify-center">
+            <Shield className="w-4 h-4 md:w-6 md:h-6 text-white" />
           </div>
-          <span className="font-black text-xl">NEW JOBS</span>
+          <span className="font-black text-base md:text-xl">NEW JOBS</span>
         </div>
-        <div className="bg-red-100 text-red-700 px-4 py-1.5 rounded-full text-sm font-bold flex items-center gap-2">
-          🔴 Painel Admin
+        <div className="bg-red-100 text-red-700 px-2 md:px-4 py-1.5 rounded-full text-xs md:text-sm font-bold flex items-center gap-1 md:gap-2">
+          🔴 <span className="hidden sm:inline">Painel</span> Admin
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 p-3 md:p-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           onClick={() => setFilterStatus("EM_ANALISE")}
-          className="bg-white rounded-2xl p-5 shadow-md hover:shadow-lg transition-all cursor-pointer"
+          className="bg-white rounded-2xl p-4 md:p-5 shadow-md hover:shadow-lg transition-all cursor-pointer"
         >
           <div className="flex justify-between items-start mb-2">
-            <div className="text-4xl font-black text-gray-900">{stats.pendente}</div>
+            <div className="text-3xl md:text-4xl font-black text-gray-900">{stats.pendente}</div>
             <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
           </div>
-          <div className="text-sm text-gray-500">Pendentes</div>
-          <div className="text-2xl mt-1">🟡</div>
+          <div className="text-xs md:text-sm text-gray-500">Pendentes</div>
+          <div className="text-xl md:text-2xl mt-1">🟡</div>
         </motion.div>
 
         <motion.div
@@ -427,14 +427,14 @@ export default function AdminAprovacoes() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           onClick={() => setFilterStatus("APROVADO")}
-          className="bg-white rounded-2xl p-5 shadow-md hover:shadow-lg transition-all cursor-pointer"
+          className="bg-white rounded-2xl p-4 md:p-5 shadow-md hover:shadow-lg transition-all cursor-pointer"
         >
           <div className="flex justify-between items-start mb-2">
-            <div className="text-4xl font-black text-gray-900">{stats.aprovado}</div>
+            <div className="text-3xl md:text-4xl font-black text-gray-900">{stats.aprovado}</div>
             <div className="w-3 h-3 rounded-full bg-green-500"></div>
           </div>
-          <div className="text-sm text-gray-500">Aprovados</div>
-          <div className="text-2xl mt-1">🟢</div>
+          <div className="text-xs md:text-sm text-gray-500">Aprovados</div>
+          <div className="text-xl md:text-2xl mt-1">🟢</div>
         </motion.div>
 
         <motion.div
@@ -442,14 +442,14 @@ export default function AdminAprovacoes() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
           onClick={() => setFilterStatus("REPROVADO")}
-          className="bg-white rounded-2xl p-5 shadow-md hover:shadow-lg transition-all cursor-pointer"
+          className="bg-white rounded-2xl p-4 md:p-5 shadow-md hover:shadow-lg transition-all cursor-pointer"
         >
           <div className="flex justify-between items-start mb-2">
-            <div className="text-4xl font-black text-gray-900">{stats.rejeitado}</div>
+            <div className="text-3xl md:text-4xl font-black text-gray-900">{stats.rejeitado}</div>
             <div className="w-3 h-3 rounded-full bg-red-500"></div>
           </div>
-          <div className="text-sm text-gray-500">Rejeitados</div>
-          <div className="text-2xl mt-1">🔴</div>
+          <div className="text-xs md:text-sm text-gray-500">Rejeitados</div>
+          <div className="text-xl md:text-2xl mt-1">🔴</div>
         </motion.div>
 
         <motion.div
@@ -457,62 +457,64 @@ export default function AdminAprovacoes() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
           onClick={() => setFilterStatus("TODOS")}
-          className="bg-white rounded-2xl p-5 shadow-md hover:shadow-lg transition-all cursor-pointer"
+          className="bg-white rounded-2xl p-4 md:p-5 shadow-md hover:shadow-lg transition-all cursor-pointer"
         >
           <div className="flex justify-between items-start mb-2">
-            <div className="text-4xl font-black text-gray-900">{stats.total}</div>
+            <div className="text-3xl md:text-4xl font-black text-gray-900">{stats.total}</div>
             <div className="w-3 h-3 rounded-full bg-blue-500"></div>
           </div>
-          <div className="text-sm text-gray-500">Total</div>
-          <div className="text-2xl mt-1">🔵</div>
+          <div className="text-xs md:text-sm text-gray-500">Total</div>
+          <div className="text-xl md:text-2xl mt-1">🔵</div>
         </motion.div>
       </div>
 
       {/* Barra de Filtros */}
-      <div className="bg-white shadow-md p-4 flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+      <div className="bg-white shadow-md p-3 md:p-4 flex flex-col gap-3">
+        <div className="relative w-full">
+          <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 md:w-5 md:h-5" />
           <input
             type="text"
-            placeholder="Buscar por nome ou registro..."
+            placeholder="Buscar..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-400 outline-none"
+            className="w-full pl-10 md:pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-400 outline-none text-sm md:text-base"
           />
         </div>
 
-        <select
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
-          className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-400 bg-white min-w-[150px] outline-none"
-        >
-          <option value="TODOS">Todos os Tipos</option>
-          <option value="PROFISSIONAL">Profissionais</option>
-          <option value="CLINICA">Clínicas</option>
-          <option value="FORNECEDOR">Fornecedores</option>
-          <option value="HOSPITAL">Hospitais</option>
-          <option value="INSTITUICAO">Instituições</option>
-        </select>
+        <div className="grid grid-cols-2 gap-3">
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className="px-3 md:px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-400 bg-white outline-none text-sm md:text-base"
+          >
+            <option value="TODOS">Tipos</option>
+            <option value="PROFISSIONAL">Profissionais</option>
+            <option value="CLINICA">Clínicas</option>
+            <option value="FORNECEDOR">Fornecedores</option>
+            <option value="HOSPITAL">Hospitais</option>
+            <option value="INSTITUICAO">Instituições</option>
+          </select>
 
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-400 bg-white min-w-[150px] outline-none"
-        >
-          <option value="TODOS">Todos os Status</option>
-          <option value="EM_ANALISE">Pendentes</option>
-          <option value="APROVADO">Aprovados</option>
-          <option value="REPROVADO">Rejeitados</option>
-        </select>
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="px-3 md:px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-400 bg-white outline-none text-sm md:text-base"
+          >
+            <option value="TODOS">Status</option>
+            <option value="EM_ANALISE">Pendentes</option>
+            <option value="APROVADO">Aprovados</option>
+            <option value="REPROVADO">Rejeitados</option>
+          </select>
+        </div>
       </div>
 
       {/* Lista de Cadastros */}
-      <div className="p-4 space-y-4">
+      <div className="p-3 md:p-4 space-y-3 md:space-y-4">
         <AnimatePresence>
           {paginatedCadastros.length === 0 ? (
-            <div className="text-center py-20 bg-white rounded-2xl">
-              <AlertTriangle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500 font-semibold">Nenhum cadastro encontrado</p>
+            <div className="text-center py-12 md:py-20 bg-white rounded-2xl">
+              <AlertTriangle className="w-12 h-12 md:w-16 md:h-16 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500 font-semibold text-sm md:text-base">Nenhum cadastro encontrado</p>
             </div>
           ) : (
             paginatedCadastros.map((cadastro, index) => (
@@ -522,11 +524,11 @@ export default function AdminAprovacoes() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ delay: index * 0.05 }}
-                className={`bg-white rounded-2xl p-5 shadow-md hover:shadow-lg transition-all border-l-4 ${getBorderColor(cadastro.status_cadastro)}`}
+                className={`bg-white rounded-2xl p-4 md:p-5 shadow-md hover:shadow-lg transition-all border-l-4 ${getBorderColor(cadastro.status_cadastro)}`}
               >
-                <div className="flex flex-col md:flex-row md:items-center gap-4">
+                <div className="flex flex-col gap-4">
                   {/* Avatar */}
-                  <div className="w-16 h-16 rounded-2xl bg-gray-200 flex items-center justify-center text-2xl overflow-hidden flex-shrink-0">
+                  <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gray-200 flex items-center justify-center text-xl md:text-2xl overflow-hidden flex-shrink-0">
                     {cadastro.logo_url ? (
                       <img src={cadastro.logo_url} alt={cadastro.nome} className="w-full h-full object-cover" />
                     ) : (
@@ -541,9 +543,9 @@ export default function AdminAprovacoes() {
                   </div>
 
                   {/* Informações */}
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-bold text-lg text-gray-900">{cadastro.nome}</h3>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <h3 className="font-bold text-base md:text-lg text-gray-900 break-words">{cadastro.nome}</h3>
                       {cadastro.tipo === "FORNECEDOR" && (
                         <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-bold rounded">
                           Fornecedor
@@ -560,11 +562,11 @@ export default function AdminAprovacoes() {
                         </span>
                       )}
                     </div>
-                    <p className="text-gray-600 text-sm">{cadastro.registro}</p>
-                    <div className="flex items-center gap-4 mt-1">
-                      <p className="text-gray-500 text-sm flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
-                        {cadastro.localizacao}
+                    <p className="text-gray-600 text-xs md:text-sm truncate">{cadastro.registro}</p>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-1">
+                      <p className="text-gray-500 text-xs md:text-sm flex items-center gap-1">
+                        <MapPin className="w-3 h-3 md:w-4 md:h-4" />
+                        <span className="truncate">{cadastro.localizacao}</span>
                       </p>
                       <p className="text-gray-400 text-xs flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
@@ -574,42 +576,42 @@ export default function AdminAprovacoes() {
                   </div>
 
                   {/* Status Badge */}
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center">
                     {getStatusBadge(cadastro.status_cadastro)}
                   </div>
 
                   {/* Botões de Ação */}
-                  <div className="flex gap-2 mt-4 md:mt-0">
+                  <div className="flex flex-wrap gap-2">
                     <button
                       onClick={() => setDetailsModal(cadastro)}
-                      className="px-4 py-2 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 flex items-center gap-1"
+                      className="px-3 md:px-4 py-2 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 flex items-center gap-1 text-sm md:text-base"
                     >
                       <Eye className="w-4 h-4" />
-                      Ver
+                      <span className="hidden sm:inline">Ver</span>
                     </button>
                     <button
                       onClick={() => setNotificationModal(cadastro)}
-                      className="px-3 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 flex items-center gap-2"
+                      className="px-3 md:px-4 py-2 bg-blue-500 text-white font-bold rounded-xl hover:bg-blue-600 flex items-center gap-1 md:gap-2 text-sm md:text-base"
                     >
                       <MessageCircle className="w-4 h-4" />
-                      Notificar
+                      <span className="hidden sm:inline">Notificar</span>
                     </button>
                     {cadastro.status_cadastro === "EM_ANALISE" && (
                       <>
                         <button
                           onClick={() => aprovarMutation.mutate(cadastro)}
                           disabled={aprovarMutation.isPending}
-                          className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl flex items-center gap-1 disabled:opacity-50"
+                          className="px-3 md:px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl flex items-center gap-1 disabled:opacity-50 text-sm md:text-base"
                         >
                           <Check className="w-4 h-4" />
-                          Aprovar
+                          <span className="hidden sm:inline">Aprovar</span>
                         </button>
                         <button
                           onClick={() => setRejectionModal(cadastro)}
-                          className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl flex items-center gap-1"
+                          className="px-3 md:px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl flex items-center gap-1 text-sm md:text-base"
                         >
                           <X className="w-4 h-4" />
-                          Rejeitar
+                          <span className="hidden sm:inline">Rejeitar</span>
                         </button>
                       </>
                     )}
@@ -623,13 +625,13 @@ export default function AdminAprovacoes() {
 
       {/* Paginação */}
       {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2 py-6">
+        <div className="flex justify-center items-center gap-1 md:gap-2 py-4 md:py-6 px-2">
           <button
             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
             disabled={currentPage === 1}
-            className="px-4 py-2 bg-white border-2 border-gray-200 rounded-xl font-semibold hover:border-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-2 md:px-4 md:py-2 bg-white border-2 border-gray-200 rounded-xl font-semibold hover:border-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
           </button>
 
           {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -638,7 +640,7 @@ export default function AdminAprovacoes() {
               <button
                 key={pageNum}
                 onClick={() => setCurrentPage(pageNum)}
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
+                className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold text-sm md:text-base ${
                   currentPage === pageNum
                     ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white"
                     : "bg-white text-gray-600 border-2 border-gray-200 hover:border-yellow-400"
@@ -652,9 +654,9 @@ export default function AdminAprovacoes() {
           <button
             onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
-            className="px-4 py-2 bg-white border-2 border-gray-200 rounded-xl font-semibold hover:border-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-2 md:px-4 md:py-2 bg-white border-2 border-gray-200 rounded-xl font-semibold hover:border-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
           </button>
         </div>
       )}
@@ -677,19 +679,19 @@ export default function AdminAprovacoes() {
               className="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl"
             >
               {/* Header */}
-              <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-                <h2 className="text-xl font-bold">Detalhes do Cadastro</h2>
+              <div className="p-4 md:p-6 border-b border-gray-100 flex items-center justify-between">
+                <h2 className="text-lg md:text-xl font-bold">Detalhes do Cadastro</h2>
                 <button
                   onClick={() => setDetailsModal(null)}
-                  className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center"
+                  className="w-8 h-8 md:w-10 md:h-10 rounded-full hover:bg-gray-100 flex items-center justify-center flex-shrink-0"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
               </div>
 
               {/* Conteúdo */}
-              <div className="p-6 space-y-4">
-                <div className="w-32 h-32 rounded-3xl mx-auto mb-6 bg-gray-200 flex items-center justify-center text-6xl overflow-hidden">
+              <div className="p-4 md:p-6 space-y-4">
+                <div className="w-24 h-24 md:w-32 md:h-32 rounded-3xl mx-auto mb-4 md:mb-6 bg-gray-200 flex items-center justify-center text-5xl md:text-6xl overflow-hidden">
                   {detailsModal.logo_url ? (
                     <img src={detailsModal.logo_url} alt={detailsModal.nome} className="w-full h-full object-cover" />
                   ) : (
@@ -703,33 +705,33 @@ export default function AdminAprovacoes() {
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                   <div>
-                    <p className="text-sm text-gray-500 mb-1">Nome</p>
-                    <p className="font-bold text-gray-900">{detailsModal.nome}</p>
+                    <p className="text-xs md:text-sm text-gray-500 mb-1">Nome</p>
+                    <p className="font-bold text-sm md:text-base text-gray-900 break-words">{detailsModal.nome}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500 mb-1">Tipo</p>
-                    <p className="font-bold text-gray-900">{detailsModal.tipo}</p>
+                    <p className="text-xs md:text-sm text-gray-500 mb-1">Tipo</p>
+                    <p className="font-bold text-sm md:text-base text-gray-900">{detailsModal.tipo}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500 mb-1">Registro</p>
-                    <p className="font-bold text-gray-900">{detailsModal.registro}</p>
+                    <p className="text-xs md:text-sm text-gray-500 mb-1">Registro</p>
+                    <p className="font-bold text-sm md:text-base text-gray-900 break-all">{detailsModal.registro}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500 mb-1">Status</p>
+                    <p className="text-xs md:text-sm text-gray-500 mb-1">Status</p>
                     {getStatusBadge(detailsModal.status_cadastro)}
                   </div>
                   {detailsModal.whatsapp && (
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">WhatsApp</p>
-                      <p className="font-bold text-gray-900">{detailsModal.whatsapp}</p>
+                      <p className="text-xs md:text-sm text-gray-500 mb-1">WhatsApp</p>
+                      <p className="font-bold text-sm md:text-base text-gray-900">{detailsModal.whatsapp}</p>
                     </div>
                   )}
                   {detailsModal.email && (
-                    <div>
-                      <p className="text-sm text-gray-500 mb-1">Email</p>
-                      <p className="font-bold text-gray-900 text-sm">{detailsModal.email}</p>
+                    <div className="sm:col-span-2">
+                      <p className="text-xs md:text-sm text-gray-500 mb-1">Email</p>
+                      <p className="font-bold text-sm md:text-base text-gray-900 break-all">{detailsModal.email}</p>
                     </div>
                   )}
                   {detailsModal.tipo === "FORNECEDOR" && detailsModal.tipo_produtos && (
@@ -812,13 +814,13 @@ export default function AdminAprovacoes() {
 
               {/* Footer */}
               {detailsModal.status_cadastro === "EM_ANALISE" && (
-                <div className="p-6 border-t border-gray-100 flex gap-4">
+                <div className="p-4 md:p-6 border-t border-gray-100 flex flex-col sm:flex-row gap-3 md:gap-4">
                   <button
                     onClick={() => aprovarMutation.mutate(detailsModal)}
                     disabled={aprovarMutation.isPending}
-                    className="flex-1 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="flex-1 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 text-sm md:text-base"
                   >
-                    <Check className="w-5 h-5" />
+                    <Check className="w-4 h-4 md:w-5 md:h-5" />
                     Aprovar
                   </button>
                   <button
@@ -826,9 +828,9 @@ export default function AdminAprovacoes() {
                       setRejectionModal(detailsModal);
                       setDetailsModal(null);
                     }}
-                    className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl flex items-center justify-center gap-2"
+                    className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 text-sm md:text-base"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-4 h-4 md:w-5 md:h-5" />
                     Rejeitar
                   </button>
                 </div>
@@ -856,21 +858,21 @@ export default function AdminAprovacoes() {
               className="bg-white rounded-3xl max-w-md w-full shadow-2xl"
             >
               {/* Header */}
-              <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-                <div>
-                  <h3 className="text-xl font-black text-gray-900">Notificar Usuário</h3>
-                  <p className="text-sm text-gray-500 mt-1">Usuário: {notificationModal.nome}</p>
+              <div className="p-4 md:p-6 border-b border-gray-100 flex items-center justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg md:text-xl font-black text-gray-900">Notificar Usuário</h3>
+                  <p className="text-xs md:text-sm text-gray-500 mt-1 truncate">Usuário: {notificationModal.nome}</p>
                 </div>
                 <button
                   onClick={() => setNotificationModal(null)}
-                  className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center"
+                  className="w-8 h-8 md:w-10 md:h-10 rounded-full hover:bg-gray-100 flex items-center justify-center flex-shrink-0"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
               </div>
 
               {/* Conteúdo */}
-              <div className="p-6 space-y-4">
+              <div className="p-4 md:p-6 space-y-4">
                 {/* Tipo de Notificação */}
                 <div>
                   <label className="block text-sm font-bold text-gray-900 mb-2">
@@ -931,27 +933,27 @@ export default function AdminAprovacoes() {
               </div>
 
               {/* Footer */}
-              <div className="p-6 border-t border-gray-100 flex gap-3">
+              <div className="p-4 md:p-6 border-t border-gray-100 flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={() => setNotificationModal(null)}
-                  className="flex-1 py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50"
+                  className="flex-1 py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 text-sm md:text-base"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={() => notificarMutation.mutate()}
                   disabled={notificarMutation.isPending || !notificationData.mensagem}
-                  className="flex-1 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl disabled:opacity-50 flex items-center justify-center gap-2 text-sm md:text-base"
                 >
                   {notificarMutation.isPending ? (
                     <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                      Enviando...
+                      <div className="animate-spin rounded-full h-4 h-4 md:h-5 md:w-5 border-b-2 border-white"></div>
+                      <span className="hidden sm:inline">Enviando...</span>
                     </>
                   ) : (
                     <>
-                      <MessageCircle className="w-5 h-5" />
-                      Enviar Notificação
+                      <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
+                      <span className="hidden sm:inline">Enviar</span>
                     </>
                   )}
                 </button>
@@ -979,13 +981,13 @@ export default function AdminAprovacoes() {
               className="bg-white rounded-3xl max-w-md w-full shadow-2xl"
             >
               {/* Header */}
-              <div className="p-6 border-b border-gray-100">
-                <h2 className="text-xl font-bold text-red-600">Motivo da Rejeição</h2>
-                <p className="text-sm text-gray-500 mt-1">Selecione os motivos da rejeição</p>
+              <div className="p-4 md:p-6 border-b border-gray-100">
+                <h2 className="text-lg md:text-xl font-bold text-red-600">Motivo da Rejeição</h2>
+                <p className="text-xs md:text-sm text-gray-500 mt-1">Selecione os motivos da rejeição</p>
               </div>
 
               {/* Conteúdo */}
-              <div className="p-6 space-y-4">
+              <div className="p-4 md:p-6 space-y-4">
                 {/* Checkboxes */}
                 {Object.keys(rejectionCheckboxes).map((key) => {
                   const labels = {
@@ -1028,19 +1030,19 @@ export default function AdminAprovacoes() {
               </div>
 
               {/* Footer */}
-              <div className="p-6 border-t border-gray-100 flex gap-4">
+              <div className="p-4 md:p-6 border-t border-gray-100 flex flex-col sm:flex-row gap-3 md:gap-4">
                 <button
                   onClick={() => setRejectionModal(null)}
-                  className="flex-1 py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50"
+                  className="flex-1 py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 text-sm md:text-base"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={handleReject}
                   disabled={rejeitarMutation.isPending}
-                  className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl disabled:opacity-50"
+                  className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl disabled:opacity-50 text-sm md:text-base"
                 >
-                  {rejeitarMutation.isPending ? "Rejeitando..." : "Confirmar Rejeição"}
+                  {rejeitarMutation.isPending ? "Rejeitando..." : "Confirmar"}
                 </button>
               </div>
             </motion.div>
