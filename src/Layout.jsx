@@ -76,6 +76,6 @@ export default function Layout({ children, currentPageName }) {
           {mostrarBottomBar && <BottomBar />}
         </div>
       )}
-    </>
-  );
-}
+      </ErrorBoundary>
+      );
+      }
