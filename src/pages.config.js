@@ -78,6 +78,7 @@ import ValidarComparecimento from './pages/ValidarComparecimento';
 import DashboardSubstituicoes from './pages/DashboardSubstituicoes';
 import CriarAnuncioProfissional from './pages/CriarAnuncioProfissional';
 import MeusAnuncios from './pages/MeusAnuncios';
+import TestClaudeAI from './pages/TestClaudeAI';
 import __Layout from './Layout.jsx';
 
 
@@ -162,6 +163,7 @@ export const PAGES = {
     "DashboardSubstituicoes": DashboardSubstituicoes,
     "CriarAnuncioProfissional": CriarAnuncioProfissional,
     "MeusAnuncios": MeusAnuncios,
+    "TestClaudeAI": TestClaudeAI,
 }
 
 export const pagesConfig = {
