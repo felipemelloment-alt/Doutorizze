@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import BottomBar from "@/components/navigation/BottomBar";
 import SplashScreen from "@/components/shared/SplashScreen";
+import ErrorBoundary from "@/components/shared/ErrorBoundary";
 import { AnimatePresence } from "framer-motion";
+import { analytics, trackPageView } from "@/components/utils/analytics";
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
@@ -23,8 +25,12 @@ export default function Layout({ children, currentPageName }) {
     };
     
     loadUser();
+    
+    // Track page view
+    trackPageView(currentPageName);
+    
     return () => clearTimeout(timer);
-  }, []);
+  }, [currentPageName]);
 
   const paginasSemBottomBar = [
     "OnboardingVertical",
@@ -44,7 +50,7 @@ export default function Layout({ children, currentPageName }) {
   const mostrarBottomBar = user && !paginasSemBottomBar.includes(currentPageName);
 
   return (
-    <>
+    <ErrorBoundary>
       <style>{`
         body, html, #root {
           overflow-x: hidden !important;
