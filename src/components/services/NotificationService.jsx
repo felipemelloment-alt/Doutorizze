@@ -1,337 +1,346 @@
+// ============================================
+// SERVIÇO DE NOTIFICAÇÕES CENTRALIZADO
+// ============================================
+
 import { base44 } from "@/api/base44Client";
+import { logger } from "@/components/utils/logger";
 
-/**
- * Serviço de Notificações
- * Gerencia o disparo automático de notificações para eventos do sistema
- */
+// Tipos de notificação
+export const NOTIFICATION_TYPES = {
+  // Vagas e Candidaturas
+  NOVA_VAGA: 'NOVA_VAGA',
+  CANDIDATURA_RECEBIDA: 'CANDIDATURA_RECEBIDA',
+  CANDIDATURA_ACEITA: 'CANDIDATURA_ACEITA',
+  CANDIDATURA_REJEITADA: 'CANDIDATURA_REJEITADA',
+  
+  // Substituições
+  SUBSTITUICAO_CRIADA: 'SUBSTITUICAO_CRIADA',
+  SUBSTITUICAO_CONFIRMADA: 'SUBSTITUICAO_CONFIRMADA',
+  SUBSTITUICAO_CANCELADA: 'SUBSTITUICAO_CANCELADA',
+  
+  // Mensagens
+  NOVA_MENSAGEM: 'NOVA_MENSAGEM',
+  
+  // Avaliações
+  NOVA_AVALIACAO: 'NOVA_AVALIACAO',
+  
+  // Sistema
+  CADASTRO_APROVADO: 'CADASTRO_APROVADO',
+  CADASTRO_REJEITADO: 'CADASTRO_REJEITADO',
+  LEMBRETE: 'LEMBRETE',
+  ALERTA: 'ALERTA'
+};
 
-// Helper para criar notificação base
-async function criarNotificacao({
-  destinatarioId,
-  destinatarioTipo,
+// Templates de notificação
+const notificationTemplates = {
+  [NOTIFICATION_TYPES.NOVA_VAGA]: {
+    titulo: 'Nova vaga disponível!',
+    template: 'Uma vaga de {{especialidade}} foi publicada em {{cidade}}',
+    priority: 'high'
+  },
+  [NOTIFICATION_TYPES.CANDIDATURA_RECEBIDA]: {
+    titulo: 'Nova candidatura recebida!',
+    template: '{{nome_profissional}} se candidatou à sua vaga',
+    priority: 'high'
+  },
+  [NOTIFICATION_TYPES.CANDIDATURA_ACEITA]: {
+    titulo: 'Candidatura aceita!',
+    template: 'Parabéns! Sua candidatura para {{titulo_vaga}} foi aceita',
+    priority: 'high'
+  },
+  [NOTIFICATION_TYPES.CANDIDATURA_REJEITADA]: {
+    titulo: 'Atualização da candidatura',
+    template: 'Sua candidatura para {{titulo_vaga}} não foi selecionada',
+    priority: 'medium'
+  },
+  [NOTIFICATION_TYPES.SUBSTITUICAO_CONFIRMADA]: {
+    titulo: 'Substituição confirmada!',
+    template: 'Sua substituição em {{nome_clinica}} foi confirmada para {{data}}',
+    priority: 'high'
+  },
+  [NOTIFICATION_TYPES.NOVA_MENSAGEM]: {
+    titulo: 'Nova mensagem',
+    template: '{{remetente}} enviou uma mensagem',
+    priority: 'high'
+  },
+  [NOTIFICATION_TYPES.NOVA_AVALIACAO]: {
+    titulo: 'Nova avaliação recebida!',
+    template: 'Você recebeu uma avaliação de {{avaliador}}',
+    priority: 'medium'
+  },
+  [NOTIFICATION_TYPES.CADASTRO_APROVADO]: {
+    titulo: 'Cadastro aprovado!',
+    template: 'Seu cadastro foi aprovado. Bem-vindo ao Doutorizze!',
+    priority: 'high'
+  },
+  [NOTIFICATION_TYPES.CADASTRO_REJEITADO]: {
+    titulo: 'Cadastro precisa de ajustes',
+    template: 'Seu cadastro precisa de correções: {{motivo}}',
+    priority: 'high'
+  },
+  [NOTIFICATION_TYPES.LEMBRETE]: {
+    titulo: 'Lembrete',
+    template: '{{mensagem}}',
+    priority: 'medium'
+  }
+};
+
+// Interpolar template com dados
+function interpolateTemplate(template, data) {
+  return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
+    return data[key] || match;
+  });
+}
+
+// Criar notificação no banco
+async function createNotification({
   tipo,
-  titulo,
-  mensagem,
-  linkDestino,
-  dadosContexto = {},
-  canais = ["PUSH"]
+  user_id,
+  data = {},
+  action_url = null,
+  entity_type = null,
+  entity_id = null,
+  channels = ['in_app']
 }) {
   try {
-    await base44.entities.Notification.create({
-      destinatario_id: destinatarioId,
-      destinatario_tipo: destinatarioTipo,
+    const template = notificationTemplates[tipo];
+    if (!template) {
+      logger.warn(`Template não encontrado para tipo: ${tipo}`);
+      return null;
+    }
+
+    const notification = {
+      user_id,
       tipo,
-      titulo,
-      mensagem,
+      titulo: data.titulo || template.titulo,
+      mensagem: interpolateTemplate(template.template, data),
+      action_url,
+      entity_type,
+      entity_id,
+      priority: template.priority,
+      channels: channels.join(','),
       lida: false,
-      dados_contexto: dadosContexto,
-      acao_destino: linkDestino ? {
-        tipo: "TELA",
-        destino: linkDestino
-      } : undefined,
-      canais_enviados: canais,
-      data_envio: new Date().toISOString(),
-      enviada_com_sucesso: true
-    });
+      enviada_push: false,
+      enviada_email: false,
+      enviada_whatsapp: false
+    };
+
+    const result = await base44.entities.Notification.create(notification);
+    
+    logger.info(`[Notification] Criada: ${tipo} para user ${user_id}`);
+    
+    // Enviar por outros canais se necessário
+    if (channels.includes('push')) {
+      await sendPushNotification(user_id, notification);
+    }
+    if (channels.includes('email')) {
+      await sendEmailNotification(user_id, notification);
+    }
+    if (channels.includes('whatsapp')) {
+      await sendWhatsAppNotification(user_id, notification);
+    }
+
+    return result;
   } catch (error) {
-    console.error("Erro ao criar notificação:", error);
+    logger.error('[Notification] Erro ao criar:', error);
+    return null;
   }
 }
 
-/**
- * 1. MATCH PERFEITO (score 4/4)
- * Quando: Nova vaga criada que dá match perfeito com profissional
- */
-export async function notificarMatchPerfeito({
-  professionalId,
-  profissionalTipo,
-  jobId,
-  tituloVaga,
-  cidadeVaga
-}) {
-  await criarNotificacao({
-    destinatarioId: professionalId,
-    destinatarioTipo: profissionalTipo,
-    tipo: "SUPER_JOBS",
-    titulo: "⚡ Super Match Encontrado!",
-    mensagem: `Uma vaga perfeita para você: ${tituloVaga} em ${cidadeVaga}`,
-    linkDestino: `/DetalheVaga/${jobId}`,
-    dadosContexto: {
-      match_id: jobId
-    },
-    canais: ["PUSH", "WHATSAPP"]
-  });
-}
-
-/**
- * 2. NOVA CANDIDATURA
- * Quando: Profissional se candidata à vaga
- */
-export async function notificarNovaCandidatura({
-  clinicaId,
-  professionalId,
-  nomeProfissional,
-  tituloVaga,
-  jobId
-}) {
-  await criarNotificacao({
-    destinatarioId: clinicaId,
-    destinatarioTipo: "CLINICA",
-    tipo: "MATCH_CONTATADO",
-    titulo: "🎯 Nova Candidatura Recebida!",
-    mensagem: `${nomeProfissional} se candidatou para ${tituloVaga}`,
-    linkDestino: `/VerProfissional/${professionalId}`,
-    dadosContexto: {
-      profissional_id: professionalId,
-      match_id: jobId
+// Enviar push notification (placeholder - implementar com Cloud Function)
+async function sendPushNotification(userId, notification) {
+  try {
+    // Implementar integração com serviço de push
+    logger.debug(`[Push] Enviando para ${userId}`);
+    
+    // Atualizar flag
+    if (notification.id) {
+      await base44.entities.Notification.update(notification.id, {
+        enviada_push: true,
+        push_enviada_em: new Date().toISOString()
+      });
     }
-  });
+  } catch (error) {
+    logger.error('[Push] Erro:', error);
+  }
 }
 
-/**
- * 3. CANDIDATURA ACEITA
- * Quando: Clínica aceita candidatura
- */
-export async function notificarCandidaturaAceita({
-  professionalId,
-  profissionalTipo,
-  nomeClinica,
-  tituloVaga,
-  jobId
-}) {
-  await criarNotificacao({
-    destinatarioId: professionalId,
-    destinatarioTipo: profissionalTipo,
-    tipo: "MATCH_CONTATADO",
-    titulo: "🎉 Parabéns! Candidatura Aceita",
-    mensagem: `${nomeClinica} quer entrar em contato sobre ${tituloVaga}`,
-    linkDestino: "/MinhasCandidaturas",
-    dadosContexto: {
-      match_id: jobId,
-      clinica_id: nomeClinica
-    },
-    canais: ["PUSH", "EMAIL"]
-  });
+// Enviar email (usando Cloud Function)
+async function sendEmailNotification(userId, notification) {
+  try {
+    // Buscar email do usuário
+    const users = await base44.entities.User.filter({ id: userId });
+    if (users.length === 0) return;
+    
+    const user = users[0];
+    
+    await base44.integrations.Core.SendEmail({
+      to: user.email,
+      subject: notification.titulo,
+      body: `
+        <h2>${notification.titulo}</h2>
+        <p>${notification.mensagem}</p>
+        ${notification.action_url ? 
+          `<p><a href="${notification.action_url}">Ver detalhes</a></p>` 
+          : ''
+        }
+      `
+    });
+    
+    // Atualizar flag
+    if (notification.id) {
+      await base44.entities.Notification.update(notification.id, {
+        enviada_email: true,
+        email_enviada_em: new Date().toISOString()
+      });
+    }
+    
+    logger.debug(`[Email] Enviado para ${user.email}`);
+  } catch (error) {
+    logger.error('[Email] Erro:', error);
+  }
 }
 
-/**
- * 4. CANDIDATURA REJEITADA
- * Quando: Clínica rejeita candidatura
- */
-export async function notificarCandidaturaRejeitada({
-  professionalId,
-  profissionalTipo,
-  tituloVaga
-}) {
-  await criarNotificacao({
-    destinatarioId: professionalId,
-    destinatarioTipo: profissionalTipo,
-    tipo: "VAGA_PREENCHIDA",
-    titulo: "Candidatura Não Selecionada",
-    mensagem: `Infelizmente não foi dessa vez para ${tituloVaga}. Continue buscando!`,
-    linkDestino: "/NewJobs"
-  });
+// Enviar WhatsApp (usando Cloud Function)
+async function sendWhatsAppNotification(userId, notification) {
+  try {
+    // Buscar WhatsApp do usuário
+    const professionals = await base44.entities.Professional.filter({ user_id: userId });
+    let whatsapp = null;
+    
+    if (professionals.length > 0) {
+      whatsapp = professionals[0].whatsapp;
+    } else {
+      const owners = await base44.entities.CompanyOwner.filter({ user_id: userId });
+      if (owners.length > 0) {
+        whatsapp = owners[0].whatsapp;
+      }
+    }
+    
+    if (!whatsapp) return;
+    
+    // Usar Cloud Function para enviar WhatsApp
+    await base44.functions.invoke('enviarWhatsAppNotificacao', {
+      numero: whatsapp,
+      mensagem: `*${notification.titulo}*\n\n${notification.mensagem}`
+    });
+    
+    // Atualizar flag
+    if (notification.id) {
+      await base44.entities.Notification.update(notification.id, {
+        enviada_whatsapp: true,
+        whatsapp_enviada_em: new Date().toISOString()
+      });
+    }
+    
+    logger.debug(`[WhatsApp] Enviado para ${whatsapp}`);
+  } catch (error) {
+    logger.error('[WhatsApp] Erro:', error);
+  }
 }
 
-/**
- * 5. CONTRATO CRIADO
- * Quando: Contratação é finalizada
- */
-export async function notificarContratoCriado({
-  professionalId,
-  profissionalTipo,
-  clinicaId,
-  tokenDentista,
-  tokenClinica,
-  contractId
-}) {
-  // Notificar profissional
-  await criarNotificacao({
-    destinatarioId: professionalId,
-    destinatarioTipo: profissionalTipo,
-    tipo: "LEMBRETE_AVALIACAO",
-    titulo: "✅ Contrato Criado!",
-    mensagem: `Avalie após o trabalho usando o token: ${tokenDentista}`,
-    linkDestino: `/AvaliarClinica?token=${tokenDentista}`,
-    dadosContexto: {
-      contract_id: contractId
-    },
-    canais: ["PUSH", "EMAIL", "WHATSAPP"]
-  });
+// ============================================
+// API PÚBLICA
+// ============================================
 
-  // Notificar clínica
-  await criarNotificacao({
-    destinatarioId: clinicaId,
-    destinatarioTipo: "CLINICA",
-    tipo: "LEMBRETE_AVALIACAO",
-    titulo: "✅ Contrato Criado!",
-    mensagem: `Avalie após o trabalho usando o token: ${tokenClinica}`,
-    linkDestino: `/AvaliarProfissional?token=${tokenClinica}`,
-    dadosContexto: {
-      contract_id: contractId
-    },
-    canais: ["PUSH", "EMAIL"]
-  });
-}
-
-/**
- * 6. AVALIAÇÃO RECEBIDA
- * Quando: Recebe avaliação
- */
-export async function notificarAvaliacaoRecebida({
-  destinatarioId,
-  destinatarioTipo,
-  nota,
-  avaliadorNome
-}) {
-  const isClinica = destinatarioTipo === "CLINICA";
+export const NotificationService = {
+  // Criar notificação genérica
+  create: createNotification,
   
-  await criarNotificacao({
-    destinatarioId,
-    destinatarioTipo,
-    tipo: "RECEBEU_AVALIACAO",
-    titulo: "⭐ Nova Avaliação Recebida!",
-    mensagem: `${avaliadorNome} avaliou você com ${nota} estrelas`,
-    linkDestino: isClinica ? "/PerfilClinica" : "/MeuPerfil",
-    canais: ["PUSH"]
-  });
-}
-
-/**
- * 7. CADASTRO APROVADO
- * Quando: Admin aprova cadastro
- */
-export async function notificarCadastroAprovado({
-  userId,
-  userTipo,
-  nomeUsuario
-}) {
-  await criarNotificacao({
-    destinatarioId: userId,
-    destinatarioTipo: userTipo,
-    tipo: "STATUS_APROVADO",
-    titulo: "🎉 Cadastro Aprovado!",
-    mensagem: `Parabéns ${nomeUsuario}! Seu cadastro foi aprovado. Bem-vindo ao NEW JOBS!`,
-    linkDestino: userTipo === "CLINICA" ? "/DashboardClinica" : "/MeuPerfil",
-    canais: ["PUSH", "EMAIL", "WHATSAPP"]
-  });
-}
-
-/**
- * 8. PROMOÇÃO EXPIRANDO
- * Quando: Promoção expira em 24h
- */
-export async function notificarPromocaoExpirando({
-  fornecedorId,
-  tituloPromocao,
-  promocaoId
-}) {
-  await criarNotificacao({
-    destinatarioId: fornecedorId,
-    destinatarioTipo: "FORNECEDOR",
-    tipo: "NOTICIA",
-    titulo: "⏰ Promoção Expirando!",
-    mensagem: `${tituloPromocao} expira em 24 horas. Renove ou edite agora!`,
-    linkDestino: `/MinhasPromocoes`,
-    dadosContexto: {
-      marketplace_item_id: promocaoId
-    }
-  });
-}
-
-/**
- * 9. MATCH SEMELHANTE (score 3/4)
- * Quando: Nova vaga criada com match bom (score 3)
- */
-export async function notificarMatchSemelhante({
-  professionalId,
-  profissionalTipo,
-  jobId,
-  tituloVaga,
-  cidadeVaga
-}) {
-  await criarNotificacao({
-    destinatarioId: professionalId,
-    destinatarioTipo: profissionalTipo,
-    tipo: "JOBS_SEMELHANTE",
-    titulo: "💼 Nova Vaga para Você!",
-    mensagem: `Vaga compatível com seu perfil: ${tituloVaga} em ${cidadeVaga}`,
-    linkDestino: `/DetalheVaga/${jobId}`,
-    dadosContexto: {
-      match_id: jobId
-    },
-    canais: ["PUSH"]
-  });
-}
-
-/**
- * 10. VAGA PREENCHIDA
- * Quando: Vaga que o profissional se candidatou foi preenchida
- */
-export async function notificarVagaPreenchida({
-  professionalId,
-  profissionalTipo,
-  tituloVaga
-}) {
-  await criarNotificacao({
-    destinatarioId: professionalId,
-    destinatarioTipo: profissionalTipo,
-    tipo: "VAGA_PREENCHIDA",
-    titulo: "Vaga Preenchida",
-    mensagem: `A vaga ${tituloVaga} foi preenchida. Continue buscando outras oportunidades!`,
-    linkDestino: "/NewJobs"
-  });
-}
-
-/**
- * 11. NEW JOBS DESATIVADO
- * Quando: Profissional desativa o modo NEW JOBS
- */
-export async function notificarNewJobsDesativado({
-  professionalId,
-  profissionalTipo
-}) {
-  await criarNotificacao({
-    destinatarioId: professionalId,
-    destinatarioTipo: profissionalTipo,
-    tipo: "NEW_JOBS_DESATIVADO",
-    titulo: "⚠️ NEW JOBS Desativado",
-    mensagem: "Você não receberá notificações de vagas até reativar o NEW JOBS",
-    linkDestino: "/MeuPerfil"
-  });
-}
-
-/**
- * 12. PERFIL INCOMPLETO
- * Quando: Profissional tem perfil incompleto há 7 dias
- */
-export async function notificarPerfilIncompleto({
-  professionalId,
-  profissionalTipo
-}) {
-  await criarNotificacao({
-    destinatarioId: professionalId,
-    destinatarioTipo: profissionalTipo,
-    tipo: "PERFIL_INCOMPLETO",
-    titulo: "📝 Complete Seu Perfil",
-    mensagem: "Complete seu perfil para receber mais oportunidades de trabalho!",
-    linkDestino: "/EditarPerfil",
-    canais: ["PUSH", "EMAIL"]
-  });
-}
-
-// Exportar todas as funções
-export default {
-  notificarMatchPerfeito,
-  notificarNovaCandidatura,
-  notificarCandidaturaAceita,
-  notificarCandidaturaRejeitada,
-  notificarContratoCriado,
-  notificarAvaliacaoRecebida,
-  notificarCadastroAprovado,
-  notificarPromocaoExpirando,
-  notificarMatchSemelhante,
-  notificarVagaPreenchida,
-  notificarNewJobsDesativado,
-  notificarPerfilIncompleto
+  // Notificações de vaga
+  notifyNovaVaga: (userId, vagaData) => createNotification({
+    tipo: NOTIFICATION_TYPES.NOVA_VAGA,
+    user_id: userId,
+    data: vagaData,
+    action_url: `/DetalheVaga?id=${vagaData.vaga_id}`,
+    entity_type: 'Job',
+    entity_id: vagaData.vaga_id,
+    channels: ['in_app', 'push']
+  }),
+  
+  // Notificações de candidatura
+  notifyCandidaturaRecebida: (clinicaUserId, candidaturaData) => createNotification({
+    tipo: NOTIFICATION_TYPES.CANDIDATURA_RECEBIDA,
+    user_id: clinicaUserId,
+    data: candidaturaData,
+    action_url: `/DetalheVaga?id=${candidaturaData.vaga_id}`,
+    entity_type: 'Job',
+    entity_id: candidaturaData.vaga_id,
+    channels: ['in_app', 'push', 'email']
+  }),
+  
+  notifyCandidaturaAceita: (profissionalUserId, candidaturaData) => createNotification({
+    tipo: NOTIFICATION_TYPES.CANDIDATURA_ACEITA,
+    user_id: profissionalUserId,
+    data: candidaturaData,
+    action_url: `/DetalheVaga?id=${candidaturaData.vaga_id}`,
+    entity_type: 'Job',
+    entity_id: candidaturaData.vaga_id,
+    channels: ['in_app', 'push', 'whatsapp']
+  }),
+  
+  notifyCandidaturaRejeitada: (profissionalUserId, candidaturaData) => createNotification({
+    tipo: NOTIFICATION_TYPES.CANDIDATURA_REJEITADA,
+    user_id: profissionalUserId,
+    data: candidaturaData,
+    channels: ['in_app']
+  }),
+  
+  // Notificações de substituição
+  notifySubstituicaoConfirmada: (profissionalUserId, substituicaoData) => createNotification({
+    tipo: NOTIFICATION_TYPES.SUBSTITUICAO_CONFIRMADA,
+    user_id: profissionalUserId,
+    data: substituicaoData,
+    action_url: `/DetalheSubstituicao?id=${substituicaoData.substituicao_id}`,
+    entity_type: 'SubstituicaoUrgente',
+    entity_id: substituicaoData.substituicao_id,
+    channels: ['in_app', 'push', 'whatsapp']
+  }),
+  
+  // Notificações de cadastro
+  notifyCadastroAprovado: (userId) => createNotification({
+    tipo: NOTIFICATION_TYPES.CADASTRO_APROVADO,
+    user_id: userId,
+    data: {},
+    action_url: '/MeuPerfil',
+    channels: ['in_app', 'push', 'email']
+  }),
+  
+  notifyCadastroRejeitado: (userId, motivo) => createNotification({
+    tipo: NOTIFICATION_TYPES.CADASTRO_REJEITADO,
+    user_id: userId,
+    data: { motivo },
+    action_url: '/EditarPerfil',
+    channels: ['in_app', 'email']
+  }),
+  
+  // Notificação de mensagem
+  notifyNovaMensagem: (userId, mensagemData) => createNotification({
+    tipo: NOTIFICATION_TYPES.NOVA_MENSAGEM,
+    user_id: userId,
+    data: mensagemData,
+    action_url: `/ChatThread?id=${mensagemData.thread_id}`,
+    entity_type: 'ChatThread',
+    entity_id: mensagemData.thread_id,
+    channels: ['in_app', 'push']
+  }),
+  
+  // Notificação de avaliação
+  notifyNovaAvaliacao: (userId, avaliacaoData) => createNotification({
+    tipo: NOTIFICATION_TYPES.NOVA_AVALIACAO,
+    user_id: userId,
+    data: avaliacaoData,
+    action_url: '/MinhasAvaliacoes',
+    channels: ['in_app']
+  }),
+  
+  // Lembrete customizado
+  sendLembrete: (userId, mensagem) => createNotification({
+    tipo: NOTIFICATION_TYPES.LEMBRETE,
+    user_id: userId,
+    data: { mensagem },
+    channels: ['in_app', 'push']
+  })
 };
+
+export default NotificationService;
