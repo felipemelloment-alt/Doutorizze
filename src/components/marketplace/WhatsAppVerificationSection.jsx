@@ -43,51 +43,29 @@ export default function WhatsAppVerificationSection({ user, onVerified }) {
       return;
     }
 
-    // Verificar rate limit
-    if (user?.whatsapp_last_otp_sent_at) {
-      const ultimoEnvio = new Date(user.whatsapp_last_otp_sent_at);
-      const agora = new Date();
-      const diffSegundos = (agora - ultimoEnvio) / 1000;
-      
-      if (diffSegundos < 60) {
-        const espera = Math.ceil(60 - diffSegundos);
-        toast.error(`Aguarde ${espera}s para reenviar`);
-        setCountdown(espera);
-        return;
-      }
-    }
-
     setLoading(true);
     try {
-      // Gerar código OTP (6 dígitos)
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const whatsappE164 = `+55${numerosApenas}`;
       
-      // Salvar OTP no banco (hash simples)
-      const expiresAt = new Date();
-      expiresAt.setMinutes(expiresAt.getMinutes() + 10);
-
-      await base44.entities.WhatsAppOTP.create({
-        user_id: user.id,
-        whatsapp_e164: whatsappE164,
-        otp_hash: otp, // Em produção, fazer hash real
-        expires_at: expiresAt.toISOString(),
-        verified: false,
-        attempts: 0
+      // Chamar backend function segura (OTP gerado no servidor)
+      const response = await base44.functions.invoke('sendWhatsAppOTP', {
+        whatsapp_e164: whatsappE164
       });
 
-      // Atualizar timestamp de envio
-      await base44.auth.updateMe({ whatsapp_last_otp_sent_at: new Date().toISOString() });
-
-      // TODO: Integração real de envio de SMS/WhatsApp
-      // Por enquanto, mostrar código no console (desenvolvimento)
-      console.log(`🔐 Código OTP para ${whatsappE164}: ${otp}`);
+      if (response.data?.error) {
+        toast.error(response.data.error);
+        if (response.data.retry_after) {
+          setCountdown(response.data.retry_after);
+        }
+        setLoading(false);
+        return;
+      }
       
-      toast.success(`✅ Código enviado para ${whatsapp}`);
+      toast.success(response.data?.message || "Código enviado!");
       setEtapa("aguardando");
       setCountdown(60);
     } catch (error) {
-      toast.error("Erro ao enviar código: " + error.message);
+      toast.error("Erro ao enviar código: " + (error.response?.data?.error || error.message));
     }
     setLoading(false);
   };
@@ -103,57 +81,33 @@ export default function WhatsAppVerificationSection({ user, onVerified }) {
       const numerosApenas = whatsapp.replace(/\D/g, "");
       const whatsappE164 = `+55${numerosApenas}`;
 
-      // Buscar OTP
-      const otps = await base44.entities.WhatsAppOTP.filter({
-        user_id: user.id,
+      // Chamar backend function segura (validação com hash no servidor)
+      const response = await base44.functions.invoke('verifyWhatsAppOTP', {
         whatsapp_e164: whatsappE164,
-        verified: false
+        codigo: codigo
       });
 
-      if (otps.length === 0) {
-        toast.error("Código expirado ou não encontrado");
-        return;
-      }
-
-      const otpRecord = otps[0];
-
-      // Verificar expiração
-      if (new Date(otpRecord.expires_at) < new Date()) {
-        toast.error("Código expirado. Solicite um novo.");
-        setEtapa("input");
-        return;
-      }
-
-      // Verificar tentativas
-      if (otpRecord.attempts >= 3) {
-        toast.error("Máximo de tentativas excedido. Solicite um novo código.");
-        setEtapa("input");
-        return;
-      }
-
-      // Validar código
-      if (otpRecord.otp_hash !== codigo) {
-        await base44.entities.WhatsAppOTP.update(otpRecord.id, {
-          attempts: otpRecord.attempts + 1
-        });
-        toast.error("Código incorreto");
-        setCodigo("");
+      if (response.data?.error) {
+        toast.error(response.data.error);
+        
+        if (response.data.code === 'OTP_EXPIRED' || response.data.code === 'MAX_ATTEMPTS') {
+          setEtapa("input");
+        }
+        
+        if (response.data.code === 'INVALID_OTP') {
+          setCodigo("");
+        }
+        
+        setLoading(false);
         return;
       }
 
       // Sucesso!
-      await base44.entities.WhatsAppOTP.update(otpRecord.id, { verified: true });
-      await base44.auth.updateMe({
-        whatsapp_e164: whatsappE164,
-        whatsapp_verified: true,
-        whatsapp_verified_at: new Date().toISOString()
-      });
-
       toast.success("✅ WhatsApp verificado com sucesso!");
       setEtapa("verificado");
       if (onVerified) onVerified(whatsappE164);
     } catch (error) {
-      toast.error("Erro ao verificar: " + error.message);
+      toast.error("Erro ao verificar: " + (error.response?.data?.error || error.message));
     }
     setLoading(false);
   };
