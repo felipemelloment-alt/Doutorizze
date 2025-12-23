@@ -133,7 +133,131 @@ export default function AdminAprovacoes() {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Estados de loading e acesso negado APÓS os hooks
+  // Mutação de aprovação - DEVE vir ANTES de qualquer return condicional
+  const aprovarMutation = useMutation({
+    mutationFn: async (cadastro) => {
+      const updateData = {
+        status_cadastro: "APROVADO",
+        approved_at: new Date().toISOString(),
+        approved_by: user?.id,
+        motivo_reprovacao: null
+      };
+
+      await base44.entities[cadastro.entity].update(cadastro.id, updateData);
+
+      const destinatarioTipo = cadastro.tipo === "PROFISSIONAL" 
+        ? cadastro.tipo_profissional 
+        : cadastro.tipo === "CLINICA"
+        ? "CLINICA"
+        : cadastro.tipo === "FORNECEDOR"
+        ? "FORNECEDOR"
+        : cadastro.tipo === "HOSPITAL"
+        ? "HOSPITAL"
+        : "INSTITUICAO";
+
+      await base44.entities.Notification.create({
+        user_id: cadastro.user_id,
+        tipo: "CADASTRO_APROVADO",
+        titulo: "🎉 Cadastro Aprovado!",
+        mensagem: `Parabéns! Seu cadastro foi aprovado e você já pode começar a usar o Doutorizze.`
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["professionals"] });
+      queryClient.invalidateQueries({ queryKey: ["companyOwners"] });
+      queryClient.invalidateQueries({ queryKey: ["suppliers"] });
+      queryClient.invalidateQueries({ queryKey: ["hospitals"] });
+      queryClient.invalidateQueries({ queryKey: ["institutions"] });
+      toast.success("✅ Cadastro aprovado com sucesso!");
+      setDetailsModal(null);
+    },
+    onError: (error) => {
+      toast.error("❌ Erro ao aprovar: " + error.message);
+    }
+  });
+
+  // Mutação de rejeição
+  const rejeitarMutation = useMutation({
+    mutationFn: async ({ cadastro, motivo }) => {
+      const updateData = {
+        status_cadastro: "REPROVADO",
+        motivo_reprovacao: motivo
+      };
+
+      await base44.entities[cadastro.entity].update(cadastro.id, updateData);
+
+      await base44.entities.Notification.create({
+        user_id: cadastro.user_id,
+        tipo: "CADASTRO_REJEITADO",
+        titulo: "❌ Cadastro Reprovado",
+        mensagem: `Seu cadastro foi reprovado. Motivo: ${motivo}`
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["professionals"] });
+      queryClient.invalidateQueries({ queryKey: ["companyOwners"] });
+      queryClient.invalidateQueries({ queryKey: ["suppliers"] });
+      queryClient.invalidateQueries({ queryKey: ["hospitals"] });
+      queryClient.invalidateQueries({ queryKey: ["institutions"] });
+      toast.success("❌ Cadastro reprovado.");
+      setRejectionModal(null);
+      setDetailsModal(null);
+      setRejectionReason("");
+      setRejectionCheckboxes({
+        documento_ilegivel: false,
+        dados_incompletos: false,
+        registro_invalido: false,
+        foto_inadequada: false,
+        outro: false
+      });
+    },
+    onError: (error) => {
+      toast.error("❌ Erro ao rejeitar: " + error.message);
+    }
+  });
+
+  // Mutation para enviar notificação
+  const notificarMutation = useMutation({
+    mutationFn: async () => {
+      const usuario = notificationModal;
+      
+      const tipoMensagens = {
+        CADASTRO: "Pendência no Cadastro",
+        DOCUMENTO: "Documento Inválido",
+        ANUNCIO: "Problema no Anúncio",
+        VAGA: "Problema na Vaga",
+        PRODUTO: "Problema no Produto",
+        OUTRO: "Notificação"
+      };
+
+      await base44.entities.Notification.create({
+        user_id: usuario.user_id,
+        tipo: "ALERTA",
+        titulo: tipoMensagens[notificationData.tipo],
+        mensagem: notificationData.mensagem
+      });
+
+      if (notificationData.enviarWhatsApp && usuario.whatsapp) {
+        const mensagemWpp = `🔔 *DOUTORIZZE - ${tipoMensagens[notificationData.tipo]}*\n\n${notificationData.mensagem}`;
+        window.open(`https://wa.me/55${usuario.whatsapp}?text=${encodeURIComponent(mensagemWpp)}`, "_blank");
+      }
+    },
+    onSuccess: () => {
+      toast.success("✅ Notificação enviada com sucesso!");
+      setNotificationModal(null);
+      setNotificationData({
+        tipo: "CADASTRO",
+        mensagem: "",
+        enviarApp: true,
+        enviarWhatsApp: false
+      });
+    },
+    onError: (error) => {
+      toast.error("❌ Erro ao enviar notificação: " + error.message);
+    }
+  });
+
+  // Estados de loading e acesso negado APÓS todos os hooks
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
