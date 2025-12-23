@@ -42,6 +42,8 @@ import { ptBR } from "date-fns/locale";
 export default function AdminRelatorios() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [periodo, setPeriodo] = useState("MES"); // HOJE | SEMANA | MES | ANO | PERSONALIZADO
 
   useEffect(() => {
@@ -49,12 +51,51 @@ export default function AdminRelatorios() {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
+        
+        if (currentUser.role === "admin") {
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
+        }
       } catch (error) {
         console.error("Erro ao carregar usuário:", error);
+        setIsAdmin(false);
+      } finally {
+        setLoading(false);
       }
     };
     loadUser();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-orange-500"></div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl p-8 shadow-xl text-center max-w-md">
+          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Shield className="w-10 h-10 text-red-500" />
+          </div>
+          <h1 className="text-2xl font-black text-gray-900 mb-2">Acesso Restrito</h1>
+          <p className="text-gray-600 mb-6">
+            Você não tem permissão para acessar esta área. Esta página é exclusiva para administradores.
+          </p>
+          <button
+            onClick={() => window.history.back()}
+            className="px-6 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-2xl hover:shadow-lg transition-all"
+          >
+            Voltar
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Buscar dados
   const { data: professionals = [] } = useQuery({
