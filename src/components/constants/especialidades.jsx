@@ -1,28 +1,28 @@
 export const especialidadesOdontologia = [
-  "Clínico Geral",
+  "Clinico Geral",
   "Endodontia",
   "Implantodontia",
   "Ortodontia",
   "Periodontia",
-  "Prótese",
+  "Protese",
   "Odontopediatria",
   "Cirurgia Bucomaxilofacial",
-  "Radiologia Odontológica",
-  "Harmonização Orofacial",
-  "Dentística",
-  "Estética Dental",
+  "Radiologia Odontologica",
+  "Harmonizacao Orofacial",
+  "Dentistica",
+  "Estetica Dental",
   "DTM/Dor Orofacial",
   "Odontogeriatria",
   "Odontologia do Trabalho",
 ];
 
 export const especialidadesMedicina = [
-  "Clínico Geral",
+  "Clinico Geral",
   "Cardiologia",
   "Dermatologia",
   "Endocrinologia",
   "Gastroenterologia",
-  "Ginecologia e Obstetrícia",
+  "Ginecologia e Obstetricia",
   "Neurologia",
   "Oftalmologia",
   "Ortopedia e Traumatologia",
@@ -33,7 +33,7 @@ export const especialidadesMedicina = [
   "Cirurgia Geral",
   "Anestesiologia",
   "Medicina do Trabalho",
-  "Medicina de Família",
+  "Medicina de Familia",
   "Geriatria",
   "Reumatologia",
   "Pneumologia",
@@ -45,14 +45,14 @@ export const especialidadesMedicina = [
   "Medicina Esportiva",
   "Radioterapia",
   "Cirurgia Vascular",
-  "Cirurgia Plástica",
-  "Cirurgia Pediátrica",
-  "Cirurgia Oncológica",
+  "Cirurgia Plastica",
+  "Cirurgia Pediatrica",
+  "Cirurgia Oncologica",
   "Coloproctologia",
   "Cirurgia Cardiovascular",
   "Angiologia",
   "Acupuntura",
-  "Clínica Médica",
+  "Clinica Medica",
   "Endocrinologia e Metabologia",
   "Hematologia e Hemoterapia",
   "Homeopatia",
@@ -76,12 +76,12 @@ export function getRegistroLabel(mundo) {
 
 export function getProfissionalLabel(mundo) {
   if (mundo === "ODONTOLOGIA") return "Dentista";
-  if (mundo === "MEDICINA") return "Médico";
+  if (mundo === "MEDICINA") return "Medico";
   return "Profissional";
 }
 
 export function getClinicaLabel(mundo) {
-  if (mundo === "ODONTOLOGIA") return "Clínica Odontológica";
-  if (mundo === "MEDICINA") return "Clínica Médica";
-  return "Clínica";
+  if (mundo === "ODONTOLOGIA") return "Clinica Odontologica";
+  if (mundo === "MEDICINA") return "Clinica Medica";
+  return "Clinica";
 }

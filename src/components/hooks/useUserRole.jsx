@@ -14,6 +14,14 @@ export function useUserRole() {
         const user = await base44.auth.me();
         setUserId(user.id);
 
+        // Verificar se é admin
+        if (user.role === 'admin') {
+          setRole("ADMIN");
+          setUserWorld("AMBOS");
+          setLoading(false);
+          return;
+        }
+
         // Check if user is a CompanyOwner (has clinics)
         const owners = await base44.entities.CompanyOwner.filter({ user_id: user.id });
 
@@ -42,9 +50,9 @@ export function useUserRole() {
               setUserWorld("MEDICINA");
             }
           } else {
-            // No profile yet - could be ADMIN or new user
-            setRole("ADMIN");
-            setUserWorld("AMBOS"); // Admin sees everything
+            // No profile yet - new user
+            setRole(null);
+            setUserWorld(null);
           }
         }
       } catch (error) {

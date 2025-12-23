@@ -34,7 +34,7 @@ class ErrorBoundary extends React.Component {
               className="w-full py-4 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold rounded-2xl hover:shadow-xl transition-all flex items-center justify-center gap-2"
             >
               <RefreshCw className="w-5 h-5" />
-              Recarregar Página
+              Recarregar Pagina
             </button>
           </div>
         </div>

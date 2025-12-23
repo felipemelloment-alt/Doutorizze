@@ -71,6 +71,7 @@ import TermosUso from './pages/TermosUso';
 import VagasDisponiveis from './pages/VagasDisponiveis';
 import ValidarComparecimento from './pages/ValidarComparecimento';
 import VerProfissional from './pages/VerProfissional';
+import TestProfessional from './pages/TestProfessional';
 import __Layout from './Layout.jsx';
 
 
@@ -148,6 +149,7 @@ export const PAGES = {
     "VagasDisponiveis": VagasDisponiveis,
     "ValidarComparecimento": ValidarComparecimento,
     "VerProfissional": VerProfissional,
+    "TestProfessional": TestProfessional,
 }
 
 export const pagesConfig = {
