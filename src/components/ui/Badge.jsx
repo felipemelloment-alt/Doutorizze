@@ -3,7 +3,7 @@ import React from 'react';
 /**
  * Componente Badge padronizado
  */
-export default function Badge({ children, variant = 'default', size = 'md', icon: Icon }) {
+function Badge({ children, variant = 'default', size = 'md', icon: Icon }) {
   const variants = {
     default: 'bg-gray-100 text-gray-700',
     primary: 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white',
@@ -28,3 +28,6 @@ export default function Badge({ children, variant = 'default', size = 'md', icon
     </span>
   );
 }
+
+export { Badge };
+export default Badge;

@@ -1,52 +1,80 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-
 /**
- * Componente Card padronizado
+ * Componente Card - Padrao shadcn/ui
+ *
+ * Uso:
+ * import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
+ *
+ * <Card>
+ *   <CardHeader>
+ *     <CardTitle>Titulo</CardTitle>
+ *   </CardHeader>
+ *   <CardContent>
+ *     Conteudo aqui
+ *   </CardContent>
+ * </Card>
  */
-export default function Card({
-  children,
-  title,
-  subtitle,
-  icon: Icon,
-  gradient = 'from-yellow-400 to-orange-500',
-  onClick,
-  className = '',
-  noPadding = false,
-  delay = 0
-}) {
-  const content = (
-    <>
-      {(title || Icon) && (
-        <div className="flex items-center gap-3 mb-6">
-          {Icon && (
-            <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center text-white shadow-lg`}>
-              <Icon className="w-6 h-6" />
-            </div>
-          )}
-          {title && (
-            <div>
-              <h2 className="text-xl font-black text-gray-900">{title}</h2>
-              {subtitle && <p className="text-sm text-gray-600">{subtitle}</p>}
-            </div>
-          )}
-        </div>
-      )}
-      {children}
-    </>
-  );
 
-  const baseClasses = `bg-white rounded-3xl shadow-xl ${noPadding ? '' : 'p-6'} ${onClick ? 'cursor-pointer hover:shadow-2xl' : ''} ${className}`;
-
+function Card({ className = "", children, ...props }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay }}
-      onClick={onClick}
-      className={baseClasses}
+    <div
+      className={`rounded-lg border bg-card text-card-foreground shadow-sm ${className}`}
+      {...props}
     >
-      {content}
-    </motion.div>
+      {children}
+    </div>
   );
 }
+
+function CardHeader({ className = "", children, ...props }) {
+  return (
+    <div
+      className={`flex flex-col space-y-1.5 p-6 ${className}`}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
+
+function CardTitle({ className = "", children, ...props }) {
+  return (
+    <h3
+      className={`text-2xl font-semibold leading-none tracking-tight ${className}`}
+      {...props}
+    >
+      {children}
+    </h3>
+  );
+}
+
+function CardDescription({ className = "", children, ...props }) {
+  return (
+    <p
+      className={`text-sm text-muted-foreground ${className}`}
+      {...props}
+    >
+      {children}
+    </p>
+  );
+}
+
+function CardContent({ className = "", children, ...props }) {
+  return (
+    <div className={`p-6 pt-0 ${className}`} {...props}>
+      {children}
+    </div>
+  );
+}
+
+function CardFooter({ className = "", children, ...props }) {
+  return (
+    <div
+      className={`flex items-center p-6 pt-0 ${className}`}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
+
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent };
