@@ -34,6 +34,21 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
+    // Rate limit: máximo 20 mensagens por usuário por hora
+    const umaHoraAtras = new Date(Date.now() - 60 * 60 * 1000);
+    const mensagensRecentes = await base44.entities.WhatsAppNotification.filter({
+      metadata: { sent_by: user.id }
+    });
+    const mensagensUltimaHora = mensagensRecentes.filter(
+      m => new Date(m.created_date) > umaHoraAtras
+    );
+    
+    if (mensagensUltimaHora.length >= 20) {
+      return Response.json({ 
+        error: 'Limite de mensagens atingido. Tente novamente em 1 hora.' 
+      }, { status: 429 });
+    }
+
     // 3. Obter credenciais do servidor (NÃO do frontend!)
     const evolutionApiUrl = Deno.env.get("EVOLUTION_API_URL");
     const evolutionApiKey = Deno.env.get("EVOLUTION_API_KEY");
