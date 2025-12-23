@@ -5,6 +5,7 @@ import AdminRelatorios from './pages/AdminRelatorios';
 import Ajuda from './pages/Ajuda';
 import AvaliarClinica from './pages/AvaliarClinica';
 import AvaliarProfissional from './pages/AvaliarProfissional';
+import Busca from './pages/Busca';
 import BuscarProfissionais from './pages/BuscarProfissionais';
 import CadastroClinica from './pages/CadastroClinica';
 import CadastroFornecedor from './pages/CadastroFornecedor';
@@ -72,7 +73,6 @@ import TestProfessional from './pages/TestProfessional';
 import VagasDisponiveis from './pages/VagasDisponiveis';
 import ValidarComparecimento from './pages/ValidarComparecimento';
 import VerProfissional from './pages/VerProfissional';
-import Busca from './pages/Busca';
 import __Layout from './Layout.jsx';
 
 
@@ -84,6 +84,7 @@ export const PAGES = {
     "Ajuda": Ajuda,
     "AvaliarClinica": AvaliarClinica,
     "AvaliarProfissional": AvaliarProfissional,
+    "Busca": Busca,
     "BuscarProfissionais": BuscarProfissionais,
     "CadastroClinica": CadastroClinica,
     "CadastroFornecedor": CadastroFornecedor,
@@ -151,7 +152,6 @@ export const PAGES = {
     "VagasDisponiveis": VagasDisponiveis,
     "ValidarComparecimento": ValidarComparecimento,
     "VerProfissional": VerProfissional,
-    "Busca": Busca,
 }
 
 export const pagesConfig = {

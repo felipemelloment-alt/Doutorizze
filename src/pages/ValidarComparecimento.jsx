@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { CheckCircle, XCircle, Star, Clock, MessageSquare } from "lucide-react";
+import { CheckCircle, XCircle, Star } from "lucide-react";
 import { toast } from "sonner";
 import { validarComparecimento } from "@/components/api/substituicao";
 import { PONTUALIDADE } from "@/components/constants/substituicao";
 
 export default function ValidarComparecimento() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const substituicaoId = searchParams.get("id");
+  const urlParams = new URLSearchParams(window.location.search);
+  const substituicaoId = urlParams.get("id");
 
   const [substituicao, setSubstituicao] = useState(null);
   const [profissional, setProfissional] = useState(null);
