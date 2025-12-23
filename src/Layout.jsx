@@ -4,7 +4,7 @@ import BottomBar from "@/components/navigation/BottomBar";
 import SplashScreen from "@/components/shared/SplashScreen";
 import ErrorBoundary from "@/components/shared/ErrorBoundary";
 import { AnimatePresence } from "framer-motion";
-import { analytics, trackPageView } from "@/components/utils/analytics";
+import { trackPageView } from "@/components/utils/analytics";
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
