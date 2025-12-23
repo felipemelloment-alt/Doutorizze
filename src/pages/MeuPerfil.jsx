@@ -581,7 +581,14 @@ export default function MeuPerfil() {
           <button
             onClick={async () => {
               if (window.confirm("Tem certeza que deseja sair da sua conta?")) {
-                await base44.auth.logout();
+                try {
+                  await base44.auth.logout();
+                  toast.success("Você saiu da conta com sucesso!");
+                  navigate("/");
+                } catch (error) {
+                  console.error("Erro ao desconectar:", error);
+                  toast.error("Erro ao sair da conta");
+                }
               }
             }}
             className="w-full py-4 px-6 bg-red-50 border-2 border-red-200 text-red-600 font-bold rounded-2xl hover:bg-red-100 transition-all flex items-center justify-center gap-3"
@@ -592,14 +599,7 @@ export default function MeuPerfil() {
         </motion.div>
       </div>
 
-      {/* BOTÃO FLUTUANTE EDITAR */}
-      <button
-        onClick={() => navigate(createPageUrl("EditarPerfil"))}
-        className="fixed bottom-6 right-6 px-6 py-3 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold rounded-full shadow-lg shadow-orange-200 flex items-center justify-center gap-2 hover:scale-105 transition-all z-50"
-      >
-        <Edit className="w-5 h-5" />
-        Editar Perfil
-      </button>
+
     </div>
   );
 }

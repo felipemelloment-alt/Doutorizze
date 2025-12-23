@@ -165,6 +165,58 @@ export default function OnboardingTipoConta() {
               Continuar →
             </div>
           </motion.button>
+
+          {/* Hospital */}
+          <motion.button
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            onClick={() => handleSelectTipoConta("HOSPITAL", "CadastroHospital")}
+            disabled={loading}
+            className="bg-white rounded-3xl p-8 shadow-xl border-4 border-transparent hover:border-blue-400 transition-all duration-300 disabled:opacity-50 group"
+          >
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+              <Hospital className="w-10 h-10 text-white" strokeWidth={2.5} />
+            </div>
+
+            <h3 className="text-2xl font-black text-gray-900 mb-3">
+              Hospital
+            </h3>
+
+            <p className="text-gray-600 mb-6">
+              Contratar médicos e gerenciar equipe
+            </p>
+
+            <div className="py-3 px-6 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-2xl group-hover:shadow-lg transition-all">
+              Continuar →
+            </div>
+          </motion.button>
+
+          {/* Instituição de Ensino */}
+          <motion.button
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            onClick={() => handleSelectTipoConta("INSTITUICAO", "CadastroInstituicao")}
+            disabled={loading}
+            className="bg-white rounded-3xl p-8 shadow-xl border-4 border-transparent hover:border-indigo-400 transition-all duration-300 disabled:opacity-50 group"
+          >
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+              <GraduationCap className="w-10 h-10 text-white" strokeWidth={2.5} />
+            </div>
+
+            <h3 className="text-2xl font-black text-gray-900 mb-3">
+              Instituição de Ensino
+            </h3>
+
+            <p className="text-gray-600 mb-6">
+              Oferecer cursos e especializações
+            </p>
+
+            <div className="py-3 px-6 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white font-bold rounded-2xl group-hover:shadow-lg transition-all">
+              Continuar →
+            </div>
+          </motion.button>
         </div>
 
         {/* Info Badge */}

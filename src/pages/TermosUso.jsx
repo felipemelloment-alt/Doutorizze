@@ -1,192 +1,150 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
+import { ArrowLeft, Download, Copy, FileText } from "lucide-react";
+import { toast } from "sonner";
 
 export default function TermosUso() {
   const navigate = useNavigate();
+  
+  const handleCopyText = () => {
+    const content = document.querySelector('.termos-content').innerText;
+    navigator.clipboard.writeText(content);
+    toast.success("Texto copiado!");
+  };
+  
+  const handlePrint = () => {
+    window.print();
+  };
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        {/* Header */}
+    <div className="min-h-screen bg-gray-50 pb-20">
+      {/* HEADER */}
+      <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-6 sticky top-0 z-10">
+        <div className="max-w-4xl mx-auto">
+          <button 
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 mb-4 hover:opacity-80">
+            <ArrowLeft className="w-5 h-5" />
+            Voltar
+          </button>
+          <h1 className="text-3xl font-black">📜 Termos de Uso</h1>
+          <p className="text-sm opacity-90 mt-1">Última atualização: 22/12/2024</p>
+        </div>
+      </div>
+
+      {/* AÇÕES */}
+      <div className="max-w-4xl mx-auto px-4 py-4 flex gap-3">
         <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-600 hover:text-orange-600 font-medium mb-6 transition-colors"
-        >
-          <ChevronLeft className="w-5 h-5" />
-          Voltar
+          onClick={handlePrint}
+          className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white font-bold rounded-xl hover:bg-blue-600 transition-all">
+          <Download className="w-5 h-5" />
+          Baixar PDF
         </button>
+        <button
+          onClick={handleCopyText}
+          className="flex items-center gap-2 px-6 py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-xl hover:border-blue-500 hover:text-blue-600 transition-all">
+          <Copy className="w-5 h-5" />
+          Copiar Texto
+        </button>
+      </div>
 
-        <div className="mb-8">
-          <h1 className="text-4xl font-black text-gray-900 mb-2">Termos de Uso</h1>
-          <p className="text-gray-600">Última atualização: 18 de Dezembro de 2025</p>
-        </div>
+      {/* CONTEÚDO */}
+      <div className="max-w-4xl mx-auto px-4 pb-8">
+        <div className="bg-white rounded-3xl shadow-xl p-8 termos-content">
 
-        <div className="space-y-8 text-gray-700 leading-relaxed">
-          {/* 1. Aceitação dos Termos */}
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Aceitação dos Termos</h2>
-            <p className="mb-4">
-              Ao acessar e utilizar o Doutorizze ("Plataforma"), você concorda em cumprir e estar vinculado aos 
-              presentes Termos de Uso. Se você não concorda com estes termos, não deve utilizar a Plataforma.
-            </p>
-            <p>
-              Estes Termos de Uso constituem um acordo legal entre você ("Usuário") e o Doutorizze, regulando 
-              o acesso e uso dos serviços oferecidos pela Plataforma.
-            </p>
-          </section>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <FileText className="w-6 h-6 text-blue-600" />
+            1. Aceitação dos Termos
+          </h2>
+          <p className="text-gray-700 mb-6 leading-relaxed">
+            Ao acessar e utilizar o Doutorizze ("Plataforma"), você concorda em cumprir e estar vinculado aos 
+            presentes Termos de Uso. Se você não concorda com estes termos, não deve utilizar a Plataforma.
+          </p>
+          <p className="text-gray-700 mb-6 leading-relaxed">
+            Estes Termos de Uso constituem um acordo legal entre você ("Usuário") e o Doutorizze, regulando 
+            o acesso e uso dos serviços oferecidos pela Plataforma.
+          </p>
 
-          {/* 2. Descrição do Serviço */}
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Descrição do Serviço</h2>
-            <p className="mb-4">
-              O Doutorizze é uma plataforma digital que conecta profissionais de saúde (dentistas e médicos) 
-              com clínicas, hospitais e oportunidades de trabalho. A Plataforma também oferece:
-            </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>Sistema de matching inteligente entre profissionais e vagas</li>
-              <li>Marketplace para compra e venda de equipamentos médicos e odontológicos</li>
-              <li>Sistema de avaliações e reputação</li>
-              <li>Ferramentas de comunicação entre usuários</li>
-            </ul>
-          </section>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <FileText className="w-6 h-6 text-blue-600" />
+            2. Descrição do Serviço
+          </h2>
+          <p className="text-gray-700 mb-3 leading-relaxed">
+            O Doutorizze é uma plataforma digital que conecta profissionais de saúde (dentistas e médicos) 
+            com clínicas, hospitais e oportunidades de trabalho. A Plataforma também oferece:
+          </p>
+          <ul className="list-disc pl-6 text-gray-700 mb-6 space-y-2">
+            <li>Sistema de matching inteligente entre profissionais e vagas</li>
+            <li>Marketplace para compra e venda de equipamentos médicos e odontológicos</li>
+            <li>Sistema de avaliações e reputação</li>
+            <li>Ferramentas de comunicação entre usuários</li>
+          </ul>
 
-          {/* 3. Cadastro e Conta */}
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">3. Cadastro e Conta</h2>
-            <h3 className="text-xl font-semibold text-gray-800 mb-3">3.1 Requisitos de Cadastro</h3>
-            <p className="mb-4">
-              Para utilizar a Plataforma, você deve criar uma conta fornecendo informações verdadeiras, 
-              precisas e completas. É necessário ter 18 anos ou mais para se cadastrar.
-            </p>
-            
-            <h3 className="text-xl font-semibold text-gray-800 mb-3">3.2 Verificação de Cadastro</h3>
-            <p className="mb-4">
-              Profissionais de saúde devem fornecer documentos comprobatórios de registro profissional 
-              (CRO/CRM) válidos. Clínicas e hospitais devem apresentar documentação corporativa válida.
-            </p>
-            
-            <h3 className="text-xl font-semibold text-gray-800 mb-3">3.3 Segurança da Conta</h3>
-            <p>
-              Você é responsável por manter a confidencialidade de suas credenciais de acesso e por todas 
-              as atividades realizadas em sua conta. Notifique-nos imediatamente sobre qualquer uso não 
-              autorizado de sua conta.
-            </p>
-          </section>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <FileText className="w-6 h-6 text-blue-600" />
+            3. Cadastro e Conta
+          </h2>
+          <p className="text-gray-700 mb-3 leading-relaxed">
+            Para usar determinadas funcionalidades do Doutorizze, você deve criar uma conta. Ao criar uma conta, você concorda em:
+          </p>
+          <ul className="list-disc pl-6 text-gray-700 mb-6 space-y-2">
+            <li>Fornecer informações verdadeiras, precisas, atuais e completas</li>
+            <li>Manter e atualizar prontamente suas informações de cadastro</li>
+            <li>Manter a segurança e confidencialidade de sua senha</li>
+            <li>Notificar imediatamente sobre qualquer uso não autorizado de sua conta</li>
+          </ul>
 
-          {/* 4. Regras de Uso */}
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">4. Regras de Uso</h2>
-            <h3 className="text-xl font-semibold text-gray-800 mb-3">4.1 Uso Permitido</h3>
-            <p className="mb-4">
-              A Plataforma destina-se exclusivamente a uso profissional para fins de recrutamento, 
-              networking e transações comerciais legítimas no setor de saúde.
-            </p>
-            
-            <h3 className="text-xl font-semibold text-gray-800 mb-3">4.2 Condutas Proibidas</h3>
-            <p className="mb-2">É expressamente proibido:</p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>Fornecer informações falsas ou enganosas</li>
-              <li>Utilizar a Plataforma para fins ilícitos ou fraudulentos</li>
-              <li>Publicar conteúdo ofensivo, difamatório ou discriminatório</li>
-              <li>Assediar, ameaçar ou intimidar outros usuários</li>
-              <li>Violar direitos de propriedade intelectual de terceiros</li>
-              <li>Coletar dados de outros usuários sem autorização</li>
-              <li>Utilizar bots, scripts ou ferramentas automatizadas</li>
-              <li>Tentar acessar áreas restritas da Plataforma</li>
-            </ul>
-          </section>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <FileText className="w-6 h-6 text-blue-600" />
+            4. Uso Aceitável
+          </h2>
+          <p className="text-gray-700 mb-3 leading-relaxed">
+            Você concorda em usar o Doutorizze apenas para fins legais e de acordo com estes Termos. É proibido:
+          </p>
+          <ul className="list-disc pl-6 text-gray-700 mb-6 space-y-2">
+            <li>Usar o serviço de qualquer maneira que viole leis locais, estaduais, nacionais ou internacionais</li>
+            <li>Publicar conteúdo falso, enganoso, difamatório ou fraudulento</li>
+            <li>Fazer-se passar por outra pessoa ou entidade</li>
+            <li>Enviar spam, correntes ou comunicações não solicitadas</li>
+            <li>Interferir ou interromper o funcionamento do aplicativo</li>
+          </ul>
 
-          {/* 5. Conteúdo do Usuário */}
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">5. Conteúdo do Usuário</h2>
-            <p className="mb-4">
-              Você é responsável por todo o conteúdo que publica na Plataforma, incluindo perfis profissionais, 
-              anúncios de vagas, ofertas de produtos e avaliações.
-            </p>
-            <p className="mb-4">
-              Ao publicar conteúdo, você concede ao Doutorizze uma licença não exclusiva, mundial e livre de 
-              royalties para usar, reproduzir, modificar e distribuir esse conteúdo no contexto da operação 
-              da Plataforma.
-            </p>
-            <p>
-              Reservamo-nos o direito de remover qualquer conteúdo que viole estes Termos ou seja considerado 
-              inadequado, a nosso critério exclusivo.
-            </p>
-          </section>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <FileText className="w-6 h-6 text-blue-600" />
+            5. Propriedade Intelectual
+          </h2>
+          <p className="text-gray-700 mb-6 leading-relaxed">
+            Todo o conteúdo do Doutorizze, incluindo textos, gráficos, logos, ícones, imagens e software, é propriedade da Doutorizze ou de seus licenciadores e está protegido por leis de direitos autorais.
+          </p>
 
-          {/* 6. Propriedade Intelectual */}
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">6. Propriedade Intelectual</h2>
-            <p className="mb-4">
-              Todos os direitos de propriedade intelectual relacionados à Plataforma, incluindo mas não 
-              limitado a software, design, logos, marcas e conteúdo, são de propriedade exclusiva do 
-              Doutorizze ou de seus licenciadores.
-            </p>
-            <p>
-              É proibida a reprodução, distribuição, modificação ou criação de obras derivadas sem 
-              autorização prévia por escrito.
-            </p>
-          </section>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <FileText className="w-6 h-6 text-blue-600" />
+            6. Limitação de Responsabilidade
+          </h2>
+          <p className="text-gray-700 mb-6 leading-relaxed">
+            O Doutorizze não será responsável por quaisquer danos indiretos, incidentais, especiais, consequenciais ou punitivos resultantes do seu acesso ou uso do serviço.
+          </p>
 
-          {/* 7. Limitação de Responsabilidade */}
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">7. Limitação de Responsabilidade</h2>
-            <p className="mb-4">
-              A Plataforma é fornecida "como está" e "conforme disponível". O Doutorizze não garante que 
-              o serviço será ininterrupto, livre de erros ou completamente seguro.
-            </p>
-            <p className="mb-4">
-              O Doutorizze atua como intermediário entre profissionais e empregadores/compradores. Não somos 
-              responsáveis por:
-            </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>Qualidade ou veracidade das informações fornecidas pelos usuários</li>
-              <li>Resultado de contratações ou transações realizadas através da Plataforma</li>
-              <li>Disputas entre usuários</li>
-              <li>Danos diretos ou indiretos resultantes do uso da Plataforma</li>
-            </ul>
-          </section>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <FileText className="w-6 h-6 text-blue-600" />
+            7. Modificações dos Termos
+          </h2>
+          <p className="text-gray-700 mb-6 leading-relaxed">
+            Reservamo-nos o direito de modificar estes Termos a qualquer momento. Notificaremos os usuários sobre alterações significativas.
+          </p>
 
-          {/* 8. Modificações dos Termos */}
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">8. Modificações dos Termos</h2>
-            <p className="mb-4">
-              Reservamo-nos o direito de modificar estes Termos de Uso a qualquer momento. As alterações 
-              serão publicadas nesta página com a data de atualização.
-            </p>
-            <p>
-              O uso continuado da Plataforma após a publicação de alterações constitui aceitação dos 
-              novos termos.
-            </p>
-          </section>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <FileText className="w-6 h-6 text-blue-600" />
+            8. Contato
+          </h2>
+          <p className="text-gray-700 mb-2 leading-relaxed">
+            Para questões sobre estes Termos:
+          </p>
+          <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 mt-4">
+            <p className="text-gray-800 font-medium">📧 E-mail: contato@doutorizze.com.br</p>
+            <p className="text-gray-800 font-medium">📱 WhatsApp: (62) 99999-9999</p>
+          </div>
 
-          {/* 9. Lei Aplicável */}
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">9. Lei Aplicável</h2>
-            <p>
-              Estes Termos de Uso são regidos pelas leis da República Federativa do Brasil. Quaisquer 
-              disputas serão submetidas à jurisdição exclusiva dos tribunais brasileiros.
-            </p>
-          </section>
-
-          {/* 10. Contato */}
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">10. Contato</h2>
-            <p className="mb-2">
-              Para questões sobre estes Termos de Uso, entre em contato conosco:
-            </p>
-            <div className="pl-4 space-y-1">
-              <p><strong>Email:</strong> contato@doutorizze.com.br</p>
-              <p><strong>WhatsApp:</strong> (62) 99999-9999</p>
-              <p><strong>Endereço:</strong> Goiânia - GO, Brasil</p>
-            </div>
-          </section>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-12 pt-8 border-t border-gray-200 text-center text-gray-600">
-          <p>© 2025 Doutorizze. Todos os direitos reservados.</p>
         </div>
       </div>
     </div>

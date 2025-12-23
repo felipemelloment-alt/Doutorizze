@@ -551,7 +551,14 @@ export default function PerfilClinica() {
           <button
             onClick={async () => {
               if (window.confirm("Tem certeza que deseja sair da sua conta?")) {
-                await base44.auth.logout();
+                try {
+                  await base44.auth.logout();
+                  toast.success("Você saiu da conta com sucesso!");
+                  navigate("/");
+                } catch (error) {
+                  console.error("Erro ao desconectar:", error);
+                  toast.error("Erro ao sair da conta");
+                }
               }
             }}
             className="w-full py-4 px-6 bg-red-50 border-2 border-red-200 text-red-600 font-bold rounded-2xl hover:bg-red-100 transition-all flex items-center justify-center gap-3"
