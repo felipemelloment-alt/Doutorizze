@@ -562,7 +562,6 @@ export default function MeuPerfil() {
         >
           <TelegramSection user={user} />
         </motion.div>
-      </div>
 
         {/* AÇÕES RÁPIDAS */}
         <motion.div
