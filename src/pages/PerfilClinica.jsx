@@ -19,7 +19,9 @@ import {
   ExternalLink,
   ChevronRight,
   Award,
-  FileText
+  FileText,
+  LogOut,
+  Settings
 } from "lucide-react";
 import { toast } from "sonner";
 import ShareButton from "@/components/shared/ShareButton";
@@ -528,6 +530,34 @@ export default function PerfilClinica() {
             <TrendingUp className="w-6 h-6" />
             Ver Minhas Vagas
             <ChevronRight className="w-5 h-5" />
+          </button>
+        </motion.div>
+
+        {/* CONFIGURAÇÕES E LOGOUT */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          className="space-y-3"
+        >
+          <button
+            onClick={() => navigate(createPageUrl("Configuracoes"))}
+            className="w-full py-4 px-6 bg-white border-2 border-gray-200 text-gray-700 font-semibold rounded-2xl hover:border-pink-400 hover:text-pink-600 transition-all flex items-center justify-center gap-3"
+          >
+            <Settings className="w-5 h-5" />
+            Configurações
+          </button>
+
+          <button
+            onClick={async () => {
+              if (window.confirm("Tem certeza que deseja sair da sua conta?")) {
+                await base44.auth.logout();
+              }
+            }}
+            className="w-full py-4 px-6 bg-red-50 border-2 border-red-200 text-red-600 font-bold rounded-2xl hover:bg-red-100 transition-all flex items-center justify-center gap-3"
+          >
+            <LogOut className="w-5 h-5" />
+            Sair da Conta
           </button>
         </motion.div>
       </div>
