@@ -404,7 +404,7 @@ function JobCard({ job, unit, isSuperJob, matchScore }) {
   };
 
   const handleVerDetalhes = () => {
-    navigate(createPageUrl("DetalheVaga") + "/" + job.id);
+    navigate(createPageUrl("DetalheVaga") + `?id=${job.id}`);
   };
 
   // Configuração de badges por score

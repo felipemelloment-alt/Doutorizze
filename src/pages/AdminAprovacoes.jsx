@@ -62,15 +62,8 @@ export default function AdminAprovacoes() {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
-        
-        // Verificar se é admin
-        if (currentUser.role === "admin") {
-          setIsAdmin(true);
-        } else {
-          setIsAdmin(false);
-        }
+        setIsAdmin(currentUser.role === "admin");
       } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
         setIsAdmin(false);
       } finally {
         setLoading(false);
@@ -79,7 +72,68 @@ export default function AdminAprovacoes() {
     loadUser();
   }, []);
 
-  // Se não é admin, mostrar tela de acesso negado
+  // TODOS os useQuery ANTES de qualquer return condicional (Rules of Hooks)
+  const { data: professionals = [] } = useQuery({
+    queryKey: ["professionals", filterStatus],
+    queryFn: async () => {
+      const result = await base44.entities.Professional.filter(
+        filterStatus === "TODOS" ? {} : { status_cadastro: filterStatus }
+      );
+      return result || [];
+    },
+    enabled: isAdmin && !loading,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: owners = [] } = useQuery({
+    queryKey: ["companyOwners", filterStatus],
+    queryFn: async () => {
+      const result = await base44.entities.CompanyOwner.filter(
+        filterStatus === "TODOS" ? {} : { status_cadastro: filterStatus }
+      );
+      return result || [];
+    },
+    enabled: isAdmin && !loading,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: suppliers = [] } = useQuery({
+    queryKey: ["suppliers", filterStatus],
+    queryFn: async () => {
+      const result = await base44.entities.Supplier.filter(
+        filterStatus === "TODOS" ? {} : { status_cadastro: filterStatus }
+      );
+      return result || [];
+    },
+    enabled: isAdmin && !loading,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: hospitals = [] } = useQuery({
+    queryKey: ["hospitals", filterStatus],
+    queryFn: async () => {
+      const result = await base44.entities.Hospital.filter(
+        filterStatus === "TODOS" ? {} : { status_cadastro: filterStatus }
+      );
+      return result || [];
+    },
+    enabled: isAdmin && !loading,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: institutions = [] } = useQuery({
+    queryKey: ["institutions", filterStatus],
+    queryFn: async () => {
+      const result = await base44.entities.EducationInstitution.filter(
+        filterStatus === "TODOS" ? {} : { status_cadastro: filterStatus }
+      );
+      return result || [];
+    },
+    enabled: isAdmin && !loading,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Estados de loading e acesso negado APÓS os hooks
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -109,61 +163,6 @@ export default function AdminAprovacoes() {
       </div>
     );
   }
-
-  // Buscar profissionais
-  const { data: professionals = [] } = useQuery({
-    queryKey: ["professionals", filterStatus],
-    queryFn: async () => {
-      const result = await base44.entities.Professional.filter(
-        filterStatus === "TODOS" ? {} : { status_cadastro: filterStatus }
-      );
-      return result || [];
-    },
-  });
-
-  // Buscar donos de clínicas
-  const { data: owners = [] } = useQuery({
-    queryKey: ["companyOwners", filterStatus],
-    queryFn: async () => {
-      const result = await base44.entities.CompanyOwner.filter(
-        filterStatus === "TODOS" ? {} : { status_cadastro: filterStatus }
-      );
-      return result || [];
-    },
-  });
-
-  // Buscar fornecedores
-  const { data: suppliers = [] } = useQuery({
-    queryKey: ["suppliers", filterStatus],
-    queryFn: async () => {
-      const result = await base44.entities.Supplier.filter(
-        filterStatus === "TODOS" ? {} : { status_cadastro: filterStatus }
-      );
-      return result || [];
-    },
-  });
-
-  // Buscar hospitais
-  const { data: hospitals = [] } = useQuery({
-    queryKey: ["hospitals", filterStatus],
-    queryFn: async () => {
-      const result = await base44.entities.Hospital.filter(
-        filterStatus === "TODOS" ? {} : { status_cadastro: filterStatus }
-      );
-      return result || [];
-    },
-  });
-
-  // Buscar instituições de ensino
-  const { data: institutions = [] } = useQuery({
-    queryKey: ["institutions", filterStatus],
-    queryFn: async () => {
-      const result = await base44.entities.EducationInstitution.filter(
-        filterStatus === "TODOS" ? {} : { status_cadastro: filterStatus }
-      );
-      return result || [];
-    },
-  });
 
   // Combinar e processar dados
   const allCadastros = [
@@ -992,7 +991,7 @@ export default function AdminAprovacoes() {
                 >
                   {notificarMutation.isPending ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 h-4 md:h-5 md:w-5 border-b-2 border-white"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 md:h-5 md:w-5 border-b-2 border-white"></div>
                       <span className="hidden sm:inline">Enviando...</span>
                     </>
                   ) : (

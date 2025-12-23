@@ -33,7 +33,7 @@ export default function CadastroClinica() {
 
         // Redirecionar se não tem vertical
         if (!currentUser.vertical) {
-          navigate("/OnboardingVertical");
+          navigate(createPageUrl("OnboardingVertical"));
           return;
         }
 
@@ -380,7 +380,7 @@ export default function CadastroClinica() {
       await base44.auth.updateMe({ onboarding_completo: true });
 
       toast.success("✅ Cadastro realizado com sucesso! Aguarde a aprovação.");
-      navigate("/CadastroSucesso");
+      navigate(createPageUrl("CadastroSucesso"));
     } catch (error) {
       console.error("Erro ao cadastrar:", error);
       toast.error("❌ Erro ao realizar cadastro: " + error.message);
