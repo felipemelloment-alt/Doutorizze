@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import BottomBar from "@/components/navigation/BottomBar";
 import SplashScreen from "@/components/shared/SplashScreen";
 import ErrorBoundary from "@/components/shared/ErrorBoundary";
+import OfflineBanner from "@/components/shared/OfflineBanner";
 import { AnimatePresence } from "framer-motion";
 import { trackPageView } from "@/components/utils/analytics";
 
@@ -64,13 +65,14 @@ export default function Layout({ children, currentPageName }) {
       </AnimatePresence>
       
       {!loading && (
-        <div className="min-h-screen">
-          <div className={mostrarBottomBar ? "pb-20" : ""}>
-            {children}
-          </div>
-          {mostrarBottomBar && <BottomBar />}
-        </div>
-      )}
+                    <div className="min-h-screen">
+                      <OfflineBanner />
+                      <div className={mostrarBottomBar ? "pb-20" : ""}>
+                        {children}
+                      </div>
+                      {mostrarBottomBar && <BottomBar />}
+                    </div>
+                  )}
       </ErrorBoundary>
       );
       }
