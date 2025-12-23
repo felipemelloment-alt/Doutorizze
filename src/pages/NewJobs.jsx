@@ -62,7 +62,10 @@ export default function NewJobs() {
         status: "ABERTO"
       });
       return results.sort((a, b) => new Date(b.published_at) - new Date(a.published_at));
-    }
+    },
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    retry: 2
   });
 
   // Buscar unidades das vagas
@@ -76,7 +79,9 @@ export default function NewJobs() {
       );
       return (await Promise.all(unitPromises)).filter(Boolean);
     },
-    enabled: jobs.length > 0
+    enabled: jobs.length > 0,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false
   });
 
   // Função de cálculo de match

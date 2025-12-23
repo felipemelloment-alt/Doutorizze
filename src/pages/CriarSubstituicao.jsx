@@ -185,7 +185,8 @@ export default function CriarSubstituicao() {
         if (formData.tipo_remuneracao === "PORCENTAGEM" && formData.procedimentos_porcentagem.length === 0) return false;
         return true;
       case 6:
-        return true; // Opcional
+        if (!formData.tipo_atendimento) return false;
+        return true;
       default:
         return false;
     }

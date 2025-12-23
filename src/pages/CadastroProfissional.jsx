@@ -18,6 +18,7 @@ import { base44 } from "@/api/base44Client";
 import { getEspecialidades, getRegistroLabel } from "@/components/constants/especialidades";
 import { useIBGECidades } from "@/components/hooks/useIBGECidades";
 import CityAutocomplete from "@/components/forms/CityAutocomplete";
+import { validarCPF } from "@/components/utils/cnpjValidator";
 
 export default function CadastroProfissional() {
   const navigate = useNavigate();
@@ -217,6 +218,10 @@ export default function CadastroProfissional() {
         }
         if (!formData.cpf || formData.cpf.replace(/\D/g, "").length !== 11) {
           toast.error("Preencha um CPF válido");
+          return false;
+        }
+        if (!validarCPF(formData.cpf)) {
+          toast.error("CPF inválido");
           return false;
         }
         if (!formData.data_nascimento) {

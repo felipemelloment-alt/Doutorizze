@@ -18,6 +18,7 @@ import { getEspecialidades } from "@/components/constants/especialidades";
 import { useIBGECidades } from "@/components/hooks/useIBGECidades";
 import CityAutocomplete from "@/components/forms/CityAutocomplete";
 import { createPageUrl } from "@/utils";
+import { validarCNPJ, validarCPF } from "@/components/utils/cnpjValidator";
 
 export default function CadastroClinica() {
   const navigate = useNavigate();
@@ -231,6 +232,10 @@ export default function CadastroClinica() {
           toast.error("Preencha um CNPJ válido");
           return false;
         }
+        if (!validarCNPJ(formData.cnpj)) {
+          toast.error("CNPJ inválido");
+          return false;
+        }
         if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
           toast.error("Preencha um email válido");
           return false;
@@ -248,6 +253,10 @@ export default function CadastroClinica() {
         }
         if (!formData.cpf_responsavel || formData.cpf_responsavel.replace(/\D/g, "").length !== 11) {
           toast.error("Preencha um CPF válido para o responsável");
+          return false;
+        }
+        if (!validarCPF(formData.cpf_responsavel)) {
+          toast.error("CPF do responsável inválido");
           return false;
         }
         if (!formData.cargo_responsavel) {

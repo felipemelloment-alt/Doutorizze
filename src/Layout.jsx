@@ -11,25 +11,20 @@ export default function Layout({ children, currentPageName }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 3000);
-
     const loadUser = async () => {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
+        setLoading(false);
       } catch (error) {
         setUser(null);
-      } finally {
-        setLoading(false);
+        const timer = setTimeout(() => setLoading(false), 3000);
+        return () => clearTimeout(timer);
       }
     };
     
     loadUser();
-    
-    // Track page view
     trackPageView(currentPageName);
-    
-    return () => clearTimeout(timer);
   }, [currentPageName]);
 
   const paginasSemBottomBar = [
