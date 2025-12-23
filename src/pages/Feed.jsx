@@ -23,6 +23,7 @@ import {
   Briefcase
 } from "lucide-react";
 import { toast } from "sonner";
+import { logger } from "@/components/utils/logger";
 import StoriesUnificado from "@/components/substituicoes/StoriesUnificado";
 import { formatarTextoData, formatarValor } from "@/components/constants/substituicao";
 import FeedCard from "@/components/feed/FeedCard";
@@ -190,17 +191,11 @@ export default function Feed() {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
 
-        console.log("🔍 USER ID:", currentUser.id);
-
         // Verificar tipo de usuário e localização
         const professionals = await base44.entities.Professional.filter({ user_id: currentUser.id });
-        console.log("👨‍⚕️ Professionals:", professionals);
         
         if (professionals.length > 0) {
           const prof = professionals[0];
-          console.log("✅ TIPO: PROFISSIONAL");
-          console.log("📍 UF Conselho:", prof.uf_conselho);
-          console.log("📍 Cidades Atendimento:", prof.cidades_atendimento);
           
           setUserType("PROFISSIONAL");
           setUserArea(prof.tipo_profissional === "DENTISTA" ? "ODONTOLOGIA" : "MEDICINA");
@@ -212,18 +207,13 @@ export default function Feed() {
         }
 
         const owners = await base44.entities.CompanyOwner.filter({ user_id: currentUser.id });
-        console.log("🏢 Owners:", owners);
         
         if (owners.length > 0) {
           setUserType("CLINICA");
           const units = await base44.entities.CompanyUnit.filter({ owner_id: owners[0].id });
-          console.log("🏥 Units:", units);
           
           if (units.length > 0) {
             const unit = units[0];
-            console.log("✅ TIPO: CLINICA");
-            console.log("📍 UF:", unit.uf);
-            console.log("📍 Cidade:", unit.cidade);
             
             setUserArea(unit.tipo_mundo === "ODONTOLOGIA" ? "ODONTOLOGIA" : unit.tipo_mundo === "MEDICINA" ? "MEDICINA" : "AMBOS");
             setUserLocation({
@@ -237,7 +227,6 @@ export default function Feed() {
         const suppliers = await base44.entities.Supplier.filter({ user_id: currentUser.id });
         if (suppliers.length > 0) {
           setUserType("FORNECEDOR");
-          console.log("✅ TIPO: FORNECEDOR");
           return;
         }
 
@@ -245,8 +234,6 @@ export default function Feed() {
         if (hospitals.length > 0) {
           setUserType("HOSPITAL");
           const hosp = hospitals[0];
-          console.log("✅ TIPO: HOSPITAL");
-          console.log("📍 UF:", hosp.uf);
           
           setUserLocation({
             cidade: hosp.cidade,
@@ -255,10 +242,8 @@ export default function Feed() {
           return;
         }
 
-        console.log("⚠️ Nenhum tipo de usuário encontrado!");
-
       } catch (error) {
-        console.error("❌ Erro ao carregar dados do usuário:", error);
+        logger.error("Erro ao carregar dados do usuário:", error);
       }
     };
     loadUserData();
@@ -268,12 +253,7 @@ export default function Feed() {
   const { data: profissionaisProximos = [] } = useQuery({
     queryKey: ["profissionaisProximos", userLocation.uf],
     queryFn: async () => {
-      console.log("🔍 BUSCANDO PROFISSIONAIS...");
-      console.log("UserType:", userType);
-      console.log("UserLocation UF:", userLocation.uf);
-      
       if (userType !== "CLINICA" || !userLocation.uf) {
-        console.log("⚠️ Query não executada - userType:", userType, "uf:", userLocation.uf);
         return [];
       }
       
@@ -281,10 +261,6 @@ export default function Feed() {
         status_cadastro: "APROVADO"
       });
 
-      console.log("📋 Total profissionais aprovados:", profissionais.length);
-      console.log("📋 Profissionais:", profissionais);
-
-      // Filtrar por estado e formatar - MÍNIMO 6 itens
       const filtered = profissionais
         .filter(p => p.uf_conselho === userLocation.uf)
         .slice(0, 20)
@@ -299,42 +275,33 @@ export default function Feed() {
           page: "VerProfissional"
         }));
 
-      console.log("✅ Profissionais filtrados por UF", userLocation.uf, ":", filtered.length);
-
       // Se tiver menos de 6, duplicar para ter mais no carrossel
       if (filtered.length > 0 && filtered.length < 6) {
         const duplicated = [...filtered];
         while (duplicated.length < 6) {
           duplicated.push(...filtered.map(item => ({ ...item, id: `${item.id}-dup-${duplicated.length}` })));
         }
-        console.log("🔄 Duplicados criados, total:", duplicated.slice(0, 12).length);
         return duplicated.slice(0, 12);
       }
 
       return filtered;
     },
-    enabled: userType === "CLINICA" && !!userLocation.uf
+    enabled: userType === "CLINICA" && !!userLocation.uf,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false
   });
 
   // Buscar clínicas próximas (para profissionais verem)
   const { data: clinicasProximas = [] } = useQuery({
     queryKey: ["clinicasProximas", userLocation.uf],
     queryFn: async () => {
-      console.log("🔍 BUSCANDO CLÍNICAS...");
-      console.log("UserType:", userType);
-      console.log("UserLocation UF:", userLocation.uf);
-
       if (userType !== "PROFISSIONAL" || !userLocation.uf) {
-        console.log("⚠️ Query não executada - userType:", userType, "uf:", userLocation.uf);
         return [];
       }
 
       const units = await base44.entities.CompanyUnit.filter({
         status_cadastro: "APROVADO"
       });
-
-      console.log("📋 Total clínicas aprovadas:", units.length);
-      console.log("📋 Clínicas:", units);
 
       // Buscar vagas de cada clínica para saber que especialidade procuram
       const allJobs = await base44.entities.Job.filter({
@@ -375,21 +342,20 @@ export default function Feed() {
           };
         });
 
-      console.log("✅ Clínicas filtradas por UF", userLocation.uf, ":", filtered.length);
-
       // Se tiver menos de 6, duplicar para ter mais no carrossel
       if (filtered.length > 0 && filtered.length < 6) {
         const duplicated = [...filtered];
         while (duplicated.length < 6) {
           duplicated.push(...filtered.map(item => ({ ...item, id: `${item.id}-dup-${duplicated.length}` })));
         }
-        console.log("🔄 Duplicados criados, total:", duplicated.slice(0, 12).length);
         return duplicated.slice(0, 12);
       }
 
       return filtered;
     },
-    enabled: userType === "PROFISSIONAL" && !!userLocation.uf
+    enabled: userType === "PROFISSIONAL" && !!userLocation.uf,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false
   });
 
   // Buscar posts do feed - FILTRADO POR ÁREA
@@ -413,7 +379,9 @@ export default function Feed() {
         return new Date(b.created_date) - new Date(a.created_date);
       });
     },
-    enabled: !!user && !!userArea
+    enabled: !!user && !!userArea,
+    staleTime: 3 * 60 * 1000,
+    refetchOnWindowFocus: false
   });
 
   // Handler para curtir post
@@ -428,7 +396,7 @@ export default function Feed() {
       queryClient.invalidateQueries({ queryKey: ["feedPosts"] });
       toast.success("Curtido!");
     } catch (error) {
-      console.error("Erro ao curtir:", error);
+      logger.error("Erro ao curtir:", error);
     }
   };
 
@@ -567,7 +535,7 @@ export default function Feed() {
           url: window.location.href
         });
       } catch (error) {
-        console.log("Erro ao compartilhar:", error);
+        logger.debug("Erro ao compartilhar:", error);
       }
     } else {
       navigator.clipboard.writeText(window.location.href);

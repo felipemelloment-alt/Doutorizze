@@ -63,7 +63,7 @@ export default function Marketplace() {
     loadUser();
   }, []);
   const { data: items = [], isLoading, isError } = useQuery({
-    queryKey: ["marketplaceItems", userArea, isAdmin],
+    queryKey: ["marketplaceItems", userArea, isAdmin, searchTerm, selectedCity, priceRange, condition],
     queryFn: async () => {
       try {
         // Admin vê tudo, outros usuários veem apenas sua área
@@ -73,13 +73,13 @@ export default function Marketplace() {
         const result = await base44.entities.MarketplaceItem.filter(where);
         return result || [];
       } catch (err) {
-        console.error("Error fetching marketplace items:", err);
         return [];
       }
     },
     enabled: !!userArea,
-    retry: 1,
-    staleTime: 1000 * 60 * 5,
+    retry: 2,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false
   });
 
 

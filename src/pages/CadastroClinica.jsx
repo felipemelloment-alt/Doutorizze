@@ -17,6 +17,7 @@ import { base44 } from "@/api/base44Client";
 import { getEspecialidades } from "@/components/constants/especialidades";
 import { useIBGECidades } from "@/components/hooks/useIBGECidades";
 import CityAutocomplete from "@/components/forms/CityAutocomplete";
+import { createPageUrl } from "@/utils";
 
 export default function CadastroClinica() {
   const navigate = useNavigate();
