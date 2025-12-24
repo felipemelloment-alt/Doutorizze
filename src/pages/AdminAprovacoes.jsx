@@ -18,12 +18,14 @@ import {
   Package,
   Hospital,
   MessageCircle,
-  GraduationCap
+  GraduationCap,
+  Loader2
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import ProtectedRoute from "@/components/guards/ProtectedRoute";
 
-export default function AdminAprovacoes() {
+function AdminAprovacoesContent() {
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
