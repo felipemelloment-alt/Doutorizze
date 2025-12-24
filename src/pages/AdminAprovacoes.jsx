@@ -552,3 +552,12 @@ function AdminAprovacoesContent() {
     </div>
   );
 }
+
+// Export com ProtectedRoute wrapper
+export default function AdminAprovacoes() {
+  return (
+    <ProtectedRoute requireAdmin>
+      <AdminAprovacoesContent />
+    </ProtectedRoute>
+  );
+}
