@@ -72,6 +72,7 @@ import AdminAprovacoes from './pages/AdminAprovacoes';
 import AdminDenuncias from './pages/AdminDenuncias';
 import AdminFeed from './pages/AdminFeed';
 import AdminRelatorios from './pages/AdminRelatorios';
+import Home from './pages/Home';
 import __Layout from './Layout.jsx';
 
 
@@ -150,6 +151,7 @@ export const PAGES = {
     "AdminDenuncias": AdminDenuncias,
     "AdminFeed": AdminFeed,
     "AdminRelatorios": AdminRelatorios,
+    "Home": Home,
 }
 
 export const pagesConfig = {
