@@ -17,6 +17,7 @@ import {
   Calendar,
   Shield
 } from "lucide-react";
+import ProtectedRoute from "@/components/guards/ProtectedRoute";
 
 const tipoColors = {
   NOVIDADE: "bg-blue-100 text-blue-700",
@@ -48,7 +49,7 @@ const paginasDisponiveis = [
   "BuscarProfissionais"
 ];
 
-export default function AdminFeed() {
+function AdminFeedContent() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import ProtectedRoute from "@/components/guards/ProtectedRoute";
 
 const categoriaColors = {
   EMPREGO: "bg-blue-100 text-blue-700",
@@ -58,7 +59,7 @@ const tipoAlvoLabels = {
   USUARIO: "Usuário"
 };
 
-export default function AdminDenuncias() {
+function AdminDenunciasContent() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);

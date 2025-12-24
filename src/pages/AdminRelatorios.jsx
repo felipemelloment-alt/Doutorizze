@@ -21,6 +21,7 @@ import {
   Eye,
   Target
 } from "lucide-react";
+import ProtectedRoute from "@/components/guards/ProtectedRoute";
 import {
   BarChart,
   Bar,
@@ -39,7 +40,7 @@ import {
 import { format, subDays, subWeeks, subMonths, startOfWeek, endOfWeek } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-export default function AdminRelatorios() {
+function AdminRelatoriosContent() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
