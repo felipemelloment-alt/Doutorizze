@@ -1,4 +1,3 @@
-import AdminAprovacoes from './pages/AdminAprovacoes';
 import AdminDenuncias from './pages/AdminDenuncias';
 import AdminFeed from './pages/AdminFeed';
 import AdminRelatorios from './pages/AdminRelatorios';
@@ -77,7 +76,6 @@ import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "AdminAprovacoes": AdminAprovacoes,
     "AdminDenuncias": AdminDenuncias,
     "AdminFeed": AdminFeed,
     "AdminRelatorios": AdminRelatorios,
