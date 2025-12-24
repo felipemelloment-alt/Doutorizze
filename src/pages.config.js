@@ -39,7 +39,6 @@ import EscolherTipoCriador from './pages/EscolherTipoCriador';
 import Feed from './pages/Feed';
 import FeedConfig from './pages/FeedConfig';
 import GerenciarCandidatos from './pages/GerenciarCandidatos';
-import Home from './pages/Home';
 import HomePage from './pages/HomePage';
 import Marketplace from './pages/Marketplace';
 import MarketplaceCreate from './pages/MarketplaceCreate';
@@ -114,7 +113,6 @@ export const PAGES = {
     "Feed": Feed,
     "FeedConfig": FeedConfig,
     "GerenciarCandidatos": GerenciarCandidatos,
-    "Home": Home,
     "HomePage": HomePage,
     "Marketplace": Marketplace,
     "MarketplaceCreate": MarketplaceCreate,
