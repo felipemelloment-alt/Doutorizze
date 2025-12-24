@@ -603,3 +603,12 @@ function MetricCard({ label, value, icon: Icon, color }) {
     </motion.div>
   );
 }
+
+// Export com ProtectedRoute wrapper
+export default function AdminRelatorios() {
+  return (
+    <ProtectedRoute requireAdmin>
+      <AdminRelatoriosContent />
+    </ProtectedRoute>
+  );
+}

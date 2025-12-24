@@ -499,3 +499,12 @@ function AdminDenunciasContent() {
     </div>
   );
 }
+
+// Export com ProtectedRoute wrapper
+export default function AdminDenuncias() {
+  return (
+    <ProtectedRoute requireAdmin>
+      <AdminDenunciasContent />
+    </ProtectedRoute>
+  );
+}

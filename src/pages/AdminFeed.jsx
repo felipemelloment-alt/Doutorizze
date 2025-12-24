@@ -637,3 +637,12 @@ function AdminFeedContent() {
     </div>
   );
 }
+
+// Export com ProtectedRoute wrapper
+export default function AdminFeed() {
+  return (
+    <ProtectedRoute requireAdmin>
+      <AdminFeedContent />
+    </ProtectedRoute>
+  );
+}
