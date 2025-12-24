@@ -68,6 +68,10 @@ import TestProfessional from './pages/TestProfessional';
 import VagasDisponiveis from './pages/VagasDisponiveis';
 import ValidarComparecimento from './pages/ValidarComparecimento';
 import VerProfissional from './pages/VerProfissional';
+import AdminAprovacoes from './pages/AdminAprovacoes';
+import AdminDenuncias from './pages/AdminDenuncias';
+import AdminFeed from './pages/AdminFeed';
+import AdminRelatorios from './pages/AdminRelatorios';
 import __Layout from './Layout.jsx';
 
 
@@ -142,6 +146,10 @@ export const PAGES = {
     "VagasDisponiveis": VagasDisponiveis,
     "ValidarComparecimento": ValidarComparecimento,
     "VerProfissional": VerProfissional,
+    "AdminAprovacoes": AdminAprovacoes,
+    "AdminDenuncias": AdminDenuncias,
+    "AdminFeed": AdminFeed,
+    "AdminRelatorios": AdminRelatorios,
 }
 
 export const pagesConfig = {
