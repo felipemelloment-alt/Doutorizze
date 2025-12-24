@@ -738,23 +738,18 @@ async function notificarProfissionaisDisponiveis(substituicao) {
     esta_suspenso: false
   });
   
-  console.log(`Notificando ${profissionais.length} profissionais disponíveis sobre substituição ${substituicao.id}`);
+  // Log sem PII
+  // logger.debug(`Notificando ${profissionais.length} profissionais`);
 }
 
 async function notificarNovaCandidatura(substituicaoId, professionalId) {
-  const substituicao = await base44.entities.SubstituicaoUrgente.get(substituicaoId);
-  const professional = await base44.entities.Professional.get(professionalId);
-  
-  console.log(`Nova candidatura: ${professional.nome_completo} para vaga ${substituicao.especialidade_necessaria}`);
+  // Dispara notificação sem logar PII
+  // Implementar via WhatsApp/Push
 }
 
 async function notificarCancelamento(substituicaoId) {
-  const candidaturas = await base44.entities.CandidaturaSubstituicao.filter({
-    substituicao_id: substituicaoId,
-    status: 'AGUARDANDO'
-  });
-  
-  console.log(`Notificando ${candidaturas.length} candidatos sobre cancelamento`);
+  // Notificar candidatos sobre cancelamento
+  // Implementar via WhatsApp/Push
 }
 
 async function notificarConfirmacaoAprovada(substituicaoId) {
@@ -767,7 +762,8 @@ async function notificarConfirmacaoAprovada(substituicaoId) {
 }
 
 async function notificarCriadorConfirmada(substituicaoId) {
-  console.log('Notificando criador sobre confirmação:', substituicaoId);
+  // Notificar criador sobre confirmação
+  // Implementar via WhatsApp/Push
 }
 
 async function notificarConfirmacaoRejeitada(substituicaoId, motivo) {
@@ -780,13 +776,13 @@ async function notificarConfirmacaoRejeitada(substituicaoId, motivo) {
 }
 
 async function notificarSuspensao(professionalId, dias, faltas) {
-  const professional = await base44.entities.Professional.get(professionalId);
-  console.log(`Profissional ${professional.nome_completo} suspenso por ${dias} dias (${faltas}ª falta)`);
+  // Notificar profissional sobre suspensão
+  // Implementar via WhatsApp/Push - sem logar PII
 }
 
 async function notificarAviso(professionalId) {
-  const professional = await base44.entities.Professional.get(professionalId);
-  console.log(`Aviso enviado para ${professional.nome_completo} - 1ª falta`);
+  // Notificar profissional sobre aviso
+  // Implementar via WhatsApp/Push - sem logar PII
 }
 
 // ═══════════════════════════════════════════════════════
