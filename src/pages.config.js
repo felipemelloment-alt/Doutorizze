@@ -1,6 +1,3 @@
-import AdminDenuncias from './pages/AdminDenuncias';
-import AdminFeed from './pages/AdminFeed';
-import AdminRelatorios from './pages/AdminRelatorios';
 import Ajuda from './pages/Ajuda';
 import AvaliarClinica from './pages/AvaliarClinica';
 import AvaliarProfissional from './pages/AvaliarProfissional';
@@ -76,9 +73,6 @@ import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "AdminDenuncias": AdminDenuncias,
-    "AdminFeed": AdminFeed,
-    "AdminRelatorios": AdminRelatorios,
     "Ajuda": Ajuda,
     "AvaliarClinica": AvaliarClinica,
     "AvaliarProfissional": AvaliarProfissional,
