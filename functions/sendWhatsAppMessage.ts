@@ -35,9 +35,10 @@ Deno.serve(async (req) => {
     }
 
     // Rate limit: máximo 20 mensagens por usuário por hora
+    // Usar campo sent_by_user_id indexado (mais performático que metadata)
     const umaHoraAtras = new Date(Date.now() - 60 * 60 * 1000);
     const mensagensRecentes = await base44.entities.WhatsAppNotification.filter({
-      metadata: { sent_by: user.id }
+      sent_by_user_id: user.id
     });
     const mensagensUltimaHora = mensagensRecentes.filter(
       m => new Date(m.created_date) > umaHoraAtras
@@ -84,7 +85,7 @@ Deno.serve(async (req) => {
 
     const result = await response.json();
 
-    // 5. Log de auditoria (sem dados sensíveis)
+    // 5. Log de auditoria (sem dados sensíveis, com campo indexado)
     await base44.entities.WhatsAppNotification.create({
       tipo: "OUTRO",
       destinatario_whatsapp: numeroLimpo.slice(-4).padStart(numeroLimpo.length, '*'),
@@ -92,10 +93,8 @@ Deno.serve(async (req) => {
       mensagem_texto: message.substring(0, 50) + "...",
       status: "SENT",
       sent_at: new Date().toISOString(),
-      metadata: {
-        sent_by: user.id,
-        evolution_response: result.key?.id || null
-      }
+      sent_by_user_id: user.id,
+      evolution_message_id: result.key?.id || null
     });
 
     return Response.json({ 

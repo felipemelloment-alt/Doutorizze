@@ -7,10 +7,14 @@
 
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
-// Função para gerar hash simples (SHA-256) - mais leve que bcrypt para OTP
+// Função para gerar hash SHA-256 com salt obrigatório
 async function hashOTP(otp) {
+  const salt = Deno.env.get("OTP_SALT");
+  if (!salt) {
+    throw new Error("OTP_SALT não configurado. Configure o secret no dashboard.");
+  }
   const encoder = new TextEncoder();
-  const data = encoder.encode(otp + Deno.env.get("OTP_SALT") || "doutorizze-otp-salt-2024");
+  const data = encoder.encode(otp + salt);
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
@@ -39,17 +43,19 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
-    // 3. Rate Limiting - verificar último envio
+    // 3. Rate Limiting - verificar último envio por user_id + whatsapp
     const agora = new Date();
     const umMinutoAtras = new Date(agora.getTime() - RATE_LIMIT_SECONDS * 1000);
     
+    // Buscar OTPs do usuário para este número específico
     const otpsRecentes = await base44.entities.WhatsAppOTP.filter({
-      user_id: user.id
+      user_id: user.id,
+      whatsapp_e164: whatsapp_e164
     });
     
-    // Verificar rate limit (60 segundos entre envios)
+    // Verificar rate limit (60 segundos entre envios para mesmo user+telefone)
     const ultimoOTP = otpsRecentes
-      .filter(o => new Date(o.created_date) > umMinutoAtras)
+      .filter(o => o.status !== "INVALIDATED" && new Date(o.created_date) > umMinutoAtras)
       .sort((a, b) => new Date(b.created_date) - new Date(a.created_date))[0];
     
     if (ultimoOTP) {
@@ -62,9 +68,13 @@ Deno.serve(async (req) => {
       }, { status: 429 });
     }
 
-    // Verificar limite diário
-    const inicioDia = new Date(agora.setHours(0, 0, 0, 0));
-    const otpsHoje = otpsRecentes.filter(o => new Date(o.created_date) >= inicioDia);
+    // Verificar limite diário (todos os números do usuário)
+    const otpsTodosNumeros = await base44.entities.WhatsAppOTP.filter({
+      user_id: user.id
+    });
+    const inicioDia = new Date();
+    inicioDia.setHours(0, 0, 0, 0);
+    const otpsHoje = otpsTodosNumeros.filter(o => new Date(o.created_date) >= inicioDia);
     
     if (otpsHoje.length >= MAX_DAILY_OTPS) {
       return Response.json({ 
@@ -72,11 +82,12 @@ Deno.serve(async (req) => {
       }, { status: 429 });
     }
 
-    // 4. Invalidar OTPs anteriores não verificados
-    const otpsAnteriores = otpsRecentes.filter(o => !o.verified);
-    for (const otp of otpsAnteriores) {
+    // 4. Invalidar OTPs anteriores pendentes (marcar status e expirar)
+    const otpsPendentes = otpsRecentes.filter(o => o.status === "PENDING");
+    for (const otp of otpsPendentes) {
       await base44.entities.WhatsAppOTP.update(otp.id, { 
-        verified: null // marca como invalidado
+        status: "INVALIDATED",
+        expires_at: new Date().toISOString()
       });
     }
 
@@ -89,12 +100,13 @@ Deno.serve(async (req) => {
     // 7. Calcular expiração (10 minutos)
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
-    // 8. Salvar no banco
+    // 8. Salvar no banco com status explícito
     await base44.entities.WhatsAppOTP.create({
       user_id: user.id,
       whatsapp_e164: whatsapp_e164,
       otp_hash: otpHash,
       expires_at: expiresAt.toISOString(),
+      status: "PENDING",
       verified: false,
       attempts: 0
     });

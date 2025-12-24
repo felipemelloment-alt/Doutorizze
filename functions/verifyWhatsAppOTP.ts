@@ -9,8 +9,12 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 // Função para gerar hash (deve ser igual ao sendWhatsAppOTP)
 async function hashOTP(otp) {
+  const salt = Deno.env.get("OTP_SALT");
+  if (!salt) {
+    throw new Error("OTP_SALT não configurado");
+  }
   const encoder = new TextEncoder();
-  const data = encoder.encode(otp + Deno.env.get("OTP_SALT") || "doutorizze-otp-salt-2024");
+  const data = encoder.encode(otp + salt);
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
@@ -43,14 +47,17 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
-    // 3. Buscar OTP válido mais recente
+    // 3. Buscar OTP válido (status PENDING, não expirado)
     const otps = await base44.entities.WhatsAppOTP.filter({
       user_id: user.id,
       whatsapp_e164: whatsapp_e164,
-      verified: false
+      status: "PENDING"
     });
 
-    if (otps.length === 0) {
+    // Filtrar apenas não expirados
+    const otpsValidos = otps.filter(o => new Date(o.expires_at) > new Date());
+
+    if (otpsValidos.length === 0) {
       return Response.json({ 
         error: 'Nenhum código pendente. Solicite um novo.',
         code: 'NO_PENDING_OTP'
@@ -58,7 +65,7 @@ Deno.serve(async (req) => {
     }
 
     // Pegar o mais recente
-    const otpRecord = otps.sort((a, b) => 
+    const otpRecord = otpsValidos.sort((a, b) => 
       new Date(b.created_date) - new Date(a.created_date)
     )[0];
 
@@ -98,6 +105,7 @@ Deno.serve(async (req) => {
 
     // 7. SUCESSO - Marcar OTP como verificado
     await base44.entities.WhatsAppOTP.update(otpRecord.id, { 
+      status: "VERIFIED",
       verified: true,
       verified_at: new Date().toISOString()
     });
