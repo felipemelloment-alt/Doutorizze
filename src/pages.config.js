@@ -1,3 +1,7 @@
+import AdminAprovacoes from './pages/AdminAprovacoes';
+import AdminDenuncias from './pages/AdminDenuncias';
+import AdminFeed from './pages/AdminFeed';
+import AdminRelatorios from './pages/AdminRelatorios';
 import Ajuda from './pages/Ajuda';
 import AvaliarClinica from './pages/AvaliarClinica';
 import AvaliarProfissional from './pages/AvaliarProfissional';
@@ -39,6 +43,7 @@ import EscolherTipoCriador from './pages/EscolherTipoCriador';
 import Feed from './pages/Feed';
 import FeedConfig from './pages/FeedConfig';
 import GerenciarCandidatos from './pages/GerenciarCandidatos';
+import Home from './pages/Home';
 import HomePage from './pages/HomePage';
 import Marketplace from './pages/Marketplace';
 import MarketplaceCreate from './pages/MarketplaceCreate';
@@ -68,15 +73,14 @@ import TestProfessional from './pages/TestProfessional';
 import VagasDisponiveis from './pages/VagasDisponiveis';
 import ValidarComparecimento from './pages/ValidarComparecimento';
 import VerProfissional from './pages/VerProfissional';
-import AdminAprovacoes from './pages/AdminAprovacoes';
-import AdminDenuncias from './pages/AdminDenuncias';
-import AdminFeed from './pages/AdminFeed';
-import AdminRelatorios from './pages/AdminRelatorios';
-import Home from './pages/Home';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AdminAprovacoes": AdminAprovacoes,
+    "AdminDenuncias": AdminDenuncias,
+    "AdminFeed": AdminFeed,
+    "AdminRelatorios": AdminRelatorios,
     "Ajuda": Ajuda,
     "AvaliarClinica": AvaliarClinica,
     "AvaliarProfissional": AvaliarProfissional,
@@ -118,6 +122,7 @@ export const PAGES = {
     "Feed": Feed,
     "FeedConfig": FeedConfig,
     "GerenciarCandidatos": GerenciarCandidatos,
+    "Home": Home,
     "HomePage": HomePage,
     "Marketplace": Marketplace,
     "MarketplaceCreate": MarketplaceCreate,
@@ -147,15 +152,10 @@ export const PAGES = {
     "VagasDisponiveis": VagasDisponiveis,
     "ValidarComparecimento": ValidarComparecimento,
     "VerProfissional": VerProfissional,
-    "AdminAprovacoes": AdminAprovacoes,
-    "AdminDenuncias": AdminDenuncias,
-    "AdminFeed": AdminFeed,
-    "AdminRelatorios": AdminRelatorios,
-    "Home": Home,
 }
 
 export const pagesConfig = {
-    mainPage: "CadastroSucesso",
+    mainPage: "HomePage",
     Pages: PAGES,
     Layout: __Layout,
 };
