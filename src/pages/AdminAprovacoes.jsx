@@ -59,15 +59,34 @@ function AdminAprovacoesContent() {
 
   // Mutation para aprovar
   const aprovarMutation = useMutation({
-    mutationFn: async ({ tipo, id }) => {
+    mutationFn: async ({ tipo, id, user_id }) => {
       const entity = tipo === "profissional" 
         ? base44.entities.Professional 
         : base44.entities.CompanyUnit;
       
-      return await entity.update(id, {
+      const updated = await entity.update(id, {
         status_cadastro: "APROVADO",
         approved_at: new Date().toISOString()
       });
+
+      // Webhook: Notificar usuário sobre aprovação
+      try {
+        const webhookUrl = import.meta.env.VITE_N8N_BASE_URL || "http://164.152.59.49:5678";
+        await fetch(`${webhookUrl}/webhook/push-notification`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: user_id,
+            title: '✅ Cadastro Aprovado!',
+            body: `Seu cadastro como ${tipo === "profissional" ? "profissional" : "clínica"} foi aprovado. Bem-vindo à Doutorizze!`,
+            data: { type: 'CADASTRO_APROVADO', entity_type: tipo, entity_id: id }
+          })
+        });
+      } catch (error) {
+        console.warn("Webhook push notification falhou:", error);
+      }
+
+      return updated;
     },
     onSuccess: (_, { tipo }) => {
       queryClient.invalidateQueries({ queryKey: [`admin-${tipo === "profissional" ? "profissionais" : "clinicas"}`] });
@@ -101,8 +120,22 @@ function AdminAprovacoesContent() {
     }
   });
 
-  const handleAprovar = (tipo, id) => {
-    aprovarMutation.mutate({ tipo, id });
+  const handleAprovar = async (tipo, id) => {
+    // Buscar user_id da entidade para enviar notificação
+    let user_id = null;
+    try {
+      if (tipo === "profissional") {
+        const prof = profissionais.find(p => p.id === id);
+        user_id = prof?.user_id;
+      } else {
+        const clinica = clinicas.find(c => c.id === id);
+        user_id = clinica?.owner_id;
+      }
+    } catch (error) {
+      console.warn("Erro ao buscar user_id:", error);
+    }
+    
+    aprovarMutation.mutate({ tipo, id, user_id });
   };
 
   const handleReprovar = () => {

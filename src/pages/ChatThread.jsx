@@ -124,6 +124,24 @@ export default function ChatThread() {
         [isBuyer ? "unread_seller" : "unread_buyer"]: (thread[isBuyer ? "unread_seller" : "unread_buyer"] || 0) + 1
       });
 
+      // Webhook: Notificar destinatário sobre nova mensagem
+      try {
+        const recipientUserId = isBuyer ? thread.seller_user_id : thread.buyer_user_id;
+        const webhookUrl = import.meta.env.VITE_N8N_BASE_URL || "http://164.152.59.49:5678";
+        await fetch(`${webhookUrl}/webhook/push-notification`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: recipientUserId,
+            title: `💬 Nova mensagem de ${user.full_name}`,
+            body: messageText.slice(0, 100),
+            data: { type: 'NOVA_MENSAGEM_CHAT', thread_id: threadId }
+          })
+        });
+      } catch (error) {
+        console.warn("Webhook push notification falhou:", error);
+      }
+
       return novaMensagem;
     },
     onSuccess: () => {
