@@ -398,6 +398,22 @@ function ModalCandidatos({ job, matches, onClose }) {
       // Atualizar status da vaga para PREENCHIDO
       await base44.entities.Job.update(job.id, { status: "PREENCHIDO" });
 
+      // Enviar push notification
+      try {
+        await fetch('http://164.152.59.49:5678/webhook/push-notification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: professional.user_id,
+            title: '🎉 Você foi contratado!',
+            body: `Parabéns! Você foi contratado para a vaga: ${job.titulo}`,
+            data: { type: 'CONTRATACAO', job_id: job.id }
+          })
+        });
+      } catch (e) {
+        console.error('Push notification error:', e);
+      }
+
       toast.success("✅ Profissional contratado com sucesso!");
       queryClient.invalidateQueries({ queryKey: ["clinicJobs"] });
       onClose();

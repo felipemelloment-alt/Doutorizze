@@ -122,6 +122,23 @@ export default function ChatThread() {
         [isBuyer ? "unread_seller" : "unread_buyer"]: (thread[isBuyer ? "unread_seller" : "unread_buyer"] || 0) + 1
       });
 
+      // Enviar push notification ao destinatário
+      const recipientUserId = isBuyer ? thread.seller_user_id : thread.buyer_user_id;
+      try {
+        await fetch('http://164.152.59.49:5678/webhook/push-notification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: recipientUserId,
+            title: `💬 Nova mensagem de ${user.full_name}`,
+            body: messageText.slice(0, 100),
+            data: { type: 'NOVA_MENSAGEM', thread_id: threadId }
+          })
+        });
+      } catch (e) {
+        console.error('Push notification error:', e);
+      }
+
       return novaMensagem;
     },
     onSuccess: () => {

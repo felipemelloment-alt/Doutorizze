@@ -51,15 +51,33 @@ function AdminAprovacoesContent() {
 
   // Mutation para aprovar
   const aprovarMutation = useMutation({
-    mutationFn: async ({ tipo, id }) => {
+    mutationFn: async ({ tipo, id, userId }) => {
       const entity = tipo === "profissional" 
         ? base44.entities.Professional 
         : base44.entities.CompanyUnit;
       
-      return await entity.update(id, {
+      const result = await entity.update(id, {
         status_cadastro: "APROVADO",
         approved_at: new Date().toISOString()
       });
+
+      // Enviar push notification
+      try {
+        await fetch('http://164.152.59.49:5678/webhook/push-notification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: userId,
+            title: '✅ Cadastro Aprovado!',
+            body: `Seu cadastro foi aprovado! Bem-vindo ao Doutorizze!`,
+            data: { type: 'APROVACAO_CADASTRO', entity_type: tipo }
+          })
+        });
+      } catch (e) {
+        console.error('Push notification error:', e);
+      }
+
+      return result;
     },
     onSuccess: (_, { tipo }) => {
       queryClient.invalidateQueries({ queryKey: [`admin-${tipo === "profissional" ? "profissionais" : "clinicas"}`] });
@@ -93,8 +111,8 @@ function AdminAprovacoesContent() {
     }
   });
 
-  const handleAprovar = (tipo, id) => {
-    aprovarMutation.mutate({ tipo, id });
+  const handleAprovar = (tipo, id, userId) => {
+    aprovarMutation.mutate({ tipo, id, userId });
   };
 
   const handleReprovar = () => {
@@ -236,7 +254,7 @@ function AdminAprovacoesContent() {
 
                 <div className="flex gap-3">
                   <button
-                    onClick={() => handleAprovar("profissional", prof.id)}
+                    onClick={() => handleAprovar("profissional", prof.id, prof.user_id)}
                     disabled={aprovarMutation.isPending}
                     className="flex-1 py-3 bg-green-500 text-white font-bold rounded-xl hover:bg-green-600 transition-all disabled:opacity-50"
                   >
@@ -304,7 +322,7 @@ function AdminAprovacoesContent() {
 
                 <div className="flex gap-3">
                   <button
-                    onClick={() => handleAprovar("clinica", clinica.id)}
+                    onClick={() => handleAprovar("clinica", clinica.id, clinica.owner_id)}
                     disabled={aprovarMutation.isPending}
                     className="flex-1 py-3 bg-green-500 text-white font-bold rounded-xl hover:bg-green-600 transition-all disabled:opacity-50"
                   >
