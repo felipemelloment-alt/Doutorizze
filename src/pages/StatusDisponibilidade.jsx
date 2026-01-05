@@ -4,6 +4,16 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  podeAtivar, 
+  podeDesativar, 
+  ativarDisponibilidade, 
+  desativarDisponibilidade,
+  NIVEIS_PENALIDADE,
+  EMAIL_SUPORTE,
+  deveMostrarBotaoSuporte
+} from "@/components/api/penalidades";
 import {
   ChevronLeft,
   Wifi,
@@ -13,13 +23,18 @@ import {
   CheckCircle,
   AlertCircle,
   Volume2,
-  VolumeX
+  VolumeX,
+  Shield,
+  Mail,
+  X
 } from "lucide-react";
 
 export default function StatusDisponibilidade() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
+  const [modalJustificativa, setModalJustificativa] = useState(false);
+  const [justificativa, setJustificativa] = useState("");
 
   useEffect(() => {
     base44.auth.me().then(setUser);
@@ -61,18 +76,55 @@ export default function StatusDisponibilidade() {
   });
 
   const toggleDisponibilidadeMutation = useMutation({
-    mutationFn: async (disponivel) => {
-      await base44.entities.Professional.update(professional.id, {
-        disponivel_substituicao: disponivel,
-        status_disponibilidade_substituicao: disponivel ? "ONLINE" : "OFFLINE",
-        ultima_atualizacao_status: new Date().toISOString()
-      });
+    mutationFn: async ({ disponivel, justificativa }) => {
+      if (disponivel) {
+        // Ativar com verificação de penalidades
+        await ativarDisponibilidade(professional.id);
+      } else {
+        // Desativar com justificativa obrigatória
+        await desativarDisponibilidade(professional.id, justificativa);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["meu-profissional-status"]);
       toast.success(professional?.disponivel_substituicao ? "Agora você está offline" : "Agora você está online!");
+      setModalJustificativa(false);
+      setJustificativa("");
+    },
+    onError: (error) => {
+      toast.error(error.message);
     }
   });
+
+  const handleToggleDisponibilidade = async () => {
+    const novoEstado = !professional?.disponivel_substituicao;
+
+    if (novoEstado) {
+      // ATIVAR - verificar penalidades
+      const verificacao = await podeAtivar(professional);
+      if (!verificacao.pode) {
+        toast.error(verificacao.motivo);
+        return;
+      }
+      toggleDisponibilidadeMutation.mutate({ disponivel: true });
+    } else {
+      // DESATIVAR - exigir justificativa
+      const verificacao = podeDesativar(professional);
+      if (!verificacao.pode) {
+        toast.error(verificacao.motivo);
+        return;
+      }
+      setModalJustificativa(true);
+    }
+  };
+
+  const confirmarDesativacao = () => {
+    if (!justificativa || justificativa.trim().length < 10) {
+      toast.error("Justificativa obrigatória (mínimo 10 caracteres)");
+      return;
+    }
+    toggleDisponibilidadeMutation.mutate({ disponivel: false, justificativa });
+  };
 
   if (isLoading) {
     return (
@@ -102,6 +154,9 @@ export default function StatusDisponibilidade() {
   const isOnline = professional.status_disponibilidade_substituicao === "ONLINE";
   const disponivel = professional.disponivel_substituicao;
   const somAtivo = professional.notificacao_som_ativa !== false;
+  const nivelPenalidade = professional.nivel_penalidade || 0;
+  const estaBloqueado = professional.data_desbloqueio && new Date(professional.data_desbloqueio) > new Date();
+  const mostrarSuporte = deveMostrarBotaoSuporte(professional);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 pb-24">
@@ -126,6 +181,70 @@ export default function StatusDisponibilidade() {
       </div>
 
       <div className="px-4 py-6 max-w-2xl mx-auto space-y-6">
+        {/* Alerta de Bloqueio/Penalidade */}
+        {estaBloqueado && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-red-50 border-2 border-red-300 rounded-2xl p-6"
+          >
+            <div className="flex items-start gap-3">
+              <Shield className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
+              <div className="flex-1">
+                <h3 className="font-bold text-red-900 mb-1">🚫 Conta Bloqueada</h3>
+                <p className="text-red-700 text-sm mb-2">
+                  Nível {nivelPenalidade}: {NIVEIS_PENALIDADE[nivelPenalidade]?.label}
+                </p>
+                <p className="text-red-600 text-sm">
+                  Desbloqueio em: {new Date(professional.data_desbloqueio).toLocaleString('pt-BR')}
+                </p>
+                {mostrarSuporte && (
+                  <a
+                    href={`mailto:${EMAIL_SUPORTE}?subject=Solicito desbloqueio da conta&body=Meu ID: ${professional.id}%0A%0AMotivo do contato:%0A`}
+                    className="mt-4 w-full py-3 bg-red-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-red-700 transition-all"
+                  >
+                    <Mail className="w-5 h-5" />
+                    Chamar Suporte
+                  </a>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Aviso de Penalidade (sem bloqueio) */}
+        {nivelPenalidade >= 1 && !estaBloqueado && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-yellow-50 border-2 border-yellow-300 rounded-2xl p-4"
+          >
+            <div className="flex items-center gap-3">
+              <AlertCircle className="w-6 h-6 text-yellow-600" />
+              <div>
+                <p className="font-bold text-yellow-900">⚠️ Aviso - Nível {nivelPenalidade}</p>
+                <p className="text-yellow-700 text-sm">Evite ativar/desativar excessivamente (limite: 2x/dia)</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Limites do Dia */}
+        <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-semibold text-blue-900">Ativações hoje:</span>
+            <span className={`font-bold ${(professional.ativacoes_hoje || 0) >= 2 ? 'text-red-600' : 'text-blue-600'}`}>
+              {professional.ativacoes_hoje || 0}/2
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold text-blue-900">Desativações hoje:</span>
+            <span className={`font-bold ${(professional.desativacoes_hoje || 0) >= 2 ? 'text-red-600' : 'text-blue-600'}`}>
+              {professional.desativacoes_hoje || 0}/2
+            </span>
+          </div>
+        </div>
+
         {/* Toggle principal */}
         <div className="bg-white rounded-3xl p-6 shadow-xl">
           <div className="flex items-center justify-between mb-6">
@@ -134,9 +253,13 @@ export default function StatusDisponibilidade() {
               <p className="text-gray-500 text-sm">Ative para receber notificações de plantões urgentes</p>
             </div>
             <button
-              onClick={() => toggleDisponibilidadeMutation.mutate(!disponivel)}
-              disabled={toggleDisponibilidadeMutation.isPending}
-              className={`relative w-16 h-8 rounded-full transition-colors ${disponivel ? "bg-green-500" : "bg-gray-300"}`}
+              onClick={handleToggleDisponibilidade}
+              disabled={toggleDisponibilidadeMutation.isPending || estaBloqueado}
+              className={`relative w-16 h-8 rounded-full transition-colors ${
+                estaBloqueado 
+                  ? "bg-gray-300 cursor-not-allowed" 
+                  : disponivel ? "bg-green-500" : "bg-gray-300"
+              }`}
             >
               <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow transition-transform ${disponivel ? "left-9" : "left-1"}`} />
             </button>
@@ -257,6 +380,66 @@ export default function StatusDisponibilidade() {
             </button>
           </div>
         )}
+
+        {/* Modal de Justificativa */}
+        <AnimatePresence>
+          {modalJustificativa && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+              onClick={() => setModalJustificativa(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-black text-gray-900">Por que está desativando?</h3>
+                  <button
+                    onClick={() => setModalJustificativa(false)}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <X className="w-5 h-5 text-gray-500" />
+                  </button>
+                </div>
+
+                <p className="text-sm text-gray-600 mb-4">
+                  Justificativa obrigatória para prevenir ativações/desativações excessivas
+                </p>
+
+                <textarea
+                  value={justificativa}
+                  onChange={(e) => setJustificativa(e.target.value)}
+                  placeholder="Descreva o motivo (mínimo 10 caracteres)..."
+                  className="w-full min-h-[120px] px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-400 focus:ring-4 focus:ring-orange-100 transition-all outline-none resize-none"
+                  maxLength={500}
+                />
+                <p className="text-xs text-gray-500 mt-1 text-right">{justificativa.length}/500</p>
+
+                <div className="flex gap-3 mt-4">
+                  <button
+                    onClick={() => setModalJustificativa(false)}
+                    className="flex-1 py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-all"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={confirmarDesativacao}
+                    disabled={toggleDisponibilidadeMutation.isPending || justificativa.trim().length < 10}
+                    className="flex-1 py-3 bg-orange-500 text-white font-bold rounded-xl hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    {toggleDisponibilidadeMutation.isPending ? "Desativando..." : "Confirmar"}
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
