@@ -12,20 +12,41 @@ export default function Layout({ children, currentPageName }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+    
     const loadUser = async () => {
+      // Timeout de segurança - máximo 5 segundos
+      const timeoutId = setTimeout(() => {
+        if (isMounted) {
+          console.warn("Auth timeout - continuando sem usuário");
+          setUser(null);
+          setLoading(false);
+        }
+      }, 5000);
+
       try {
         const currentUser = await base44.auth.me();
-        setUser(currentUser);
-        setLoading(false);
+        clearTimeout(timeoutId);
+        if (isMounted) {
+          setUser(currentUser);
+          setLoading(false);
+        }
       } catch (error) {
-        setUser(null);
-        const timer = setTimeout(() => setLoading(false), 3000);
-        return () => clearTimeout(timer);
+        clearTimeout(timeoutId);
+        console.warn("Auth error:", error?.message || error);
+        if (isMounted) {
+          setUser(null);
+          setLoading(false);
+        }
       }
     };
     
     loadUser();
     trackPageView(currentPageName);
+
+    return () => {
+      isMounted = false;
+    };
   }, [currentPageName]);
 
   const paginasSemBottomBar = [
