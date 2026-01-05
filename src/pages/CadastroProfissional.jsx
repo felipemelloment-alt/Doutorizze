@@ -272,6 +272,10 @@ export default function CadastroProfissional() {
           toast.error("Selecione o turno preferido");
           return false;
         }
+        if (!formData.disponibilidade_inicio) {
+          toast.error("Selecione quando pode começar");
+          return false;
+        }
         return true;
 
       case 4:
@@ -368,7 +372,7 @@ export default function CadastroProfissional() {
         tempo_especialidade_anos: formData.tempo_especialidade_anos ? parseInt(formData.tempo_especialidade_anos) : 0,
         cidades_atendimento: formData.cidades_atendimento,
         dias_semana_disponiveis: formData.dias_semana_disponiveis,
-        disponibilidade_inicio: "IMEDIATO",
+        disponibilidade_inicio: formData.disponibilidade_inicio,
         status_disponibilidade: formData.status_disponibilidade,
         aceita_freelance: formData.aceita_freelance,
         forma_remuneracao: formData.forma_remuneracao,
@@ -837,6 +841,23 @@ export default function CadastroProfissional() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Disponibilidade de Início */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Quando pode começar? *</label>
+              <select
+                value={formData.disponibilidade_inicio}
+                onChange={(e) => handleInputChange("disponibilidade_inicio", e.target.value)}
+                className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 appearance-none bg-white cursor-pointer transition-all outline-none"
+              >
+                <option value="">Selecione</option>
+                <option value="IMEDIATO">Imediato</option>
+                <option value="15_DIAS">15 dias</option>
+                <option value="30_DIAS">30 dias</option>
+                <option value="60_DIAS">60 dias</option>
+                <option value="A_COMBINAR">A combinar</option>
+              </select>
             </div>
           </div>
         );
