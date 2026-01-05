@@ -81,6 +81,8 @@ import TestProfessional from './pages/TestProfessional';
 import VagasDisponiveis from './pages/VagasDisponiveis';
 import ValidarComparecimento from './pages/ValidarComparecimento';
 import VerProfissional from './pages/VerProfissional';
+import AdminTokens from './pages/AdminTokens';
+import AdminCupons from './pages/AdminCupons';
 import __Layout from './Layout.jsx';
 
 
@@ -168,6 +170,8 @@ export const PAGES = {
     "VagasDisponiveis": VagasDisponiveis,
     "ValidarComparecimento": ValidarComparecimento,
     "VerProfissional": VerProfissional,
+    "AdminTokens": AdminTokens,
+    "AdminCupons": AdminCupons,
 }
 
 export const pagesConfig = {
