@@ -178,7 +178,24 @@ export default function DetalheVaga() {
         status_candidatura: "CANDIDATOU"
       });
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      // Enviar webhook CANDIDATURA_RECEBIDA
+      try {
+        await fetch('http://164.152.59.49:5678/webhook/candidatura-recebida', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            job_id: id,
+            professional_id: professional.id,
+            professional_name: professional.nome_completo,
+            vaga_titulo: vaga.titulo,
+            unit_id: vaga.unit_id
+          })
+        });
+      } catch (e) {
+        console.error('Webhook error:', e);
+      }
+
       queryClient.invalidateQueries({ queryKey: ["jobMatch"] });
       toast.success("✅ Candidatura enviada com sucesso!");
       setConfirmModal(false);

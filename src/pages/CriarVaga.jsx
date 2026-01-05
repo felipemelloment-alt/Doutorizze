@@ -277,11 +277,12 @@ export default function CriarVaga() {
           return cidadeMatch || especialidadeMatch;
         });
 
-        // Enviar emails para profissionais com matching
-        for (const prof of profissionaisMatching.slice(0, 50)) { // Limitar a 50 emails
+        // Enviar emails e push notifications para profissionais com matching
+        for (const prof of profissionaisMatching.slice(0, 50)) { // Limitar a 50
           try {
             const userProf = await base44.entities.User.filter({ id: prof.user_id });
             if (userProf[0]?.email) {
+              // Email
               await fetch('http://164.152.59.49:5678/webhook/email-notificacao', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -298,9 +299,21 @@ export default function CriarVaga() {
                   }
                 })
               });
+
+              // Push notification
+              await fetch('http://164.152.59.49:5678/webhook/push-notification', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  user_id: prof.user_id,
+                  title: '🎯 Nova Vaga Disponível!',
+                  body: `${formData.titulo} em ${formData.cidade}/${formData.uf}`,
+                  data: { type: 'NOVA_VAGA', job_id: vagaCriada.id }
+                })
+              });
             }
           } catch (e) {
-            console.error('Email error for professional:', prof.id, e);
+            console.error('Notification error for professional:', prof.id, e);
           }
         }
       } catch (e) {
