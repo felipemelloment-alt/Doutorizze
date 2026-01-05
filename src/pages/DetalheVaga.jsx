@@ -112,16 +112,69 @@ export default function DetalheVaga() {
     return candidaturasMesEspecialidade.length;
   };
 
+  // Função para calcular match
+  const calcularMatchDetalhado = () => {
+    if (!professional || !vaga) return { score: 0, type: "OUTROS", match_cidade: false, match_especialidade: false, match_dias: false, match_tempo_formado: false };
+    
+    let score = 0;
+    const matches = {
+      match_cidade: false,
+      match_especialidade: false,
+      match_dias: false,
+      match_tempo_formado: false
+    };
+
+    // 1. Cidade
+    if (professional.cidades_atendimento?.some(c =>
+      c.toLowerCase().includes(vaga.cidade?.toLowerCase()) ||
+      vaga.cidade?.toLowerCase().includes(c.split(' - ')[0].toLowerCase())
+    )) {
+      score++;
+      matches.match_cidade = true;
+    }
+
+    // 2. Especialidade
+    if (vaga.especialidades_aceitas?.includes(professional.especialidade_principal)) {
+      score++;
+      matches.match_especialidade = true;
+    }
+
+    // 3. Dias
+    const diasComuns = professional.dias_semana_disponiveis?.filter(d =>
+      vaga.dias_semana?.includes(d)
+    );
+    if (diasComuns?.length > 0 || vaga.selecao_dias === "SEMANA_TODA") {
+      score++;
+      matches.match_dias = true;
+    }
+
+    // 4. Experiência
+    if (!vaga.exige_experiencia || (professional.tempo_formado_anos >= (vaga.tempo_experiencia_minimo || 0))) {
+      score++;
+      matches.match_tempo_formado = true;
+    }
+
+    const match_type = score === 4 ? "SUPER_JOB" : score === 3 ? "SEMELHANTE" : "OUTROS";
+
+    return { score, type: match_type, ...matches };
+  };
+
   // Mutation para candidatar
   const candidatarMutation = useMutation({
     mutationFn: async () => {
       if (!professional?.id || !id) throw new Error("Dados incompletos");
       
+      const matchInfo = calcularMatchDetalhado();
+      
       return await base44.entities.JobMatch.create({
         job_id: id,
         professional_id: professional.id,
-        match_score: 0,
-        match_type: "OUTROS",
+        match_score: matchInfo.score,
+        match_type: matchInfo.type,
+        match_cidade: matchInfo.match_cidade,
+        match_especialidade: matchInfo.match_especialidade,
+        match_dias: matchInfo.match_dias,
+        match_tempo_formado: matchInfo.match_tempo_formado,
         status_candidatura: "CANDIDATOU"
       });
     },

@@ -379,9 +379,9 @@ function ModalCandidatos({ job, matches, onClose }) {
     if (!window.confirm(`Confirma a contratação de ${professional.nome_completo}?`)) return;
 
     try {
-      // Gerar tokens únicos
-      const tokenDentista = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      const tokenClinica = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      // Gerar tokens únicos de 30 caracteres
+      const tokenDentista = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2, 8);
+      const tokenClinica = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2, 8);
 
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7);
