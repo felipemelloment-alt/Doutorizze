@@ -77,6 +77,34 @@ function AdminAprovacoesContent() {
         console.error('Push notification error:', e);
       }
 
+      // Enviar email de aprovação
+      try {
+        const userEntity = tipo === "profissional" 
+          ? await base44.entities.Professional.filter({ id })
+          : await base44.entities.CompanyUnit.filter({ id });
+        
+        if (userEntity[0]) {
+          const user = await base44.entities.User.filter({ id: userId });
+          if (user[0]?.email) {
+            await fetch('http://164.152.59.49:5678/webhook/email-notificacao', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                to: user[0].email,
+                subject: '✅ Seu cadastro foi aprovado!',
+                template: 'CADASTRO_APROVADO',
+                data: {
+                  nome: user[0].full_name || 'Usuário',
+                  tipo: tipo === "profissional" ? "Profissional" : "Clínica"
+                }
+              })
+            });
+          }
+        }
+      } catch (e) {
+        console.error('Email notification error:', e);
+      }
+
       return result;
     },
     onSuccess: (_, { tipo }) => {

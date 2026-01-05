@@ -42,6 +42,11 @@ export default function Configuracoes() {
     notif_email_vagas: true,
     notif_email_candidaturas: true,
     notif_resumo_semanal: false,
+    
+    // EMAIL PREFERÊNCIAS
+    email_novas_vagas: true,
+    email_candidaturas: true,
+    email_newsletter_semanal: false,
 
     // PRIVACIDADE
     perfil_visivel: true,
@@ -281,15 +286,55 @@ export default function Configuracoes() {
                 onChange={() => handleToggle("notif_resumo_semanal")}
               />
             </div>
-          </motion.div>
+            </motion.div>
 
-          {/* 4. PRIVACIDADE */}
-          <motion.div
+            {/* 4. PREFERÊNCIAS DE EMAIL */}
+            <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
             className="bg-white rounded-3xl shadow-xl p-6"
-          >
+            >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white shadow-lg">
+                <Mail className="w-6 h-6" />
+              </div>
+              <h2 className="text-xl font-black text-gray-900">Preferências de Email</h2>
+            </div>
+
+            <div className="space-y-4">
+              {userType === "PROFISSIONAL" && (
+                <SwitchItem
+                  label="Receber emails de novas vagas"
+                  description="Notificações sobre vagas compatíveis com seu perfil"
+                  checked={config.email_novas_vagas}
+                  onChange={() => handleToggle("email_novas_vagas")}
+                />
+              )}
+              {userType === "CLINICA" && (
+                <SwitchItem
+                  label="Receber emails de candidaturas"
+                  description="Notificações quando profissionais se candidatarem"
+                  checked={config.email_candidaturas}
+                  onChange={() => handleToggle("email_candidaturas")}
+                />
+              )}
+              <SwitchItem
+                label="Newsletter semanal"
+                description="Resumo semanal com novidades e dicas"
+                checked={config.email_newsletter_semanal}
+                onChange={() => handleToggle("email_newsletter_semanal")}
+              />
+            </div>
+            </motion.div>
+
+            {/* 5. PRIVACIDADE */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="bg-white rounded-3xl shadow-xl p-6"
+            >
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white shadow-lg">
                 <Shield className="w-6 h-6" />
@@ -382,12 +427,12 @@ export default function Configuracoes() {
             </div>
           </motion.div>
 
-          {/* 6. NEW JOBS (só profissional) */}
+          {/* 7. NEW JOBS (só profissional) */}
           {userType === "PROFISSIONAL" && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
+              transition={{ delay: 0.6 }}
               className="bg-white rounded-3xl shadow-xl p-6"
             >
               <div className="flex items-center gap-3 mb-4">
@@ -465,11 +510,11 @@ export default function Configuracoes() {
             </motion.div>
           )}
 
-          {/* 7. SOBRE */}
+          {/* 8. SOBRE */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
+            transition={{ delay: 0.7 }}
             className="bg-white rounded-3xl shadow-xl p-6"
           >
             <div className="flex items-center gap-3 mb-4">

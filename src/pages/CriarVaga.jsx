@@ -258,7 +258,54 @@ export default function CriarVaga() {
         expires_at: expiresAt.toISOString()
       };
 
-      await base44.entities.Job.create(dadosVaga);
+      const vagaCriada = await base44.entities.Job.create(dadosVaga);
+
+      // Buscar profissionais matching e enviar notificações
+      try {
+        const profissionais = await base44.entities.Professional.filter({
+          tipo_profissional: formData.tipo_profissional,
+          status_cadastro: "APROVADO",
+          new_jobs_ativo: true
+        });
+
+        // Filtrar profissionais que tem matching (cidade, especialidade, etc)
+        const profissionaisMatching = profissionais.filter(prof => {
+          const cidadeMatch = prof.cidades_atendimento?.includes(formData.cidade);
+          const especialidadeMatch = formData.especialidades_aceitas.some(esp => 
+            prof.especialidade_principal?.includes(esp)
+          );
+          return cidadeMatch || especialidadeMatch;
+        });
+
+        // Enviar emails para profissionais com matching
+        for (const prof of profissionaisMatching.slice(0, 50)) { // Limitar a 50 emails
+          try {
+            const userProf = await base44.entities.User.filter({ id: prof.user_id });
+            if (userProf[0]?.email) {
+              await fetch('http://164.152.59.49:5678/webhook/email-notificacao', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  to: userProf[0].email,
+                  subject: `🎯 Nova vaga: ${formData.titulo}`,
+                  template: 'NOVA_VAGA',
+                  data: {
+                    nome: prof.nome_completo,
+                    titulo_vaga: formData.titulo,
+                    cidade: formData.cidade,
+                    uf: formData.uf,
+                    tipo_vaga: formData.tipo_vaga
+                  }
+                })
+              });
+            }
+          } catch (e) {
+            console.error('Email error for professional:', prof.id, e);
+          }
+        }
+      } catch (e) {
+        console.error('Notification error:', e);
+      }
 
       toast.success("✅ Vaga publicada com sucesso!");
       navigate(createPageUrl("MinhasVagas"));
