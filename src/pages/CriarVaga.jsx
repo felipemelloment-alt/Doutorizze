@@ -68,11 +68,13 @@ export default function CriarVaga() {
           const units = await base44.entities.CompanyUnit.filter({ owner_id: owner[0].id });
           if (units[0]) {
             setUnit(units[0]);
-            // Preencher cidade e UF da unidade
+            // Preencher TODOS os campos da clínica (BLOQUEADOS - anti-fraude)
             setFormData(prev => ({
               ...prev,
               cidade: units[0].cidade || "",
-              uf: units[0].uf || ""
+              uf: units[0].uf || "",
+              nome_clinica: units[0].nome_fantasia || "",
+              endereco_completo: `${units[0].endereco || ""}, ${units[0].numero || ""} - ${units[0].bairro || ""}, ${units[0].cidade || ""}/${units[0].uf || ""}`
             }));
           }
         }
@@ -575,35 +577,57 @@ export default function CriarVaga() {
               </div>
             </div>
 
+            {/* Nome da Clínica - BLOQUEADO */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                Nome da Clínica *
+                <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">🔒 Travado</span>
+              </label>
+              <div className="px-4 py-4 bg-gray-100 border-2 border-gray-300 rounded-xl text-gray-700 font-semibold">
+                {unit?.nome_fantasia || "Carregando..."}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Nome vem automaticamente do cadastro da sua clínica (anti-fraude)</p>
+            </div>
+
+            {/* Endereço Completo - BLOQUEADO */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                Endereço da Clínica *
+                <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">🔒 Travado</span>
+              </label>
+              <div className="px-4 py-4 bg-gray-100 border-2 border-gray-300 rounded-xl text-gray-700">
+                {formData.endereco_completo || "Carregando..."}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Endereço verificado no cadastro da clínica (anti-fraude)</p>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">UF *</label>
-                <select
-                  value={formData.uf}
-                  onChange={(e) => {
-                    handleInputChange("uf", e.target.value);
-                    handleInputChange("cidade", "");
-                  }}
-                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-pink-400 focus:ring-4 focus:ring-pink-100 appearance-none bg-white cursor-pointer transition-all outline-none"
-                >
-                  <option value="">Selecione</option>
-                  {["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"].map(uf => (
-                    <option key={uf} value={uf}>{uf}</option>
-                  ))}
-                </select>
+                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  UF *
+                  <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">🔒 Travado</span>
+                </label>
+                <div className="px-4 py-4 bg-gray-100 border-2 border-gray-300 rounded-xl text-gray-700 font-bold">
+                  {formData.uf || "Carregando..."}
+                </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Cidade *</label>
-                <CityAutocomplete
-                  value={formData.cidade}
-                  onChange={(cidade) => handleInputChange("cidade", cidade)}
-                  cidades={cidades}
-                  loading={loadingCidades}
-                  disabled={!formData.uf}
-                  placeholder={!formData.uf ? "Selecione UF primeiro" : "Selecione a cidade"}
-                />
+                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  Cidade *
+                  <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">🔒 Travado</span>
+                </label>
+                <div className="px-4 py-4 bg-gray-100 border-2 border-gray-300 rounded-xl text-gray-700 font-bold">
+                  {formData.cidade || "Carregando..."}
+                </div>
               </div>
+            </div>
+
+            <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
+              <p className="text-sm text-yellow-800">
+                🛡️ <strong>Segurança:</strong> Nome, endereço e localização são puxados automaticamente 
+                do cadastro verificado da sua clínica para prevenir fraudes.
+              </p>
             </div>
 
             <div>
