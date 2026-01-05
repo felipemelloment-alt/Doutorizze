@@ -40,26 +40,26 @@ export default function Onboarding() {
           return;
         }
 
-        // Detectar tipo de usuário
-        const professionals = await base44.entities.Professional.filter({ user_id: currentUser.id });
+        // Detectar tipo de usuário (paralelo - otimizado)
+        const [professionals, owners, suppliers, hospitals] = await Promise.all([
+          base44.entities.Professional.filter({ user_id: currentUser.id }),
+          base44.entities.CompanyOwner.filter({ user_id: currentUser.id }),
+          base44.entities.Supplier.filter({ user_id: currentUser.id }),
+          base44.entities.Hospital.filter({ user_id: currentUser.id })
+        ]);
+
         if (professionals.length > 0) {
           setUserType("PROFISSIONAL");
           return;
         }
-
-        const owners = await base44.entities.CompanyOwner.filter({ user_id: currentUser.id });
         if (owners.length > 0) {
           setUserType("CLINICA");
           return;
         }
-
-        const suppliers = await base44.entities.Supplier.filter({ user_id: currentUser.id });
         if (suppliers.length > 0) {
           setUserType("FORNECEDOR");
           return;
         }
-
-        const hospitals = await base44.entities.Hospital.filter({ user_id: currentUser.id });
         if (hospitals.length > 0) {
           setUserType("HOSPITAL");
           return;
