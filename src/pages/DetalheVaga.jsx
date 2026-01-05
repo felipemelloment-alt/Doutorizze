@@ -166,7 +166,7 @@ export default function DetalheVaga() {
       
       const matchInfo = calcularMatchDetalhado();
       
-      return await base44.entities.JobMatch.create({
+      const novoMatch = await base44.entities.JobMatch.create({
         job_id: id,
         professional_id: professional.id,
         match_score: matchInfo.score,
@@ -177,6 +177,24 @@ export default function DetalheVaga() {
         match_tempo_formado: matchInfo.match_tempo_formado,
         status_candidatura: "CANDIDATOU"
       });
+
+      // Webhook n8n: CANDIDATURA_RECEBIDA
+      try {
+        const webhookUrl = import.meta.env.VITE_N8N_BASE_URL || "http://164.152.59.49:5678";
+        await fetch(`${webhookUrl}/webhook/candidatura-recebida`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            job_id: id, 
+            professional_id: professional.id,
+            match: novoMatch 
+          })
+        });
+      } catch (error) {
+        console.warn("Webhook candidatura-recebida falhou:", error);
+      }
+
+      return novoMatch;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["jobMatch"] });

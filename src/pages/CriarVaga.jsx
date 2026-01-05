@@ -260,7 +260,8 @@ export default function CriarVaga() {
 
       // Webhook n8n: NOVA_VAGA
       try {
-        await fetch(`${import.meta.env.VITE_N8N_BASE_URL}/webhook/nova-vaga`, {
+        const webhookUrl = import.meta.env.VITE_N8N_BASE_URL || "http://164.152.59.49:5678";
+        await fetch(`${webhookUrl}/webhook/nova-vaga`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ job_id: novaVaga.id, job: novaVaga })
