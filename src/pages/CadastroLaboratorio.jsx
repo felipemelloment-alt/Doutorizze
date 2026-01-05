@@ -47,7 +47,7 @@ export default function CadastroLaboratorio() {
     descricao: "",
     
     // ETAPA 3 - Serviços
-    servicos: [], // Array de objetos {nome, preco_fora, preco_app, tempo_entrega}
+    servicos: [{ nome: "", preco_fora: "", preco_app: "", tempo_entrega: "" }], // Inicia com 1 serviço vazio
     
     // ETAPA 4 - Verificação
     foto_documento_url: "",
