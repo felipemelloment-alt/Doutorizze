@@ -55,7 +55,8 @@ export default function ChatThread() {
       return threads[0];
     },
     enabled: !!threadId,
-    refetchInterval: 5000 // Atualizar a cada 5s
+    staleTime: 2000,
+    refetchInterval: isTabVisible ? 5000 : false // Pausar quando inativo
   });
 
   // Buscar mensagens
@@ -66,7 +67,8 @@ export default function ChatThread() {
       return msgs.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
     },
     enabled: !!threadId,
-    refetchInterval: 3000 // Atualizar a cada 3s
+    staleTime: 2000,
+    refetchInterval: isTabVisible ? 3000 : false // Pausar quando inativo
   });
 
   // Marcar como lidas
