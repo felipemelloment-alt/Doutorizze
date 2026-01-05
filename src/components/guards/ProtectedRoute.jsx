@@ -24,19 +24,30 @@ export default function ProtectedRoute({
   const [authorized, setAuthorized] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+
     const checkAuth = async () => {
+      // Timeout de segurança - máximo 5 segundos
+      const timeoutId = setTimeout(() => {
+        if (isMounted) {
+          console.warn('ProtectedRoute: Auth timeout');
+          base44.auth.redirectToLogin(window.location.pathname);
+        }
+      }, 5000);
+
       try {
         const currentUser = await base44.auth.me();
+        clearTimeout(timeoutId);
         
+        if (!isMounted) return;
+
         if (!currentUser) {
-          // Não autenticado - redirecionar para login
           base44.auth.redirectToLogin(window.location.pathname);
           return;
         }
 
         setUser(currentUser);
 
-        // Verificar role se necessário
         if (requireAdmin && currentUser.role !== "admin") {
           setAuthorized(false);
           setLoading(false);
@@ -49,18 +60,23 @@ export default function ProtectedRoute({
           return;
         }
 
-        // Autorizado!
         setAuthorized(true);
         setLoading(false);
 
       } catch (error) {
-        console.error("Erro de autenticação:", error);
-        // Erro ao verificar auth - redirecionar para login
-        base44.auth.redirectToLogin(window.location.pathname);
+        clearTimeout(timeoutId);
+        console.warn("ProtectedRoute auth error:", error?.message || error);
+        if (isMounted) {
+          base44.auth.redirectToLogin(window.location.pathname);
+        }
       }
     };
 
     checkAuth();
+
+    return () => {
+      isMounted = false;
+    };
   }, [requireAdmin, requireRole]);
 
   // Loading state
@@ -130,15 +146,35 @@ export function useProtectedUser() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let isMounted = true;
+
+    const timeoutId = setTimeout(() => {
+      if (isMounted) {
+        console.warn('useProtectedUser: Auth timeout');
+        setError(new Error('Timeout'));
+        setLoading(false);
+      }
+    }, 5000);
+
     base44.auth.me()
       .then(u => {
-        setUser(u);
-        setLoading(false);
+        clearTimeout(timeoutId);
+        if (isMounted) {
+          setUser(u);
+          setLoading(false);
+        }
       })
       .catch(err => {
-        setError(err);
-        setLoading(false);
+        clearTimeout(timeoutId);
+        if (isMounted) {
+          setError(err);
+          setLoading(false);
+        }
       });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return { user, loading, error, isAdmin: user?.role === "admin" };

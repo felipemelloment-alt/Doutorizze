@@ -11,22 +11,44 @@ export function useCurrentUser() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     const loadUser = async () => {
+      // Timeout de segurança - máximo 5 segundos
+      const timeoutId = setTimeout(() => {
+        if (isMounted) {
+          console.warn('useCurrentUser: Auth timeout');
+          setUser(null);
+          setError(new Error('Timeout'));
+          setLoading(false);
+        }
+      }, 5000);
+
       try {
         setLoading(true);
         const currentUser = await base44.auth.me();
-        setUser(currentUser);
-        setError(null);
+        clearTimeout(timeoutId);
+        if (isMounted) {
+          setUser(currentUser);
+          setError(null);
+          setLoading(false);
+        }
       } catch (err) {
-        console.error('Erro ao carregar usuário:', err);
-        setError(err);
-        setUser(null);
-      } finally {
-        setLoading(false);
+        clearTimeout(timeoutId);
+        console.warn('useCurrentUser error:', err?.message || err);
+        if (isMounted) {
+          setError(err);
+          setUser(null);
+          setLoading(false);
+        }
       }
     };
 
     loadUser();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const refresh = async () => {
