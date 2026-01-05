@@ -44,6 +44,7 @@ import Feed from './pages/Feed';
 import FeedConfig from './pages/FeedConfig';
 import GerenciarCandidatos from './pages/GerenciarCandidatos';
 import Home from './pages/Home';
+import HomeCyberpunk from './pages/HomeCyberpunk';
 import HomePage from './pages/HomePage';
 import Marketplace from './pages/Marketplace';
 import MarketplaceCreate from './pages/MarketplaceCreate';
@@ -73,7 +74,13 @@ import TestProfessional from './pages/TestProfessional';
 import VagasDisponiveis from './pages/VagasDisponiveis';
 import ValidarComparecimento from './pages/ValidarComparecimento';
 import VerProfissional from './pages/VerProfissional';
-import HomeCyberpunk from './pages/HomeCyberpunk';
+import CadastroLaboratorio from './pages/CadastroLaboratorio';
+import Laboratorios from './pages/Laboratorios';
+import DetalheLaboratorio from './pages/DetalheLaboratorio';
+import DashboardLaboratorio from './pages/DashboardLaboratorio';
+import MapaOportunidades from './pages/MapaOportunidades';
+import StatusDisponibilidade from './pages/StatusDisponibilidade';
+import ModoUrgente from './pages/ModoUrgente';
 import __Layout from './Layout.jsx';
 
 
@@ -124,6 +131,7 @@ export const PAGES = {
     "FeedConfig": FeedConfig,
     "GerenciarCandidatos": GerenciarCandidatos,
     "Home": Home,
+    "HomeCyberpunk": HomeCyberpunk,
     "HomePage": HomePage,
     "Marketplace": Marketplace,
     "MarketplaceCreate": MarketplaceCreate,
@@ -153,7 +161,13 @@ export const PAGES = {
     "VagasDisponiveis": VagasDisponiveis,
     "ValidarComparecimento": ValidarComparecimento,
     "VerProfissional": VerProfissional,
-    "HomeCyberpunk": HomeCyberpunk,
+    "CadastroLaboratorio": CadastroLaboratorio,
+    "Laboratorios": Laboratorios,
+    "DetalheLaboratorio": DetalheLaboratorio,
+    "DashboardLaboratorio": DashboardLaboratorio,
+    "MapaOportunidades": MapaOportunidades,
+    "StatusDisponibilidade": StatusDisponibilidade,
+    "ModoUrgente": ModoUrgente,
 }
 
 export const pagesConfig = {
