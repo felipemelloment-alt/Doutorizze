@@ -13,8 +13,6 @@ import {
   CheckCircle2
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import { useIBGECidades } from "@/components/hooks/useIBGECidades";
-import CityAutocomplete from "@/components/forms/CityAutocomplete";
 
 export default function CriarVaga() {
   const navigate = useNavigate();
@@ -258,7 +256,18 @@ export default function CriarVaga() {
         expires_at: expiresAt.toISOString()
       };
 
-      await base44.entities.Job.create(dadosVaga);
+      const novaVaga = await base44.entities.Job.create(dadosVaga);
+
+      // Webhook n8n: NOVA_VAGA
+      try {
+        await fetch(`${import.meta.env.VITE_N8N_BASE_URL}/webhook/nova-vaga`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ job_id: novaVaga.id, job: novaVaga })
+        });
+      } catch (error) {
+        console.warn("Webhook nova-vaga falhou:", error);
+      }
 
       toast.success("✅ Vaga publicada com sucesso!");
       navigate(createPageUrl("MinhasVagas"));
