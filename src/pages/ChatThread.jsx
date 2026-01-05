@@ -23,6 +23,7 @@ export default function ChatThread() {
 
   const urlParams = new URLSearchParams(window.location.search);
   const threadId = urlParams.get("id");
+  const [isTabVisible, setIsTabVisible] = useState(!document.hidden);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -34,6 +35,15 @@ export default function ChatThread() {
       }
     };
     loadUser();
+  }, []);
+
+  // Pausar polling quando tab inativa
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      setIsTabVisible(!document.hidden);
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
   // Buscar thread
