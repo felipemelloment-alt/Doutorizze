@@ -20,13 +20,24 @@ export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {
+    let isMounted = true;
+
     const loadUser = async () => {
+      const timeoutId = setTimeout(() => {
+        if (isMounted) {
+          console.warn("Onboarding: Auth timeout");
+          navigate(createPageUrl("Feed"));
+        }
+      }, 8000);
+
       try {
         const currentUser = await base44.auth.me();
+        clearTimeout(timeoutId);
+        if (!isMounted) return;
+
         setUser(currentUser);
 
-        // Verificar se já completou onboarding
-        if (currentUser.onboarding_completo) {
+        if (currentUser?.onboarding_completo) {
           redirectToDashboard();
           return;
         }
@@ -56,10 +67,13 @@ export default function Onboarding() {
           return;
         }
       } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
+        clearTimeout(timeoutId);
+        console.warn("Erro ao carregar usuário:", error?.message || error);
       }
     };
     loadUser();
+
+    return () => { isMounted = false; };
   }, []);
 
   const redirectToDashboard = () => {

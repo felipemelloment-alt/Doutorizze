@@ -27,28 +27,38 @@ export default function CadastroProfissional() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     const checkUser = async () => {
+      const timeoutId = setTimeout(() => {
+        if (isMounted) console.warn("CadastroProfissional: Auth timeout");
+      }, 5000);
+
       try {
         const currentUser = await base44.auth.me();
+        clearTimeout(timeoutId);
+        if (!isMounted) return;
+
         setUser(currentUser);
 
-        // Redirecionar se não tem vertical
-        if (!currentUser.vertical) {
+        if (!currentUser?.vertical) {
           navigate(createPageUrl("OnboardingVertical"));
           return;
         }
 
-        // Auto-selecionar tipo_profissional baseado no vertical
-        if (currentUser.vertical === "ODONTOLOGIA" && !formData.tipo_profissional) {
+        if (currentUser.vertical === "ODONTOLOGIA") {
           setFormData(prev => ({ ...prev, tipo_profissional: "DENTISTA" }));
-        } else if (currentUser.vertical === "MEDICINA" && !formData.tipo_profissional) {
+        } else if (currentUser.vertical === "MEDICINA") {
           setFormData(prev => ({ ...prev, tipo_profissional: "MEDICO" }));
         }
       } catch (error) {
-        console.error("Erro ao verificar usuário:", error);
+        clearTimeout(timeoutId);
+        console.warn("Erro ao verificar usuário:", error?.message || error);
       }
     };
     checkUser();
+
+    return () => { isMounted = false; };
   }, []);
 
   // Estado do formulário

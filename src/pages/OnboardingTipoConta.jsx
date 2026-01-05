@@ -12,12 +12,21 @@ export default function OnboardingTipoConta() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+
     const checkUser = async () => {
+      const timeoutId = setTimeout(() => {
+        if (isMounted) console.warn("OnboardingTipoConta: Auth timeout");
+      }, 5000);
+
       try {
         const currentUser = await base44.auth.me();
+        clearTimeout(timeoutId);
+        if (!isMounted) return;
+
         setUser(currentUser);
 
-        if (!currentUser.vertical) {
+        if (!currentUser?.vertical) {
           navigate(createPageUrl("OnboardingVertical"));
           return;
         }
@@ -26,10 +35,13 @@ export default function OnboardingTipoConta() {
           navigate(createPageUrl("Feed"));
         }
       } catch (error) {
-        console.error("Erro ao verificar usuário:", error);
+        clearTimeout(timeoutId);
+        console.warn("Erro ao verificar usuário:", error?.message || error);
       }
     };
     checkUser();
+
+    return () => { isMounted = false; };
   }, []);
 
   const handleSelectTipoConta = async (tipoConta, routeCadastro) => {

@@ -11,18 +11,27 @@ export default function OnboardingVertical() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Verificar se já tem vertical definido
+    let isMounted = true;
+    
     const checkVertical = async () => {
+      const timeoutId = setTimeout(() => {
+        if (isMounted) console.warn("OnboardingVertical: Auth timeout");
+      }, 5000);
+
       try {
         const user = await base44.auth.me();
-        if (user.vertical) {
+        clearTimeout(timeoutId);
+        if (isMounted && user?.vertical) {
           navigate(createPageUrl("OnboardingTipoConta"));
         }
       } catch (error) {
-        console.error("Erro ao verificar vertical:", error);
+        clearTimeout(timeoutId);
+        console.warn("Erro ao verificar vertical:", error?.message || error);
       }
     };
     checkVertical();
+
+    return () => { isMounted = false; };
   }, []);
 
   const handleSelectVertical = async (vertical) => {
