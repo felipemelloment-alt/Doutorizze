@@ -87,6 +87,7 @@ import AdminAprovacoes from './pages/AdminAprovacoes';
 import AdminCupons from './pages/AdminCupons';
 import MeuPerfil from './pages/MeuPerfil';
 import ConfiguracaoNotificacoes from './pages/ConfiguracaoNotificacoes';
+import Seguranca from './pages/Seguranca';
 import __Layout from './Layout.jsx';
 
 
@@ -180,6 +181,7 @@ export const PAGES = {
     "AdminCupons": AdminCupons,
     "MeuPerfil": MeuPerfil,
     "ConfiguracaoNotificacoes": ConfiguracaoNotificacoes,
+    "Seguranca": Seguranca,
 }
 
 export const pagesConfig = {
