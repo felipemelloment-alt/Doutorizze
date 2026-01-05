@@ -51,8 +51,10 @@ import HomeCyberpunk from './pages/HomeCyberpunk';
 import NewJobs from './pages/NewJobs';
 import Onboarding from './pages/Onboarding';
 import SimulacaoCredito from './pages/SimulacaoCredito';
+import ValidarClienteDoutorizze from './pages/ValidarClienteDoutorizze';
 import MarketplaceDetail from './pages/MarketplaceDetail';
 import TestProfessional from './pages/TestProfessional';
+import ClientesDoutorizze from './pages/ClientesDoutorizze';
 import MeusCursos from './pages/MeusCursos';
 import Seguranca from './pages/Seguranca';
 import VerProfissional from './pages/VerProfissional';
@@ -64,6 +66,7 @@ import NotificationSettings from './pages/NotificationSettings';
 import OnboardingTipoConta from './pages/OnboardingTipoConta';
 import OnboardingVertical from './pages/OnboardingVertical';
 import TokenDoutorizze from './pages/TokenDoutorizze';
+import MeusTokens from './pages/MeusTokens';
 import PoliticaPrivacidade from './pages/PoliticaPrivacidade';
 import VagasDisponiveis from './pages/VagasDisponiveis';
 import TermosUso from './pages/TermosUso';
@@ -90,9 +93,7 @@ import MinhasVagas from './pages/MinhasVagas';
 import ModoUrgente from './pages/ModoUrgente';
 import PerfilClinica from './pages/PerfilClinica';
 import StatusDisponibilidade from './pages/StatusDisponibilidade';
-import ValidarClienteDoutorizze from './pages/ValidarClienteDoutorizze';
-import ClientesDoutorizze from './pages/ClientesDoutorizze';
-import MeusTokens from './pages/MeusTokens';
+import ConfirmarSubstituicaoTimer from './pages/ConfirmarSubstituicaoTimer';
 import __Layout from './Layout.jsx';
 
 
@@ -150,8 +151,10 @@ export const PAGES = {
     "NewJobs": NewJobs,
     "Onboarding": Onboarding,
     "SimulacaoCredito": SimulacaoCredito,
+    "ValidarClienteDoutorizze": ValidarClienteDoutorizze,
     "MarketplaceDetail": MarketplaceDetail,
     "TestProfessional": TestProfessional,
+    "ClientesDoutorizze": ClientesDoutorizze,
     "MeusCursos": MeusCursos,
     "Seguranca": Seguranca,
     "VerProfissional": VerProfissional,
@@ -163,6 +166,7 @@ export const PAGES = {
     "OnboardingTipoConta": OnboardingTipoConta,
     "OnboardingVertical": OnboardingVertical,
     "TokenDoutorizze": TokenDoutorizze,
+    "MeusTokens": MeusTokens,
     "PoliticaPrivacidade": PoliticaPrivacidade,
     "VagasDisponiveis": VagasDisponiveis,
     "TermosUso": TermosUso,
@@ -189,9 +193,7 @@ export const PAGES = {
     "ModoUrgente": ModoUrgente,
     "PerfilClinica": PerfilClinica,
     "StatusDisponibilidade": StatusDisponibilidade,
-    "ValidarClienteDoutorizze": ValidarClienteDoutorizze,
-    "ClientesDoutorizze": ClientesDoutorizze,
-    "MeusTokens": MeusTokens,
+    "ConfirmarSubstituicaoTimer": ConfirmarSubstituicaoTimer,
 }
 
 export const pagesConfig = {
