@@ -58,15 +58,25 @@ export default function CadastroFornecedor() {
   });
 
   React.useEffect(() => {
+    let isMounted = true;
+
     const loadUser = async () => {
+      const timeoutId = setTimeout(() => {
+        if (isMounted) console.warn("CadastroFornecedor: Auth timeout");
+      }, 5000);
+
       try {
         const currentUser = await base44.auth.me();
-        setUser(currentUser);
+        clearTimeout(timeoutId);
+        if (isMounted) setUser(currentUser);
       } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
+        clearTimeout(timeoutId);
+        console.warn("Erro ao carregar usuário:", error?.message || error);
       }
     };
     loadUser();
+
+    return () => { isMounted = false; };
   }, []);
 
   // Máscaras

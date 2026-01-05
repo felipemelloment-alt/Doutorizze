@@ -28,26 +28,36 @@ export default function CadastroClinica() {
   const [user, setUser] = useState(null);
 
   React.useEffect(() => {
+    let isMounted = true;
+
     const checkUser = async () => {
+      const timeoutId = setTimeout(() => {
+        if (isMounted) console.warn("CadastroClinica: Auth timeout");
+      }, 5000);
+
       try {
         const currentUser = await base44.auth.me();
+        clearTimeout(timeoutId);
+        if (!isMounted) return;
+
         setUser(currentUser);
 
-        // Redirecionar se não tem vertical
-        if (!currentUser.vertical) {
+        if (!currentUser?.vertical) {
           navigate(createPageUrl("OnboardingVertical"));
           return;
         }
 
-        // Auto-preencher tipo_mundo baseado no vertical
-        if (currentUser.vertical && !formData.tipo_mundo) {
+        if (currentUser.vertical) {
           setFormData(prev => ({ ...prev, tipo_mundo: currentUser.vertical }));
         }
       } catch (error) {
-        console.error("Erro ao verificar usuário:", error);
+        clearTimeout(timeoutId);
+        console.warn("Erro ao verificar usuário:", error?.message || error);
       }
     };
     checkUser();
+
+    return () => { isMounted = false; };
   }, []);
 
   // Estado do formulário
