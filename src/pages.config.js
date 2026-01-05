@@ -4,7 +4,7 @@ import AdminRelatorios from './pages/AdminRelatorios';
 import AdminTokens from './pages/AdminTokens';
 import Ajuda from './pages/Ajuda';
 import Busca from './pages/Busca';
-import Contratar from './pages/Contratar';
+import CadastroProfissional from './pages/CadastroProfissional';
 import AvaliarClinica from './pages/AvaliarClinica';
 import AvaliarProfissional from './pages/AvaliarProfissional';
 import BuscarProfissionais from './pages/BuscarProfissionais';
@@ -12,13 +12,13 @@ import CadastroClinica from './pages/CadastroClinica';
 import CadastroFornecedor from './pages/CadastroFornecedor';
 import CadastroHospital from './pages/CadastroHospital';
 import CadastroInstituicao from './pages/CadastroInstituicao';
-import CriarSubstituicao from './pages/CriarSubstituicao';
+import Contratar from './pages/Contratar';
 import CadastroLaboratorio from './pages/CadastroLaboratorio';
 import CadastroSucesso from './pages/CadastroSucesso';
 import ChatThread from './pages/ChatThread';
 import Chats from './pages/Chats';
 import Configuracoes from './pages/Configuracoes';
-import DetalheCurso from './pages/DetalheCurso';
+import CriarSubstituicao from './pages/CriarSubstituicao';
 import ConfirmarSubstituicao from './pages/ConfirmarSubstituicao';
 import CriarAnuncioProfissional from './pages/CriarAnuncioProfissional';
 import MinhasAvaliacoes from './pages/MinhasAvaliacoes';
@@ -30,16 +30,16 @@ import DashboardClinica from './pages/DashboardClinica';
 import DashboardFornecedor from './pages/DashboardFornecedor';
 import DashboardHospital from './pages/DashboardHospital';
 import DashboardLaboratorio from './pages/DashboardLaboratorio';
-import DetalheSubstituicao from './pages/DetalheSubstituicao';
+import DetalheCurso from './pages/DetalheCurso';
 import DashboardInstituicao from './pages/DashboardInstituicao';
 import DashboardProfissional from './pages/DashboardProfissional';
 import DashboardSubstituicoes from './pages/DashboardSubstituicoes';
-import EditarClinica from './pages/EditarClinica';
+import DetalheSubstituicao from './pages/DetalheSubstituicao';
 import Denunciar from './pages/Denunciar';
 import MinhasVagas from './pages/MinhasVagas';
 import DetalheLaboratorio from './pages/DetalheLaboratorio';
 import DetalheVaga from './pages/DetalheVaga';
-import MeuPerfil from './pages/MeuPerfil';
+import EditarClinica from './pages/EditarClinica';
 import DisponibilidadeSubstituicao from './pages/DisponibilidadeSubstituicao';
 import EditarPerfil from './pages/EditarPerfil';
 import EditarVaga from './pages/EditarVaga';
@@ -83,7 +83,10 @@ import VagasDisponiveis from './pages/VagasDisponiveis';
 import ValidarComparecimento from './pages/ValidarComparecimento';
 import AdminAprovacoes from './pages/AdminAprovacoes';
 import AdminCupons from './pages/AdminCupons';
-import CadastroProfissional from './pages/CadastroProfissional';
+import MeuPerfil from './pages/MeuPerfil';
+import MeusFavoritos from './pages/MeusFavoritos';
+import VerificarToken from './pages/VerificarToken';
+import ConfiguracaoNotificacoes from './pages/ConfiguracaoNotificacoes';
 import __Layout from './Layout.jsx';
 
 
@@ -94,7 +97,7 @@ export const PAGES = {
     "AdminTokens": AdminTokens,
     "Ajuda": Ajuda,
     "Busca": Busca,
-    "Contratar": Contratar,
+    "CadastroProfissional": CadastroProfissional,
     "AvaliarClinica": AvaliarClinica,
     "AvaliarProfissional": AvaliarProfissional,
     "BuscarProfissionais": BuscarProfissionais,
@@ -102,13 +105,13 @@ export const PAGES = {
     "CadastroFornecedor": CadastroFornecedor,
     "CadastroHospital": CadastroHospital,
     "CadastroInstituicao": CadastroInstituicao,
-    "CriarSubstituicao": CriarSubstituicao,
+    "Contratar": Contratar,
     "CadastroLaboratorio": CadastroLaboratorio,
     "CadastroSucesso": CadastroSucesso,
     "ChatThread": ChatThread,
     "Chats": Chats,
     "Configuracoes": Configuracoes,
-    "DetalheCurso": DetalheCurso,
+    "CriarSubstituicao": CriarSubstituicao,
     "ConfirmarSubstituicao": ConfirmarSubstituicao,
     "CriarAnuncioProfissional": CriarAnuncioProfissional,
     "MinhasAvaliacoes": MinhasAvaliacoes,
@@ -120,16 +123,16 @@ export const PAGES = {
     "DashboardFornecedor": DashboardFornecedor,
     "DashboardHospital": DashboardHospital,
     "DashboardLaboratorio": DashboardLaboratorio,
-    "DetalheSubstituicao": DetalheSubstituicao,
+    "DetalheCurso": DetalheCurso,
     "DashboardInstituicao": DashboardInstituicao,
     "DashboardProfissional": DashboardProfissional,
     "DashboardSubstituicoes": DashboardSubstituicoes,
-    "EditarClinica": EditarClinica,
+    "DetalheSubstituicao": DetalheSubstituicao,
     "Denunciar": Denunciar,
     "MinhasVagas": MinhasVagas,
     "DetalheLaboratorio": DetalheLaboratorio,
     "DetalheVaga": DetalheVaga,
-    "MeuPerfil": MeuPerfil,
+    "EditarClinica": EditarClinica,
     "DisponibilidadeSubstituicao": DisponibilidadeSubstituicao,
     "EditarPerfil": EditarPerfil,
     "EditarVaga": EditarVaga,
@@ -173,7 +176,10 @@ export const PAGES = {
     "ValidarComparecimento": ValidarComparecimento,
     "AdminAprovacoes": AdminAprovacoes,
     "AdminCupons": AdminCupons,
-    "CadastroProfissional": CadastroProfissional,
+    "MeuPerfil": MeuPerfil,
+    "MeusFavoritos": MeusFavoritos,
+    "VerificarToken": VerificarToken,
+    "ConfiguracaoNotificacoes": ConfiguracaoNotificacoes,
 }
 
 export const pagesConfig = {
