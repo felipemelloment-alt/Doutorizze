@@ -70,7 +70,9 @@ export default function SimulacaoCredito() {
 
   const aplicarMascaraMoeda = (value) => {
     let num = value.replace(/\D/g, "");
+    if (!num || num === "0") return "";
     num = (parseFloat(num) / 100).toFixed(2);
+    if (isNaN(parseFloat(num))) return "";
     num = num.replace(".", ",");
     num = num.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
     return num;
