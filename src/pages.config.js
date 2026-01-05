@@ -75,17 +75,17 @@ import OnboardingTipoConta from './pages/OnboardingTipoConta';
 import OnboardingVertical from './pages/OnboardingVertical';
 import PerfilClinicaPublico from './pages/PerfilClinicaPublico';
 import SimulacaoCredito from './pages/SimulacaoCredito';
+import MeusFavoritos from './pages/MeusFavoritos';
 import PoliticaPrivacidade from './pages/PoliticaPrivacidade';
 import StatusDisponibilidade from './pages/StatusDisponibilidade';
 import TestProfessional from './pages/TestProfessional';
+import VerificarToken from './pages/VerificarToken';
 import TermosUso from './pages/TermosUso';
 import VagasDisponiveis from './pages/VagasDisponiveis';
 import ValidarComparecimento from './pages/ValidarComparecimento';
 import AdminAprovacoes from './pages/AdminAprovacoes';
 import AdminCupons from './pages/AdminCupons';
 import MeuPerfil from './pages/MeuPerfil';
-import MeusFavoritos from './pages/MeusFavoritos';
-import VerificarToken from './pages/VerificarToken';
 import ConfiguracaoNotificacoes from './pages/ConfiguracaoNotificacoes';
 import __Layout from './Layout.jsx';
 
@@ -168,17 +168,17 @@ export const PAGES = {
     "OnboardingVertical": OnboardingVertical,
     "PerfilClinicaPublico": PerfilClinicaPublico,
     "SimulacaoCredito": SimulacaoCredito,
+    "MeusFavoritos": MeusFavoritos,
     "PoliticaPrivacidade": PoliticaPrivacidade,
     "StatusDisponibilidade": StatusDisponibilidade,
     "TestProfessional": TestProfessional,
+    "VerificarToken": VerificarToken,
     "TermosUso": TermosUso,
     "VagasDisponiveis": VagasDisponiveis,
     "ValidarComparecimento": ValidarComparecimento,
     "AdminAprovacoes": AdminAprovacoes,
     "AdminCupons": AdminCupons,
     "MeuPerfil": MeuPerfil,
-    "MeusFavoritos": MeusFavoritos,
-    "VerificarToken": VerificarToken,
     "ConfiguracaoNotificacoes": ConfiguracaoNotificacoes,
 }
 
