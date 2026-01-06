@@ -54,7 +54,7 @@ export default function FeedConfig() {
           setConfig(prefs[0].feed_config);
         }
       } catch (error) {
-        console.error("Erro ao carregar configurações:", error);
+        // Erro silencioso
       }
     };
     loadConfig();

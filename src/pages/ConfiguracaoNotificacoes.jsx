@@ -41,7 +41,7 @@ export default function ConfiguracaoNotificacoes() {
           setConfig(prev => ({ ...prev, ...currentUser.notificacoes_config }));
         }
       } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
+        // Erro silencioso
       }
       setLoading(false);
     };

@@ -20,7 +20,7 @@ export default function MinhasVagasHospital() {
         const hospitals = await base44.entities.Hospital.filter({ user_id: user.id });
         setHospital(hospitals[0] || null);
       } catch (error) {
-        console.error("Erro ao carregar hospital:", error);
+        // Erro silencioso
       }
     };
     loadHospital();
