@@ -14,9 +14,6 @@ export default function ShareButton({ title, text, url, className = "" }) {
         toast.success("Compartilhado com sucesso!");
       } catch (err) {
         // Usuário cancelou ou erro - não fazer nada
-        if (err.name !== "AbortError") {
-          console.error("Erro ao compartilhar:", err);
-        }
       }
     } else {
       // Abrir modal de opções

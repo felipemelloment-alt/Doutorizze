@@ -56,7 +56,6 @@ export function useUserRole() {
           }
         }
       } catch (error) {
-        console.error("Error checking role:", error);
         setRole(null);
         setUserWorld(null);
       }
