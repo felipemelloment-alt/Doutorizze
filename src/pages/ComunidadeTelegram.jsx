@@ -36,7 +36,6 @@ export default function ComunidadeTelegram() {
         
         setUserArea(area || "ODONTOLOGIA");
       } catch (error) {
-        console.error("Erro ao carregar área do usuário:", error);
         setUserArea("ODONTOLOGIA");
       }
       setLoading(false);

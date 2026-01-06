@@ -69,7 +69,6 @@ export default function AvaliarClinica() {
 
         setLoading(false);
       } catch (error) {
-        console.error("Erro ao carregar dados:", error);
         setErro("Erro ao carregar informações do contrato");
         setLoading(false);
       }
@@ -139,7 +138,6 @@ export default function AvaliarClinica() {
       setAvaliado(true);
       toast.success("✅ Avaliação enviada com sucesso!");
     } catch (error) {
-      console.error("Erro ao enviar avaliação:", error);
       toast.error("❌ Erro ao enviar avaliação: " + error.message);
     } finally {
       setEnviando(false);

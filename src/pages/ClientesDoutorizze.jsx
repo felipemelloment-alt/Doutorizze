@@ -46,7 +46,6 @@ export default function ClientesDoutorizze() {
           setParceiro({ ...labs[0], tipo: 'LABORATORIO' });
         }
       } catch (error) {
-        console.error("Erro:", error);
         toast.error("Erro ao carregar dados");
       }
     };
