@@ -30,7 +30,7 @@ export default function GerenciarCandidatos() {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
       } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
+        // Erro silencioso
       }
     };
     loadUser();

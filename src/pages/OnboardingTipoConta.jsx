@@ -16,7 +16,7 @@ export default function OnboardingTipoConta() {
 
     const checkUser = async () => {
       const timeoutId = setTimeout(() => {
-        if (isMounted) console.warn("OnboardingTipoConta: Auth timeout");
+        if (isMounted) return;
       }, 5000);
 
       try {
@@ -36,7 +36,6 @@ export default function OnboardingTipoConta() {
         }
       } catch (error) {
         clearTimeout(timeoutId);
-        console.warn("Erro ao verificar usuário:", error?.message || error);
       }
     };
     checkUser();

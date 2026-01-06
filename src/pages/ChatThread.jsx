@@ -31,7 +31,7 @@ export default function ChatThread() {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
       } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
+        // Erro silencioso
       }
     };
     loadUser();
@@ -148,7 +148,7 @@ export default function ChatThread() {
           })
         });
       } catch (e) {
-        console.error('Push notification error:', e);
+        // Erro silencioso
       }
 
       return novaMensagem;
