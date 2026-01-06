@@ -47,7 +47,6 @@ export default function CriarVagaHospital() {
           }));
         }
       } catch (error) {
-        console.error("Erro ao carregar hospital:", error);
         toast.error("Erro ao carregar dados do hospital");
       }
     };

@@ -51,7 +51,6 @@ export default function ValidarClienteDoutorizze() {
         toast.error("Você não tem um cadastro de parceiro");
         navigate(-1);
       } catch (error) {
-        console.error("Erro ao carregar parceiro:", error);
         toast.error("Erro ao carregar dados");
       }
     };

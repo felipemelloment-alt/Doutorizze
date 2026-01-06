@@ -26,7 +26,7 @@ export default function MeusTokens() {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
       } catch (error) {
-        console.error("Erro:", error);
+        // Erro silencioso
       }
     };
     loadUser();

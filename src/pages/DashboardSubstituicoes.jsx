@@ -32,7 +32,7 @@ export default function DashboardSubstituicoes() {
           setProfessional(professionals[0]);
         }
       } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
+        // Erro silencioso
       }
     };
     loadUser();
