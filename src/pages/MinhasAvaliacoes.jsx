@@ -43,7 +43,7 @@ export default function MinhasAvaliacoes() {
           return;
         }
       } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
+        // Erro silencioso
       }
     };
     loadUser();

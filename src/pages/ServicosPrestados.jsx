@@ -28,7 +28,7 @@ export default function ServicosPrestados() {
         const labResults = await base44.entities.Laboratorio.filter({ user_id: currentUser.id });
         setLaboratorio(labResults[0] || null);
       } catch (error) {
-        console.error("Erro:", error);
+        // Erro silencioso
       }
     };
     loadData();
