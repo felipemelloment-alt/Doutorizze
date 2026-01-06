@@ -14,7 +14,8 @@ import { useIBGECidades } from "@/components/hooks/useIBGECidades";
 
 export default function EditarVaga() {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const urlParams = new URLSearchParams(window.location.search);
+  const id = urlParams.get("id");
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
 
