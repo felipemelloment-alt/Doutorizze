@@ -32,39 +32,32 @@ export default function BottomBar() {
       try {
         const user = await base44.auth.me();
         
-        // Verificar se é profissional
-        const professionals = await base44.entities.Professional.filter({ user_id: user.id });
-        if (professionals.length > 0) {
-          setUserType("PROFISSIONAL");
+        // Verificar cache localStorage
+        const cachedType = localStorage.getItem('doutorizze_user_type');
+        if (cachedType) {
+          setUserType(cachedType);
           return;
         }
+        
+        // Fazer todas as verificações em PARALELO
+        const [professionals, owners, suppliers, hospitals, institutions] = await Promise.all([
+          base44.entities.Professional.filter({ user_id: user.id }),
+          base44.entities.CompanyOwner.filter({ user_id: user.id }),
+          base44.entities.Supplier.filter({ user_id: user.id }),
+          base44.entities.Hospital.filter({ user_id: user.id }),
+          base44.entities.EducationInstitution.filter({ user_id: user.id })
+        ]);
 
-        // Verificar se é clínica
-        const owners = await base44.entities.CompanyOwner.filter({ user_id: user.id });
-        if (owners.length > 0) {
-          setUserType("CLINICA");
-          return;
-        }
+        let tipo = null;
+        if (professionals.length > 0) tipo = "PROFISSIONAL";
+        else if (owners.length > 0) tipo = "CLINICA";
+        else if (suppliers.length > 0) tipo = "FORNECEDOR";
+        else if (hospitals.length > 0) tipo = "HOSPITAL";
+        else if (institutions.length > 0) tipo = "INSTITUICAO";
 
-        // Verificar se é fornecedor
-        const suppliers = await base44.entities.Supplier.filter({ user_id: user.id });
-        if (suppliers.length > 0) {
-          setUserType("FORNECEDOR");
-          return;
-        }
-
-        // Verificar se é hospital
-        const hospitals = await base44.entities.Hospital.filter({ user_id: user.id });
-        if (hospitals.length > 0) {
-          setUserType("HOSPITAL");
-          return;
-        }
-
-        // Verificar se é instituição
-        const institutions = await base44.entities.EducationInstitution.filter({ user_id: user.id });
-        if (institutions.length > 0) {
-          setUserType("INSTITUICAO");
-          return;
+        if (tipo) {
+          localStorage.setItem('doutorizze_user_type', tipo);
+          setUserType(tipo);
         }
       } catch (error) {
         // Erro silencioso

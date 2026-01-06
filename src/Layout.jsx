@@ -15,14 +15,13 @@ export default function Layout({ children, currentPageName }) {
     let isMounted = true;
     
     const loadUser = async () => {
-      // Timeout de segurança - máximo 5 segundos
+      // Timeout de segurança - máximo 3 segundos
       const timeoutId = setTimeout(() => {
         if (isMounted) {
-          console.warn("Auth timeout - continuando sem usuário");
           setUser(null);
           setLoading(false);
         }
-      }, 5000);
+      }, 3000);
 
       try {
         const currentUser = await base44.auth.me();
@@ -33,7 +32,6 @@ export default function Layout({ children, currentPageName }) {
         }
       } catch (error) {
         clearTimeout(timeoutId);
-        console.warn("Auth error:", error?.message || error);
         if (isMounted) {
           setUser(null);
           setLoading(false);
