@@ -40,8 +40,9 @@ const modalidadeLabels = {
 };
 
 export default function DetalheCurso() {
-  const { id } = useParams();
   const navigate = useNavigate();
+  const urlParams = new URLSearchParams(window.location.search);
+  const id = urlParams.get("id");
   const queryClient = useQueryClient();
   const [imagemAtiva, setImagemAtiva] = useState(0);
 

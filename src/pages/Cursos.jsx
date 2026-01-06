@@ -327,7 +327,7 @@ function CursoCard({ curso, instituicao, index, navigate }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
-      onClick={() => navigate(createPageUrl("DetalheCurso") + "/" + curso.id)}
+      onClick={() => navigate(createPageUrl("DetalheCurso") + "?id=" + curso.id)}
       className="bg-white rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl transition-all cursor-pointer group"
     >
       {/* Imagem */}

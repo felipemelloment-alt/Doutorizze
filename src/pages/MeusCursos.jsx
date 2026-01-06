@@ -411,7 +411,7 @@ function CursoCard({ curso, index, navigate, onPausar, onReativar, onEncerrar, i
         {/* Botões */}
         <div className="flex gap-2">
           <button
-            onClick={() => navigate(createPageUrl("EditarCurso") + "/" + curso.id)}
+            onClick={() => navigate(createPageUrl("EditarCurso") + "?id=" + curso.id)}
             className="flex-1 flex items-center justify-center gap-2 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:border-yellow-400 hover:text-yellow-600 transition-all"
           >
             <Edit className="w-4 h-4" />
