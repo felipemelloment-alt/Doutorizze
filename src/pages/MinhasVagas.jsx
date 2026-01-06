@@ -39,7 +39,7 @@ export default function MinhasVagas() {
           setUnit(units[0]);
         }
       } catch (error) {
-        console.error("Erro ao carregar unidade:", error);
+        // Erro silencioso
       }
     };
     loadUnit();
@@ -411,7 +411,7 @@ function ModalCandidatos({ job, matches, onClose }) {
           })
         });
       } catch (e) {
-        console.error('Push notification error:', e);
+        // Erro silencioso
       }
 
       toast.success("✅ Profissional contratado com sucesso!");
