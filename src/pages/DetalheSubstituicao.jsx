@@ -51,7 +51,7 @@ export default function DetalheSubstituicao() {
           setProfessional(professionals[0]);
         }
       } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
+        // Erro silencioso
       }
     };
     loadUser();

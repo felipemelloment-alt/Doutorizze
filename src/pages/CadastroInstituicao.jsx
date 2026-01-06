@@ -76,7 +76,7 @@ export default function CadastroInstituicao() {
 
     const loadUser = async () => {
       const timeoutId = setTimeout(() => {
-        if (isMounted) console.warn("CadastroInstituicao: Auth timeout");
+        if (isMounted) return;
       }, 5000);
 
       try {
@@ -85,7 +85,6 @@ export default function CadastroInstituicao() {
         if (isMounted) setUser(currentUser);
       } catch (error) {
         clearTimeout(timeoutId);
-        console.warn("Erro ao carregar usuário:", error?.message || error);
       }
     };
     loadUser();
