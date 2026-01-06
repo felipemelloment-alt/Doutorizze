@@ -96,6 +96,12 @@ import FeedConfig from './pages/FeedConfig';
 import HomePage from './pages/HomePage';
 import MeusAnuncios from './pages/MeusAnuncios';
 import ValidarClienteDoutorizze from './pages/ValidarClienteDoutorizze';
+import CriarVagaHospital from './pages/CriarVagaHospital';
+import MinhasVagasHospital from './pages/MinhasVagasHospital';
+import EditarVagaHospital from './pages/EditarVagaHospital';
+import CandidatosHospital from './pages/CandidatosHospital';
+import EventosInstituicao from './pages/EventosInstituicao';
+import ServicosPrestados from './pages/ServicosPrestados';
 import __Layout from './Layout.jsx';
 
 
@@ -198,6 +204,12 @@ export const PAGES = {
     "HomePage": HomePage,
     "MeusAnuncios": MeusAnuncios,
     "ValidarClienteDoutorizze": ValidarClienteDoutorizze,
+    "CriarVagaHospital": CriarVagaHospital,
+    "MinhasVagasHospital": MinhasVagasHospital,
+    "EditarVagaHospital": EditarVagaHospital,
+    "CandidatosHospital": CandidatosHospital,
+    "EventosInstituicao": EventosInstituicao,
+    "ServicosPrestados": ServicosPrestados,
 }
 
 export const pagesConfig = {
