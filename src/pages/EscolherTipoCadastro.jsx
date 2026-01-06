@@ -2,6 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Briefcase, UserRound, Building2, Package, Hospital, GraduationCap } from "lucide-react";
+import { createPageUrl } from "@/utils";
+import { base44 } from "@/api/base44Client";
 
 export default function EscolherTipoCadastro() {
   const navigate = useNavigate();
@@ -74,7 +76,7 @@ export default function EscolherTipoCadastro() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            onClick={() => navigate("/CadastroProfissional")}
+            onClick={() => navigate(createPageUrl("CadastroProfissional"))}
             className="bg-white rounded-3xl p-6 shadow-xl border-2 border-transparent hover:border-orange-400 transition-all duration-300 cursor-pointer group relative"
           >
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-xl">
@@ -101,7 +103,7 @@ export default function EscolherTipoCadastro() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.25 }}
-            onClick={() => navigate("/CadastroFreelancer")}
+            onClick={() => navigate(createPageUrl("CadastroFreelancer"))}
             className="bg-white rounded-3xl p-6 shadow-xl border-2 border-transparent hover:border-purple-400 transition-all duration-300 cursor-pointer group relative"
           >
             <span className="absolute top-2 right-2 px-3 py-1 bg-gradient-to-r from-purple-400 to-pink-400 text-white text-xs font-bold rounded-full">
@@ -132,7 +134,7 @@ export default function EscolherTipoCadastro() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            onClick={() => navigate("/CadastroClinica")}
+            onClick={() => navigate(createPageUrl("CadastroClinica"))}
             className="bg-white rounded-3xl p-6 shadow-xl border-2 border-transparent hover:border-orange-400 transition-all duration-300 cursor-pointer group relative"
           >
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-pink-400 to-red-500 flex items-center justify-center shadow-xl">
@@ -159,7 +161,7 @@ export default function EscolherTipoCadastro() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            onClick={() => navigate("/CadastroFornecedor")}
+            onClick={() => navigate(createPageUrl("CadastroFornecedor"))}
             className="bg-white rounded-3xl p-6 shadow-xl border-2 border-transparent hover:border-orange-400 transition-all duration-300 cursor-pointer group relative"
           >
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center shadow-xl">
@@ -186,7 +188,7 @@ export default function EscolherTipoCadastro() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
-            onClick={() => navigate("/CadastroHospital")}
+            onClick={() => navigate(createPageUrl("CadastroHospital"))}
             className="bg-white rounded-3xl p-6 shadow-xl border-2 border-transparent hover:border-orange-400 transition-all duration-300 cursor-pointer group relative"
           >
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-xl">
@@ -213,7 +215,7 @@ export default function EscolherTipoCadastro() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}
-            onClick={() => navigate("/CadastroInstituicao")}
+            onClick={() => navigate(createPageUrl("CadastroInstituicao"))}
             className="bg-white rounded-3xl p-6 shadow-xl border-2 border-transparent hover:border-orange-400 transition-all duration-300 cursor-pointer group relative"
           >
             <span className="absolute top-2 right-2 px-3 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full">
@@ -244,7 +246,7 @@ export default function EscolherTipoCadastro() {
         <div className="text-center py-8 px-4">
           <span className="text-gray-600">Já tem uma conta? </span>
           <button
-            onClick={() => navigate("/login")}
+            onClick={() => base44.auth.redirectToLogin()}
             className="text-yellow-500 hover:text-yellow-600 font-bold ml-2 hover:underline transition-colors"
           >
             Fazer login

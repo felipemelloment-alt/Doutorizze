@@ -355,7 +355,7 @@ export default function DashboardClinica() {
                   <div
                     key={match.id}
                     className="border-2 border-gray-200 rounded-xl p-4 hover:border-pink-400 hover:shadow-lg transition-all cursor-pointer"
-                    onClick={() => navigate(createPageUrl("VerProfissional") + "/" + professional.id)}
+                    onClick={() => navigate(createPageUrl("VerProfissional") + "?id=" + professional.id)}
                   >
                     <div className="flex items-start gap-3 mb-3">
                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-400 to-purple-600 flex items-center justify-center text-white font-bold flex-shrink-0">

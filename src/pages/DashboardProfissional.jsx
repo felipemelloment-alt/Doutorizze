@@ -339,7 +339,7 @@ export default function DashboardProfissional() {
                   return (
                     <div
                       key={match.id}
-                      onClick={() => navigate(createPageUrl("DetalheVaga") + "/" + job.id)}
+                      onClick={() => navigate(createPageUrl("DetalheVaga") + "?id=" + job.id)}
                       className="min-w-[280px] border-2 border-gray-200 rounded-xl p-4 hover:border-blue-400 hover:shadow-lg transition-all cursor-pointer"
                     >
                       <span className="px-2 py-1 bg-blue-100 text-blue-700 font-bold rounded text-xs">
