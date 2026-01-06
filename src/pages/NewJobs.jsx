@@ -36,7 +36,7 @@ export default function NewJobs() {
         const profResult = await base44.entities.Professional.filter({ user_id: currentUser.id });
         setProfessional(profResult[0] || null);
       } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
+        // Erro silencioso
       }
     };
     loadUser();
@@ -148,7 +148,7 @@ export default function NewJobs() {
         try {
           await notificarSuperJobMatch(vaga.id, professional.id, vaga.matchScore);
         } catch (e) {
-          console.log('Já notificado ou erro:', e.message);
+          // Erro silencioso
         }
       }
     };

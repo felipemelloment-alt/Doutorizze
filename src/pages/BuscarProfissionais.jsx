@@ -195,7 +195,6 @@ export default function BuscarProfissionais() {
         toast.success(`${filtrados.length} ${filtrados.length === 1 ? "profissional encontrado" : "profissionais encontrados"}!`);
       }
     } catch (error) {
-      console.error("Erro ao buscar profissionais:", error);
       toast.error("Erro ao buscar profissionais");
     }
     setBuscando(false);
