@@ -74,7 +74,7 @@ function AdminAprovacoesContent() {
           })
         });
       } catch (e) {
-        console.error('Push notification error:', e);
+        // Erro silencioso
       }
 
       // Enviar email de aprovação
@@ -102,7 +102,7 @@ function AdminAprovacoesContent() {
           }
         }
       } catch (e) {
-        console.error('Email notification error:', e);
+        // Erro silencioso
       }
 
       return result;
