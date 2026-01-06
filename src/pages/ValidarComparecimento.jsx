@@ -37,7 +37,6 @@ export default function ValidarComparecimento() {
           setProfissional(prof);
         }
       } catch (error) {
-        console.error("Erro ao carregar dados:", error);
         toast.error("Erro ao carregar substituição");
       } finally {
         setLoading(false);
