@@ -31,7 +31,8 @@ const tipoPostLabels = {
   PARCEIRO: "Parceiro",
   PROMOCAO: "Promoção",
   CURSO: "Curso",
-  DESTAQUE_MARKETPLACE: "Marketplace"
+  DESTAQUE_MARKETPLACE: "Marketplace",
+  COMUNIDADE: "Comunidade"
 };
 
 const tipoPostColors = {
@@ -187,6 +188,7 @@ function AdminFeedContent() {
   const ativos = posts.filter(p => p.ativo).length;
   const inativos = posts.filter(p => !p.ativo).length;
   const destaques = posts.filter(p => p.destaque).length;
+  const postsComunitarios = posts.filter(p => p.tipo_post === "COMUNIDADE").length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 p-6">
@@ -213,7 +215,7 @@ function AdminFeedContent() {
           </div>
 
           {/* Contadores */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-4 gap-4">
             <div className="bg-green-100 rounded-2xl p-4 border-2 border-green-300">
               <p className="text-sm font-semibold text-green-700">Ativos</p>
               <p className="text-3xl font-black text-green-900">{ativos}</p>
@@ -225,6 +227,11 @@ function AdminFeedContent() {
             <div className="bg-yellow-100 rounded-2xl p-4 border-2 border-yellow-300">
               <p className="text-sm font-semibold text-yellow-700">Destaques</p>
               <p className="text-3xl font-black text-yellow-900">{destaques}</p>
+            </div>
+            <div className="bg-purple-100 rounded-2xl p-4 border-2 border-purple-300">
+              <p className="text-sm font-semibold text-purple-700">Comunidade</p>
+              <p className="text-3xl font-black text-purple-900">{postsComunitarios}</p>
+              <p className="text-xs text-purple-600 mt-1">Posts de usuários</p>
             </div>
           </div>
         </div>

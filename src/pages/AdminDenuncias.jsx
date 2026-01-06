@@ -118,7 +118,7 @@ function AdminDenunciasContent() {
   };
 
   const handleMarcarProcedente = (denuncia) => {
-    setModalDenuncia({ ...denuncia, novoStatus: "PROCEDENTE" });
+    setModalDenuncia({ ...denuncia, novoStatus: "PROCEDENTE", showBanOption: true });
   };
 
   const handleMarcarImprocedente = (denuncia) => {
@@ -129,13 +129,33 @@ function AdminDenunciasContent() {
     setModalDenuncia({ ...denuncia, novoStatus: "RESOLVIDO" });
   };
 
-  const confirmarAcao = () => {
+  const confirmarAcao = async () => {
     if (!modalDenuncia) return;
-    atualizarStatusMutation.mutate({
-      id: modalDenuncia.id,
-      status: modalDenuncia.novoStatus,
-      resposta: respostaAdmin || undefined
-    });
+    
+    try {
+      // Banir usuário se opção selecionada
+      if (modalDenuncia.banirUsuario && modalDenuncia.tipo_alvo === "PROFISSIONAL") {
+        const diasSuspensao = parseInt(modalDenuncia.diasBan) || 30;
+        const suspensaoAte = new Date();
+        suspensaoAte.setDate(suspensaoAte.getDate() + diasSuspensao);
+        
+        await base44.entities.Professional.update(modalDenuncia.alvo_id, {
+          esta_suspenso: true,
+          suspenso_ate: suspensaoAte.toISOString(),
+          motivo_suspensao: respostaAdmin || "Denúncia procedente"
+        });
+        toast.success(`🚫 Profissional banido por ${diasSuspensao} dias`);
+      }
+      
+      // Atualizar status da denúncia
+      atualizarStatusMutation.mutate({
+        id: modalDenuncia.id,
+        status: modalDenuncia.novoStatus,
+        resposta: respostaAdmin || undefined
+      });
+    } catch (error) {
+      toast.error("Erro ao processar ação: " + error.message);
+    }
   };
 
   const getTimeAgo = (date) => {
@@ -416,6 +436,42 @@ function AdminDenunciasContent() {
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none resize-none"
               />
             </div>
+
+            {/* Opção de Banir Usuário */}
+            {modalDenuncia.showBanOption && modalDenuncia.tipo_alvo === "PROFISSIONAL" && (
+              <div className="mb-4 p-4 bg-red-50 border-2 border-red-200 rounded-xl">
+                <label className="flex items-center gap-3 cursor-pointer mb-3">
+                  <input
+                    type="checkbox"
+                    checked={modalDenuncia.banirUsuario || false}
+                    onChange={(e) => setModalDenuncia({ ...modalDenuncia, banirUsuario: e.target.checked })}
+                    className="w-5 h-5 accent-red-500"
+                  />
+                  <span className="font-bold text-red-900">🚫 Banir/Suspender Profissional</span>
+                </label>
+                
+                {modalDenuncia.banirUsuario && (
+                  <div>
+                    <label className="block text-sm font-bold text-red-900 mb-2">
+                      Período de suspensão (dias):
+                    </label>
+                    <select
+                      value={modalDenuncia.diasBan || "30"}
+                      onChange={(e) => setModalDenuncia({ ...modalDenuncia, diasBan: e.target.value })}
+                      className="w-full px-4 py-2 border-2 border-red-300 rounded-lg focus:border-red-500 outline-none"
+                    >
+                      <option value="7">7 dias</option>
+                      <option value="15">15 dias</option>
+                      <option value="30">30 dias (padrão)</option>
+                      <option value="60">60 dias</option>
+                      <option value="90">90 dias</option>
+                      <option value="180">180 dias</option>
+                      <option value="365">1 ano</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="flex gap-3">
               <button
