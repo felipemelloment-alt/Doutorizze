@@ -32,7 +32,7 @@ export default function MinhasCandidaturas() {
         const profResult = await base44.entities.Professional.filter({ user_id: user.id });
         setProfessional(profResult[0] || null);
       } catch (error) {
-        console.error("Erro ao carregar profissional:", error);
+        // Erro silencioso
       }
     };
     loadProfessional();

@@ -35,7 +35,7 @@ export default function MinhasPromocoes() {
         const supplierResult = await base44.entities.Supplier.filter({ user_id: currentUser.id });
         setSupplier(supplierResult[0] || null);
       } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
+        // Erro silencioso
       }
     };
     loadUser();

@@ -46,7 +46,6 @@ export default function CriarPromocao() {
         }
         setSupplier(suppliers[0]);
       } catch (error) {
-        console.error("Erro ao carregar dados:", error);
         toast.error("Erro ao carregar dados");
       }
       setLoading(false);
