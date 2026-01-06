@@ -86,14 +86,14 @@ export default function Layout({ children, currentPageName }) {
       </AnimatePresence>
       
       {!loading && (
-                    <div className="min-h-screen">
-                      <OfflineBanner />
-                      <div className={mostrarBottomBar ? "pb-20" : ""}>
-                        {children}
-                      </div>
-                      {mostrarBottomBar && <BottomBar />}
-                    </div>
-                  )}
-      </ErrorBoundary>
-      );
-      }
+        <div className="min-h-screen">
+          <OfflineBanner />
+          <div className={mostrarBottomBar ? "pb-20" : ""}>
+            {children}
+          </div>
+          {mostrarBottomBar && <BottomBar />}
+        </div>
+      )}
+    </ErrorBoundary>
+  );
+}
