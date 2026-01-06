@@ -44,7 +44,6 @@ export default function FeedBackup() {
 
         setPosts(postsOrdenados.slice(0, 20));
       } catch (error) {
-        console.error("Erro ao carregar feed:", error);
         toast.error("Erro ao carregar posts");
       }
       setLoading(false);
