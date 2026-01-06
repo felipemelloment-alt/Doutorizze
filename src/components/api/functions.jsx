@@ -1,68 +1,43 @@
-import { base44 } from '@/api/base44Client';
+import { base44 } from './base44Client';
 
-// ============================================
-// CLOUD FUNCTIONS DO BASE44
-// ============================================
-// Estas funcoes rodam no servidor do Base44,
-// mantendo as credenciais seguras.
+/**
+ * Cloud Functions do projeto
+ * Todas as functions backend disponíveis
+ */
 
-export const notifyRadarMatches = async (params) => {
-  const response = await base44.functions.invoke('notifyRadarMatches', params);
-  return response.data;
-};
+// IA e Automação
+export const claudeAI = (params) => base44.functions.invoke('claudeAI', params);
+export const criarPostFeed = (params) => base44.functions.invoke('criarPostFeed', params);
 
-export const sendPushNotification = async (params) => {
-  const response = await base44.functions.invoke('sendPushNotification', params);
-  return response.data;
-};
+// WhatsApp
+export const enviarWhatsAppOTP = (params) => base44.functions.invoke('enviarWhatsAppOTP', params);
+export const sendWhatsAppOTP = (params) => base44.functions.invoke('sendWhatsAppOTP', params);
+export const verifyWhatsAppOTP = (params) => base44.functions.invoke('verifyWhatsAppOTP', params);
+export const sendWhatsAppMessage = (params) => base44.functions.invoke('sendWhatsAppMessage', params);
 
-export const claudeAI = async (params) => {
-  const response = await base44.functions.invoke('claudeAI', params);
-  return response.data;
-};
+// Email
+export const enviarEmailVerificacao = (params) => base44.functions.invoke('enviarEmailVerificacao', params);
 
-export const enviarWhatsAppOTP = async (params) => {
-  const response = await base44.functions.invoke('enviarWhatsAppOTP', params);
-  return response.data;
-};
+// Telegram
+export const gerarCodigoTelegram = (params) => base44.functions.invoke('gerarCodigoTelegram', params);
 
-export const enviarEmailVerificacao = async (params) => {
-  const response = await base44.functions.invoke('enviarEmailVerificacao', params);
-  return response.data;
-};
+// Push Notifications
+export const sendPushNotification = (params) => base44.functions.invoke('sendPushNotification', params);
 
-export const gerarCodigoTelegram = async (params) => {
-  const response = await base44.functions.invoke('gerarCodigoTelegram', params);
-  return response.data;
-};
+// Marketplace Radar
+export const notifyRadarMatches = (params) => base44.functions.invoke('notifyRadarMatches', params);
 
-export const criarPostFeed = async (params) => {
-  const response = await base44.functions.invoke('criarPostFeed', params);
-  return response.data;
-};
+// Tokens
+export const gerarTokenUsuario = (params) => base44.functions.invoke('gerarTokenUsuario', params);
+export const validarTokenUsuario = (params) => base44.functions.invoke('validarTokenUsuario', params);
+export const gerarTokenDesconto = (params) => base44.functions.invoke('gerarTokenDesconto', params);
+export const validarTokenDesconto = (params) => base44.functions.invoke('validarTokenDesconto', params);
+export const notificarExpiracaoToken = (params) => base44.functions.invoke('notificarExpiracaoToken', params);
 
-// ============================================
-// FUNCAO SEGURA PARA WHATSAPP NOTIFICATIONS
-// ============================================
-// Esta funcao envia notificacoes WhatsApp usando
-// a Evolution API de forma segura (API key no servidor)
+// Substituições
+export const escolherCandidatoSubstituicao = (params) => base44.functions.invoke('escolherCandidatoSubstituicao', params);
+export const verificarTimerSubstituicao = (params) => base44.functions.invoke('verificarTimerSubstituicao', params);
 
-export const enviarWhatsAppNotificacao = async (params) => {
-  const response = await base44.functions.invoke('enviarWhatsAppNotificacao', params);
-  return response.data;
-};
-
-// Wrapper para facilitar o uso
-export async function enviarMensagemWhatsApp(numero, mensagem, metadata = {}) {
-  try {
-    const result = await enviarWhatsAppNotificacao({
-      numero,
-      mensagem,
-      metadata
-    });
-    return { success: true, data: result };
-  } catch (error) {
-    console.error('[WhatsApp] Erro ao enviar:', error.message);
-    return { success: false, error: error.message };
-  }
-}
+// Cron Jobs
+export const expirarChatsMarketplace = (params) => base44.functions.invoke('expirarChatsMarketplace', params);
+export const resetContadoresDisponibilidade = (params) => base44.functions.invoke('resetContadoresDisponibilidade', params);
