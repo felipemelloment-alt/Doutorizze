@@ -16,9 +16,9 @@ import { formatarTextoData, STATUS_SUBSTITUICAO } from "@/components/constants/s
 
 export default function GerenciarCandidatos() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const urlParams = new URLSearchParams(window.location.search);
+  const substituicaoId = urlParams.get("id");
   const queryClient = useQueryClient();
-  const substituicaoId = searchParams.get("id");
 
   const [user, setUser] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);

@@ -30,7 +30,8 @@ import WhatsAppSafeButton from "@/components/ui/WhatsAppSafeButton";
 
 export default function DetalheVaga() {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const urlParams = new URLSearchParams(window.location.search);
+  const id = urlParams.get("id");
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
   const [professional, setProfessional] = useState(null);
