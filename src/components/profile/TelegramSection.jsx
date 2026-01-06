@@ -32,7 +32,7 @@ export default function TelegramSection() {
           }
         }
       } catch (error) {
-        console.error('Erro ao carregar usuário:', error);
+        // Erro silencioso no carregamento
       }
     };
     
@@ -60,7 +60,6 @@ export default function TelegramSection() {
         throw new Error('Código não retornado');
       }
     } catch (error) {
-      console.error('Erro ao gerar código:', error);
       toast.error('Erro ao gerar código. Tente novamente.');
     }
     setLoading(false);

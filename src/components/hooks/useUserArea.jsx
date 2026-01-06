@@ -75,11 +75,9 @@ export function useUserArea() {
         }
 
         // Default (não deveria chegar aqui se onboarding está correto)
-        console.warn("useUserArea: usuário sem vertical definida, usando ODONTOLOGIA como fallback");
         setUserArea("ODONTOLOGIA");
         setLoading(false);
       } catch (error) {
-        console.error("Erro ao detectar área do usuário:", error);
         setUserArea("ODONTOLOGIA");
         setLoading(false);
       }

@@ -75,8 +75,6 @@ export const enviarWhatsAppNotificacao = async ({ numero, mensagem, tipo, userId
 
     return { success: true, notificacao };
   } catch (error) {
-    console.error('Erro ao enviar WhatsApp:', error);
-    
     // Tentar retry se não excedeu o máximo
     if (notificacao && notificacao.retry_count < notificacao.max_retries) {
       setTimeout(() => {
@@ -130,7 +128,7 @@ const retryWhatsAppNotification = async (notificationId) => {
       throw new Error('Retry falhou');
     }
   } catch (error) {
-    console.error('Erro no retry WhatsApp:', error);
+    // Erro silencioso no retry
   }
 };
 
