@@ -30,7 +30,7 @@ export default function DashboardHospital() {
         const hospitalResult = await base44.entities.Hospital.filter({ user_id: currentUser.id });
         setHospital(hospitalResult[0] || null);
       } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
+        // Erro silencioso
       }
     };
     loadUser();
