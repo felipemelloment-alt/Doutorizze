@@ -270,7 +270,7 @@ export default function MeusAnunciosMarketplace() {
                     {/* Imagem */}
                     <div 
                       className="h-48 bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden cursor-pointer"
-                      onClick={() => navigate(createPageUrl("MarketplaceDetail") + "/" + anuncio.id)}
+                      onClick={() => navigate(createPageUrl("MarketplaceDetail") + "?id=" + anuncio.id)}
                     >
                       {anuncio.fotos && anuncio.fotos.length > 0 ? (
                         <img
@@ -318,7 +318,7 @@ export default function MeusAnunciosMarketplace() {
                       {/* Ações */}
                       <div className="flex gap-2">
                         <button
-                          onClick={() => navigate(createPageUrl("MarketplaceDetail") + "/" + anuncio.id)}
+                          onClick={() => navigate(createPageUrl("MarketplaceDetail") + "?id=" + anuncio.id)}
                           className="flex-1 px-3 py-2 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 flex items-center justify-center gap-1"
                         >
                           <Eye className="w-4 h-4" />
