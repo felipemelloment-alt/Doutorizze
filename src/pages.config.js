@@ -102,6 +102,7 @@ import EditarVagaHospital from './pages/EditarVagaHospital';
 import FeedConfig from './pages/FeedConfig';
 import MinhasSubstituicoes from './pages/MinhasSubstituicoes';
 import ValidarClienteDoutorizze from './pages/ValidarClienteDoutorizze';
+import ComunidadeTelegram from './pages/ComunidadeTelegram';
 import __Layout from './Layout.jsx';
 
 
@@ -210,6 +211,7 @@ export const PAGES = {
     "FeedConfig": FeedConfig,
     "MinhasSubstituicoes": MinhasSubstituicoes,
     "ValidarClienteDoutorizze": ValidarClienteDoutorizze,
+    "ComunidadeTelegram": ComunidadeTelegram,
 }
 
 export const pagesConfig = {
