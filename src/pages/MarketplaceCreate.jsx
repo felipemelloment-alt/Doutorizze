@@ -104,7 +104,7 @@ export default function MarketplaceCreate() {
           whatsapp_verificado: !!telefone
         }));
       } catch (error) {
-        console.error("Erro ao detectar usuário:", error);
+        // Erro silencioso
       }
     };
     detectUser();
@@ -152,7 +152,6 @@ export default function MarketplaceCreate() {
           toast.success("✅ Anúncio publicado com sucesso!");
         }
       } catch (error) {
-        console.error("Erro ao processar radares:", error);
         toast.success("✅ Anúncio publicado com sucesso!");
       }
 
