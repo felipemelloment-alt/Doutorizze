@@ -101,7 +101,7 @@ export default function RadarActivationModal({ open, onOpenChange, initialCatego
         const currentUser = await base44.auth.me();
         setUser(currentUser);
       } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
+        // Erro silencioso
       }
     };
     loadUser();
@@ -153,7 +153,6 @@ export default function RadarActivationModal({ open, onOpenChange, initialCatego
     },
     onError: (error) => {
       toast.error("Erro ao ativar radar. Tente novamente.");
-      console.error(error);
     },
   });
 

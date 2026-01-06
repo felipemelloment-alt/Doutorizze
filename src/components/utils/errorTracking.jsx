@@ -24,20 +24,21 @@ class ErrorTracker {
     };
 
     this.errors.push(errorLog);
-    console.error('🔴 Error tracked:', errorLog);
-
-    // Aqui você pode enviar para Sentry:
-    // Sentry.captureException(error, { extra: context });
+    
+    // Em produção, enviar para Sentry:
+    // if (process.env.NODE_ENV === 'production') {
+    //   Sentry.captureException(error, { extra: context });
+    // }
   }
 
   // Log warning
   logWarning(message, context = {}) {
-    console.warn('🟡 Warning:', message, context);
+    // Silencioso em produção
   }
 
   // Log info
   logInfo(message, context = {}) {
-    console.info('🔵 Info:', message, context);
+    // Silencioso em produção
   }
 
   // Get all errors
