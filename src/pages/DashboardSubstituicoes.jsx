@@ -59,6 +59,22 @@ export default function DashboardSubstituicoes() {
   const candidaturasAguardando = candidaturas.filter(c => c.status === "AGUARDANDO").length;
   const candidaturasEscolhido = candidaturas.filter(c => c.status === "ESCOLHIDO").length;
 
+  // Calcular taxa de preenchimento
+  const vagasPreenchidas = vagasDisponiveis.filter(v => v.status === "PREENCHIDA").length;
+  const totalVagas = vagasDisponiveis.length;
+  const taxaPreenchimento = totalVagas > 0 ? ((vagasPreenchidas / totalVagas) * 100).toFixed(1) : 0;
+
+  // Calcular tempo médio de resposta (em minutos)
+  const candidaturasComResposta = candidaturas.filter(c => c.status === "ESCOLHIDO" && c.created_date && c.updated_date);
+  const tempoMedioResposta = candidaturasComResposta.length > 0
+    ? candidaturasComResposta.reduce((acc, c) => {
+        const created = new Date(c.created_date);
+        const updated = new Date(c.updated_date);
+        const diffMinutos = Math.floor((updated - created) / (1000 * 60));
+        return acc + diffMinutos;
+      }, 0) / candidaturasComResposta.length
+    : 0;
+
   const isOnline = professional?.status_disponibilidade_substituicao === "ONLINE";
 
   if (!professional) {
@@ -134,6 +150,51 @@ export default function DashboardSubstituicoes() {
             value={professional.substituicoes_completadas || 0}
             color="purple"
           />
+        </div>
+
+        {/* Métricas Adicionais */}
+        <div className="grid md:grid-cols-2 gap-4 mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-3xl p-6 shadow-xl"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">Taxa de Preenchimento</h3>
+                <p className="text-sm text-gray-600">Vagas preenchidas vs total</p>
+              </div>
+            </div>
+            <div className="text-5xl font-black text-green-600">{taxaPreenchimento}%</div>
+            <p className="text-sm text-gray-500 mt-2">{vagasPreenchidas} de {totalVagas} vagas preenchidas</p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white rounded-3xl p-6 shadow-xl"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center">
+                <Clock className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">Tempo Médio de Resposta</h3>
+                <p className="text-sm text-gray-600">Aceitação de candidaturas</p>
+              </div>
+            </div>
+            <div className="text-5xl font-black text-blue-600">
+              {tempoMedioResposta < 60 
+                ? `${Math.round(tempoMedioResposta)}min`
+                : `${(tempoMedioResposta / 60).toFixed(1)}h`
+              }
+            </div>
+            <p className="text-sm text-gray-500 mt-2">Baseado em {candidaturasComResposta.length} respostas</p>
+          </motion.div>
         </div>
 
         {/* Ações Rápidas */}
