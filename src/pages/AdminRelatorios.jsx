@@ -18,11 +18,14 @@ import {
   RefreshCw,
   Clock,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Download,
+  FileText
 } from "lucide-react";
 import { format, subDays, startOfDay, endOfDay, startOfMonth, endOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import ProtectedRoute from "@/components/guards/ProtectedRoute";
+import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 function AdminRelatoriosContent() {
   const [periodo, setPeriodo] = useState("7dias");
@@ -118,6 +121,73 @@ function AdminRelatoriosContent() {
   const denunciasPendentes = denuncias.filter(d => d.status === "PENDENTE").length;
   const denunciasResolvidas = denuncias.filter(d => d.status === "RESOLVIDO").length;
 
+  // Dados para gráficos de crescimento (últimos 7 dias)
+  const graficoDados = Array.from({ length: 7 }, (_, i) => {
+    const dia = subDays(new Date(), 6 - i);
+    const inicioDia = startOfDay(dia);
+    const fimDia = endOfDay(dia);
+    
+    return {
+      data: format(dia, "dd/MM", { locale: ptBR }),
+      profissionais: profissionais.filter(p => {
+        const data = new Date(p.created_date);
+        return data >= inicioDia && data <= fimDia;
+      }).length,
+      clinicas: clinicas.filter(c => {
+        const data = new Date(c.created_date);
+        return data >= inicioDia && data <= fimDia;
+      }).length,
+      vagas: vagas.filter(v => {
+        const data = new Date(v.created_date);
+        return data >= inicioDia && data <= fimDia;
+      }).length,
+      marketplace: marketplace.filter(m => {
+        const data = new Date(m.created_date);
+        return data >= inicioDia && data <= fimDia;
+      }).length
+    };
+  });
+
+  // Função de exportação CSV
+  const exportarCSV = () => {
+    const csvContent = [
+      // Header
+      ["Tipo", "Total", "No Período", "Status", "Quantidade"].join(","),
+      
+      // Profissionais
+      ["Profissionais", profissionais.length, profissionaisNoPeriodo.length, "Aprovados", profsAprovados].join(","),
+      ["", "", "", "Pendentes", profsPendentes].join(","),
+      ["", "", "", "Reprovados", profsReprovados].join(","),
+      
+      // Clínicas
+      ["Clínicas", clinicas.length, clinicasNoPeriodo.length, "Aprovadas", clinicasAprovadas].join(","),
+      ["", "", "", "Pendentes", clinicasPendentes].join(","),
+      ["", "", "", "Reprovadas", clinicasReprovadas].join(","),
+      
+      // Vagas
+      ["Vagas", vagas.length, vagasNoPeriodo.length, "Abertas", vagasAbertas].join(","),
+      ["", "", "", "Preenchidas", vagasPreenchidas].join(","),
+      ["", "", "", "Canceladas", vagasCanceladas].join(","),
+      
+      // Marketplace
+      ["Marketplace", marketplace.length, marketplaceNoPeriodo.length, "Ativos", marketplace.filter(m => m.status === "ATIVO").length].join(","),
+      ["", "", "", "Vendidos", marketplace.filter(m => m.status === "VENDIDO").length].join(","),
+      
+      // Denúncias
+      ["Denúncias", denuncias.length, denunciasNoPeriodo.length, "Pendentes", denunciasPendentes].join(","),
+      ["", "", "", "Resolvidas", denunciasResolvidas].join(",")
+    ].join("\n");
+
+    const blob = new Blob(["\ufeff" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `relatorio_${format(new Date(), "yyyy-MM-dd")}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // Cards de estatísticas
   const statsCards = [
     {
@@ -193,21 +263,32 @@ function AdminRelatoriosContent() {
               </div>
             </div>
 
-            {/* Seletor de Período */}
-            <div className="flex items-center gap-2 bg-white rounded-2xl p-2 shadow-lg">
-              {["hoje", "7dias", "30dias", "mes"].map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setPeriodo(p)}
-                  className={`px-4 py-2 rounded-xl font-semibold transition-all ${
-                    periodo === p
-                      ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`}
-                >
-                  {periodoLabel[p]}
-                </button>
-              ))}
+            <div className="flex items-center gap-3">
+              {/* Seletor de Período */}
+              <div className="flex items-center gap-2 bg-white rounded-2xl p-2 shadow-lg">
+                {["hoje", "7dias", "30dias", "mes"].map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setPeriodo(p)}
+                    className={`px-4 py-2 rounded-xl font-semibold transition-all ${
+                      periodo === p
+                        ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white"
+                        : "text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    {periodoLabel[p]}
+                  </button>
+                ))}
+              </div>
+
+              {/* Botão Exportar */}
+              <button
+                onClick={exportarCSV}
+                className="flex items-center gap-2 px-6 py-3 bg-green-500 text-white font-bold rounded-2xl hover:bg-green-600 transition-all shadow-lg"
+              >
+                <Download className="w-5 h-5" />
+                Exportar CSV
+              </button>
             </div>
           </div>
 
@@ -328,11 +409,43 @@ function AdminRelatoriosContent() {
               </div>
             </motion.div>
 
-            {/* Resumo Geral */}
+            {/* Gráficos de Crescimento */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
+              className="bg-white rounded-3xl shadow-lg p-8 mb-8"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                  <TrendingUp className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-black text-gray-900">Crescimento (Últimos 7 dias)</h2>
+                  <p className="text-gray-600">Evolução diária de cadastros e atividades</p>
+                </div>
+              </div>
+
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={graficoDados}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="data" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Area type="monotone" dataKey="profissionais" stackId="1" stroke="#3b82f6" fill="#3b82f6" name="Profissionais" />
+                  <Area type="monotone" dataKey="clinicas" stackId="1" stroke="#a855f7" fill="#a855f7" name="Clínicas" />
+                  <Area type="monotone" dataKey="vagas" stackId="1" stroke="#f97316" fill="#f97316" name="Vagas" />
+                  <Area type="monotone" dataKey="marketplace" stackId="1" stroke="#ec4899" fill="#ec4899" name="Marketplace" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </motion.div>
+
+            {/* Resumo Geral */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
               className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 rounded-3xl shadow-lg p-8 text-white"
             >
               <h2 className="text-2xl font-black mb-6">Resumo do Período</h2>
