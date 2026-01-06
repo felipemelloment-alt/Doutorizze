@@ -1,214 +1,196 @@
-import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
-import { toast } from "sonner";
-import { MessageCircle, Copy, CheckCircle2, ExternalLink, Sparkles, RefreshCw } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
+import { motion } from 'framer-motion';
+import { toast } from 'sonner';
+import { Send, CheckCircle2, Copy, ExternalLink } from 'lucide-react';
 
-export default function TelegramSection({ user }) {
+export default function TelegramSection() {
+  const [user, setUser] = useState(null);
   const [codigo, setCodigo] = useState(null);
   const [loading, setLoading] = useState(false);
   const [copiado, setCopiado] = useState(false);
-  const [jaUsado, setJaUsado] = useState(false);
 
-  // Verificar se já tem código ativo
   useEffect(() => {
-    const verificarCodigoExistente = async () => {
-      if (!user?.id) return;
-      
+    const loadUser = async () => {
       try {
-        const codigos = await base44.entities.TelegramAccess.filter({
-          user_id: user.id
+        const currentUser = await base44.auth.me();
+        setUser(currentUser);
+        
+        // Verificar se já tem código ativo
+        const acessos = await base44.entities.TelegramAccess.filter({
+          user_id: currentUser.id,
+          usado: false
         });
-
-        if (codigos.length > 0) {
-          const codigoAtivo = codigos.find(c => !c.usado && new Date(c.expires_at) > new Date());
-          const codigoUsado = codigos.find(c => c.usado);
+        
+        if (acessos[0]) {
+          const acesso = acessos[0];
+          const dataExpiracao = new Date(acesso.expires_at);
           
-          if (codigoUsado) {
-            setJaUsado(true);
-            setCodigo(codigoUsado.codigo);
-          } else if (codigoAtivo) {
-            setCodigo(codigoAtivo.codigo);
+          // Se ainda não expirou, mostra o código
+          if (dataExpiracao > new Date()) {
+            setCodigo(acesso.codigo);
           }
         }
       } catch (error) {
-        console.error("Erro ao verificar código:", error);
+        console.error('Erro ao carregar usuário:', error);
       }
     };
     
-    verificarCodigoExistente();
-  }, [user?.id]);
+    loadUser();
+  }, []);
 
   const gerarCodigo = async () => {
-    if (!user?.id) {
-      toast.error("Usuário não autenticado");
+    if (!user) {
+      toast.error('Usuário não encontrado');
       return;
     }
-    
+
     setLoading(true);
     try {
-      // Verificar se já tem código ativo
-      const codigos = await base44.entities.TelegramAccess.filter({
-        user_id: user.id,
-        usado: false
+      // Chamar cloud function para gerar código
+      const result = await base44.functions.invoke('gerarCodigoTelegram', {
+        userId: user.id,
+        nomeUsuario: user.full_name
       });
 
-      const codigoAtivo = codigos.find(c => new Date(c.expires_at) > new Date());
-
-      if (codigoAtivo) {
-        // Já tem código válido, usar o existente
-        setCodigo(codigoAtivo.codigo);
-        toast.success("Código recuperado!");
-      } else {
-        // Gerar novo código via backend function
-        const result = await base44.functions.invoke('gerarCodigoTelegram', {
-          userId: user.id,
-          nomeUsuario: user.full_name || "USER"
-        });
-        
+      if (result.data?.codigo) {
         setCodigo(result.data.codigo);
-        toast.success("Código gerado com sucesso!");
+        toast.success('Código gerado com sucesso!');
+      } else {
+        throw new Error('Código não retornado');
       }
     } catch (error) {
-      console.error("Erro:", error);
-      toast.error("Erro ao gerar código: " + (error.message || "Tente novamente"));
+      console.error('Erro ao gerar código:', error);
+      toast.error('Erro ao gerar código. Tente novamente.');
     }
     setLoading(false);
   };
 
   const copiarCodigo = () => {
-    if (!codigo) return;
-    navigator.clipboard.writeText(codigo);
-    setCopiado(true);
-    toast.success("Código copiado!");
-    setTimeout(() => setCopiado(false), 3000);
+    if (codigo) {
+      navigator.clipboard.writeText(codigo);
+      setCopiado(true);
+      toast.success('Código copiado!');
+      setTimeout(() => setCopiado(false), 2000);
+    }
   };
 
-  // Se já usou, mostrar mensagem de sucesso
-  if (jaUsado) {
-    return (
-      <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-3xl p-6 border-2 border-green-200">
-        <div className="flex items-center gap-4 mb-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center">
-            <CheckCircle2 className="w-8 h-8 text-white" />
-          </div>
-          <div>
-            <h3 className="text-xl font-black text-gray-900">Você já faz parte!</h3>
-            <p className="text-gray-600">Comunidade Doutorizze no Telegram</p>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl p-4 mb-4">
-          <p className="text-gray-600 text-sm">Seu código utilizado:</p>
-          <p className="text-lg font-bold text-green-600">{codigo}</p>
-        </div>
-
-        <a
-          href="https://t.me/DoutorizzeBot"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full py-4 bg-[#0088cc] text-white font-black rounded-2xl hover:bg-[#0077b5] transition-all flex items-center justify-center gap-2"
-        >
-          <MessageCircle className="w-6 h-6" />
-          ACESSAR COMUNIDADE
-          <ExternalLink className="w-5 h-5" />
-        </a>
-      </div>
-    );
-  }
+  const abrirTelegram = () => {
+    window.open('https://t.me/DoutorizzeBot', '_blank');
+  };
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-6 border-2 border-purple-200">
-      <div className="flex items-center gap-4 mb-6">
-        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
-          <MessageCircle className="w-8 h-8 text-white" />
+    <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-6 border-2 border-blue-200">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center">
+          <Send className="w-6 h-6 text-white" />
         </div>
         <div>
-          <h3 className="text-xl font-black text-gray-900">Comunidade Doutorizze</h3>
-          <p className="text-gray-600">Grupo exclusivo no Telegram</p>
+          <h3 className="text-lg font-bold text-gray-900">Comunidade Telegram</h3>
+          <p className="text-sm text-gray-600">Grupo exclusivo para profissionais</p>
         </div>
       </div>
 
-      {/* Benefícios */}
-      <div className="bg-white rounded-2xl p-4 mb-6 space-y-3">
-        <div className="flex items-center gap-3">
-          <Sparkles className="w-5 h-5 text-purple-500" />
-          <span className="text-gray-700">Dicas de IA para profissionais de saúde</span>
+      <div className="space-y-4">
+        {/* Benefícios */}
+        <div className="bg-white rounded-xl p-4 space-y-2">
+          <p className="text-sm font-semibold text-gray-900">🎯 O que você encontra:</p>
+          <ul className="text-sm text-gray-700 space-y-1">
+            <li>• Dicas exclusivas de IA para profissionais</li>
+            <li>• Vídeos explicativos e tutoriais</li>
+            <li>• Networking com outros profissionais</li>
+            <li>• Novidades e atualizações em primeira mão</li>
+          </ul>
         </div>
-        <div className="flex items-center gap-3">
-          <Sparkles className="w-5 h-5 text-purple-500" />
-          <span className="text-gray-700">Vídeos explicativos exclusivos</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <Sparkles className="w-5 h-5 text-purple-500" />
-          <span className="text-gray-700">Networking com colegas</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <Sparkles className="w-5 h-5 text-purple-500" />
-          <span className="text-gray-700">Novidades em primeira mão</span>
-        </div>
-      </div>
 
-      {/* Área do código */}
-      {!codigo ? (
-        <button
-          onClick={gerarCodigo}
-          disabled={loading}
-          className="w-full py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-black rounded-2xl hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-        >
-          {loading ? (
-            <>
-              <RefreshCw className="w-5 h-5 animate-spin" />
-              Gerando...
-            </>
-          ) : (
-            "GERAR CÓDIGO DE ACESSO"
-          )}
-        </button>
-      ) : (
-        <div className="space-y-4">
-          {/* Código */}
-          <div className="bg-white rounded-2xl p-4 border-2 border-purple-300">
-            <p className="text-sm text-gray-600 mb-2">Seu código de acesso:</p>
-            <div className="flex items-center justify-between">
-              <span className="text-2xl font-black text-purple-600 tracking-wider">
-                {codigo}
-              </span>
-              <button
-                onClick={copiarCodigo}
-                className="p-2 bg-purple-100 rounded-xl hover:bg-purple-200 transition-all"
-              >
-                {copiado ? (
-                  <CheckCircle2 className="w-6 h-6 text-green-500" />
-                ) : (
-                  <Copy className="w-6 h-6 text-purple-600" />
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Instruções */}
-          <div className="bg-yellow-50 rounded-2xl p-4 border-2 border-yellow-200">
-            <h4 className="font-bold text-gray-900 mb-2">Como entrar:</h4>
-            <ol className="text-sm text-gray-700 space-y-2">
-              <li>1. Clique no botão abaixo para abrir o Telegram</li>
-              <li>2. Envie seu código para o bot: <strong>{codigo}</strong></li>
-              <li>3. O bot vai verificar e liberar seu acesso!</li>
-            </ol>
-          </div>
-
-          {/* Botão Telegram */}
-          <a
-            href="https://t.me/DoutorizzeBot"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full py-4 bg-[#0088cc] text-white font-black rounded-2xl hover:bg-[#0077b5] transition-all flex items-center justify-center gap-2"
+        {/* Código Gerado */}
+        {codigo ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-xl p-5 border-2 border-green-200"
           >
-            <MessageCircle className="w-6 h-6" />
-            ABRIR TELEGRAM
-            <ExternalLink className="w-5 h-5" />
-          </a>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-green-600" />
+                <span className="text-sm font-semibold text-green-700">Código Gerado</span>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 rounded-lg p-4 mb-3">
+              <p className="text-2xl font-mono font-bold text-center text-gray-900 tracking-wider">
+                {codigo}
+              </p>
+            </div>
+
+            <button
+              onClick={copiarCodigo}
+              className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg font-semibold text-gray-700 flex items-center justify-center gap-2 transition-all mb-2"
+            >
+              {copiado ? (
+                <>
+                  <CheckCircle2 className="w-4 h-4" />
+                  Copiado!
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4" />
+                  Copiar Código
+                </>
+              )}
+            </button>
+
+            <div className="bg-blue-50 rounded-lg p-3 mb-3">
+              <p className="text-xs text-blue-800 font-medium">
+                📱 <strong>Próximo passo:</strong>
+              </p>
+              <ol className="text-xs text-blue-700 mt-2 space-y-1 ml-4">
+                <li>1. Clique no botão abaixo</li>
+                <li>2. Envie o código para o bot</li>
+                <li>3. Pronto! Você entrará no grupo 🎉</li>
+              </ol>
+            </div>
+
+            <button
+              onClick={abrirTelegram}
+              className="w-full py-3 px-4 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all"
+            >
+              <ExternalLink className="w-5 h-5" />
+              Abrir Telegram Bot
+            </button>
+
+            <p className="text-xs text-gray-500 text-center mt-2">
+              Código válido por 30 dias
+            </p>
+          </motion.div>
+        ) : (
+          /* Gerar Código */
+          <button
+            onClick={gerarCodigo}
+            disabled={loading}
+            className="w-full py-4 px-6 bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50 shadow-lg"
+          >
+            {loading ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                Gerando...
+              </>
+            ) : (
+              <>
+                <Send className="w-5 h-5" />
+                GERAR CÓDIGO DE ACESSO
+              </>
+            )}
+          </button>
+        )}
+
+        {/* Info */}
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+          <p className="text-xs text-yellow-800">
+            ⚠️ <strong>Importante:</strong> O código é pessoal e intransferível. Não compartilhe com terceiros.
+          </p>
         </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -1,381 +1,215 @@
-/**
- * API DE NOTIFICACOES WHATSAPP
- *
- * Gerencia todas as notificacoes enviadas via WhatsApp:
- * - Super Job Matches (4/4)
- * - Candidaturas aceitas/rejeitadas
- * - Confirmacao de substituicoes
- * - Lembretes de atendimento
- *
- * SEGURANCA: Usa Cloud Function do Base44 para manter API keys no servidor
- */
-
 import { base44 } from '@/api/base44Client';
-import { enviarWhatsAppNotificacao } from '@/components/api/functions';
-
-// ===============================================================
-// CORE - CRIAR E ENVIAR
-// ===============================================================
 
 /**
- * Criar notificacao (ainda nao enviada)
+ * API de Notificações WhatsApp
+ * Integração com Evolution API para envio de mensagens
  */
-export async function criarNotificacao(data) {
-  const notification = await base44.entities.WhatsAppNotification.create({
-    tipo: data.tipo,
-    destinatario_user_id: data.destinatario_user_id || null,
-    destinatario_professional_id: data.destinatario_professional_id || null,
-    destinatario_whatsapp: data.destinatario_whatsapp,
-    destinatario_nome: data.destinatario_nome,
-    job_id: data.job_id || null,
-    substituicao_id: data.substituicao_id || null,
-    mensagem_texto: data.mensagem_texto,
-    mensagem_template: data.mensagem_template || null,
-    match_score: data.match_score || null,
-    status: 'PENDING',
-    metadata: data.metadata || null
-  });
 
-  return notification;
-}
+const N8N_BASE_URL = import.meta.env.VITE_N8N_BASE_URL || 'http://164.152.59.49:5678';
 
 /**
- * Formatar numero para padrao E.164
+ * Formata número para padrão E.164 (Brasil)
+ * @param {string} numero - Número no formato brasileiro (11999999999)
+ * @returns {string} - Número no formato E.164 (5511999999999)
  */
-function formatarNumeroE164(numero) {
-  let formatted = numero.replace(/\D/g, '');
-  if (formatted.length === 11) {
-    formatted = '55' + formatted;
+export const formatarNumeroE164 = (numero) => {
+  const apenasNumeros = numero.replace(/\D/g, '');
+  
+  if (apenasNumeros.length === 11) {
+    return `55${apenasNumeros}`;
   }
-  return formatted;
-}
+  
+  if (apenasNumeros.length === 10) {
+    return `55${apenasNumeros}`;
+  }
+  
+  return apenasNumeros;
+};
 
 /**
- * Enviar notificacao via Cloud Function (SEGURO)
+ * Envia notificação WhatsApp via Evolution API
+ * @param {Object} params
+ * @param {string} params.numero - Número no formato brasileiro
+ * @param {string} params.mensagem - Mensagem a ser enviada (suporta markdown)
+ * @param {string} params.tipo - Tipo da notificação
+ * @param {string} params.userId - ID do usuário destinatário
+ * @returns {Promise<Object>}
  */
-export async function enviarNotificacao(notificationId) {
-  const notifications = await base44.entities.WhatsAppNotification.filter({ id: notificationId });
-  const notification = notifications[0];
-
-  if (!notification) {
-    throw new Error('Notificacao nao encontrada');
-  }
-
-  if (notification.status === 'SENT' || notification.status === 'DELIVERED') {
-    throw new Error('Notificacao ja foi enviada');
-  }
-
+export const enviarWhatsAppNotificacao = async ({ numero, mensagem, tipo, userId }) => {
   try {
-    const numero = formatarNumeroE164(notification.destinatario_whatsapp);
-    let result;
-
-    // Cloud Function (SEGURO - API key no servidor)
-    result = await enviarWhatsAppNotificacao({
-      numero,
-      mensagem: notification.mensagem_texto,
-      notificationId
+    const numeroFormatado = formatarNumeroE164(numero);
+    
+    // Criar registro de notificação
+    const notificacao = await base44.entities.WhatsAppNotification.create({
+      tipo,
+      destinatario_whatsapp: numeroFormatado,
+      mensagem,
+      user_id: userId,
+      status: 'PENDING',
+      retry_count: 0,
+      max_retries: 3
     });
 
-    // Atualizar como enviada
-    await base44.entities.WhatsAppNotification.update(notificationId, {
+    // Enviar via webhook n8n
+    const response = await fetch(`${N8N_BASE_URL}/webhook/whatsapp-notificacao`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        numero: numeroFormatado,
+        mensagem,
+        notificationId: notificacao.id
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Falha ao enviar WhatsApp');
+    }
+
+    const data = await response.json();
+
+    // Atualizar status para SENT
+    await base44.entities.WhatsAppNotification.update(notificacao.id, {
       status: 'SENT',
-      sent_at: new Date().toISOString(),
-      evolution_message_id: result?.key?.id || null,
-      evolution_response: result
+      evolution_message_id: data.messageId || null
     });
 
-    return { success: true, result };
-
+    return { success: true, notificacao };
   } catch (error) {
-    // Incrementar retry
-    const retryCount = (notification.retry_count || 0) + 1;
-    const status = retryCount >= (notification.max_retries || 3) ? 'FAILED' : 'PENDING';
+    console.error('Erro ao enviar WhatsApp:', error);
+    
+    // Tentar retry se não excedeu o máximo
+    if (notificacao && notificacao.retry_count < notificacao.max_retries) {
+      setTimeout(() => {
+        retryWhatsAppNotification(notificacao.id);
+      }, 5000); // Retry após 5 segundos
+    } else if (notificacao) {
+      // Marcar como falha permanente
+      await base44.entities.WhatsAppNotification.update(notificacao.id, {
+        status: 'FAILED',
+        error_message: error.message
+      });
+    }
+    
+    return { success: false, error: error.message };
+  }
+};
 
+/**
+ * Retry de envio de notificação WhatsApp
+ */
+const retryWhatsAppNotification = async (notificationId) => {
+  try {
+    const notificacao = await base44.entities.WhatsAppNotification.filter({ id: notificationId });
+    if (!notificacao[0]) return;
+    
+    const notif = notificacao[0];
+    
+    // Incrementar contador de retry
     await base44.entities.WhatsAppNotification.update(notificationId, {
-      status,
-      retry_count: retryCount,
-      error_message: error.message,
-      failed_at: status === 'FAILED' ? new Date().toISOString() : null
+      retry_count: notif.retry_count + 1
     });
 
-    throw error;
-  }
-}
-
-/**
- * Verificar se ja foi enviada notificacao (prevent duplicate)
- */
-export async function jaEnviouNotificacao(tipo, referenceId, professionalId) {
-  const hoje = new Date();
-  hoje.setHours(0, 0, 0, 0);
-
-  const query = {
-    tipo,
-    destinatario_professional_id: professionalId,
-    status: { $in: ['SENT', 'DELIVERED', 'READ'] }
-  };
-
-  // Adicionar referencia (job ou substituicao)
-  if (tipo.includes('JOB') || tipo === 'SUPER_JOB_MATCH') {
-    query.job_id = referenceId;
-  } else {
-    query.substituicao_id = referenceId;
-  }
-
-  const existing = await base44.entities.WhatsAppNotification.filter(query);
-
-  return existing.length > 0;
-}
-
-/**
- * Marcar como lida (webhook callback)
- */
-export async function marcarComoLida(evolutionMessageId) {
-  const notifications = await base44.entities.WhatsAppNotification.filter({
-    evolution_message_id: evolutionMessageId
-  });
-
-  if (notifications.length > 0) {
-    await base44.entities.WhatsAppNotification.update(notifications[0].id, {
-      status: 'READ',
-      read_at: new Date().toISOString()
+    // Tentar enviar novamente
+    const response = await fetch(`${N8N_BASE_URL}/webhook/whatsapp-notificacao`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        numero: notif.destinatario_whatsapp,
+        mensagem: notif.mensagem,
+        notificationId: notificationId
+      })
     });
-  }
-}
 
-/**
- * Marcar como entregue (webhook callback)
- */
-export async function marcarComoEntregue(evolutionMessageId) {
-  const notifications = await base44.entities.WhatsAppNotification.filter({
-    evolution_message_id: evolutionMessageId
-  });
-
-  if (notifications.length > 0) {
-    await base44.entities.WhatsAppNotification.update(notifications[0].id, {
-      status: 'DELIVERED',
-      delivered_at: new Date().toISOString()
-    });
-  }
-}
-
-/**
- * Retentar envio de notificacoes falhadas
- */
-export async function retentarFalhadas() {
-  const falhadas = await base44.entities.WhatsAppNotification.filter({
-    status: 'PENDING'
-  });
-
-  const results = [];
-
-  for (const notif of falhadas) {
-    if ((notif.retry_count || 0) < 3) {
-      try {
-        await enviarNotificacao(notif.id);
-        results.push({ id: notif.id, success: true });
-      } catch (error) {
-        results.push({ id: notif.id, success: false, error: error.message });
-      }
+    if (response.ok) {
+      const data = await response.json();
+      await base44.entities.WhatsAppNotification.update(notificationId, {
+        status: 'SENT',
+        evolution_message_id: data.messageId || null
+      });
+    } else {
+      throw new Error('Retry falhou');
     }
+  } catch (error) {
+    console.error('Erro no retry WhatsApp:', error);
   }
-
-  return results;
-}
-
-// ===============================================================
-// SUPER_JOB - MATCH 4/4
-// ===============================================================
+};
 
 /**
- * Notificar profissional sobre match perfeito
+ * Envia OTP via WhatsApp
  */
-export async function notificarSuperJobMatch(jobId, professionalId, matchScore) {
-  // Verificar se ja enviou
-  const jaEnviou = await jaEnviouNotificacao('SUPER_JOB_MATCH', jobId, professionalId);
-  if (jaEnviou) {
-    console.log('Notificacao ja enviada para este job/profissional');
-    return null;
-  }
+export const enviarWhatsAppOTP = async ({ numero, codigo, userId }) => {
+  const mensagem = `🔐 *Doutorizze*\n\nSeu código de verificação é:\n\n*${codigo}*\n\nEste código expira em 5 minutos.\n\n_Não compartilhe este código com ninguém._`;
+  
+  return enviarWhatsAppNotificacao({
+    numero,
+    mensagem,
+    tipo: 'OTP',
+    userId
+  });
+};
 
-  // Buscar dados
-  const jobs = await base44.entities.Job.filter({ id: jobId });
-  const job = jobs[0];
-  const professionals = await base44.entities.Professional.filter({ id: professionalId });
-  const professional = professionals[0];
-  const units = await base44.entities.CompanyUnit.filter({ id: job.unit_id });
-  const unit = units[0];
-
-  // Montar mensagem
-  const mensagem = montarMensagemSuperJob(job, unit, professional, matchScore);
-
-  // Criar notificacao
-  const notification = await criarNotificacao({
+/**
+ * Notifica Super Job Match (4/4) via WhatsApp
+ */
+export const notificarSuperJobMatch = async ({ numero, nomeProfissional, tituloVaga, cidade, uf, userId }) => {
+  const mensagem = `⚡ *SUPER VAGA PARA VOCÊ!* ⚡\n\nOi, ${nomeProfissional}! 👋\n\n🎯 Encontramos uma vaga PERFEITA:\n*${tituloVaga}*\n\n📍 ${cidade}/${uf}\n\n✅ 100% compatível com seu perfil!\n\n👉 Acesse o app agora e candidate-se antes que acabe!`;
+  
+  return enviarWhatsAppNotificacao({
+    numero,
+    mensagem,
     tipo: 'SUPER_JOB_MATCH',
-    destinatario_user_id: professional.user_id,
-    destinatario_professional_id: professionalId,
-    destinatario_whatsapp: professional.whatsapp,
-    destinatario_nome: professional.nome_completo,
-    job_id: jobId,
-    mensagem_texto: mensagem,
-    mensagem_template: 'super_job_match',
-    match_score: matchScore,
-    metadata: {
-      empresa: unit.nome_fantasia,
-      especialidade: job.especialidades_aceitas?.[0],
-      cidade: job.cidade,
-      uf: job.uf,
-      tipo_remuneracao: job.tipo_remuneracao
-    }
+    userId
   });
-
-  // Enviar imediatamente
-  try {
-    await enviarNotificacao(notification.id);
-  } catch (error) {
-    console.error('Erro ao enviar notificacao:', error);
-  }
-
-  return notification;
-}
+};
 
 /**
- * Montar mensagem de SUPER_JOB
+ * Notifica candidatura aceita via WhatsApp
  */
-function montarMensagemSuperJob(job, unit, professional, matchScore) {
-  let mensagem = `*MATCH PERFEITO!* (${matchScore}/4)\n\n`;
-  mensagem += `Ola, ${professional.nome_completo}!\n\n`;
-  mensagem += `Encontramos uma vaga *PERFEITA* para voce!\n\n`;
-
-  mensagem += `*Empresa:* ${unit.nome_fantasia}\n`;
-  mensagem += `*Vaga:* ${job.titulo}\n`;
-  mensagem += `*Especialidade:* ${job.especialidades_aceitas?.[0] || 'Clinica Geral'}\n`;
-  mensagem += `*Local:* ${job.cidade}/${job.uf}\n`;
-
-  if (job.tipo_remuneracao === 'FIXO' && job.valor_proposto) {
-    mensagem += `*Salario:* R$ ${job.valor_proposto.toFixed(2)}\n`;
-  }
-
-  mensagem += `\n*Por que e perfeito?*\n`;
-  mensagem += `- 100% compativel com seu perfil\n`;
-  mensagem += `- Especialidade ideal\n`;
-  mensagem += `- Localizacao perfeita\n`;
-  mensagem += `- Regime compativel\n\n`;
-
-  mensagem += `*Acesse agora e candidate-se:*\n`;
-  mensagem += `https://app.doutorizze.com/newjobs\n\n`;
-
-  mensagem += `_Vagas com match perfeito sao raras!_\n`;
-  mensagem += `_Nao perca esta oportunidade!_\n\n`;
-
-  mensagem += `---\n`;
-  mensagem += `_Doutorizze - Sua proxima oportunidade_`;
-
-  return mensagem;
-}
-
-// ===============================================================
-// SUBSTITUICOES
-// ===============================================================
-
-/**
- * Notificar candidatura aceita
- */
-export async function notificarCandidaturaAceita(substituicaoId, professionalId) {
-  const substituicoes = await base44.entities.SubstituicaoUrgente.filter({ id: substituicaoId });
-  const substituicao = substituicoes[0];
-  const professionals = await base44.entities.Professional.filter({ id: professionalId });
-  const professional = professionals[0];
-
-  const mensagem = `*PARABENS!* Voce foi ESCOLHIDO!\n\n` +
-    `Ola, ${professional.nome_completo}!\n\n` +
-    `Sua candidatura para a substituicao na *${substituicao.nome_clinica}* foi ACEITA!\n\n` +
-    `*Data:* ${new Date(substituicao.data_especifica || substituicao.data_hora_imediata).toLocaleDateString('pt-BR')}\n` +
-    `*Horario:* ${substituicao.horario_inicio} - ${substituicao.horario_fim}\n` +
-    `*Local:* ${substituicao.cidade}/${substituicao.uf}\n\n` +
-    `Acesse o app para ver todos os detalhes.\n\n` +
-    `---\n_Doutorizze_`;
-
-  const notification = await criarNotificacao({
+export const notificarCandidaturaAceita = async ({ numero, nomeProfissional, tituloVaga, nomeClinica, userId }) => {
+  const mensagem = `🎉 *PARABÉNS!* 🎉\n\n${nomeProfissional}, você foi ESCOLHIDO!\n\n✅ Vaga: *${tituloVaga}*\n🏥 Clínica: *${nomeClinica}*\n\n📱 A clínica entrará em contato em breve.\n\nBoa sorte! 💪`;
+  
+  return enviarWhatsAppNotificacao({
+    numero,
+    mensagem,
     tipo: 'CANDIDATURA_ACEITA',
-    destinatario_user_id: professional.user_id,
-    destinatario_professional_id: professionalId,
-    destinatario_whatsapp: professional.whatsapp,
-    destinatario_nome: professional.nome_completo,
-    substituicao_id: substituicaoId,
-    mensagem_texto: mensagem,
-    mensagem_template: 'candidatura_aceita'
+    userId
   });
-
-  try {
-    await enviarNotificacao(notification.id);
-  } catch (error) {
-    console.error('Erro ao enviar notificacao:', error);
-  }
-
-  return notification;
-}
+};
 
 /**
- * Notificar candidatura rejeitada
+ * Notifica candidatura rejeitada via WhatsApp
  */
-export async function notificarCandidaturaRejeitada(substituicaoId, professionalId) {
-  const substituicoes = await base44.entities.SubstituicaoUrgente.filter({ id: substituicaoId });
-  const substituicao = substituicoes[0];
-  const professionals = await base44.entities.Professional.filter({ id: professionalId });
-  const professional = professionals[0];
-
-  const mensagem = `Ola, ${professional.nome_completo}!\n\n` +
-    `Infelizmente sua candidatura para a substituicao na *${substituicao.nome_clinica}* nao foi selecionada desta vez.\n\n` +
-    `Mas nao desanime! Continue ativo no app que novas oportunidades aparecem a todo momento.\n\n` +
-    `---\n_Doutorizze_`;
-
-  const notification = await criarNotificacao({
+export const notificarCandidaturaRejeitada = async ({ numero, nomeProfissional, tituloVaga, userId }) => {
+  const mensagem = `Olá, ${nomeProfissional}.\n\nInfelizmente você não foi selecionado para a vaga:\n*${tituloVaga}*\n\n😊 Não desanime! Outras oportunidades estão chegando.\n\n👉 Continue buscando no app!`;
+  
+  return enviarWhatsAppNotificacao({
+    numero,
+    mensagem,
     tipo: 'CANDIDATURA_REJEITADA',
-    destinatario_user_id: professional.user_id,
-    destinatario_professional_id: professionalId,
-    destinatario_whatsapp: professional.whatsapp,
-    destinatario_nome: professional.nome_completo,
-    substituicao_id: substituicaoId,
-    mensagem_texto: mensagem,
-    mensagem_template: 'candidatura_rejeitada'
+    userId
   });
-
-  try {
-    await enviarNotificacao(notification.id);
-  } catch (error) {
-    console.error('Erro ao enviar notificacao:', error);
-  }
-
-  return notification;
-}
-
-// ===============================================================
-// ESTATISTICAS
-// ===============================================================
+};
 
 /**
- * Obter estatisticas de notificacoes
+ * Confirma substituição urgente via WhatsApp
  */
-export async function obterEstatisticas() {
-  const todas = await base44.entities.WhatsAppNotification.list();
+export const confirmarSubstituicaoWhatsApp = async ({ numero, nomeProfissional, data, horario, nomeClinica, userId }) => {
+  const mensagem = `✅ *CONFIRMAÇÃO DE SUBSTITUIÇÃO*\n\n${nomeProfissional}, sua substituição foi confirmada!\n\n📅 Data: ${data}\n⏰ Horário: ${horario}\n🏥 Local: ${nomeClinica}\n\n⚠️ *IMPORTANTE:* Compareça no horário!\n\nBom trabalho! 💪`;
+  
+  return enviarWhatsAppNotificacao({
+    numero,
+    mensagem,
+    tipo: 'CONFIRMACAO_SUBSTITUICAO',
+    userId
+  });
+};
 
-  const stats = {
-    total: todas.length,
-    enviadas: todas.filter(n => n.status === 'SENT').length,
-    entregues: todas.filter(n => n.status === 'DELIVERED').length,
-    lidas: todas.filter(n => n.status === 'READ').length,
-    pendentes: todas.filter(n => n.status === 'PENDING').length,
-    falhadas: todas.filter(n => n.status === 'FAILED').length,
-    taxaEntrega: 0,
-    taxaLeitura: 0
-  };
-
-  const enviadasTotal = stats.enviadas + stats.entregues + stats.lidas;
-  if (enviadasTotal > 0) {
-    stats.taxaEntrega = ((stats.entregues + stats.lidas) / enviadasTotal * 100).toFixed(1);
-    stats.taxaLeitura = (stats.lidas / enviadasTotal * 100).toFixed(1);
-  }
-
-  return stats;
-}
+export default {
+  enviarWhatsAppNotificacao,
+  enviarWhatsAppOTP,
+  notificarSuperJobMatch,
+  notificarCandidaturaAceita,
+  notificarCandidaturaRejeitada,
+  confirmarSubstituicaoWhatsApp,
+  formatarNumeroE164
+};
