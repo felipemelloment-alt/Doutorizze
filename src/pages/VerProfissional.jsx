@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
@@ -26,9 +26,9 @@ import WhatsAppSafeButton from "@/components/ui/WhatsAppSafeButton";
 
 export default function VerProfissional() {
   const navigate = useNavigate();
-  const { id } = useParams();
-  const [searchParams] = useSearchParams();
-  const matchId = searchParams.get("matchId");
+  const urlParams = new URLSearchParams(window.location.search);
+  const id = urlParams.get("id");
+  const matchId = urlParams.get("matchId");
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
   const [companyUnit, setCompanyUnit] = useState(null);
@@ -618,7 +618,7 @@ export default function VerProfissional() {
                 Recusar
               </button>
               <button
-                onClick={() => navigate(createPageUrl("Contratar") + "/" + matchId)}
+                onClick={() => navigate(createPageUrl("Contratar") + "?id=" + matchId)}
                 className="flex-1 py-4 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white font-bold rounded-2xl shadow-lg shadow-orange-200 hover:shadow-xl hover:scale-105 transition-all flex items-center justify-center gap-2"
               >
                 <CheckCircle2 className="w-5 h-5" />
