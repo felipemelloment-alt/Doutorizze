@@ -32,6 +32,8 @@ function AdminAprovacoesContent() {
   const [expandedId, setExpandedId] = useState(null);
   const [motivoReprovacao, setMotivoReprovacao] = useState("");
   const [modalReprovacao, setModalReprovacao] = useState(null);
+  const [modalDocumentos, setModalDocumentos] = useState(null);
+  const [solicitacaoDoc, setSolicitacaoDoc] = useState("");
 
   // Buscar profissionais pendentes
   const { data: profissionais = [], isLoading: loadingProfs } = useQuery({
@@ -46,6 +48,14 @@ function AdminAprovacoesContent() {
     queryKey: ["admin-clinicas"],
     queryFn: async () => {
       return await base44.entities.CompanyUnit.filter({ status_cadastro: "EM_ANALISE" });
+    }
+  });
+
+  // Buscar hospitais pendentes
+  const { data: hospitais = [], isLoading: loadingHospitais } = useQuery({
+    queryKey: ["admin-hospitais"],
+    queryFn: async () => {
+      return await base44.entities.Hospital.filter({ status_cadastro: "EM_ANALISE" });
     }
   });
 
@@ -121,6 +131,8 @@ function AdminAprovacoesContent() {
     mutationFn: async ({ tipo, id, motivo }) => {
       const entity = tipo === "profissional" 
         ? base44.entities.Professional 
+        : tipo === "hospital"
+        ? base44.entities.Hospital
         : base44.entities.CompanyUnit;
       
       return await entity.update(id, {
@@ -129,10 +141,41 @@ function AdminAprovacoesContent() {
       });
     },
     onSuccess: (_, { tipo }) => {
-      queryClient.invalidateQueries({ queryKey: [`admin-${tipo === "profissional" ? "profissionais" : "clinicas"}`] });
+      const queryKey = tipo === "profissional" ? "profissionais" : tipo === "hospital" ? "hospitais" : "clinicas";
+      queryClient.invalidateQueries({ queryKey: [`admin-${queryKey}`] });
       setModalReprovacao(null);
       setMotivoReprovacao("");
       toast.success("❌ Cadastro reprovado");
+    },
+    onError: (error) => {
+      toast.error("Erro: " + error.message);
+    }
+  });
+
+  // Mutation para solicitar documentos
+  const solicitarDocsMutation = useMutation({
+    mutationFn: async ({ tipo, id, userId, mensagem }) => {
+      // Enviar notificação
+      try {
+        await fetch('http://164.152.59.49:5678/webhook/push-notification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: userId,
+            title: '📄 Documentos Necessários',
+            body: mensagem,
+            data: { type: 'DOCS_PENDENTES', entity_type: tipo }
+          })
+        });
+      } catch (e) {
+        // Erro silencioso
+      }
+      return { success: true };
+    },
+    onSuccess: () => {
+      setModalDocumentos(null);
+      setSolicitacaoDoc("");
+      toast.success("✉️ Solicitação enviada!");
     },
     onError: (error) => {
       toast.error("Erro: " + error.message);
@@ -155,6 +198,19 @@ function AdminAprovacoesContent() {
     });
   };
 
+  const handleSolicitarDocs = () => {
+    if (!modalDocumentos || !solicitacaoDoc.trim()) {
+      toast.error("Informe quais documentos são necessários");
+      return;
+    }
+    solicitarDocsMutation.mutate({
+      tipo: modalDocumentos.tipo,
+      id: modalDocumentos.id,
+      userId: modalDocumentos.userId,
+      mensagem: solicitacaoDoc
+    });
+  };
+
   const getTimeAgo = (date) => {
     try {
       return formatDistanceToNow(new Date(date), { addSuffix: true, locale: ptBR });
@@ -163,7 +219,7 @@ function AdminAprovacoesContent() {
     }
   };
 
-  const isLoading = loadingProfs || loadingClinicas;
+  const isLoading = loadingProfs || loadingClinicas || loadingHospitais;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 p-6">
@@ -181,7 +237,7 @@ function AdminAprovacoesContent() {
           </div>
 
           {/* Contadores */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="bg-blue-100 rounded-2xl p-6 border-2 border-blue-300">
               <div className="flex items-center justify-between">
                 <div>
@@ -198,6 +254,15 @@ function AdminAprovacoesContent() {
                   <p className="text-4xl font-black text-purple-900">{clinicas.length}</p>
                 </div>
                 <Building2 className="w-10 h-10 text-purple-600" />
+              </div>
+            </div>
+            <div className="bg-green-100 rounded-2xl p-6 border-2 border-green-300">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-green-700">Hospitais</p>
+                  <p className="text-4xl font-black text-green-900">{hospitais.length}</p>
+                </div>
+                <Building2 className="w-10 h-10 text-green-600" />
               </div>
             </div>
           </div>
@@ -224,6 +289,16 @@ function AdminAprovacoesContent() {
             }`}
           >
             Clínicas ({clinicas.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("hospitais")}
+            className={`px-6 py-3 rounded-xl font-bold transition-all ${
+              activeTab === "hospitais"
+                ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-lg"
+                : "text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            Hospitais ({hospitais.length})
           </button>
         </div>
 
@@ -287,6 +362,12 @@ function AdminAprovacoesContent() {
                     className="flex-1 py-3 bg-green-500 text-white font-bold rounded-xl hover:bg-green-600 transition-all disabled:opacity-50"
                   >
                     ✅ Aprovar
+                  </button>
+                  <button
+                    onClick={() => setModalDocumentos({ tipo: "profissional", id: prof.id, userId: prof.user_id, nome: prof.nome_completo })}
+                    className="py-3 px-4 bg-blue-500 text-white font-bold rounded-xl hover:bg-blue-600 transition-all"
+                  >
+                    📄 Docs
                   </button>
                   <button
                     onClick={() => setModalReprovacao({ tipo: "profissional", id: prof.id, nome: prof.nome_completo })}
@@ -357,7 +438,87 @@ function AdminAprovacoesContent() {
                     ✅ Aprovar
                   </button>
                   <button
+                    onClick={() => setModalDocumentos({ tipo: "clinica", id: clinica.id, userId: clinica.owner_id, nome: clinica.nome_fantasia })}
+                    className="py-3 px-4 bg-blue-500 text-white font-bold rounded-xl hover:bg-blue-600 transition-all"
+                  >
+                    📄 Docs
+                  </button>
+                  <button
                     onClick={() => setModalReprovacao({ tipo: "clinica", id: clinica.id, nome: clinica.nome_fantasia })}
+                    disabled={reprovarMutation.isPending}
+                    className="flex-1 py-3 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition-all disabled:opacity-50"
+                  >
+                    ❌ Reprovar
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+
+            {activeTab === "hospitais" && hospitais.length === 0 && (
+              <div className="bg-white rounded-3xl shadow-lg p-12 text-center">
+                <CheckCircle2 className="w-16 h-16 text-green-400 mx-auto mb-4" />
+                <p className="text-gray-600 text-lg">Nenhum hospital pendente</p>
+              </div>
+            )}
+
+            {activeTab === "hospitais" && hospitais.map((hospital, index) => (
+              <motion.div
+                key={hospital.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className="bg-white rounded-3xl shadow-lg p-6"
+              >
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white">
+                      <Building2 className="w-8 h-8" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">{hospital.nome_fantasia}</h3>
+                      <p className="text-gray-600">{hospital.razao_social}</p>
+                      <p className="text-sm text-gray-500">CNPJ: {hospital.cnpj}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <MapPin className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm text-gray-500">{hospital.cidade} - {hospital.uf}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-sm text-gray-500">{getTimeAgo(hospital.created_date)}</span>
+                </div>
+
+                {hospital.documento_url && (
+                  <div className="mb-4">
+                    <p className="text-sm font-semibold text-gray-700 mb-2">Documentos:</p>
+                    <a
+                      href={hospital.documento_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-xl hover:bg-blue-200"
+                    >
+                      <FileText className="w-4 h-4" />
+                      Ver Documentos
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  </div>
+                )}
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => handleAprovar("hospital", hospital.id, hospital.user_id)}
+                    disabled={aprovarMutation.isPending}
+                    className="flex-1 py-3 bg-green-500 text-white font-bold rounded-xl hover:bg-green-600 transition-all disabled:opacity-50"
+                  >
+                    ✅ Aprovar
+                  </button>
+                  <button
+                    onClick={() => setModalDocumentos({ tipo: "hospital", id: hospital.id, userId: hospital.user_id, nome: hospital.nome_fantasia })}
+                    className="py-3 px-4 bg-blue-500 text-white font-bold rounded-xl hover:bg-blue-600 transition-all"
+                  >
+                    📄 Docs
+                  </button>
+                  <button
+                    onClick={() => setModalReprovacao({ tipo: "hospital", id: hospital.id, nome: hospital.nome_fantasia })}
                     disabled={reprovarMutation.isPending}
                     className="flex-1 py-3 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition-all disabled:opacity-50"
                   >
@@ -369,6 +530,51 @@ function AdminAprovacoesContent() {
           </div>
         )}
       </div>
+
+      {/* Modal de Solicitar Documentos */}
+      {modalDocumentos && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-3xl shadow-2xl p-6 max-w-lg w-full"
+          >
+            <h3 className="text-2xl font-black text-gray-900 mb-4">
+              📄 Solicitar Documentos
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Informe quais documentos são necessários para <strong>{modalDocumentos.nome}</strong>:
+            </p>
+
+            <textarea
+              value={solicitacaoDoc}
+              onChange={(e) => setSolicitacaoDoc(e.target.value)}
+              placeholder="Ex: Precisamos de cópia do RG frente e verso, e comprovante de endereço atualizado..."
+              rows={4}
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all outline-none resize-none mb-4"
+            />
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setModalDocumentos(null);
+                  setSolicitacaoDoc("");
+                }}
+                className="flex-1 py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-all"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSolicitarDocs}
+                disabled={solicitarDocsMutation.isPending || !solicitacaoDoc.trim()}
+                className="flex-1 py-3 bg-blue-500 text-white font-bold rounded-xl hover:bg-blue-600 transition-all disabled:opacity-50"
+              >
+                {solicitarDocsMutation.isPending ? "Enviando..." : "Enviar Solicitação"}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* Modal de Reprovação */}
       {modalReprovacao && (

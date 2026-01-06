@@ -37,6 +37,16 @@ function AdminCuponsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [tipoFilter, setTipoFilter] = useState("all");
+  const [modalCriar, setModalCriar] = useState(false);
+  const [novoCupom, setNovoCupom] = useState({
+    codigo: "",
+    parceiro_nome: "",
+    desconto_tipo: "PERCENTUAL",
+    desconto_valor: 0,
+    produto_categoria: "",
+    data_validade: "",
+    observacoes: ""
+  });
 
   // Buscar cupons
   const { data: cupons = [], isLoading } = useQuery({
@@ -45,6 +55,51 @@ function AdminCuponsPage() {
       const result = await base44.asServiceRole.entities.TokenDesconto.list();
       return result.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
     },
+  });
+
+  // Mutation para criar cupom
+  const criarCupomMutation = useMutation({
+    mutationFn: async (data) => {
+      return await base44.asServiceRole.entities.TokenDesconto.create({
+        ...data,
+        status: "ATIVO",
+        data_geracao: new Date().toISOString(),
+        enviado_whatsapp: false
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminCupons"] });
+      setModalCriar(false);
+      setNovoCupom({
+        codigo: "",
+        parceiro_nome: "",
+        desconto_tipo: "PERCENTUAL",
+        desconto_valor: 0,
+        produto_categoria: "",
+        data_validade: "",
+        observacoes: ""
+      });
+      toast.success("✅ Cupom criado com sucesso!");
+    },
+    onError: (error) => {
+      toast.error("Erro ao criar cupom: " + error.message);
+    }
+  });
+
+  // Mutation para desativar cupom
+  const desativarCupomMutation = useMutation({
+    mutationFn: async (id) => {
+      return await base44.asServiceRole.entities.TokenDesconto.update(id, {
+        status: "CANCELADO"
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminCupons"] });
+      toast.success("❌ Cupom desativado!");
+    },
+    onError: (error) => {
+      toast.error("Erro ao desativar: " + error.message);
+    }
   });
 
   // Filtrar cupons
@@ -84,13 +139,21 @@ function AdminCuponsPage() {
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 p-6 pb-32">
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-6">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-600 hover:text-yellow-600 mb-4 font-semibold"
-        >
-          <ChevronLeft className="w-5 h-5" />
-          Voltar
-        </button>
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-gray-600 hover:text-yellow-600 font-semibold"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            Voltar
+          </button>
+          <button
+            onClick={() => setModalCriar(true)}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-2xl hover:shadow-lg transition-all"
+          >
+            ➕ Criar Cupom
+          </button>
+        </div>
 
         <div className="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 rounded-3xl p-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
@@ -330,6 +393,19 @@ function AdminCuponsPage() {
                     </div>
                   )}
                 </div>
+
+                {/* Ações */}
+                {cupom.status === "ATIVO" && (
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    <button
+                      onClick={() => desativarCupomMutation.mutate(cupom.id)}
+                      disabled={desativarCupomMutation.isPending}
+                      className="px-4 py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition-all disabled:opacity-50"
+                    >
+                      Desativar Cupom
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -347,6 +423,113 @@ function AdminCuponsPage() {
           )}
         </div>
       </div>
+
+      {/* Modal Criar Cupom */}
+      {modalCriar && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <h3 className="text-2xl font-black text-gray-900 mb-6">
+              🎟️ Criar Novo Cupom
+            </h3>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Código do Cupom</label>
+                <Input
+                  value={novoCupom.codigo}
+                  onChange={(e) => setNovoCupom({...novoCupom, codigo: e.target.value.toUpperCase()})}
+                  placeholder="Ex: DOUTORIZZE20"
+                  className="h-12"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Nome do Parceiro</label>
+                <Input
+                  value={novoCupom.parceiro_nome}
+                  onChange={(e) => setNovoCupom({...novoCupom, parceiro_nome: e.target.value})}
+                  placeholder="Nome da empresa parceira"
+                  className="h-12"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Tipo de Desconto</label>
+                <Select value={novoCupom.desconto_tipo} onValueChange={(v) => setNovoCupom({...novoCupom, desconto_tipo: v})}>
+                  <SelectTrigger className="h-12">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PERCENTUAL">Percentual (%)</SelectItem>
+                    <SelectItem value="VALOR_FIXO">Valor Fixo (R$)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Valor do Desconto {novoCupom.desconto_tipo === "PERCENTUAL" ? "(%)" : "(R$)"}
+                </label>
+                <Input
+                  type="number"
+                  value={novoCupom.desconto_valor}
+                  onChange={(e) => setNovoCupom({...novoCupom, desconto_valor: parseFloat(e.target.value) || 0})}
+                  placeholder="Ex: 20"
+                  className="h-12"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Categoria do Produto</label>
+                <Input
+                  value={novoCupom.produto_categoria}
+                  onChange={(e) => setNovoCupom({...novoCupom, produto_categoria: e.target.value})}
+                  placeholder="Ex: EQUIPAMENTOS, CURSOS"
+                  className="h-12"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Data de Validade</label>
+                <Input
+                  type="date"
+                  value={novoCupom.data_validade}
+                  onChange={(e) => setNovoCupom({...novoCupom, data_validade: e.target.value})}
+                  className="h-12"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Observações</label>
+                <textarea
+                  value={novoCupom.observacoes}
+                  onChange={(e) => setNovoCupom({...novoCupom, observacoes: e.target.value})}
+                  placeholder="Informações adicionais..."
+                  rows={3}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-400 focus:ring-4 focus:ring-purple-100 transition-all outline-none resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => setModalCriar(false)}
+                className="flex-1 h-12"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={() => criarCupomMutation.mutate(novoCupom)}
+                disabled={criarCupomMutation.isPending || !novoCupom.codigo || !novoCupom.parceiro_nome || !novoCupom.data_validade}
+                className="flex-1 h-12 bg-gradient-to-r from-purple-500 to-pink-600"
+              >
+                {criarCupomMutation.isPending ? "Criando..." : "Criar Cupom"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
