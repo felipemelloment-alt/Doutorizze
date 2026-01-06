@@ -79,7 +79,6 @@ export default function CriarVaga() {
           }
         }
       } catch (error) {
-        console.error("Erro ao carregar unidade:", error);
         toast.error("Erro ao carregar dados da clínica");
       }
     };
@@ -315,17 +314,16 @@ export default function CriarVaga() {
               });
             }
           } catch (e) {
-            console.error('Notification error for professional:', prof.id, e);
+            // Erro silencioso no envio de notificação
           }
         }
       } catch (e) {
-        console.error('Notification error:', e);
+        // Erro silencioso no sistema de notificações
       }
 
       toast.success("✅ Vaga publicada com sucesso!");
       navigate(createPageUrl("MinhasVagas"));
     } catch (error) {
-      console.error("Erro ao publicar vaga:", error);
       toast.error("❌ Erro ao publicar vaga: " + error.message);
     }
     setLoading(false);
