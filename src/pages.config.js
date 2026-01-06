@@ -103,6 +103,7 @@ import DisponibilidadeSubstituicao from './pages/DisponibilidadeSubstituicao';
 import Fornecedores from './pages/Fornecedores';
 import MeusFavoritos from './pages/MeusFavoritos';
 import SimulacaoCredito from './pages/SimulacaoCredito';
+import ConfigurarDisponibilidade from './pages/ConfigurarDisponibilidade';
 import __Layout from './Layout.jsx';
 
 
@@ -212,6 +213,7 @@ export const PAGES = {
     "Fornecedores": Fornecedores,
     "MeusFavoritos": MeusFavoritos,
     "SimulacaoCredito": SimulacaoCredito,
+    "ConfigurarDisponibilidade": ConfigurarDisponibilidade,
 }
 
 export const pagesConfig = {
