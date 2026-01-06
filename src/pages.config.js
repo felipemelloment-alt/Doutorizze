@@ -94,6 +94,8 @@ import FeedBackup from './pages/FeedBackup';
 import GerenciarCandidatos from './pages/GerenciarCandidatos';
 import MeusTokens from './pages/MeusTokens';
 import VerificarToken from './pages/VerificarToken';
+import Fornecedores from './pages/Fornecedores';
+import DetalheFornecedor from './pages/DetalheFornecedor';
 import __Layout from './Layout.jsx';
 
 
@@ -194,6 +196,8 @@ export const PAGES = {
     "GerenciarCandidatos": GerenciarCandidatos,
     "MeusTokens": MeusTokens,
     "VerificarToken": VerificarToken,
+    "Fornecedores": Fornecedores,
+    "DetalheFornecedor": DetalheFornecedor,
 }
 
 export const pagesConfig = {
