@@ -249,7 +249,7 @@ export default function DashboardProfissional() {
                   <div
                     key={match.id}
                     className="border-2 border-gray-200 rounded-xl p-5 hover:border-blue-400 hover:shadow-lg transition-all cursor-pointer group"
-                    onClick={() => navigate(createPageUrl("DetalheVaga") + "/" + job.id)}
+                    onClick={() => navigate(createPageUrl("DetalheVaga") + "?id=" + job.id)}
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">

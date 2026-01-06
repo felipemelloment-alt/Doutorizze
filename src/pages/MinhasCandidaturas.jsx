@@ -241,7 +241,7 @@ export default function MinhasCandidaturas() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                onClick={() => navigate(createPageUrl("DetalheVaga") + "/" + item.job.id)}
+                onClick={() => navigate(createPageUrl("DetalheVaga") + "?id=" + item.job.id)}
                 className="bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all cursor-pointer overflow-hidden group"
               >
                 {/* Status Bar no Topo */}
