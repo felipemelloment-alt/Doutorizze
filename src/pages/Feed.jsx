@@ -526,7 +526,7 @@ export default function Feed() {
           url: window.location.href
         });
       } catch (error) {
-        logger.debug("Erro ao compartilhar:", error);
+        // Erro silencioso ao compartilhar
       }
     } else {
       navigator.clipboard.writeText(window.location.href);
