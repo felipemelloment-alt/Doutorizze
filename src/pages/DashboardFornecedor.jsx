@@ -27,11 +27,23 @@ export default function DashboardFornecedor() {
   useEffect(() => {
     const loadUser = async () => {
       try {
+        // Verificar cache primeiro
+        const cachedSupplier = localStorage.getItem('supplier_cache');
+        if (cachedSupplier) {
+          setSupplier(JSON.parse(cachedSupplier));
+        }
+
         const currentUser = await base44.auth.me();
         setUser(currentUser);
         
         const supplierResult = await base44.entities.Supplier.filter({ user_id: currentUser.id });
-        setSupplier(supplierResult[0] || null);
+        const supplier = supplierResult[0] || null;
+        setSupplier(supplier);
+        
+        // Atualizar cache
+        if (supplier) {
+          localStorage.setItem('supplier_cache', JSON.stringify(supplier));
+        }
       } catch (error) {
         // Erro silencioso
       }

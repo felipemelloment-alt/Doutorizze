@@ -15,13 +15,13 @@ export default function Layout({ children, currentPageName }) {
     let isMounted = true;
     
     const loadUser = async () => {
-      // Timeout de segurança - máximo 3 segundos
+      // Timeout de segurança - máximo 1.5 segundos
       const timeoutId = setTimeout(() => {
         if (isMounted) {
           setUser(null);
           setLoading(false);
         }
-      }, 3000);
+      }, 1500);
 
       try {
         const currentUser = await base44.auth.me();
