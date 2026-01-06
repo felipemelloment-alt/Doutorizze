@@ -14,18 +14,12 @@ export default function OnboardingVertical() {
     let isMounted = true;
     
     const checkVertical = async () => {
-      const timeoutId = setTimeout(() => {
-        if (isMounted) console.warn("OnboardingVertical: Auth timeout");
-      }, 5000);
-
       try {
         const user = await base44.auth.me();
-        clearTimeout(timeoutId);
         if (isMounted && user?.vertical) {
           navigate(createPageUrl("OnboardingTipoConta"));
         }
       } catch (error) {
-        clearTimeout(timeoutId);
         console.warn("Erro ao verificar vertical:", error?.message || error);
       }
     };

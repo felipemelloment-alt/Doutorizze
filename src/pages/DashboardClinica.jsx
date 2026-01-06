@@ -39,67 +39,51 @@ export default function DashboardClinica() {
     loadUser();
   }, []);
 
-  // Buscar dados do owner
-  const { data: owner } = useQuery({
-    queryKey: ["companyOwner", user?.id],
+  // Buscar todos os dados em paralelo quando user disponível
+  const { data: dashboardData = {}, isLoading: loadingDashboard } = useQuery({
+    queryKey: ["clinicDashboard", user?.id],
     queryFn: async () => {
-      if (!user) return null;
-      const result = await base44.entities.CompanyOwner.filter({ user_id: user.id });
-      return result[0] || null;
-    },
-    enabled: !!user
-  });
-
-  // Buscar unidades da clínica
-  const { data: units = [] } = useQuery({
-    queryKey: ["companyUnits", owner?.id],
-    queryFn: async () => {
-      if (!owner) return [];
-      return await base44.entities.CompanyUnit.filter({ owner_id: owner.id });
-    },
-    enabled: !!owner
-  });
-
-  const primaryUnit = units[0]; // Usar primeira unidade como principal
-
-  // Buscar vagas da clínica
-  const { data: jobs = [] } = useQuery({
-    queryKey: ["clinicJobs", primaryUnit?.id],
-    queryFn: async () => {
-      if (!primaryUnit) return [];
-      return await base44.entities.Job.filter({ unit_id: primaryUnit.id });
-    },
-    enabled: !!primaryUnit
-  });
-
-  // Buscar matches (candidatos)
-  const { data: allMatches = [] } = useQuery({
-    queryKey: ["jobMatches", jobs],
-    queryFn: async () => {
-      if (jobs.length === 0) return [];
+      if (!user) return {};
+      
+      // Batch 1: Owner e Units em paralelo
+      const [ownerResult, ] = await Promise.all([
+        base44.entities.CompanyOwner.filter({ user_id: user.id }),
+      ]);
+      
+      const owner = ownerResult[0];
+      if (!owner) return { owner: null, units: [], jobs: [], matches: [], professionals: [] };
+      
+      // Batch 2: Units
+      const units = await base44.entities.CompanyUnit.filter({ owner_id: owner.id });
+      const primaryUnit = units[0];
+      if (!primaryUnit) return { owner, units: [], jobs: [], matches: [], professionals: [] };
+      
+      // Batch 3: Jobs
+      const jobs = await base44.entities.Job.filter({ unit_id: primaryUnit.id });
+      if (jobs.length === 0) return { owner, units, primaryUnit, jobs: [], matches: [], professionals: [] };
+      
+      // Batch 4: Matches em paralelo
       const jobIds = jobs.map(j => j.id);
-      const matchPromises = jobIds.map(id => 
-        base44.entities.JobMatch.filter({ job_id: id })
+      const matchResults = await Promise.all(
+        jobIds.map(id => base44.entities.JobMatch.filter({ job_id: id }))
       );
-      const results = await Promise.all(matchPromises);
-      return results.flat();
+      const matches = matchResults.flat();
+      
+      // Batch 5: Profissionais em paralelo
+      if (matches.length === 0) return { owner, units, primaryUnit, jobs, matches: [], professionals: [] };
+      
+      const profIds = [...new Set(matches.map(m => m.professional_id))];
+      const professionals = (await Promise.all(
+        profIds.map(id => base44.entities.Professional.filter({ id }).then(res => res[0]))
+      )).filter(Boolean);
+      
+      return { owner, units, primaryUnit, jobs, matches, professionals };
     },
-    enabled: jobs.length > 0
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000, // Cache por 5 minutos
   });
 
-  // Buscar profissionais dos matches
-  const { data: professionals = [] } = useQuery({
-    queryKey: ["professionals", allMatches],
-    queryFn: async () => {
-      if (allMatches.length === 0) return [];
-      const profIds = [...new Set(allMatches.map(m => m.professional_id))];
-      const profPromises = profIds.map(id => 
-        base44.entities.Professional.filter({ id }).then(res => res[0])
-      );
-      return (await Promise.all(profPromises)).filter(Boolean);
-    },
-    enabled: allMatches.length > 0
-  });
+  const { owner, units = [], primaryUnit, jobs = [], matches: allMatches = [], professionals = [] } = dashboardData;
 
   // Calcular métricas
   const vagasAtivas = jobs.filter(j => j.status === "ABERTO").length;
@@ -115,7 +99,7 @@ export default function DashboardClinica() {
     .sort((a, b) => new Date(b.created_date) - new Date(a.created_date))
     .slice(0, 5);
 
-  if (!primaryUnit) {
+  if (loadingDashboard || !primaryUnit) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 flex items-center justify-center p-6">
         <div className="text-center">

@@ -36,53 +36,41 @@ export default function DashboardProfissional() {
     loadUser();
   }, []);
 
-  // Buscar dados do profissional
-  const { data: professional } = useQuery({
-    queryKey: ["professional", user?.id],
+  // Buscar todos os dados em paralelo
+  const { data: dashboardData = {}, isLoading: loadingDashboard } = useQuery({
+    queryKey: ["professionalDashboard", user?.id],
     queryFn: async () => {
-      if (!user) return null;
-      const result = await base44.entities.Professional.filter({ user_id: user.id });
-      return result[0] || null;
-    },
-    enabled: !!user
-  });
-
-  // Buscar matches do profissional
-  const { data: matches = [] } = useQuery({
-    queryKey: ["jobMatches", professional?.id],
-    queryFn: async () => {
-      if (!professional) return [];
-      return await base44.entities.JobMatch.filter({ professional_id: professional.id });
-    },
-    enabled: !!professional
-  });
-
-  // Buscar vagas dos matches
-  const { data: jobs = [] } = useQuery({
-    queryKey: ["matchedJobs", matches],
-    queryFn: async () => {
-      if (matches.length === 0) return [];
+      if (!user) return {};
+      
+      // Batch 1: Professional
+      const profResult = await base44.entities.Professional.filter({ user_id: user.id });
+      const professional = profResult[0];
+      if (!professional) return { professional: null, matches: [], jobs: [], ratings: [] };
+      
+      // Batch 2: Matches e Ratings em paralelo
+      const [matches, ratings] = await Promise.all([
+        base44.entities.JobMatch.filter({ professional_id: professional.id }),
+        base44.entities.Rating.filter({ 
+          avaliado_id: professional.id,
+          avaliado_tipo: professional.tipo_profissional
+        })
+      ]);
+      
+      // Batch 3: Jobs em paralelo
+      if (matches.length === 0) return { professional, matches: [], jobs: [], ratings };
+      
       const jobIds = [...new Set(matches.map(m => m.job_id))];
-      const jobPromises = jobIds.map(id => 
-        base44.entities.Job.filter({ id }).then(res => res[0])
-      );
-      return (await Promise.all(jobPromises)).filter(Boolean);
+      const jobs = (await Promise.all(
+        jobIds.map(id => base44.entities.Job.filter({ id }).then(res => res[0]))
+      )).filter(Boolean);
+      
+      return { professional, matches, jobs, ratings };
     },
-    enabled: matches.length > 0
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000, // Cache por 5 minutos
   });
 
-  // Buscar avaliações - DINÂMICO POR TIPO
-  const { data: ratings = [] } = useQuery({
-    queryKey: ["ratings", professional?.id],
-    queryFn: async () => {
-      if (!professional) return [];
-      return await base44.entities.Rating.filter({ 
-        avaliado_id: professional.id,
-        avaliado_tipo: professional.tipo_profissional
-      });
-    },
-    enabled: !!professional
-  });
+  const { professional, matches = [], jobs = [], ratings = [] } = dashboardData;
 
   // Filtrar matches por tipo
   const superJobs = matches.filter(m => m.match_type === "SUPER_JOB" && m.status_candidatura !== "REJEITADO");
@@ -105,7 +93,7 @@ export default function DashboardProfissional() {
 
   const currentStatus = statusConfig[professional?.status_disponibilidade] || statusConfig.DISPONIVEL;
 
-  if (!professional) {
+  if (loadingDashboard || !professional) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 flex items-center justify-center p-6">
         <div className="text-center">
