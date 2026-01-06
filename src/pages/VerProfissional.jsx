@@ -46,7 +46,7 @@ export default function VerProfissional() {
           setCompanyUnit(unitResult[0] || null);
         }
       } catch (error) {
-        console.error("Erro ao carregar dados:", error);
+        // Erro silencioso
       }
     };
     loadData();
