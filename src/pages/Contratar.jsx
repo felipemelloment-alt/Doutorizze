@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
@@ -22,7 +22,8 @@ import {
 
 export default function Contratar() {
   const navigate = useNavigate();
-  const { matchId } = useParams();
+  const urlParams = new URLSearchParams(window.location.search);
+  const matchId = urlParams.get("id");
   const queryClient = useQueryClient();
   const [confirmoContato, setConfirmoContato] = useState(false);
   const [confirmoTermos, setConfirmoTermos] = useState(false);
