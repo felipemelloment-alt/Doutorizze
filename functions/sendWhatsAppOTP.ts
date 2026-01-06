@@ -132,8 +132,7 @@ Deno.serve(async (req) => {
           })
         });
       } catch (whatsappError) {
-        // Log erro mas não falha (fallback para dev)
-        console.error("Erro ao enviar WhatsApp:", whatsappError.message);
+        // Erro silencioso ao enviar WhatsApp
       }
     }
 
@@ -145,7 +144,6 @@ Deno.serve(async (req) => {
     });
 
   } catch (error) {
-    console.error("Erro em sendWhatsAppOTP:", error.message);
     return Response.json({ error: 'Erro interno' }, { status: 500 });
   }
 });

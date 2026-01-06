@@ -125,7 +125,6 @@ Deno.serve(async (req) => {
     });
 
   } catch (error) {
-    console.error("Erro em verifyWhatsAppOTP:", error.message);
     return Response.json({ error: 'Erro interno' }, { status: 500 });
   }
 });
