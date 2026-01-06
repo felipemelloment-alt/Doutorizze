@@ -98,7 +98,7 @@ export default function NotificationSettings() {
           }
         }
       } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
+        // Erro silencioso
       }
     };
     loadUser();

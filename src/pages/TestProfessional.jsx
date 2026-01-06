@@ -55,7 +55,6 @@ export default function TestProfessional() {
       try {
         return await base44.entities.Professional.list();
       } catch (error) {
-        console.error("Erro ao buscar profissionais:", error);
         toast.error("Erro ao carregar profissionais");
         return [];
       }
@@ -115,7 +114,6 @@ export default function TestProfessional() {
       toast.success("Profissional criado com sucesso!");
       queryClient.invalidateQueries(["professionals"]);
     } catch (error) {
-      console.error("Erro ao criar profissional:", error);
       toast.error("Erro: " + error.message);
     }
     setLoading(false);
