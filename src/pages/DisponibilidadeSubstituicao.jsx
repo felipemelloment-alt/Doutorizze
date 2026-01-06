@@ -30,7 +30,7 @@ export default function DisponibilidadeSubstituicao() {
           setProfessional(professionals[0]);
         }
       } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
+        // Erro silencioso
       }
     };
     loadUser();
