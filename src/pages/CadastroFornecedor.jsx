@@ -62,7 +62,7 @@ export default function CadastroFornecedor() {
 
     const loadUser = async () => {
       const timeoutId = setTimeout(() => {
-        if (isMounted) console.warn("CadastroFornecedor: Auth timeout");
+        if (isMounted) return;
       }, 5000);
 
       try {
@@ -71,7 +71,6 @@ export default function CadastroFornecedor() {
         if (isMounted) setUser(currentUser);
       } catch (error) {
         clearTimeout(timeoutId);
-        console.warn("Erro ao carregar usuário:", error?.message || error);
       }
     };
     loadUser();

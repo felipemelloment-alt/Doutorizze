@@ -60,7 +60,7 @@ export default function MeusCursos() {
         const instResults = await base44.entities.EducationInstitution.filter({ user_id: currentUser.id });
         setInstituicao(instResults[0] || null);
       } catch (error) {
-        console.error("Erro ao carregar dados:", error);
+        // Erro silencioso
       }
     };
     loadData();
