@@ -24,7 +24,7 @@ export default function EscolherTipoCriador() {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
       } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
+        // Erro silencioso
       } finally {
         setLoading(false);
       }

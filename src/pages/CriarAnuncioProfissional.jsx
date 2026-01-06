@@ -51,7 +51,7 @@ export default function CriarAnuncioProfissional() {
           }));
         }
       } catch (error) {
-        console.error("Erro ao carregar profissional:", error);
+        // Erro silencioso
       }
     };
     loadProfessional();
