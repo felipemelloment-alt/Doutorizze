@@ -49,7 +49,7 @@ export default function DetalheVaga() {
         const profResult = await base44.entities.Professional.filter({ user_id: currentUser.id });
         setProfessional(profResult[0] || null);
       } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
+        // Erro silencioso
       }
     };
     loadUser();
@@ -194,7 +194,7 @@ export default function DetalheVaga() {
           })
         });
       } catch (e) {
-        console.error('Webhook error:', e);
+        // Erro silencioso no webhook
       }
 
       queryClient.invalidateQueries({ queryKey: ["jobMatch"] });
