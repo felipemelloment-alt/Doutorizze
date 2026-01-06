@@ -5,7 +5,6 @@ import SplashScreen from "@/components/shared/SplashScreen";
 import ErrorBoundary from "@/components/shared/ErrorBoundary";
 import OfflineBanner from "@/components/shared/OfflineBanner";
 import { AnimatePresence } from "framer-motion";
-import { trackPageView } from "@/components/utils/analytics";
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
@@ -40,7 +39,6 @@ export default function Layout({ children, currentPageName }) {
     };
     
     loadUser();
-    trackPageView(currentPageName);
 
     return () => {
       isMounted = false;
