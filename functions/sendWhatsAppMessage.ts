@@ -56,7 +56,6 @@ Deno.serve(async (req) => {
     const evolutionInstance = Deno.env.get("EVOLUTION_INSTANCE") || "doutorizze";
 
     if (!evolutionApiUrl || !evolutionApiKey) {
-      console.error("EVOLUTION_API_URL ou EVOLUTION_API_KEY não configurados");
       return Response.json({ 
         error: 'Serviço de WhatsApp não configurado' 
       }, { status: 503 });
@@ -77,7 +76,6 @@ Deno.serve(async (req) => {
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error("Erro Evolution API:", errorData);
       return Response.json({ 
         error: 'Falha ao enviar mensagem' 
       }, { status: 502 });
@@ -103,7 +101,6 @@ Deno.serve(async (req) => {
     });
 
   } catch (error) {
-    console.error("Erro em sendWhatsAppMessage:", error.message);
     return Response.json({ error: 'Erro interno' }, { status: 500 });
   }
 });

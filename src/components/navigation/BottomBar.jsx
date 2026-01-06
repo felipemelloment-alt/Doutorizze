@@ -67,7 +67,7 @@ export default function BottomBar() {
           return;
         }
       } catch (error) {
-        console.error("Erro ao detectar tipo de usuário:", error);
+        // Erro silencioso
       }
     };
 

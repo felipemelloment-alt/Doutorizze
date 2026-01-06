@@ -64,7 +64,6 @@ Deno.serve(async (req) => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Erro da API Anthropic:', errorData);
         return Response.json({ 
           error: 'Erro ao se comunicar com Claude AI',
           details: errorData 
@@ -92,7 +91,6 @@ Deno.serve(async (req) => {
     }, { status: 400 });
 
   } catch (error) {
-    console.error('Erro na função claudeAI:', error);
     return Response.json({ 
       error: 'Erro interno',
       message: error.message 

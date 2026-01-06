@@ -35,7 +35,7 @@ export default function MeuPerfil() {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
       } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
+        // Erro silencioso
       }
     };
     loadUser();
@@ -584,7 +584,6 @@ export default function MeuPerfil() {
                   toast.success("Você saiu da conta com sucesso!");
                   navigate("/");
                 } catch (error) {
-                  console.error("Erro ao desconectar:", error);
                   toast.error("Erro ao sair da conta");
                 }
               }

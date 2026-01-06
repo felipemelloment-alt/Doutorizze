@@ -23,7 +23,6 @@ export default function Onboarding() {
     const loadUser = async () => {
       const timeoutId = setTimeout(() => {
         if (isMounted) {
-          console.warn("Onboarding: Auth timeout");
           navigate(createPageUrl("Feed"));
         }
       }, 8000);
@@ -66,7 +65,6 @@ export default function Onboarding() {
         }
       } catch (error) {
         clearTimeout(timeoutId);
-        console.warn("Erro ao carregar usuário:", error?.message || error);
       }
     };
     loadUser();
@@ -94,8 +92,7 @@ export default function Onboarding() {
       await base44.auth.updateMe({ onboarding_completo: true });
       redirectToDashboard();
     } catch (error) {
-      console.error("Erro ao completar onboarding:", error);
-      redirectToDashboard(); // Redirecionar mesmo com erro
+      redirectToDashboard();
     }
   };
 

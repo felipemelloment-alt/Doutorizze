@@ -105,7 +105,7 @@ export default function Configuracoes() {
           return;
         }
       } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
+        // Erro silencioso
       }
     };
     loadUser();

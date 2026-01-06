@@ -31,7 +31,7 @@ export default function CadastroClinica() {
 
     const checkUser = async () => {
       const timeoutId = setTimeout(() => {
-        if (isMounted) console.warn("CadastroClinica: Auth timeout");
+        if (isMounted) return;
       }, 5000);
 
       try {
@@ -51,7 +51,6 @@ export default function CadastroClinica() {
         }
       } catch (error) {
         clearTimeout(timeoutId);
-        console.warn("Erro ao verificar usuário:", error?.message || error);
       }
     };
     checkUser();
@@ -342,7 +341,6 @@ export default function CadastroClinica() {
       handleInputChange(campo, file_url);
       toast.success("Arquivo enviado com sucesso!");
     } catch (error) {
-      console.error("Erro ao enviar arquivo:", error);
       toast.error("Erro ao enviar arquivo: " + error.message);
     }
   };
@@ -401,7 +399,6 @@ export default function CadastroClinica() {
       toast.success("✅ Cadastro realizado com sucesso! Aguarde a aprovação.");
       navigate(createPageUrl("CadastroSucesso"));
     } catch (error) {
-      console.error("Erro ao cadastrar:", error);
       toast.error("❌ Erro ao realizar cadastro: " + error.message);
     }
     setLoading(false);
