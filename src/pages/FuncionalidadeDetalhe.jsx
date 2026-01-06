@@ -39,7 +39,6 @@ export default function FuncionalidadeDetalhe() {
           responsavel: "Administrador"
         });
       } catch (error) {
-        console.error("Erro ao carregar funcionalidade:", error);
         toast.error("Erro ao carregar detalhes");
       }
       setLoading(false);
