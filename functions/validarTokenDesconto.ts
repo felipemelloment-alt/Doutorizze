@@ -1,12 +1,14 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 /**
- * ✅ VALIDAR TOKEN DE DESCONTO
+ * ✅ VALIDAR E USAR TOKEN DE DESCONTO
  * 
- * Usado por parceiros para validar e marcar como usado um token de desconto.
- * 
- * @param codigo - Código do token (DESC-XXXX)
- * @param valor_final - Valor final após desconto aplicado (para registro)
+ * AÇÕES:
+ * - Valida código
+ * - Marca como USADO
+ * - Registra se negócio fechou ou não
+ * - Repõe crédito se negocio_fechado = true
+ * - Aplica penalidade se negocio_fechado = false
  */
 Deno.serve(async (req) => {
   try {
@@ -17,13 +19,15 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { codigo, valor_final } = await req.json();
+    const { codigo, negocio_fechado, valor_final } = await req.json();
 
-    if (!codigo) {
-      return Response.json({ error: 'Código do token obrigatório' }, { status: 400 });
+    if (!codigo || negocio_fechado === undefined) {
+      return Response.json({ 
+        error: 'Campos obrigatórios: codigo, negocio_fechado' 
+      }, { status: 400 });
     }
 
-    // Buscar token
+    // BUSCAR TOKEN
     const tokens = await base44.asServiceRole.entities.TokenDesconto.filter({ codigo });
 
     if (tokens.length === 0) {
@@ -36,7 +40,7 @@ Deno.serve(async (req) => {
 
     const token = tokens[0];
 
-    // Validações
+    // VALIDAR STATUS
     if (token.status !== 'ATIVO') {
       return Response.json({ 
         success: false,
@@ -45,12 +49,11 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
-    // Verificar validade
+    // VALIDAR VALIDADE (48h)
     const agora = new Date();
     const dataValidade = new Date(token.data_validade);
     
     if (agora > dataValidade) {
-      // Marcar como expirado
       await base44.asServiceRole.entities.TokenDesconto.update(token.id, {
         status: 'EXPIRADO'
       });
@@ -63,22 +66,63 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
-    // Verificar se o parceiro que está validando é o dono do token
+    // VALIDAR PARCEIRO
     if (token.parceiro_id !== user.id) {
       return Response.json({ 
         success: false,
-        error: 'Este token não pertence a você',
+        error: 'Este token não pertence ao seu estabelecimento',
         motivo: 'PARCEIRO_INVALIDO'
       }, { status: 403 });
     }
 
-    // Marcar como USADO
+    // MARCAR COMO USADO
     const tokenAtualizado = await base44.asServiceRole.entities.TokenDesconto.update(token.id, {
       status: 'USADO',
       data_uso: agora.toISOString(),
+      negocio_fechado: negocio_fechado,
       valor_desconto_aplicado: valor_final ? parseFloat(valor_final) : null,
       usado_por_user_id: user.id
     });
+
+    // REPOR CRÉDITO SE FECHOU NEGÓCIO
+    if (negocio_fechado) {
+      await base44.asServiceRole.entities.TokenDesconto.update(token.id, {
+        credito_reposto: true
+      });
+
+      // Buscar TokenUsuario e incrementar creditos_usados
+      const tokenUsuario = await base44.asServiceRole.entities.TokenUsuario.filter({ 
+        id: token.token_usuario_id 
+      });
+
+      if (tokenUsuario.length > 0) {
+        await base44.asServiceRole.entities.TokenUsuario.update(tokenUsuario[0].id, {
+          creditos_usados: (tokenUsuario[0].creditos_usados || 0) + 1,
+          total_descontos_usados: (tokenUsuario[0].total_descontos_usados || 0) + 1,
+          valor_economizado: (tokenUsuario[0].valor_economizado || 0) + (token.valor_desconto || 0)
+        });
+      }
+    } else {
+      // NÃO FECHOU = PENALIDADE
+      const tokenUsuario = await base44.asServiceRole.entities.TokenUsuario.filter({ 
+        id: token.token_usuario_id 
+      });
+
+      if (tokenUsuario.length > 0) {
+        const creditosPerdidos = (tokenUsuario[0].creditos_perdidos || 0) + 1;
+        
+        await base44.asServiceRole.entities.TokenUsuario.update(tokenUsuario[0].id, {
+          creditos_perdidos: creditosPerdidos
+        });
+
+        // Se atingiu 3 créditos perdidos = SUSPENDER
+        if (creditosPerdidos >= 3) {
+          await base44.asServiceRole.entities.TokenUsuario.update(tokenUsuario[0].id, {
+            status: 'SUSPENSO'
+          });
+        }
+      }
+    }
 
     return Response.json({ 
       success: true,
@@ -90,7 +134,8 @@ Deno.serve(async (req) => {
       desconto: {
         tipo: token.tipo_desconto,
         valor: token.valor_desconto
-      }
+      },
+      negocio_fechado
     });
 
   } catch (error) {

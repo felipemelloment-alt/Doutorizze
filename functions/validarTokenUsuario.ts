@@ -1,64 +1,72 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
+/**
+ * 🔍 VALIDAR TOKEN USUARIO
+ * 
+ * Valida se o token do usuário existe e está ativo.
+ * Retorna dados do usuário para o parceiro gerar desconto.
+ */
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
 
     if (!user) {
-      return Response.json({ error: 'Não autenticado' }, { status: 401 });
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { token_id } = await req.json();
 
     if (!token_id) {
-      return Response.json({ error: 'Token ID obrigatório' }, { status: 400 });
+      return Response.json({ error: 'token_id obrigatório' }, { status: 400 });
     }
 
-    // Buscar token do usuário
+    // Buscar token
     const tokens = await base44.asServiceRole.entities.TokenUsuario.filter({ 
-      token_id: token_id.toUpperCase().trim()
+      token_id: token_id.trim().toUpperCase() 
     });
 
     if (tokens.length === 0) {
-      return Response.json({
+      return Response.json({ 
         valido: false,
-        message: 'Token não encontrado'
+        error: 'Token não encontrado'
       });
     }
 
     const tokenUsuario = tokens[0];
 
-    // Verificar status
     if (tokenUsuario.status !== 'ATIVO') {
-      return Response.json({
+      return Response.json({ 
         valido: false,
-        message: 'Token inativo ou suspenso'
+        error: `Token ${tokenUsuario.status.toLowerCase()}`,
+        status: tokenUsuario.status
       });
     }
 
-    // Buscar dados do usuário
-    const usuarios = await base44.asServiceRole.entities.User.filter({ id: tokenUsuario.user_id });
-    const usuarioInfo = usuarios[0];
+    // Determinar tipo de parceiro atual
+    let parceiroTipo = 'FORNECEDOR';
+    
+    const isEducacao = await base44.asServiceRole.entities.EducationInstitution.filter({ user_id: user.id });
+    if (isEducacao.length > 0) parceiroTipo = 'EDUCACAO';
+    
+    const isLab = await base44.asServiceRole.entities.Laboratorio.filter({ user_id: user.id });
+    if (isLab.length > 0) parceiroTipo = 'LABORATORIO';
 
-    return Response.json({
+    return Response.json({ 
       valido: true,
-      usuario: {
-        nome: usuarioInfo?.full_name || 'Não disponível',
-        email: usuarioInfo?.email,
-        tipo_conta: tokenUsuario.tipo_conta,
-        especialidade: tokenUsuario.especialidade,
-        nivel: tokenUsuario.nivel,
-        cadastrado_desde: tokenUsuario.data_emissao,
-        verificado: tokenUsuario.verificado,
-        creditos_disponiveis: tokenUsuario.creditos_disponiveis
-      },
-      token_id: tokenUsuario.token_id,
-      token_usuario_id: tokenUsuario.id
+      token_usuario_id: tokenUsuario.id,
+      user_id: tokenUsuario.user_id,
+      user_nome: tokenUsuario.nome_completo || 'Cliente',
+      tipo_conta: tokenUsuario.tipo_conta,
+      nivel: tokenUsuario.nivel,
+      cadastrado_desde: tokenUsuario.data_emissao,
+      status: tokenUsuario.status,
+      creditos_usados: tokenUsuario.creditos_usados || 0,
+      creditos_perdidos: tokenUsuario.creditos_perdidos || 0,
+      parceiro_tipo: parceiroTipo
     });
 
   } catch (error) {
-    console.error('Erro ao validar token:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
