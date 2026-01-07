@@ -37,7 +37,19 @@ export default function CandidatosHospital() {
     queryKey: ["candidatos", vagaId],
     queryFn: async () => {
       const matches = await base44.entities.JobMatch.filter({ job_id: vagaId });
-      return matches;
+      
+      // Buscar dados completos dos profissionais
+      const profIds = matches.map(m => m.professional_id);
+      const profPromises = profIds.map(id => 
+        base44.entities.Professional.filter({ id }).then(res => res[0])
+      );
+      const professionals = await Promise.all(profPromises);
+      
+      // Combinar match com professional
+      return matches.map((match, index) => ({
+        ...match,
+        professional: professionals[index]
+      })).filter(c => c.professional);
     },
     enabled: !!vagaId
   });
@@ -75,19 +87,68 @@ export default function CandidatosHospital() {
             </div>
           ) : (
             <div className="space-y-4">
-              {candidatos.map((match) => (
-                <div key={match.id} className="border-2 border-gray-200 rounded-xl p-5">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-bold text-gray-900">Candidato #{match.professional_id.slice(0, 8)}</p>
-                      <p className="text-sm text-gray-600">Score: {match.match_score}/4</p>
+              {candidatos.map((candidato) => {
+                const prof = candidato.professional;
+                
+                return (
+                  <div key={candidato.id} className="border-2 border-gray-200 rounded-xl p-5 hover:border-blue-400 hover:shadow-lg transition-all">
+                    <div className="flex items-start gap-4">
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-cyan-600 flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
+                        {prof.nome_completo?.charAt(0).toUpperCase()}
+                      </div>
+
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h4 className="font-bold text-lg text-gray-900">{prof.nome_completo}</h4>
+                          {candidato.match_type === "SUPER_JOB" && (
+                            <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 font-bold rounded text-xs">
+                              ⚡ Match Perfeito
+                            </span>
+                          )}
+                        </div>
+                        
+                        <p className="text-sm text-gray-600 mb-3">
+                          {prof.especialidade_principal} • {prof.tempo_formado_anos} anos de formado
+                        </p>
+
+                        <div className="flex items-center gap-4 mb-4 text-sm">
+                          <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                            <span className="font-bold text-gray-900">{prof.media_avaliacoes?.toFixed(1) || "N/A"}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <CheckCircle2 className="w-4 h-4 text-green-500" />
+                            <span className="text-gray-600">Score: {candidato.match_score}/4</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Briefcase className="w-4 h-4 text-blue-500" />
+                            <span className="text-gray-600">{prof.total_contratacoes || 0} contratações</span>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <a
+                            href={`https://wa.me/55${prof.whatsapp}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition-all"
+                          >
+                            <Phone className="w-4 h-4" />
+                            WhatsApp
+                          </a>
+                          <button 
+                            onClick={() => navigate(createPageUrl("VerProfissional") + "?id=" + prof.id)}
+                            className="px-4 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition-all"
+                          >
+                            Ver Perfil Completo
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                    <button className="px-4 py-2 bg-blue-500 text-white font-bold rounded-xl">
-                      Ver Perfil
-                    </button>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

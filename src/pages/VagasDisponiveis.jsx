@@ -16,7 +16,6 @@ import {
   Zap,
   Plus
 } from "lucide-react";
-import { formatarTextoData, formatarValor, calcularTempoRestante } from "@/components/constants/substituicao";
 import { Star } from "lucide-react";
 
 export default function VagasDisponiveis() {
@@ -56,13 +55,13 @@ export default function VagasDisponiveis() {
       // Determinar tipo profissional baseado no vertical do usuário
       const tipoProfissional = user.vertical === "ODONTOLOGIA" ? "DENTISTA" : "MEDICO";
       
-      // Buscar apenas substituições da área do usuário
-      const result = await base44.entities.SubstituicaoUrgente.filter({ 
-        status: "ABERTA",
+      // Buscar vagas abertas da área do usuário
+      const result = await base44.entities.Job.filter({ 
+        status: "ABERTO",
         tipo_profissional: tipoProfissional
       });
       
-      return result.sort((a, b) => new Date(b.publicada_em) - new Date(a.publicada_em)) || [];
+      return result.sort((a, b) => new Date(b.published_at || b.created_date) - new Date(a.published_at || a.created_date)) || [];
     },
     enabled: !!user
   });
@@ -70,13 +69,13 @@ export default function VagasDisponiveis() {
   // Filtrar vagas
   const vagasFiltradas = vagas.filter(vaga => {
     const matchSearch = 
-      vaga.especialidade_necessaria?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vaga.nome_clinica?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      vaga.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      vaga.especialidades_aceitas?.some(e => e.toLowerCase().includes(searchTerm.toLowerCase())) ||
       vaga.cidade?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchEspecialidade = 
       filtroEspecialidade === "all" || 
-      vaga.especialidade_necessaria === filtroEspecialidade;
+      vaga.especialidades_aceitas?.includes(filtroEspecialidade);
 
     const matchCidade = 
       filtroCidade === "all" || 
@@ -84,17 +83,17 @@ export default function VagasDisponiveis() {
 
     const matchTipoData = 
       filtroTipoData === "all" || 
-      vaga.tipo_data === filtroTipoData;
+      vaga.tipo_vaga === filtroTipoData;
 
     return matchSearch && matchEspecialidade && matchCidade && matchTipoData;
   });
 
-  // Separar vagas urgentes (IMEDIATO) das outras
-  const vagasUrgentes = vagasFiltradas.filter(v => v.tipo_data === "IMEDIATO");
-  const vagasNormais = vagasFiltradas.filter(v => v.tipo_data !== "IMEDIATO");
+  // Separar vagas por tipo
+  const vagasUrgentes = vagasFiltradas.filter(v => v.tipo_vaga === "PLANTAO");
+  const vagasNormais = vagasFiltradas.filter(v => v.tipo_vaga !== "PLANTAO");
 
   // Extrair opções únicas para filtros
-  const especialidades = [...new Set(vagas.map(v => v.especialidade_necessaria))].filter(Boolean);
+  const especialidades = [...new Set(vagas.flatMap(v => v.especialidades_aceitas || []))].filter(Boolean);
   const cidades = [...new Set(vagas.map(v => v.cidade))].filter(Boolean);
 
   if (isLoading) {
@@ -233,9 +232,10 @@ export default function VagasDisponiveis() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:border-orange-500 focus:ring-2 focus:ring-orange-100 outline-none"
                 >
                   <option value="all">Todos</option>
-                  <option value="IMEDIATO">🚨 Imediato</option>
-                  <option value="DATA_ESPECIFICA">📅 Data Específica</option>
-                  <option value="PERIODO">📊 Período</option>
+                  <option value="PLANTAO">🚨 Plantão</option>
+                  <option value="FIXO">📅 Fixo</option>
+                  <option value="SUBSTITUICAO">🔄 Substituição</option>
+                  <option value="TEMPORARIO">📊 Temporário</option>
                 </select>
               </div>
             </div>
@@ -255,8 +255,8 @@ export default function VagasDisponiveis() {
                 <Zap className="w-6 h-6" />
               </div>
               <div>
-                <h2 className="text-xl font-black text-gray-900">🚨 Vagas Urgentes</h2>
-                <p className="text-sm text-gray-600">Precisam de alguém agora</p>
+                <h2 className="text-xl font-black text-gray-900">🚨 Vagas Plantão</h2>
+                <p className="text-sm text-gray-600">Oportunidades de plantão</p>
               </div>
             </div>
 
@@ -329,8 +329,6 @@ export default function VagasDisponiveis() {
 
 // Componente VagaCard
 function VagaCard({ vaga, isUrgente, navigate }) {
-  const tempoRestante = calcularTempoRestante(vaga.expira_em);
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -346,20 +344,22 @@ function VagaCard({ vaga, isUrgente, navigate }) {
         <div className="flex-1">
           {isUrgente && (
             <span className="inline-block px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full mb-2">
-              🚨 URGENTE
+              🚨 PLANTÃO
             </span>
           )}
           <h3 className="text-base font-bold text-gray-900 mb-1">
-            {vaga.especialidade_necessaria}
+            {vaga.titulo}
           </h3>
-          <p className="text-sm text-gray-600">{vaga.nome_clinica}</p>
+          {vaga.especialidades_aceitas && vaga.especialidades_aceitas.length > 0 && (
+            <p className="text-sm text-gray-600">{vaga.especialidades_aceitas[0]}</p>
+          )}
         </div>
       </div>
 
       <div className="space-y-2 text-sm">
         <div className="flex items-center gap-2 text-gray-700">
           <Calendar className="w-4 h-4" />
-          <span>{formatarTextoData(vaga)}</span>
+          <span>{vaga.tipo_vaga}</span>
         </div>
 
         <div className="flex items-center gap-2 text-gray-700">
@@ -367,27 +367,27 @@ function VagaCard({ vaga, isUrgente, navigate }) {
           <span>{vaga.cidade}/{vaga.uf}</span>
         </div>
 
-        <div className="flex items-center gap-2 text-gray-700">
-          <DollarSign className="w-4 h-4" />
-          <span className="font-bold">
-            {vaga.tipo_remuneracao === "DIARIA" 
-              ? formatarValor(vaga.valor_diaria)
-              : "% por procedimento"}
-          </span>
-        </div>
+        {vaga.valor_proposto && (
+          <div className="flex items-center gap-2 text-gray-700">
+            <DollarSign className="w-4 h-4" />
+            <span className="font-bold">
+              R$ {vaga.valor_proposto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </span>
+          </div>
+        )}
+
+        {vaga.horario_inicio && vaga.horario_fim && (
+          <div className="flex items-center gap-2 text-gray-600">
+            <Clock className="w-4 h-4" />
+            <span>{vaga.horario_inicio} - {vaga.horario_fim}</span>
+          </div>
+        )}
 
         <div className="flex items-center gap-2 text-gray-600">
           <Users className="w-4 h-4" />
           <span>{vaga.total_candidatos || 0} candidato{vaga.total_candidatos !== 1 ? "s" : ""}</span>
         </div>
       </div>
-
-      {tempoRestante && !tempoRestante.expirado && (
-        <div className="mt-3 flex items-center gap-2 text-xs text-yellow-700 bg-yellow-100 rounded-lg px-3 py-2">
-          <Clock className="w-3.5 h-3.5" />
-          <span className="font-semibold">Expira em {tempoRestante.texto}</span>
-        </div>
-      )}
 
       <button className="w-full mt-3 py-2.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-xl hover:shadow-md transition-all text-sm">
         Ver Detalhes

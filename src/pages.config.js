@@ -81,7 +81,6 @@ import VagasDisponiveis from './pages/VagasDisponiveis';
 import TermosUso from './pages/TermosUso';
 import ValidarClienteDoutorizze from './pages/ValidarClienteDoutorizze';
 import ValidarComparecimento from './pages/ValidarComparecimento';
-import DashboardSubstituicoes from './pages/DashboardSubstituicoes';
 import AdminAprovacoes from './pages/AdminAprovacoes';
 import AdminCupons from './pages/AdminCupons';
 import ComunidadeTelegram from './pages/ComunidadeTelegram';
@@ -98,6 +97,7 @@ import DashboardClinica from './pages/DashboardClinica';
 import DashboardFornecedor from './pages/DashboardFornecedor';
 import DashboardHospital from './pages/DashboardHospital';
 import DashboardLaboratorio from './pages/DashboardLaboratorio';
+import DashboardSubstituicoes from './pages/DashboardSubstituicoes';
 import DetalheFornecedor from './pages/DetalheFornecedor';
 import DisponibilidadeSubstituicao from './pages/DisponibilidadeSubstituicao';
 import Fornecedores from './pages/Fornecedores';
@@ -190,7 +190,6 @@ export const PAGES = {
     "TermosUso": TermosUso,
     "ValidarClienteDoutorizze": ValidarClienteDoutorizze,
     "ValidarComparecimento": ValidarComparecimento,
-    "DashboardSubstituicoes": DashboardSubstituicoes,
     "AdminAprovacoes": AdminAprovacoes,
     "AdminCupons": AdminCupons,
     "ComunidadeTelegram": ComunidadeTelegram,
@@ -207,6 +206,7 @@ export const PAGES = {
     "DashboardFornecedor": DashboardFornecedor,
     "DashboardHospital": DashboardHospital,
     "DashboardLaboratorio": DashboardLaboratorio,
+    "DashboardSubstituicoes": DashboardSubstituicoes,
     "DetalheFornecedor": DetalheFornecedor,
     "DisponibilidadeSubstituicao": DisponibilidadeSubstituicao,
     "Fornecedores": Fornecedores,
