@@ -17,34 +17,34 @@ import CadastroSucesso from './pages/CadastroSucesso';
 import CandidatosHospital from './pages/CandidatosHospital';
 import ChatThread from './pages/ChatThread';
 import ClientesDoutorizze from './pages/ClientesDoutorizze';
-import Configuracoes from './pages/Configuracoes';
+import ConfiguracaoNotificacoes from './pages/ConfiguracaoNotificacoes';
 import ConfirmarSubstituicao from './pages/ConfirmarSubstituicao';
 import DashboardInstituicao from './pages/DashboardInstituicao';
 import DashboardProfissional from './pages/DashboardProfissional';
 import Denunciar from './pages/Denunciar';
 import DetalheVaga from './pages/DetalheVaga';
-import Feed from './pages/Feed';
-import FuncionalidadeDetalhe from './pages/FuncionalidadeDetalhe';
-import MinhasVagasHospital from './pages/MinhasVagasHospital';
-import ValidarClienteDoutorizze from './pages/ValidarClienteDoutorizze';
-import ConfiguracaoNotificacoes from './pages/ConfiguracaoNotificacoes';
+import DisponibilidadeSubstituicao from './pages/DisponibilidadeSubstituicao';
+import MapaOportunidades from './pages/MapaOportunidades';
+import SimulacaoCredito from './pages/SimulacaoCredito';
+import Configuracoes from './pages/Configuracoes';
 import DetalheCurso from './pages/DetalheCurso';
 import DetalheSubstituicao from './pages/DetalheSubstituicao';
 import EditarClinica from './pages/EditarClinica';
-import HomePage from './pages/HomePage';
-import MeusFavoritos from './pages/MeusFavoritos';
-import SimulacaoCredito from './pages/SimulacaoCredito';
+import FuncionalidadeDetalhe from './pages/FuncionalidadeDetalhe';
+import MeusTokens from './pages/MeusTokens';
+import VagasDisponiveis from './pages/VagasDisponiveis';
 import DetalheLaboratorio from './pages/DetalheLaboratorio';
 import EditarPerfil from './pages/EditarPerfil';
 import EditarVaga from './pages/EditarVaga';
 import EditarVagaHospital from './pages/EditarVagaHospital';
 import EscolherTipoCriador from './pages/EscolherTipoCriador';
-import EventosInstituicao from './pages/EventosInstituicao';
+import Feed from './pages/Feed';
 import FeedConfig from './pages/FeedConfig';
 import Fornecedores from './pages/Fornecedores';
 import GerenciarCandidatos from './pages/GerenciarCandidatos';
-import MapaOportunidades from './pages/MapaOportunidades';
-import StatusDisponibilidade from './pages/StatusDisponibilidade';
+import Laboratorios from './pages/Laboratorios';
+import MinhasVagasHospital from './pages/MinhasVagasHospital';
+import ValidarClienteDoutorizze from './pages/ValidarClienteDoutorizze';
 import Home from './pages/Home';
 import Marketplace from './pages/Marketplace';
 import MarketplaceCreate from './pages/MarketplaceCreate';
@@ -53,7 +53,6 @@ import MeuPerfil from './pages/MeuPerfil';
 import MeusAnuncios from './pages/MeusAnuncios';
 import MeusAnunciosMarketplace from './pages/MeusAnunciosMarketplace';
 import MeusCursos from './pages/MeusCursos';
-import MeusTokens from './pages/MeusTokens';
 import MinhasAvaliacoes from './pages/MinhasAvaliacoes';
 import MinhasCandidaturas from './pages/MinhasCandidaturas';
 import MinhasCandidaturasSubstituicao from './pages/MinhasCandidaturasSubstituicao';
@@ -70,9 +69,10 @@ import OnboardingVertical from './pages/OnboardingVertical';
 import PerfilClinica from './pages/PerfilClinica';
 import PerfilClinicaPublico from './pages/PerfilClinicaPublico';
 import Seguranca from './pages/Seguranca';
-import VagasDisponiveis from './pages/VagasDisponiveis';
+import ServicosPrestados from './pages/ServicosPrestados';
+import VerificarToken from './pages/VerificarToken';
 import PoliticaPrivacidade from './pages/PoliticaPrivacidade';
-import TokenDoutorizze from './pages/TokenDoutorizze';
+import StatusDisponibilidade from './pages/StatusDisponibilidade';
 import TermosUso from './pages/TermosUso';
 import ValidarComparecimento from './pages/ValidarComparecimento';
 import VerProfissional from './pages/VerProfissional';
@@ -94,10 +94,11 @@ import DashboardHospital from './pages/DashboardHospital';
 import DashboardLaboratorio from './pages/DashboardLaboratorio';
 import DashboardSubstituicoes from './pages/DashboardSubstituicoes';
 import DetalheFornecedor from './pages/DetalheFornecedor';
-import DisponibilidadeSubstituicao from './pages/DisponibilidadeSubstituicao';
-import Laboratorios from './pages/Laboratorios';
-import ServicosPrestados from './pages/ServicosPrestados';
-import VerificarToken from './pages/VerificarToken';
+import EventosInstituicao from './pages/EventosInstituicao';
+import HomePage from './pages/HomePage';
+import MeusFavoritos from './pages/MeusFavoritos';
+import TokenDoutorizze from './pages/TokenDoutorizze';
+import Chats from './pages/Chats';
 import __Layout from './Layout.jsx';
 
 
@@ -121,34 +122,34 @@ export const PAGES = {
     "CandidatosHospital": CandidatosHospital,
     "ChatThread": ChatThread,
     "ClientesDoutorizze": ClientesDoutorizze,
-    "Configuracoes": Configuracoes,
+    "ConfiguracaoNotificacoes": ConfiguracaoNotificacoes,
     "ConfirmarSubstituicao": ConfirmarSubstituicao,
     "DashboardInstituicao": DashboardInstituicao,
     "DashboardProfissional": DashboardProfissional,
     "Denunciar": Denunciar,
     "DetalheVaga": DetalheVaga,
-    "Feed": Feed,
-    "FuncionalidadeDetalhe": FuncionalidadeDetalhe,
-    "MinhasVagasHospital": MinhasVagasHospital,
-    "ValidarClienteDoutorizze": ValidarClienteDoutorizze,
-    "ConfiguracaoNotificacoes": ConfiguracaoNotificacoes,
+    "DisponibilidadeSubstituicao": DisponibilidadeSubstituicao,
+    "MapaOportunidades": MapaOportunidades,
+    "SimulacaoCredito": SimulacaoCredito,
+    "Configuracoes": Configuracoes,
     "DetalheCurso": DetalheCurso,
     "DetalheSubstituicao": DetalheSubstituicao,
     "EditarClinica": EditarClinica,
-    "HomePage": HomePage,
-    "MeusFavoritos": MeusFavoritos,
-    "SimulacaoCredito": SimulacaoCredito,
+    "FuncionalidadeDetalhe": FuncionalidadeDetalhe,
+    "MeusTokens": MeusTokens,
+    "VagasDisponiveis": VagasDisponiveis,
     "DetalheLaboratorio": DetalheLaboratorio,
     "EditarPerfil": EditarPerfil,
     "EditarVaga": EditarVaga,
     "EditarVagaHospital": EditarVagaHospital,
     "EscolherTipoCriador": EscolherTipoCriador,
-    "EventosInstituicao": EventosInstituicao,
+    "Feed": Feed,
     "FeedConfig": FeedConfig,
     "Fornecedores": Fornecedores,
     "GerenciarCandidatos": GerenciarCandidatos,
-    "MapaOportunidades": MapaOportunidades,
-    "StatusDisponibilidade": StatusDisponibilidade,
+    "Laboratorios": Laboratorios,
+    "MinhasVagasHospital": MinhasVagasHospital,
+    "ValidarClienteDoutorizze": ValidarClienteDoutorizze,
     "Home": Home,
     "Marketplace": Marketplace,
     "MarketplaceCreate": MarketplaceCreate,
@@ -157,7 +158,6 @@ export const PAGES = {
     "MeusAnuncios": MeusAnuncios,
     "MeusAnunciosMarketplace": MeusAnunciosMarketplace,
     "MeusCursos": MeusCursos,
-    "MeusTokens": MeusTokens,
     "MinhasAvaliacoes": MinhasAvaliacoes,
     "MinhasCandidaturas": MinhasCandidaturas,
     "MinhasCandidaturasSubstituicao": MinhasCandidaturasSubstituicao,
@@ -174,9 +174,10 @@ export const PAGES = {
     "PerfilClinica": PerfilClinica,
     "PerfilClinicaPublico": PerfilClinicaPublico,
     "Seguranca": Seguranca,
-    "VagasDisponiveis": VagasDisponiveis,
+    "ServicosPrestados": ServicosPrestados,
+    "VerificarToken": VerificarToken,
     "PoliticaPrivacidade": PoliticaPrivacidade,
-    "TokenDoutorizze": TokenDoutorizze,
+    "StatusDisponibilidade": StatusDisponibilidade,
     "TermosUso": TermosUso,
     "ValidarComparecimento": ValidarComparecimento,
     "VerProfissional": VerProfissional,
@@ -198,10 +199,11 @@ export const PAGES = {
     "DashboardLaboratorio": DashboardLaboratorio,
     "DashboardSubstituicoes": DashboardSubstituicoes,
     "DetalheFornecedor": DetalheFornecedor,
-    "DisponibilidadeSubstituicao": DisponibilidadeSubstituicao,
-    "Laboratorios": Laboratorios,
-    "ServicosPrestados": ServicosPrestados,
-    "VerificarToken": VerificarToken,
+    "EventosInstituicao": EventosInstituicao,
+    "HomePage": HomePage,
+    "MeusFavoritos": MeusFavoritos,
+    "TokenDoutorizze": TokenDoutorizze,
+    "Chats": Chats,
 }
 
 export const pagesConfig = {
