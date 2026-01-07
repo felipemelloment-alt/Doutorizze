@@ -26,6 +26,7 @@ import DetalheVaga from './pages/DetalheVaga';
 import DisponibilidadeSubstituicao from './pages/DisponibilidadeSubstituicao';
 import MapaOportunidades from './pages/MapaOportunidades';
 import SimulacaoCredito from './pages/SimulacaoCredito';
+import Chats from './pages/Chats';
 import Configuracoes from './pages/Configuracoes';
 import DetalheCurso from './pages/DetalheCurso';
 import DetalheSubstituicao from './pages/DetalheSubstituicao';
@@ -98,7 +99,6 @@ import EventosInstituicao from './pages/EventosInstituicao';
 import HomePage from './pages/HomePage';
 import MeusFavoritos from './pages/MeusFavoritos';
 import TokenDoutorizze from './pages/TokenDoutorizze';
-import Chats from './pages/Chats';
 import __Layout from './Layout.jsx';
 
 
@@ -131,6 +131,7 @@ export const PAGES = {
     "DisponibilidadeSubstituicao": DisponibilidadeSubstituicao,
     "MapaOportunidades": MapaOportunidades,
     "SimulacaoCredito": SimulacaoCredito,
+    "Chats": Chats,
     "Configuracoes": Configuracoes,
     "DetalheCurso": DetalheCurso,
     "DetalheSubstituicao": DetalheSubstituicao,
@@ -203,7 +204,6 @@ export const PAGES = {
     "HomePage": HomePage,
     "MeusFavoritos": MeusFavoritos,
     "TokenDoutorizze": TokenDoutorizze,
-    "Chats": Chats,
 }
 
 export const pagesConfig = {

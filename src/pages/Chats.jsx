@@ -40,7 +40,7 @@ export default function Chats() {
         status: "ATIVO"
       });
 
-      // Filtrar threads do usuário
+      // Filtrar threads do usuário (comprador ou vendedor)
       const myThreads = allThreads.filter(
         t => t.buyer_user_id === user.id || t.seller_user_id === user.id
       );
@@ -55,7 +55,7 @@ export default function Chats() {
         base44.entities.ChatThread.update(t.id, { status: "EXPIRADO" });
       });
 
-      // Ordenar por última atividade
+      // Ordenar por última atividade (mais recente primeiro)
       return activeThreads.sort((a, b) =>
         new Date(b.last_message_at || b.created_date) - new Date(a.last_message_at || a.created_date)
       );
