@@ -261,6 +261,27 @@ export default function CriarVaga() {
 
       const vagaCriada = await base44.entities.Job.create(dadosVaga);
 
+      // 🚀 GAP-001 CORRIGIDO: Webhook NOVA_VAGA
+      try {
+        await fetch('http://164.152.59.49:5678/webhook/nova-vaga', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            vaga_id: vagaCriada.id,
+            titulo: formData.titulo,
+            especialidade: formData.especialidades_aceitas[0] || "Geral",
+            cidade: formData.cidade,
+            estado: formData.uf,
+            tipo_contrato: formData.tipo_vaga,
+            valor: valorPropostoNumero,
+            criador_id: unit.owner_id,
+            criador_nome: unit.nome_fantasia
+          })
+        });
+      } catch (e) {
+        // Erro silencioso no webhook
+      }
+
       // Buscar profissionais matching e enviar notificações
       try {
         const profissionais = await base44.entities.Professional.filter({
