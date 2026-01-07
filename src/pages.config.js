@@ -27,12 +27,10 @@ import DetalheVaga from './pages/DetalheVaga';
 import EventosInstituicao from './pages/EventosInstituicao';
 import HomePage from './pages/HomePage';
 import MapaOportunidades from './pages/MapaOportunidades';
-import TestProfessional from './pages/TestProfessional';
 import ConfiguracaoNotificacoes from './pages/ConfiguracaoNotificacoes';
 import DetalheCurso from './pages/DetalheCurso';
 import DetalheSubstituicao from './pages/DetalheSubstituicao';
 import EditarClinica from './pages/EditarClinica';
-import FeedBackup from './pages/FeedBackup';
 import Laboratorios from './pages/Laboratorios';
 import MinhasVagasHospital from './pages/MinhasVagasHospital';
 import VerProfissional from './pages/VerProfissional';
@@ -40,7 +38,6 @@ import DetalheLaboratorio from './pages/DetalheLaboratorio';
 import EditarPerfil from './pages/EditarPerfil';
 import EditarVaga from './pages/EditarVaga';
 import EditarVagaHospital from './pages/EditarVagaHospital';
-import EscolherTipoCadastro from './pages/EscolherTipoCadastro';
 import EscolherTipoCriador from './pages/EscolherTipoCriador';
 import Feed from './pages/Feed';
 import FeedConfig from './pages/FeedConfig';
@@ -49,7 +46,6 @@ import GerenciarCandidatos from './pages/GerenciarCandidatos';
 import MeusTokens from './pages/MeusTokens';
 import TokenDoutorizze from './pages/TokenDoutorizze';
 import Home from './pages/Home';
-import HomeCyberpunk from './pages/HomeCyberpunk';
 import Marketplace from './pages/Marketplace';
 import MarketplaceCreate from './pages/MarketplaceCreate';
 import MarketplaceDetail from './pages/MarketplaceDetail';
@@ -136,12 +132,10 @@ export const PAGES = {
     "EventosInstituicao": EventosInstituicao,
     "HomePage": HomePage,
     "MapaOportunidades": MapaOportunidades,
-    "TestProfessional": TestProfessional,
     "ConfiguracaoNotificacoes": ConfiguracaoNotificacoes,
     "DetalheCurso": DetalheCurso,
     "DetalheSubstituicao": DetalheSubstituicao,
     "EditarClinica": EditarClinica,
-    "FeedBackup": FeedBackup,
     "Laboratorios": Laboratorios,
     "MinhasVagasHospital": MinhasVagasHospital,
     "VerProfissional": VerProfissional,
@@ -149,7 +143,6 @@ export const PAGES = {
     "EditarPerfil": EditarPerfil,
     "EditarVaga": EditarVaga,
     "EditarVagaHospital": EditarVagaHospital,
-    "EscolherTipoCadastro": EscolherTipoCadastro,
     "EscolherTipoCriador": EscolherTipoCriador,
     "Feed": Feed,
     "FeedConfig": FeedConfig,
@@ -158,7 +151,6 @@ export const PAGES = {
     "MeusTokens": MeusTokens,
     "TokenDoutorizze": TokenDoutorizze,
     "Home": Home,
-    "HomeCyberpunk": HomeCyberpunk,
     "Marketplace": Marketplace,
     "MarketplaceCreate": MarketplaceCreate,
     "MarketplaceDetail": MarketplaceDetail,
