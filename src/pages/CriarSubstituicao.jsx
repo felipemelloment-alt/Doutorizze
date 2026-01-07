@@ -150,6 +150,29 @@ export default function CriarSubstituicao() {
     mutationFn: async (data) => {
       const substituicao = await criarSubstituicao(data);
       await publicarSubstituicao(substituicao.id);
+      
+      // 🚀 WEBHOOK NOVA_SUBSTITUICAO
+      try {
+        await fetch('http://164.152.59.49:5678/webhook/nova-substituicao', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            substituicao_id: substituicao.id,
+            clinica_nome: substituicao.nome_clinica,
+            especialidade: substituicao.especialidade_necessaria,
+            data_inicio: substituicao.data_especifica || substituicao.periodo_inicio || substituicao.data_hora_imediata,
+            urgente: substituicao.tipo_data === 'IMEDIATO',
+            valor: substituicao.valor_diaria || null,
+            tipo_remuneracao: substituicao.tipo_remuneracao,
+            cidade: substituicao.cidade,
+            uf: substituicao.uf,
+            criado_por_tipo: substituicao.criado_por_tipo
+          })
+        });
+      } catch (e) {
+        console.error('Erro webhook NOVA_SUBSTITUICAO:', e);
+      }
+      
       return substituicao;
     },
     onSuccess: () => {

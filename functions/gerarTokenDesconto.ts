@@ -1,136 +1,124 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
+/**
+ * 🎫 GERAR TOKEN DE DESCONTO
+ * 
+ * Usado por parceiros (escolas/fornecedores/labs) para gerar tokens de desconto
+ * para clientes Doutorizze.
+ * 
+ * @param token_usuario_id - ID do TokenUsuario validado
+ * @param parceiro_tipo - EDUCACAO, FORNECEDOR, LABORATORIO
+ * @param valor_desconto - Valor do desconto (% ou R$)
+ * @param tipo_desconto - PERCENTUAL ou VALOR_FIXO
+ */
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
 
     if (!user) {
-      return Response.json({ error: 'Não autenticado' }, { status: 401 });
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { 
-      token_usuario_id, 
-      user_id,
-      parceiro_tipo,
-      desconto_tipo, 
-      desconto_valor, 
-      produto_categoria,
-      observacoes 
-    } = await req.json();
+    const { token_usuario_id, parceiro_tipo, valor_desconto, tipo_desconto } = await req.json();
 
-    // Verificar se parceiro tem tokens disponíveis
-    let parceiro;
-    if (parceiro_tipo === 'FORNECEDOR') {
-      const suppliers = await base44.entities.Supplier.filter({ user_id: user.id });
-      parceiro = suppliers[0];
-    } else if (parceiro_tipo === 'INSTITUICAO') {
-      const institutions = await base44.entities.EducationInstitution.filter({ user_id: user.id });
-      parceiro = institutions[0];
-    } else if (parceiro_tipo === 'LABORATORIO') {
-      const labs = await base44.entities.Laboratorio.filter({ user_id: user.id });
-      parceiro = labs[0];
-    }
-
-    if (!parceiro) {
-      return Response.json({ error: 'Parceiro não encontrado' }, { status: 404 });
-    }
-
-    if (parceiro.tokens_disponiveis <= 0) {
-      return Response.json({ error: 'Sem tokens disponíveis' }, { status: 400 });
-    }
-
-    // Verificar créditos do usuário para este parceiro
-    const tokensExistentes = await base44.asServiceRole.entities.TokenDesconto.filter({
-      user_id: user_id,
-      parceiro_id: parceiro.id
-    });
-
-    const tentativasAnteriores = tokensExistentes.filter(t => 
-      t.status === 'EXPIRADO' && !t.negocio_fechado
-    ).length;
-
-    if (tentativasAnteriores >= 3) {
+    // Validar campos obrigatórios
+    if (!token_usuario_id || !parceiro_tipo || !valor_desconto || !tipo_desconto) {
       return Response.json({ 
-        error: 'Limite de tentativas atingido para este usuário' 
+        error: 'Campos obrigatórios: token_usuario_id, parceiro_tipo, valor_desconto, tipo_desconto' 
       }, { status: 400 });
     }
 
-    // Gerar código único do token de desconto
-    const random = Math.random().toString(36).substring(2, 10).toUpperCase();
-    const codigo = `DESC-${random}`;
+    // Buscar o token do usuário
+    const tokenUsuario = await base44.asServiceRole.entities.TokenUsuario.filter({ id: token_usuario_id });
+    
+    if (tokenUsuario.length === 0) {
+      return Response.json({ error: 'Token de usuário não encontrado' }, { status: 404 });
+    }
 
-    // Data de validade: 48 horas
+    if (!tokenUsuario[0].token_validado) {
+      return Response.json({ error: 'Token não foi validado ainda' }, { status: 400 });
+    }
+
+    // Gerar código único
+    const codigo = `DESC-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
+    
+    // Data de validade (30 dias)
     const dataValidade = new Date();
-    dataValidade.setHours(dataValidade.getHours() + 48);
+    dataValidade.setDate(dataValidade.getDate() + 30);
+
+    // Buscar dados do parceiro
+    let parceiroNome = '';
+    if (parceiro_tipo === 'EDUCACAO') {
+      const inst = await base44.asServiceRole.entities.EducationInstitution.filter({ user_id: user.id });
+      parceiroNome = inst[0]?.nome_fantasia || 'Instituição';
+    } else if (parceiro_tipo === 'FORNECEDOR') {
+      const sup = await base44.asServiceRole.entities.Supplier.filter({ user_id: user.id });
+      parceiroNome = sup[0]?.nome_fantasia || 'Fornecedor';
+    } else if (parceiro_tipo === 'LABORATORIO') {
+      const lab = await base44.asServiceRole.entities.Laboratorio.filter({ user_id: user.id });
+      parceiroNome = lab[0]?.nome_fantasia || 'Laboratório';
+    }
 
     // Criar token de desconto
     const tokenDesconto = await base44.asServiceRole.entities.TokenDesconto.create({
-      codigo: codigo,
-      token_usuario_id: token_usuario_id,
-      user_id: user_id,
-      parceiro_id: parceiro.id,
-      parceiro_tipo: parceiro_tipo,
-      parceiro_nome: parceiro.nome_fantasia || parceiro.razao_social,
-      desconto_tipo: desconto_tipo,
-      desconto_valor: desconto_valor,
-      tentativa_numero: tentativasAnteriores + 1,
-      negocio_fechado: false,
-      credito_reposto: false,
+      codigo,
+      token_usuario_id,
+      user_id: tokenUsuario[0].user_id,
+      parceiro_id: user.id,
+      parceiro_tipo,
+      parceiro_nome: parceiroNome,
+      tipo_desconto,
+      valor_desconto: parseFloat(valor_desconto),
       status: 'ATIVO',
       data_geracao: new Date().toISOString(),
       data_validade: dataValidade.toISOString(),
-      produto_categoria: produto_categoria || '',
-      observacoes: observacoes || '',
-      enviado_whatsapp: false
+      usuario_nome: tokenUsuario[0].nome_completo,
+      usuario_nivel: tokenUsuario[0].nivel
     });
 
-    // Decrementar tokens do parceiro
-    await base44.asServiceRole.entities[parceiro_tipo === 'FORNECEDOR' ? 'Supplier' : 
-      parceiro_tipo === 'INSTITUICAO' ? 'EducationInstitution' : 'Laboratorio']
-      .update(parceiro.id, {
-        tokens_disponiveis: parceiro.tokens_disponiveis - 1,
-        tokens_usados_mes: parceiro.tokens_usados_mes + 1
-      });
+    // Enviar via WhatsApp
+    const numeroWhatsApp = tokenUsuario[0].whatsapp;
+    const mensagemDesconto = tipo_desconto === 'PERCENTUAL'
+      ? `${valor_desconto}% de desconto`
+      : `R$ ${valor_desconto.toFixed(2)} de desconto`;
 
-    // Enviar via WhatsApp (usando função existente)
+    const mensagem = `🎁 *DESCONTO EXCLUSIVO DOUTORIZZE*\n\n` +
+      `Olá, ${tokenUsuario[0].nome_completo}!\n\n` +
+      `Você ganhou um desconto de *${mensagemDesconto}* em:\n` +
+      `📍 *${parceiroNome}*\n\n` +
+      `🎫 *Código do Desconto:* \`${codigo}\`\n\n` +
+      `✅ Válido até: ${new Date(dataValidade).toLocaleDateString('pt-BR')}\n\n` +
+      `📲 Apresente este código ao parceiro para garantir seu desconto!\n\n` +
+      `_Doutorizze - Conectando Profissionais_`;
+
     try {
-      const tokenUsuarios = await base44.asServiceRole.entities.TokenUsuario.filter({ id: token_usuario_id });
-      const tokenUsuario = tokenUsuarios[0];
-      
-      const usuarios = await base44.asServiceRole.entities.User.filter({ id: user_id });
-      const usuarioDestino = usuarios[0];
-
-      const mensagem = `🎉 *Token de Desconto Gerado!*\n\n` +
-        `Parceiro: *${parceiro.nome_fantasia}*\n` +
-        `Token: *${codigo}*\n` +
-        `Desconto: *${desconto_tipo === 'PERCENTUAL' ? desconto_valor + '%' : 'R$ ' + desconto_valor}*\n` +
-        `Válido até: *${new Date(dataValidade).toLocaleString('pt-BR')}*\n\n` +
-        `⏰ Você tem 48 horas para utilizar este desconto!\n\n` +
-        `Apresente este código ao parceiro para garantir seu desconto exclusivo Doutorizze.`;
-
-      await base44.functions.invoke('sendWhatsAppMessage', {
-        phone: usuarioDestino.whatsapp || usuarioDestino.phone,
-        message: mensagem
+      await fetch(Deno.env.get('EVOLUTION_API_URL') + '/message/sendText/' + Deno.env.get('EVOLUTION_INSTANCE'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': Deno.env.get('EVOLUTION_API_KEY')
+        },
+        body: JSON.stringify({
+          number: `55${numeroWhatsApp}`,
+          text: mensagem
+        })
       });
 
       await base44.asServiceRole.entities.TokenDesconto.update(tokenDesconto.id, {
         enviado_whatsapp: true,
         whatsapp_enviado_em: new Date().toISOString()
       });
-
     } catch (whatsappError) {
       console.error('Erro ao enviar WhatsApp:', whatsappError);
     }
 
-    return Response.json({
+    return Response.json({ 
       success: true,
-      token: tokenDesconto,
-      message: 'Token de desconto gerado e enviado com sucesso'
+      token: tokenDesconto
     });
 
   } catch (error) {
-    console.error('Erro ao gerar token de desconto:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });

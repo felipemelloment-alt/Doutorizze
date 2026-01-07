@@ -31,11 +31,25 @@ export default function MarketplaceCreate() {
     subcategoria: "",
     titulo_item: "",
     descricao: "",
+    descricao_odontologia: "",
+    descricao_medicina: "",
     marca: "",
     condicao: "",
     ano_fabricacao: "",
     especificacoes: {},
     preco: "",
+    preco_com_desconto: "",
+    preco_mercado: "",
+    campo_promocional: "",
+    informacoes_frete: {
+      frete_gratis: false,
+      valor_frete: "",
+      prazo_entrega: "",
+      observacoes: ""
+    },
+    formas_pagamento: [],
+    cobertura_entrega: "LOCAL",
+    link_site: "",
     localizacao: "",
     cidade: "",
     uf: "",
@@ -50,7 +64,7 @@ export default function MarketplaceCreate() {
     flag_sem_foto_placa: false
   });
 
-  const totalEtapas = 5;
+  const totalEtapas = 6;
 
   // Detectar usuário e tipo
   useEffect(() => {
@@ -250,12 +264,14 @@ export default function MarketplaceCreate() {
           toast.error("Preencha um preço válido");
           return false;
         }
+        return true;
+      case 5:
         if (!formData.cidade || !formData.uf) {
           toast.error("Preencha a localização");
           return false;
         }
         return true;
-      case 5:
+      case 6:
         if (!formData.telefone_contato) {
           toast.error("Número de contato é obrigatório");
           return false;
@@ -304,6 +320,15 @@ export default function MarketplaceCreate() {
       ano_fabricacao: formData.ano_fabricacao ? parseInt(formData.ano_fabricacao) : null,
       especificacoes: formData.especificacoes,
       preco: parseFloat(formData.preco),
+      preco_com_desconto: formData.preco_com_desconto ? parseFloat(formData.preco_com_desconto) : null,
+      preco_mercado: formData.preco_mercado ? parseFloat(formData.preco_mercado) : null,
+      campo_promocional: formData.campo_promocional || null,
+      descricao_odontologia: formData.descricao_odontologia || null,
+      descricao_medicina: formData.descricao_medicina || null,
+      informacoes_frete: formData.informacoes_frete,
+      formas_pagamento: formData.formas_pagamento,
+      cobertura_entrega: formData.cobertura_entrega,
+      link_site: formData.link_site || null,
       localizacao,
       telefone_contato: telefoneContato,
       whatsapp_visivel: formData.whatsapp_visivel,
@@ -431,6 +456,37 @@ export default function MarketplaceCreate() {
               />
               <p className="text-xs text-gray-500 mt-1">{formData.descricao.length}/1000</p>
             </div>
+
+            {/* Se AMBOS, pedir descrições específicas */}
+            {formData.tipo_mundo === "AMBOS" && (
+              <div className="bg-purple-50 border-2 border-purple-200 rounded-2xl p-6 space-y-4">
+                <p className="text-sm font-bold text-purple-900 mb-3">
+                  🔀 Produto para AMBAS áreas - Descrições específicas (opcional)
+                </p>
+                
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Descrição para Odontologia</label>
+                  <textarea
+                    value={formData.descricao_odontologia}
+                    onChange={(e) => handleInputChange("descricao_odontologia", e.target.value)}
+                    placeholder="Detalhes específicos para uso odontológico..."
+                    className="w-full min-h-[80px] px-4 py-3 border-2 border-yellow-200 rounded-xl focus:border-yellow-400 resize-none outline-none"
+                    maxLength={500}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Descrição para Medicina</label>
+                  <textarea
+                    value={formData.descricao_medicina}
+                    onChange={(e) => handleInputChange("descricao_medicina", e.target.value)}
+                    placeholder="Detalhes específicos para uso médico..."
+                    className="w-full min-h-[80px] px-4 py-3 border-2 border-blue-200 rounded-xl focus:border-blue-400 resize-none outline-none"
+                    maxLength={500}
+                  />
+                </div>
+              </div>
+            )}
 
             <div className="grid md:grid-cols-2 gap-4">
               <div>
@@ -684,10 +740,10 @@ export default function MarketplaceCreate() {
       case 4:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-black text-gray-900 mb-4">Preço e Localização</h2>
+            <h2 className="text-2xl font-black text-gray-900 mb-4">Preço e Promoção</h2>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Preço (R$) *</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Preço Normal (R$) *</label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-lg">R$</span>
                 <input
@@ -700,6 +756,163 @@ export default function MarketplaceCreate() {
                   className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 text-xl font-bold focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
                 />
               </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Preço com Desconto (opcional)</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600 font-bold">R$</span>
+                  <input
+                    type="number"
+                    value={formData.preco_com_desconto}
+                    onChange={(e) => handleInputChange("preco_com_desconto", e.target.value)}
+                    placeholder="0,00"
+                    min="0"
+                    step="0.01"
+                    className="w-full pl-12 pr-4 py-3 border-2 border-green-200 rounded-xl focus:border-green-400 focus:ring-4 focus:ring-green-100 transition-all outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Preço de Mercado (opcional)</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">R$</span>
+                  <input
+                    type="number"
+                    value={formData.preco_mercado}
+                    onChange={(e) => handleInputChange("preco_mercado", e.target.value)}
+                    placeholder="0,00"
+                    min="0"
+                    step="0.01"
+                    className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-gray-300 transition-all outline-none"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Para comparação (destaca "Super Promoção")</p>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Campo Promocional (opcional)</label>
+              <input
+                type="text"
+                value={formData.campo_promocional}
+                onChange={(e) => handleInputChange("campo_promocional", e.target.value)}
+                placeholder="Ex: Somente hoje: 2 por 1"
+                maxLength={200}
+                className="w-full px-4 py-3 border-2 border-yellow-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none bg-yellow-50"
+              />
+            </div>
+
+            {/* Frete */}
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">📦 Informações de Frete</h3>
+              
+              <div className="space-y-4">
+                <label className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={formData.informacoes_frete.frete_gratis}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      informacoes_frete: { ...prev.informacoes_frete, frete_gratis: e.target.checked }
+                    }))}
+                    className="w-5 h-5 accent-green-500"
+                  />
+                  <span className="font-bold text-gray-900">✅ Frete Grátis</span>
+                </label>
+
+                {!formData.informacoes_frete.frete_gratis && (
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Valor do Frete</label>
+                      <input
+                        type="number"
+                        value={formData.informacoes_frete.valor_frete}
+                        onChange={(e) => setFormData(prev => ({
+                          ...prev,
+                          informacoes_frete: { ...prev.informacoes_frete, valor_frete: e.target.value }
+                        }))}
+                        placeholder="0,00"
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Prazo de Entrega</label>
+                      <input
+                        type="text"
+                        value={formData.informacoes_frete.prazo_entrega}
+                        onChange={(e) => setFormData(prev => ({
+                          ...prev,
+                          informacoes_frete: { ...prev.informacoes_frete, prazo_entrega: e.target.value }
+                        }))}
+                        placeholder="Ex: 7 dias úteis"
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl outline-none"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Cobertura de Entrega</label>
+                  <select
+                    value={formData.cobertura_entrega}
+                    onChange={(e) => handleInputChange("cobertura_entrega", e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl outline-none"
+                  >
+                    <option value="LOCAL">🏘️ Local (mesma cidade)</option>
+                    <option value="ESTADUAL">🗺️ Estadual (todo o estado)</option>
+                    <option value="REGIONAL">🌎 Regional (estados próximos)</option>
+                    <option value="NACIONAL">🇧🇷 Nacional (todo Brasil)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Formas de Pagamento */}
+            <div className="bg-green-50 border-2 border-green-200 rounded-2xl p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">💳 Formas de Pagamento</h3>
+              
+              <div className="grid grid-cols-2 gap-3">
+                {["PIX", "DINHEIRO", "CARTAO_CREDITO", "CARTAO_DEBITO", "BOLETO", "TRANSFERENCIA", "PARCELADO"].map(forma => (
+                  <label key={forma} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.formas_pagamento.includes(forma)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          handleInputChange("formas_pagamento", [...formData.formas_pagamento, forma]);
+                        } else {
+                          handleInputChange("formas_pagamento", formData.formas_pagamento.filter(f => f !== forma));
+                        }
+                      }}
+                      className="w-4 h-4 accent-green-500"
+                    />
+                    <span className="text-sm text-gray-700">
+                      {forma === "PIX" && "PIX"}
+                      {forma === "DINHEIRO" && "Dinheiro"}
+                      {forma === "CARTAO_CREDITO" && "Cartão Crédito"}
+                      {forma === "CARTAO_DEBITO" && "Cartão Débito"}
+                      {forma === "BOLETO" && "Boleto"}
+                      {forma === "TRANSFERENCIA" && "Transferência"}
+                      {forma === "PARCELADO" && "Parcelado"}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Link do Site (opcional)</label>
+              <input
+                type="url"
+                value={formData.link_site}
+                onChange={(e) => handleInputChange("link_site", e.target.value)}
+                placeholder="https://..."
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-400 outline-none"
+              />
             </div>
 
             <div className="grid md:grid-cols-3 gap-4">
@@ -732,6 +945,40 @@ export default function MarketplaceCreate() {
         );
 
       case 5:
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-black text-gray-900 mb-4">Localização</h2>
+
+            <div className="grid md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Estado *</label>
+                <select
+                  value={formData.uf}
+                  onChange={(e) => handleInputChange("uf", e.target.value)}
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 appearance-none bg-white cursor-pointer transition-all outline-none"
+                >
+                  <option value="">Selecione</option>
+                  {UFS.map(uf => (
+                    <option key={uf} value={uf}>{uf}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Cidade *</label>
+                <input
+                  type="text"
+                  value={formData.cidade}
+                  onChange={(e) => handleInputChange("cidade", e.target.value)}
+                  placeholder="Ex: Goiânia"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all outline-none"
+                />
+              </div>
+            </div>
+          </div>
+        );
+
+      case 6:
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-black text-gray-900 mb-4">Contato e Finalização</h2>
