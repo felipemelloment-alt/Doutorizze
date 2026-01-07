@@ -186,6 +186,20 @@ export default function DashboardLaboratorio() {
           </button>
 
           <button
+            onClick={() => navigate(createPageUrl("ValidarClienteDoutorizze"))}
+            className="py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all"
+          >
+            🎫 Validar Cliente Doutorizze
+          </button>
+
+          <button
+            onClick={() => navigate(createPageUrl("ClientesDoutorizze"))}
+            className="py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all"
+          >
+            👥 Meus Clientes Doutorizze
+          </button>
+
+          <button
             onClick={() => navigate(createPageUrl("EditarPerfil"))}
             className="py-4 bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all"
           >

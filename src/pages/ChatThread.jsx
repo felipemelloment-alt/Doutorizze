@@ -20,6 +20,7 @@ export default function ChatThread() {
   const messagesEndRef = useRef(null);
   const [user, setUser] = useState(null);
   const [newMessage, setNewMessage] = useState("");
+  const [tokenUsuario, setTokenUsuario] = useState(null);
 
   const urlParams = new URLSearchParams(window.location.search);
   const threadId = urlParams.get("id");
@@ -30,6 +31,12 @@ export default function ChatThread() {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
+
+        // Buscar token do usuário
+        const tokens = await base44.entities.TokenUsuario.filter({ user_id: currentUser.id });
+        if (tokens.length > 0) {
+          setTokenUsuario(tokens[0]);
+        }
       } catch (error) {
         // Erro silencioso
       }
@@ -173,6 +180,17 @@ export default function ChatThread() {
     sendMessageMutation.mutate(newMessage.trim());
   };
 
+  const compartilharTokenId = () => {
+    if (!tokenUsuario) {
+      toast.error("Você ainda não possui um Token Doutorizze");
+      return;
+    }
+
+    const mensagemToken = `🎫 MEU TOKEN DOUTORIZZE:\n\n${tokenUsuario.token_id}\n\nApresente este código para receber descontos exclusivos!`;
+    sendMessageMutation.mutate(mensagemToken);
+    toast.success("Token compartilhado!");
+  };
+
   if (loadingThread || !user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-pink-50 flex items-center justify-center">
@@ -307,6 +325,20 @@ export default function ChatThread() {
 
       {/* Input Fixo */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-2xl z-50">
+        {/* Botão Compartilhar Token */}
+        {tokenUsuario && !isExpired && (
+          <div className="max-w-6xl mx-auto mb-3">
+            <button
+              type="button"
+              onClick={compartilharTokenId}
+              disabled={sendMessageMutation.isPending}
+              className="w-full py-2 bg-gradient-to-r from-purple-100 to-pink-100 border-2 border-purple-300 text-purple-700 font-bold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 text-sm"
+            >
+              🎫 Compartilhar meu Token Doutorizze
+            </button>
+          </div>
+        )}
+        
         <form onSubmit={handleSendMessage} className="max-w-6xl mx-auto flex gap-3">
           <input
             type="text"

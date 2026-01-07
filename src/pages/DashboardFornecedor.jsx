@@ -174,7 +174,7 @@ export default function DashboardFornecedor() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
         >
           <button
             onClick={() => navigate(createPageUrl("CriarPromocao"))}
@@ -202,6 +202,36 @@ export default function DashboardFornecedor() {
               <div className="text-left">
                 <h3 className="text-xl font-black text-gray-900 mb-1">Ver Minhas Promoções</h3>
                 <p className="text-gray-600 text-sm">Gerencie suas ofertas e produtos</p>
+              </div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => navigate(createPageUrl("ValidarClienteDoutorizze"))}
+            className="bg-white rounded-3xl shadow-xl p-8 hover:shadow-2xl hover:scale-[1.02] transition-all group"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
+                <CheckCircle className="w-8 h-8" />
+              </div>
+              <div className="text-left">
+                <h3 className="text-xl font-black text-gray-900 mb-1">Validar Cliente</h3>
+                <p className="text-gray-600 text-sm">Verificar token e gerar desconto</p>
+              </div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => navigate(createPageUrl("ClientesDoutorizze"))}
+            className="bg-white rounded-3xl shadow-xl p-8 hover:shadow-2xl hover:scale-[1.02] transition-all group"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
+                <Zap className="w-8 h-8" />
+              </div>
+              <div className="text-left">
+                <h3 className="text-xl font-black text-gray-900 mb-1">Meus Clientes Doutorizze</h3>
+                <p className="text-gray-600 text-sm">Tokens gerados e conversões</p>
               </div>
             </div>
           </button>

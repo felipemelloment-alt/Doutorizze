@@ -14,7 +14,8 @@ import {
   TrendingUp,
   Award,
   ChevronRight,
-  AlertCircle
+  AlertCircle,
+  CheckCircle
 } from "lucide-react";
 
 export default function DashboardInstituicao() {
@@ -242,7 +243,7 @@ export default function DashboardInstituicao() {
             <Award className="w-6 h-6 text-orange-500" />
             Ações Rápidas
           </h2>
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             <button
               onClick={() => navigate(createPageUrl("CriarCurso"))}
               className="flex items-center justify-between p-6 bg-gradient-to-br from-yellow-400 to-orange-500 text-white rounded-2xl hover:shadow-xl transition-all group"
@@ -270,6 +271,38 @@ export default function DashboardInstituicao() {
                 <div className="text-left">
                   <p className="font-bold text-lg">Ver Meus Cursos</p>
                   <p className="text-sm text-white/80">Gerencie seus cursos</p>
+                </div>
+              </div>
+              <ChevronRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+            </button>
+
+            <button
+              onClick={() => navigate(createPageUrl("ValidarClienteDoutorizze"))}
+              className="flex items-center justify-between p-6 bg-gradient-to-br from-purple-400 to-pink-500 text-white rounded-2xl hover:shadow-xl transition-all group"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
+                  <CheckCircle className="w-6 h-6" />
+                </div>
+                <div className="text-left">
+                  <p className="font-bold text-lg">Validar Cliente</p>
+                  <p className="text-sm text-white/80">Gerar token de desconto</p>
+                </div>
+              </div>
+              <ChevronRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+            </button>
+
+            <button
+              onClick={() => navigate(createPageUrl("ClientesDoutorizze"))}
+              className="flex items-center justify-between p-6 bg-gradient-to-br from-green-400 to-emerald-500 text-white rounded-2xl hover:shadow-xl transition-all group"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
+                  <Users className="w-6 h-6" />
+                </div>
+                <div className="text-left">
+                  <p className="font-bold text-lg">Meus Clientes</p>
+                  <p className="text-sm text-white/80">Tokens e conversões</p>
                 </div>
               </div>
               <ChevronRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
