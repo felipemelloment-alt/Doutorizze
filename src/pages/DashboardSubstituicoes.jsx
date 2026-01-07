@@ -56,8 +56,36 @@ export default function DashboardSubstituicoes() {
     enabled: !!professional
   });
 
+  const { data: todasSubstituicoes = [] } = useQuery({
+    queryKey: ["todasSubstituicoes"],
+    queryFn: async () => {
+      return await base44.entities.SubstituicaoUrgente.filter({});
+    },
+    enabled: !!professional
+  });
+
   const candidaturasAguardando = candidaturas.filter(c => c.status === "AGUARDANDO").length;
   const candidaturasEscolhido = candidaturas.filter(c => c.status === "ESCOLHIDO").length;
+
+  // Calcular taxa de preenchimento
+  const substituicoesPreenchidas = todasSubstituicoes.filter(s => s.status === "PREENCHIDA").length;
+  const totalSubstituicoes = todasSubstituicoes.length;
+  const taxaPreenchimento = totalSubstituicoes > 0 
+    ? ((substituicoesPreenchidas / totalSubstituicoes) * 100).toFixed(1) 
+    : 0;
+
+  // Calcular tempo médio de resposta (em minutos)
+  const substituicoesRespondidas = todasSubstituicoes.filter(s => 
+    s.status === "PREENCHIDA" && s.candidato_escolhido_em
+  );
+  const tempoMedioResposta = substituicoesRespondidas.length > 0
+    ? substituicoesRespondidas.reduce((acc, sub) => {
+        const inicio = new Date(sub.created_date);
+        const fim = new Date(sub.candidato_escolhido_em);
+        const diffMinutos = Math.floor((fim - inicio) / (1000 * 60));
+        return acc + diffMinutos;
+      }, 0) / substituicoesRespondidas.length
+    : 0;
 
   const isOnline = professional?.status_disponibilidade_substituicao === "ONLINE";
 
@@ -106,7 +134,7 @@ export default function DashboardSubstituicoes() {
 
       <div className="container mx-auto px-4">
         {/* Cards de Estatísticas */}
-        <div className="grid md:grid-cols-4 gap-4 mb-8">
+        <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
           <StatCard
             icon={Calendar}
             title="Vagas Disponíveis"
@@ -133,6 +161,18 @@ export default function DashboardSubstituicoes() {
             title="Completadas"
             value={professional.substituicoes_completadas || 0}
             color="purple"
+          />
+          <StatCard
+            icon={TrendingUp}
+            title="Taxa Preenchimento"
+            value={`${taxaPreenchimento}%`}
+            color="blue"
+          />
+          <StatCard
+            icon={Zap}
+            title="Tempo Médio"
+            value={tempoMedioResposta > 0 ? `${Math.round(tempoMedioResposta)}min` : "-"}
+            color="yellow"
           />
         </div>
 
