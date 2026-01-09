@@ -207,7 +207,7 @@ export const PAGES = {
 }
 
 export const pagesConfig = {
-    mainPage: "EditarVaga",
+    mainPage: "HomePage",
     Pages: PAGES,
     Layout: __Layout,
 };
